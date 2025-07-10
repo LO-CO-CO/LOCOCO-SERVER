@@ -7,10 +7,11 @@ import com.lokoko.domain.product.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.entity.enums.SubCategory;
 import com.lokoko.domain.review.dto.ImageReviewResponse;
 import com.lokoko.domain.review.dto.VideoReviewResponse;
-import com.lokoko.domain.review.dto.response.ImageReviewTempResponse;
-import com.lokoko.domain.review.dto.response.TempResponse;
+import com.lokoko.domain.review.dto.response.ImageReviewProductDetailResponse;
+import com.lokoko.domain.review.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.review.entity.QReview;
 import com.lokoko.domain.video.entity.QReviewVideo;
+import com.lokoko.global.common.response.PageableResponse;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -152,7 +153,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     }
 
     @Override
-    public TempResponse findByProductId(Long productId) {
+    public ImageReviewsProductDetailResponse findImageReviewsByProductId(Long productId, Pageable pageable) {
 
         NumberExpression<Integer> ratingAsInt =
                 review.rating
@@ -164,67 +165,97 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                         .when("FIVE").then(5)
                         .otherwise(0);
 
-        Double avgRating = queryFactory
-                .select(ratingAsInt.avg())
+        Long totalCount = queryFactory
+                .select(review.id.countDistinct())
                 .from(review)
                 .join(review.productOption, productOption)
                 .join(productOption.product, product)
                 .where(product.id.eq(productId))
                 .fetchOne();
 
+        List<Long> reviewIds = queryFactory
+                .select(review.id)
+                .from(review)
+                .join(review.productOption, productOption)
+                .join(productOption.product, product)
+                .where(product.id.eq(productId))
+                .orderBy(review.modifiedAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        if (reviewIds.isEmpty()) {
+            return new ImageReviewsProductDetailResponse(
+                    List.of(),
+                    PageableResponse.builder()
+                            .pageNumber(pageable.getPageNumber())
+                            .pageSize(pageable.getPageSize())
+                            .numberOfElements(0)
+                            .isLast(true)
+                            .build()
+            );
+        }
+
         List<Tuple> result = queryFactory
                 .select(
-                        review.id, // 리뷰 id
-                        review.modifiedAt, // 유저가 마지막으로 리뷰 작성한 시간
-                        review.receiptUploaded, // 영수증 업로드 여부
-                        review.positiveContent, // 긍정 리뷰 내용
-                        review.negativeContent, // 부정 리뷰 내용
-                        review.author.nickname, // 리뷰 작성자 닉네임
-                        review.rating,  // 리뷰 평점
-                        productOption.optionName, // 상품 옵션 이름
-                        reviewImage.mediaFile.fileUrl  // 사진 리뷰 목록
+                        review.id,
+                        review.modifiedAt,
+                        review.receiptUploaded,
+                        review.positiveContent,
+                        review.negativeContent,
+                        review.author.nickname,
+                        ratingAsInt,
+                        productOption.optionName,
+                        reviewImage.mediaFile.fileUrl
                 )
                 .from(review)
                 .join(review.productOption, productOption)
                 .join(productOption.product, product)
                 .leftJoin(reviewImage).on(reviewImage.review.eq(review))
-                .where(product.id.eq(productId))
+                .where(review.id.in(reviewIds))
                 .orderBy(review.modifiedAt.desc())
                 .fetch();
 
-        Map<Long, ImageReviewTempResponse> map = new LinkedHashMap<>();
+        Map<Long, ImageReviewProductDetailResponse> map = new LinkedHashMap<>();
 
         for (Tuple tuple : result) {
             Long reviewId = tuple.get(review.id);
             String imageUrl = tuple.get(reviewImage.mediaFile.fileUrl);
+            Integer individualRating = tuple.get(ratingAsInt);
 
-            ImageReviewTempResponse dto = map.computeIfAbsent(reviewId, id ->
-                    new ImageReviewTempResponse(
+            ImageReviewProductDetailResponse dto = map.computeIfAbsent(reviewId, id ->
+                    new ImageReviewProductDetailResponse(
                             id,
-                            0,
                             tuple.get(review.modifiedAt),
                             tuple.get(review.receiptUploaded),
                             tuple.get(review.positiveContent),
                             tuple.get(review.negativeContent),
                             tuple.get(review.author.nickname),
-                            0.0,
+                            individualRating != null ? individualRating.doubleValue() : 0.0,
                             tuple.get(productOption.optionName),
                             0,
                             new ArrayList<>()
                     )
             );
 
-            // 이미지 URL이 있을 때만 추가
             if (imageUrl != null) {
                 dto.images().add(imageUrl);
             }
         }
 
-        List<ImageReviewTempResponse> finalResult = new ArrayList<>(map.values());
+        List<ImageReviewProductDetailResponse> results = reviewIds.stream()
+                .map(map::get)
+                .toList();
 
-        return new TempResponse(finalResult);
+        boolean isLast = (pageable.getOffset() + pageable.getPageSize()) >= totalCount;
+        PageableResponse pageInfo = PageableResponse.builder()
+                .pageNumber(pageable.getPageNumber())
+                .pageSize(pageable.getPageSize())
+                .numberOfElements(results.size())
+                .isLast(isLast)
+                .build();
+
+        return new ImageReviewsProductDetailResponse(results, pageInfo);
     }
-
-
 }
 
