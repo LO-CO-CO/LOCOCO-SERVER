@@ -4,9 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public record ImageReviewTempResponse(
+public record ImageReviewProductDetailResponse(
         Long reviewId,
-        int ranking,
         LocalDateTime writtenTime,
         Boolean receiptUploaded,
         String positiveComment,
@@ -18,13 +17,12 @@ public record ImageReviewTempResponse(
         List<String> images
 ) {
 
-    public ImageReviewTempResponse(Long reviewId, int ranking, LocalDateTime writtenTime,
-                                   Boolean receiptUploaded, String positiveComment,
-                                   String negativeComment, String authorName,
-                                   Double rating, String option,
-                                   int likeCount, List<String> images) {
+    public ImageReviewProductDetailResponse(Long reviewId, LocalDateTime writtenTime,
+                                            Boolean receiptUploaded, String positiveComment,
+                                            String negativeComment, String authorName,
+                                            Double rating, String option,
+                                            int likeCount, List<String> images) {
         this.reviewId = reviewId;
-        this.ranking = ranking;
         this.writtenTime = writtenTime;
         this.receiptUploaded = receiptUploaded;
         this.positiveComment = positiveComment;
@@ -33,7 +31,7 @@ public record ImageReviewTempResponse(
         this.rating = rating;
         this.option = option;
         this.likeCount = likeCount;
-        this.images = new ArrayList<>(images); // 가변 리스트로 복사
+        this.images = new ArrayList<>(images);
     }
 
 
