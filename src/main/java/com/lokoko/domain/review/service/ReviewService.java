@@ -3,15 +3,17 @@ package com.lokoko.domain.review.service;
 import static com.lokoko.domain.review.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
 import com.lokoko.domain.review.dto.request.ReviewReceiptRequest;
+import com.lokoko.domain.review.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.review.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.review.dto.response.ReviewReceiptUrl;
-import com.lokoko.domain.review.dto.response.TempResponse;
 import com.lokoko.domain.review.exception.ErrorMessage;
 import com.lokoko.domain.review.exception.InvalidMediaTypeException;
 import com.lokoko.domain.review.repository.ReviewRepository;
 import com.lokoko.global.common.service.S3Service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,12 +42,10 @@ public class ReviewService {
 
     }
 
-    public TempResponse getImageReviewsInProductDetail(Long productId) {
+    public ImageReviewsProductDetailResponse getImageReviewsInProductDetail(Long productId, int page, int size) {
 
-        // 제품과 관련된 리뷰 조회해야함.
-        return reviewRepository.findByProductId(productId);
-
-
+        Pageable pageable = PageRequest.of(page, size);
+        return reviewRepository.findImageReviewsByProductId(productId, pageable);
     }
 
 
