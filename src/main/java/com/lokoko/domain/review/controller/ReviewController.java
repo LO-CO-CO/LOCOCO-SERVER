@@ -10,6 +10,7 @@ import com.lokoko.domain.review.dto.response.MainVideoReviewResponse;
 import com.lokoko.domain.review.dto.response.ReviewMediaResponse;
 import com.lokoko.domain.review.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.review.dto.response.ReviewResponse;
+import com.lokoko.domain.review.dto.response.VideoReviewProductDetailResponse;
 import com.lokoko.domain.review.service.ReviewService;
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.common.response.ApiResponse;
@@ -98,4 +99,14 @@ public class ReviewController {
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.IMAGE_REVIEW_GET_SUCCESS.getMessage(),
                 response);
     }
+
+    @Operation(summary = "제품 상세 페이지에서 영상 리뷰 조회")
+    @GetMapping("/details/video")
+    public ApiResponse<VideoReviewProductDetailResponse> getVideoReviewsInProductDetail(
+            @RequestParam Long productId
+    ) {
+        VideoReviewProductDetailResponse response = reviewService.getVideoReviewsByProduct(productId);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.VIDEO_REVIEW_GET_SUCCESS.getMessage(), response);
+    }
+
 }

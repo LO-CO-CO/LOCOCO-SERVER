@@ -10,6 +10,8 @@ import com.lokoko.domain.review.dto.request.RatingCount;
 import com.lokoko.domain.review.dto.response.ImageReviewProductDetailResponse;
 import com.lokoko.domain.review.dto.response.ImageReviewResponse;
 import com.lokoko.domain.review.dto.response.ImageReviewsProductDetailResponse;
+import com.lokoko.domain.review.dto.response.VideoReviewProductDetail;
+import com.lokoko.domain.review.dto.response.VideoReviewProductDetailResponse;
 import com.lokoko.domain.review.dto.response.VideoReviewResponse;
 import com.lokoko.domain.review.entity.QReview;
 import com.lokoko.domain.video.entity.QReviewVideo;
@@ -20,16 +22,17 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -405,5 +408,30 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
 
         return new ImageReviewsProductDetailResponse(results, pageInfo);
     }
+
+    @Override
+    public VideoReviewProductDetailResponse findVideoReviewsByProductId(Long productId) {
+        List<VideoReviewProductDetail> results = queryFactory
+                .select(Projections.constructor(VideoReviewProductDetail.class,
+                        review.id,
+                        product.brandName,
+                        product.productName,
+                        reviewLike.count().intValue(),
+                        reviewVideo.mediaFile.fileUrl
+                ))
+                .from(reviewVideo)
+                .join(reviewVideo.review, review)
+                .join(review.product, product)
+                .leftJoin(reviewLike).on(reviewLike.review.eq(review))
+                .where(product.id.eq(productId))
+                .groupBy(review.id, product.brandName, product.productName, reviewVideo.mediaFile.fileUrl)
+                .orderBy(reviewLike.count().desc(),
+                        review.rating.desc())
+                .limit(10)
+                .fetch();
+
+        return new VideoReviewProductDetailResponse(results);
+    }
+
 }
 

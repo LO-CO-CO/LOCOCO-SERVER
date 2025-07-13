@@ -1,8 +1,6 @@
 package com.lokoko.domain.review.service;
 
 
-import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
-
 import com.lokoko.domain.image.entity.ReceiptImage;
 import com.lokoko.domain.image.entity.ReviewImage;
 import com.lokoko.domain.image.repository.ReceiptImageRepository;
@@ -22,6 +20,7 @@ import com.lokoko.domain.review.dto.response.MainVideoReviewResponse;
 import com.lokoko.domain.review.dto.response.ReviewMediaResponse;
 import com.lokoko.domain.review.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.review.dto.response.ReviewResponse;
+import com.lokoko.domain.review.dto.response.VideoReviewProductDetailResponse;
 import com.lokoko.domain.review.entity.Review;
 import com.lokoko.domain.review.entity.enums.Rating;
 import com.lokoko.domain.review.exception.ErrorMessage;
@@ -37,13 +36,16 @@ import com.lokoko.global.common.dto.PresignedUrlResponse;
 import com.lokoko.global.common.entity.MediaFile;
 import com.lokoko.global.common.service.S3Service;
 import com.lokoko.global.utils.S3UrlParser;
-import java.util.List;
-import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.IntStream;
+
+import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
 
 @Service
@@ -175,7 +177,6 @@ public class ReviewService {
                 .rating(Rating.fromValue(request.rating()))
                 .positiveContent(request.positiveComment())
                 .negativeContent(request.negativeComment())
-                .likeCount(0)
                 .build();
 
         reviewRepository.save(review);
@@ -213,22 +214,47 @@ public class ReviewService {
     }
 
     public MainImageReviewResponse getMainImageReview() {
-        List<ReviewImage> sortedImage = reviewImageRepository.findMainImageReviewSorted();
+        List<MainImageReview> reviewImages = reviewImageRepository.findMainImageReviewSorted();
 
-        List<MainImageReview> dtoList = IntStream.range(0, sortedImage.size())
-                .mapToObj(i -> MainImageReview.from(sortedImage.get(i), i + 1))
+        List<MainImageReview> rankedList = IntStream.range(0, reviewImages.size())
+                .mapToObj(i -> {
+                    MainImageReview item = reviewImages.get(i);
+                    return new MainImageReview(
+                            item.reviewId(),
+                            item.brandName(),
+                            item.productName(),
+                            item.likeCount(),
+                            // 여기서 순위 부여
+                            i + 1,
+                            item.reviewImage()
+                    );
+                })
                 .toList();
 
-        return new MainImageReviewResponse(dtoList);
+        return new MainImageReviewResponse(rankedList);
     }
 
     public MainVideoReviewResponse getMainVideoReview() {
-        List<ReviewVideo> sortedVideo = reviewVideoRepository.findMainVideoReviewSorted();
-
-        List<MainVideoReview> dtoList = IntStream.range(0, sortedVideo.size())
-                .mapToObj(i -> MainVideoReview.from(sortedVideo.get(i), i + 1))
+        List<MainVideoReview> reviewVideo = reviewVideoRepository.findMainVideoReviewSorted();
+        List<MainVideoReview> rankedList = IntStream.range(0, reviewVideo.size())
+                .mapToObj(i -> {
+                    MainVideoReview item = reviewVideo.get(i);
+                    return new MainVideoReview(
+                            item.reviewId(),
+                            item.brandName(),
+                            item.productName(),
+                            item.likeCount(),
+                            // 여기서 순위 부여
+                            i + 1,
+                            item.reviewVideo()
+                    );
+                })
                 .toList();
 
-        return new MainVideoReviewResponse(dtoList);
+        return new MainVideoReviewResponse(rankedList);
+    }
+
+    public VideoReviewProductDetailResponse getVideoReviewsByProduct(Long productId) {
+        return reviewRepository.findVideoReviewsByProductId(productId);
     }
 }

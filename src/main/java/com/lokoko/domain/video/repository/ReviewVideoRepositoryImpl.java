@@ -1,14 +1,18 @@
 package com.lokoko.domain.video.repository;
 
 import com.lokoko.domain.product.entity.QProduct;
+import com.lokoko.domain.review.dto.response.MainVideoReview;
 import com.lokoko.domain.review.entity.QReview;
 import com.lokoko.domain.video.entity.QReviewVideo;
-import com.lokoko.domain.video.entity.ReviewVideo;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
+import static com.lokoko.domain.like.entity.QReviewLike.reviewLike;
 
 @Repository
 @RequiredArgsConstructor
@@ -18,22 +22,28 @@ public class ReviewVideoRepositoryImpl implements ReviewVideoRepositoryCustom {
     private static final QReview review = QReview.review;
     private static final QProduct product = QProduct.product;
 
+
     @Override
-    public List<ReviewVideo> findMainVideoReviewSorted() {
+    public List<MainVideoReview> findMainVideoReviewSorted() {
         return queryFactory
-                .selectFrom(reviewVideo)
-                .join(reviewVideo.review, review).fetchJoin()
-                .join(review.product, product).fetchJoin()
-                .leftJoin(reviewVideo).on(reviewVideo.review.eq(review))
-                // 대표 이미지 조건: displayOrder == 0
+                .select(Projections.constructor(MainVideoReview.class,
+                        review.id,
+                        product.brandName,
+                        product.productName,
+                        reviewLike.count().intValue(),
+                        // 일단 여기서 rank 0, service에서 추가
+                        Expressions.constant(0),
+                        reviewVideo.mediaFile.fileUrl
+                ))
+                .from(reviewVideo)
+                .join(reviewVideo.review, review)
+                .join(review.product, product)
+                .leftJoin(reviewLike).on(reviewLike.review.eq(review))
                 .where(reviewVideo.displayOrder.eq(0))
-                .groupBy(reviewVideo.id, review.id, product.id, review.rating)
-                // 정렬 조건: 좋아요 내림차순 → 평점 내림차순
-                .orderBy(
-                        review.likeCount.desc(),
-                        review.rating.desc()
-                )
+                .groupBy(review.id, product.brandName, product.productName, reviewVideo.mediaFile.fileUrl)
+                .orderBy(reviewLike.count().desc(), review.rating.desc())
                 .limit(4)
                 .fetch();
     }
+
 }
