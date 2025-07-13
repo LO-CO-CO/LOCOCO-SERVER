@@ -10,6 +10,7 @@ import com.lokoko.domain.review.dto.response.MainVideoReviewResponse;
 import com.lokoko.domain.review.dto.response.ReviewMediaResponse;
 import com.lokoko.domain.review.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.review.dto.response.ReviewResponse;
+import com.lokoko.domain.review.dto.response.VideoReviewProductDetailResponse;
 import com.lokoko.domain.review.service.ReviewService;
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.common.response.ApiResponse;
@@ -38,7 +39,8 @@ public class ReviewController {
     @Operation(summary = "영수증 presignedUrl 발급")
     @PostMapping("/receipt")
     public ApiResponse<ReviewReceiptResponse> createReceiptPresignedUrl(
-            @Parameter(hidden = true) @CurrentUser Long userId,
+//            @Parameter(hidden = true) @CurrentUser
+            Long userId,
             @RequestBody @Valid ReviewReceiptRequest request) {
         ReviewReceiptResponse response = reviewService.createReceiptPresignedUrl(userId, request);
 
@@ -49,7 +51,8 @@ public class ReviewController {
     @Operation(summary = "사진 또는 영상 presignedUrl 발급")
     @PostMapping("/media")
     public ApiResponse<ReviewMediaResponse> createMediaPresignedUrl(
-            @Parameter(hidden = true) @CurrentUser Long userId,
+//            @Parameter(hidden = true) @CurrentUser
+            Long userId,
             @RequestBody @Valid ReviewMediaRequest request) {
         ReviewMediaResponse response = reviewService.createMediaPresignedUrl(userId, request);
 
@@ -98,4 +101,14 @@ public class ReviewController {
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.IMAGE_REVIEW_GET_SUCCESS.getMessage(),
                 response);
     }
+
+    @Operation(summary = "제품 상세 페이지에서 영상 리뷰 조회")
+    @GetMapping("/details/video")
+    public ApiResponse<VideoReviewProductDetailResponse> getVideoReviewsInProductDetail(
+            @RequestParam Long productId
+    ) {
+        VideoReviewProductDetailResponse response = reviewService.getVideoReviewsByProduct(productId);
+        return ApiResponse.success(HttpStatus.OK, "영상 리뷰 조회 성공", response);
+    }
+
 }
