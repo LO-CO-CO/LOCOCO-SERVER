@@ -43,6 +43,9 @@ public class User extends BaseEntity {
     private String nickname;
 
     @Column
+    private String profileImageUrl;
+
+    @Column
     private LocalDateTime lastLoginAt;
 
     @Enumerated(EnumType.STRING)

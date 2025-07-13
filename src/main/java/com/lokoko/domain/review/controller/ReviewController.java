@@ -10,6 +10,8 @@ import com.lokoko.domain.review.dto.response.MainVideoReviewResponse;
 import com.lokoko.domain.review.dto.response.ReviewMediaResponse;
 import com.lokoko.domain.review.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.review.dto.response.ReviewResponse;
+import com.lokoko.domain.review.dto.response.VideoReviewDetailResponse;
+import com.lokoko.domain.review.service.ReviewDetailsService;
 import com.lokoko.domain.review.dto.response.VideoReviewProductDetailResponse;
 import com.lokoko.domain.review.service.ReviewService;
 import com.lokoko.global.auth.annotation.CurrentUser;
@@ -35,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ReviewController {
     private final ReviewService reviewService;
+    private final ReviewDetailsService reviewDetailsService;
 
     @Operation(summary = "영수증 presignedUrl 발급")
     @PostMapping("/receipt")
@@ -43,7 +46,8 @@ public class ReviewController {
             @RequestBody @Valid ReviewReceiptRequest request) {
         ReviewReceiptResponse response = reviewService.createReceiptPresignedUrl(userId, request);
 
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_RECEIPT_PRESIGNED_URL_SUCCESS.getMessage(), response);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_RECEIPT_PRESIGNED_URL_SUCCESS.getMessage(),
+                response);
     }
 
 
@@ -54,7 +58,8 @@ public class ReviewController {
             @RequestBody @Valid ReviewMediaRequest request) {
         ReviewMediaResponse response = reviewService.createMediaPresignedUrl(userId, request);
 
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_MEDIA_PRESIGNED_URL_SUCCESS.getMessage(), response);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_MEDIA_PRESIGNED_URL_SUCCESS.getMessage(),
+                response);
     }
 
     @Operation(summary = "리뷰 작성")
@@ -86,12 +91,11 @@ public class ReviewController {
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.MAIN_REVIEW_VIDEO_SUCCESS.getMessage(), response);
     }
 
-    @Operation(summary = "제품 상세 페에지에서 유저 리뷰 조회")
+    @Operation(summary = "제품 상세 페이지에서 유저 리뷰 조회")
     @GetMapping("/details/image")
-    public ApiResponse<ImageReviewsProductDetailResponse> getImageReviewsInProductDetail(
-            @RequestParam Long productId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
+    public ApiResponse<ImageReviewsProductDetailResponse> getImageReviewsInProductDetail(@RequestParam Long productId,
+                                                                                         @RequestParam(defaultValue = "0") int page,
+                                                                                         @RequestParam(defaultValue = "5") int size
     ) {
         ImageReviewsProductDetailResponse response = reviewService.getImageReviewsInProductDetail(productId, page,
                 size);
@@ -109,4 +113,12 @@ public class ReviewController {
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.VIDEO_REVIEW_GET_SUCCESS.getMessage(), response);
     }
 
+    @Operation(summary = "영상 리뷰 상세 조회 (가장 마지막 뎁스)")
+    @GetMapping("/details/{reviewId}/video")
+    public ApiResponse<VideoReviewDetailResponse> getVideoReviewDetails(@PathVariable Long reviewId,
+                                                                        @Parameter(hidden = true) @CurrentUser Long userId) {
+        VideoReviewDetailResponse response = reviewDetailsService.getVideoReviewDetails(reviewId, userId);
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.VIDEO_REVIEW_DETAIL_SUCCESS.getMessage(), response);
+    }
 }
