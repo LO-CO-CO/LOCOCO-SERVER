@@ -16,7 +16,7 @@ public record VideoReviewDetailResponse(
         String profileImageUrl,
         String authorName,
         String rating,
-        LocalDateTime upLoadAt
+        LocalDateTime uploadAt
 ) {
     public static VideoReviewDetailResponse from(ReviewVideo reviewVideo, long likeCount) {
         Review review = reviewVideo.getReview();
