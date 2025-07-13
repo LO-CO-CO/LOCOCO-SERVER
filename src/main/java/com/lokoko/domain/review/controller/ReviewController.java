@@ -10,6 +10,8 @@ import com.lokoko.domain.review.dto.response.MainVideoReviewResponse;
 import com.lokoko.domain.review.dto.response.ReviewMediaResponse;
 import com.lokoko.domain.review.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.review.dto.response.ReviewResponse;
+import com.lokoko.domain.review.dto.response.VideoReviewDetailResponse;
+import com.lokoko.domain.review.service.ReviewDetailsService;
 import com.lokoko.domain.review.service.ReviewService;
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.common.response.ApiResponse;
@@ -17,6 +19,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ReviewController {
     private final ReviewService reviewService;
+    private final ReviewDetailsService reviewDetailsService;
 
     @Operation(summary = "영수증 presignedUrl 발급")
     @PostMapping("/receipt")
@@ -89,15 +93,22 @@ public class ReviewController {
 
     @Operation(summary = "제품 상세 페이지에서 유저 리뷰 조회")
     @GetMapping("/details/image")
-    public ApiResponse<ImageReviewsProductDetailResponse> getImageReviewsInProductDetail(
-            @RequestParam Long productId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
+    public ApiResponse<ImageReviewsProductDetailResponse> getImageReviewsInProductDetail(@RequestParam Long productId,
+                                                                                         @RequestParam(defaultValue = "0") int page,
+                                                                                         @RequestParam(defaultValue = "5") int size
     ) {
         ImageReviewsProductDetailResponse response = reviewService.getImageReviewsInProductDetail(productId, page,
                 size);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.IMAGE_REVIEW_GET_SUCCESS.getMessage(),
                 response);
+    }
+
+    @Operation(summary = "영상 리뷰 상세 조회 (가장 마지막 뎁스)")
+    @GetMapping("/details/{reviewId}/video")
+    public ApiResponse<List<VideoReviewDetailResponse>> getVideoReviewDetails(@PathVariable Long reviewId) {
+        List<VideoReviewDetailResponse> response = reviewDetailsService.getVideoReviewDetails(reviewId);
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.VIDEO_REVIEW_DETAIL_SUCCESS.getMessage(), response);
     }
 }
