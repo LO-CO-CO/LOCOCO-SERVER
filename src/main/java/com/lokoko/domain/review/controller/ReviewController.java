@@ -1,6 +1,7 @@
 package com.lokoko.domain.review.controller;
 
 import com.lokoko.domain.review.controller.enums.ResponseMessage;
+import com.lokoko.domain.review.dto.request.ReviewAdminRequest;
 import com.lokoko.domain.review.dto.request.ReviewMediaRequest;
 import com.lokoko.domain.review.dto.request.ReviewReceiptRequest;
 import com.lokoko.domain.review.dto.request.ReviewRequest;
@@ -11,8 +12,8 @@ import com.lokoko.domain.review.dto.response.ReviewMediaResponse;
 import com.lokoko.domain.review.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.review.dto.response.ReviewResponse;
 import com.lokoko.domain.review.dto.response.VideoReviewDetailResponse;
-import com.lokoko.domain.review.service.ReviewDetailsService;
 import com.lokoko.domain.review.dto.response.VideoReviewProductDetailResponse;
+import com.lokoko.domain.review.service.ReviewDetailsService;
 import com.lokoko.domain.review.service.ReviewService;
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.common.response.ApiResponse;
@@ -120,5 +121,17 @@ public class ReviewController {
         VideoReviewDetailResponse response = reviewDetailsService.getVideoReviewDetails(reviewId, userId);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.VIDEO_REVIEW_DETAIL_SUCCESS.getMessage(), response);
+    }
+
+    @Operation(summary = "어드민용 리뷰 작성 (기획 전용)")
+    @PostMapping("/{productId}/{userId}")
+    public ApiResponse<Void> createAdminReview(
+            @PathVariable Long productId,
+            @PathVariable Long userId,
+            @RequestBody @Valid ReviewAdminRequest request
+    ) {
+        reviewService.createAdminReview(productId, userId, request);
+
+        return ApiResponse.success(HttpStatus.CREATED, ResponseMessage.REVIEW_UPLOAD_SUCCESS.getMessage());
     }
 }
