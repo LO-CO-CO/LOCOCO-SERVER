@@ -56,7 +56,7 @@ public class ProductService {
         );
     }
 
-    public List<ProductResponse> buildProductResponseSliceWithReviewData(
+    public List<ProductResponse> buildProductResponseWithReviewData(
             List<Product> products, Long userId
     ) {
         List<Long> productIds = products.stream()
@@ -95,7 +95,7 @@ public class ProductService {
     }
 
     public Slice<ProductResponse> buildProductResponseSliceWithReviewData(Slice<Product> slice, Long userId) {
-        List<ProductResponse> content = buildProductResponseSliceWithReviewData(slice.getContent(), userId);
+        List<ProductResponse> content = buildProductResponseWithReviewData(slice.getContent(), userId);
 
         return new SliceImpl<>(content, slice.getPageable(), slice.hasNext());
     }
