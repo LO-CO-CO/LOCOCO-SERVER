@@ -332,6 +332,18 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
             );
         }
 
+        Map<Long, Long> likeCounts = queryFactory
+                .select(reviewLike.review.id, reviewLike.id.count())
+                .from(reviewLike)
+                .where(reviewLike.review.id.in(reviewIds))
+                .groupBy(reviewLike.review.id)
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(
+                        tuple -> tuple.get(reviewLike.review.id),
+                        tuple -> tuple.get(reviewLike.id.count())
+                ));
+
         List<Tuple> result = queryFactory
                 .select(
                         review.id,
@@ -369,7 +381,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                             tuple.get(review.author.nickname),
                             individualRating != null ? individualRating.doubleValue() : 0.0,
                             tuple.get(productOption.optionName),
-                            0,
+                            likeCounts.getOrDefault(id, 0L).intValue(),
                             new ArrayList<>()
                     )
             );
