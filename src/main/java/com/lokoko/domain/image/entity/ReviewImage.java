@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -38,6 +39,10 @@ public class ReviewImage extends BaseEntity {
     @JoinColumn(name = "review_id")
     private Review review; // 이미지가 어떤 리뷰에 대한 것인지 (외래키)
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isMain = false;
+
     public static ReviewImage createReviewImage(MediaFile mediaFile, int displayOrder, Review review) {
         return ReviewImage.builder()
                 .mediaFile(mediaFile)
@@ -45,8 +50,4 @@ public class ReviewImage extends BaseEntity {
                 .review(review)
                 .build();
     }
-
-    private boolean isMain;
-
-
 }
