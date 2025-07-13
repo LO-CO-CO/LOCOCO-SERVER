@@ -19,7 +19,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -106,8 +105,9 @@ public class ReviewController {
 
     @Operation(summary = "영상 리뷰 상세 조회 (가장 마지막 뎁스)")
     @GetMapping("/details/{reviewId}/video")
-    public ApiResponse<List<VideoReviewDetailResponse>> getVideoReviewDetails(@PathVariable Long reviewId) {
-        List<VideoReviewDetailResponse> response = reviewDetailsService.getVideoReviewDetails(reviewId);
+    public ApiResponse<VideoReviewDetailResponse> getVideoReviewDetails(@PathVariable Long reviewId,
+                                                                        @Parameter(hidden = true) @CurrentUser Long userId) {
+        VideoReviewDetailResponse response = reviewDetailsService.getVideoReviewDetails(reviewId, userId);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.VIDEO_REVIEW_DETAIL_SUCCESS.getMessage(), response);
     }
