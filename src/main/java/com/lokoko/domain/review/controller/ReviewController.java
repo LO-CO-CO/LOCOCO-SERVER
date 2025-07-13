@@ -108,7 +108,7 @@ public class ReviewController {
             @RequestParam Long productId
     ) {
         VideoReviewProductDetailResponse response = reviewService.getVideoReviewsByProduct(productId);
-        return ApiResponse.success(HttpStatus.OK, "영상 리뷰 조회 성공", response);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.VIDEO_REVIEW_GET_SUCCESS.getMessage(), response);
     }
 
 }
