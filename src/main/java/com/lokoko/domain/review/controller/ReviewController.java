@@ -6,6 +6,7 @@ import com.lokoko.domain.review.dto.request.ReviewReceiptRequest;
 import com.lokoko.domain.review.dto.request.ReviewRequest;
 import com.lokoko.domain.review.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.review.dto.response.MainImageReviewResponse;
+import com.lokoko.domain.review.dto.response.MainVideoReviewResponse;
 import com.lokoko.domain.review.dto.response.ReviewMediaResponse;
 import com.lokoko.domain.review.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.review.dto.response.ReviewResponse;
@@ -41,8 +42,7 @@ public class ReviewController {
             @RequestBody @Valid ReviewReceiptRequest request) {
         ReviewReceiptResponse response = reviewService.createReceiptPresignedUrl(userId, request);
 
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_RECEIPT_PRESIGNED_URL_SUCCESS.getMessage(),
-                response);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_RECEIPT_PRESIGNED_URL_SUCCESS.getMessage(), response);
     }
 
 
@@ -53,8 +53,7 @@ public class ReviewController {
             @RequestBody @Valid ReviewMediaRequest request) {
         ReviewMediaResponse response = reviewService.createMediaPresignedUrl(userId, request);
 
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_MEDIA_PRESIGNED_URL_SUCCESS.getMessage(),
-                response);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_MEDIA_PRESIGNED_URL_SUCCESS.getMessage(), response);
     }
 
     @Operation(summary = "리뷰 작성")
@@ -72,10 +71,18 @@ public class ReviewController {
         );
     }
 
+    @Operation(summary = "메인페이지에서 이미지 리뷰 조회")
     @GetMapping("/image")
     public ApiResponse<MainImageReviewResponse> getMainImageReviews() {
         MainImageReviewResponse response = reviewService.getMainImageReview();
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.MAIN_REVIEW_IMAGE_SUCCESS.getMessage(), response);
+    }
+
+    @Operation(summary = "메인페이지에서 영상 리뷰 조회")
+    @GetMapping("/video")
+    public ApiResponse<MainVideoReviewResponse> getMainVideoReviews() {
+        MainVideoReviewResponse response = reviewService.getMainVideoReview();
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.MAIN_REVIEW_VIDEO_SUCCESS.getMessage(), response);
     }
 
     @Operation(summary = "제품 상세 페에지에서 유저 리뷰 조회")

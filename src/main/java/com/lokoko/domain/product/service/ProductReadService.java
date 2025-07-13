@@ -58,7 +58,7 @@ public class ProductReadService {
                 : productRepository.findProductsByPopularityAndRating(middleCategory, subCategory, pageable);
 
         Slice<ProductResponse> responseSlice =
-                productService.buildProductResponseWithReviewData(slice, userId);
+                productService.buildProductResponseSliceWithReviewData(slice, userId);
 
         return CategoryProductPageResponse.builder()
                 .searchQuery(subCategory == null
@@ -79,7 +79,7 @@ public class ProductReadService {
                 middleCategory, Tag.NEW, pageable
         );
         Slice<ProductResponse> responseSlice =
-                productService.buildProductResponseWithReviewData(slice, userId);
+                productService.buildProductResponseSliceWithReviewData(slice, userId);
 
         return new CategoryNewProductResponse(
                 middleCategory.name(),
@@ -95,7 +95,7 @@ public class ProductReadService {
         Slice<Product> slice = productRepository
                 .findProductsByPopularityAndRating(middleCategory, pageable);
         Slice<ProductResponse> responseSlice =
-                productService.buildProductResponseWithReviewData(slice, userId);
+                productService.buildProductResponseSliceWithReviewData(slice, userId);
 
         return new CategoryPopularProductResponse(
                 middleCategory.getDisplayName(),

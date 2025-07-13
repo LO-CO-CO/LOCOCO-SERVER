@@ -17,6 +17,8 @@ import com.lokoko.domain.review.dto.request.ReviewRequest;
 import com.lokoko.domain.review.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.review.dto.response.MainImageReview;
 import com.lokoko.domain.review.dto.response.MainImageReviewResponse;
+import com.lokoko.domain.review.dto.response.MainVideoReview;
+import com.lokoko.domain.review.dto.response.MainVideoReviewResponse;
 import com.lokoko.domain.review.dto.response.ReviewMediaResponse;
 import com.lokoko.domain.review.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.review.dto.response.ReviewResponse;
@@ -42,6 +44,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.IntStream;
+
+import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
 @Service
 @RequiredArgsConstructor
@@ -115,7 +122,6 @@ public class ReviewService {
                 .toList();
 
         return new ReviewMediaResponse(urls);
-    }
 
     public ImageReviewsProductDetailResponse getImageReviewsInProductDetail(Long productId, int page, int size) {
 
@@ -209,14 +215,22 @@ public class ReviewService {
     }
 
     public MainImageReviewResponse getMainImageReview() {
-        List<ReviewImage> sorted = reviewImageRepository.findMainImageReviewSorted();
+        List<ReviewImage> sortedImage = reviewImageRepository.findMainImageReviewSorted();
 
-        List<MainImageReview> dtoList = IntStream.range(0, sorted.size())
-                .mapToObj(i -> MainImageReview.from(sorted.get(i), i + 1))
+        List<MainImageReview> dtoList = IntStream.range(0, sortedImage.size())
+                .mapToObj(i -> MainImageReview.from(sortedImage.get(i), i + 1))
                 .toList();
 
         return new MainImageReviewResponse(dtoList);
     }
+
+    public MainVideoReviewResponse getMainVideoReview() {
+        List<ReviewVideo> sortedVideo = reviewVideoRepository.findMainVideoReviewSorted();
+
+        List<MainVideoReview> dtoList = IntStream.range(0, sortedVideo.size())
+                .mapToObj(i -> MainVideoReview.from(sortedVideo.get(i), i + 1))
+                .toList();
+
+        return new MainVideoReviewResponse(dtoList);
+    }
 }
-
-
