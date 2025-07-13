@@ -21,7 +21,8 @@ public class CookieUtil {
                 .maxAge(cookieMaxAge)
                 .path(cookiePathOption)
                 .secure(secureOption)
-                .httpOnly(false)
+                .httpOnly(true)
+                .sameSite("none")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
@@ -31,9 +32,9 @@ public class CookieUtil {
         ResponseCookie cookie = ResponseCookie.from(name, "value")
                 .maxAge(0)
                 .path("/")
-                .secure(true)
+                .secure(secureOption)
                 .httpOnly(true)
-                .sameSite("Lax")
+                .sameSite("none")
                 .build();
 
         response.setHeader("Set-Cookie", cookie.toString());

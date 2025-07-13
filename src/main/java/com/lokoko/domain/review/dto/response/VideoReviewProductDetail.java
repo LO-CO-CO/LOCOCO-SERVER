@@ -1,13 +1,11 @@
 package com.lokoko.domain.review.dto.response;
 
-public record MainImageReview(
+public record VideoReviewProductDetail(
         Long reviewId,
         String brandName,
         String productName,
         int likeCount,
-        int rank,
-        String reviewImage
+        String videoUrl
 ) {
 }
-
 

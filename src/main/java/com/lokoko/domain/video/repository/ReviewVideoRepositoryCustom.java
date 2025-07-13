@@ -1,9 +1,9 @@
 package com.lokoko.domain.video.repository;
 
-import com.lokoko.domain.video.entity.ReviewVideo;
+import com.lokoko.domain.review.dto.response.MainVideoReview;
 
 import java.util.List;
 
 public interface ReviewVideoRepositoryCustom {
-    List<ReviewVideo> findMainVideoReviewSorted();
+    List<MainVideoReview> findMainVideoReviewSorted();
 }
