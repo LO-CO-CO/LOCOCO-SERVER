@@ -47,7 +47,7 @@ public class ProductService {
         List<String> tokens = kuromojiService.tokenize(keyword);
         Pageable pageable = PageRequest.of(page, size);
         Slice<Product> slice = productRepository.searchByTokens(tokens, pageable);
-        Slice<ProductResponse> responseSlice = buildProductResponseWithReviewData(slice, userId);
+        Slice<ProductResponse> responseSlice = buildProductResponseSliceWithReviewData(slice, userId);
 
         return new NameBrandProductResponse(
                 keyword,
@@ -56,7 +56,7 @@ public class ProductService {
         );
     }
 
-    public List<ProductResponse> buildProductResponseWithReviewData(
+    public List<ProductResponse> buildProductResponseSliceWithReviewData(
             List<Product> products, Long userId
     ) {
         List<Long> productIds = products.stream()
@@ -94,8 +94,8 @@ public class ProductService {
         return makeProductResponse(products, summaryMap, userId);
     }
 
-    public Slice<ProductResponse> buildProductResponseWithReviewData(Slice<Product> slice, Long userId) {
-        List<ProductResponse> content = buildProductResponseWithReviewData(slice.getContent(), userId);
+    public Slice<ProductResponse> buildProductResponseSliceWithReviewData(Slice<Product> slice, Long userId) {
+        List<ProductResponse> content = buildProductResponseSliceWithReviewData(slice.getContent(), userId);
 
         return new SliceImpl<>(content, slice.getPageable(), slice.hasNext());
     }
