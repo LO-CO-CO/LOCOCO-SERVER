@@ -22,6 +22,7 @@ public class CookieUtil {
                 .path(cookiePathOption)
                 .secure(secureOption)
                 .httpOnly(false)
+                .sameSite("none")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
