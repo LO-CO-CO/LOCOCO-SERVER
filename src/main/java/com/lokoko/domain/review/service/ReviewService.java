@@ -332,8 +332,8 @@ public class ReviewService {
 
                 reviewImageRepository.save(ri);
                 order++;
-                review.markReceiptUploaded();
             }
+            review.markReceiptUploaded();
         }
     }
 }
