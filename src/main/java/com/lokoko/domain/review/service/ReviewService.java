@@ -1,5 +1,7 @@
 package com.lokoko.domain.review.service;
 
+import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
+
 import com.lokoko.domain.image.entity.ReceiptImage;
 import com.lokoko.domain.image.entity.ReviewImage;
 import com.lokoko.domain.image.repository.ReceiptImageRepository;
@@ -24,7 +26,6 @@ import com.lokoko.domain.review.exception.ErrorMessage;
 import com.lokoko.domain.review.exception.InvalidMediaTypeException;
 import com.lokoko.domain.review.exception.ReceiptImageCountingException;
 import com.lokoko.domain.review.repository.ReviewRepository;
-import com.lokoko.domain.review.utils.S3UrlParser;
 import com.lokoko.domain.user.entity.User;
 import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.domain.user.repository.UserRepository;
@@ -33,14 +34,12 @@ import com.lokoko.domain.video.repository.ReviewVideoRepository;
 import com.lokoko.global.common.dto.PresignedUrlResponse;
 import com.lokoko.global.common.entity.MediaFile;
 import com.lokoko.global.common.service.S3Service;
+import com.lokoko.global.utils.S3UrlParser;
+import java.util.List;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.IntStream;
-
-import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
 @Service
 @RequiredArgsConstructor
@@ -213,7 +212,7 @@ public class ReviewService {
         return new MainImageReviewResponse(dtoList);
     }
 
-    public MainVideoReviewResponse getMainVideoReview()  {
+    public MainVideoReviewResponse getMainVideoReview() {
         List<ReviewVideo> sortedVideo = reviewVideoRepository.findMainVideoReviewSorted();
 
         List<MainVideoReview> dtoList = IntStream.range(0, sortedVideo.size())
@@ -222,25 +221,4 @@ public class ReviewService {
 
         return new MainVideoReviewResponse(dtoList);
     }
-
-
-//    public MainVideoReviewResponse getMainVideoReview() {
-//        List<ReviewVideo> videos = reviewVideoRepository.findAllMainReviewVideoWithReview();
-//
-//        // 정렬: likeCount DESC, 좋아요 개수 같을 시 rating.value DESC
-//        List<ReviewVideo> sorted = videos.stream()
-//                .sorted(Comparator
-//                        .comparing((ReviewVideo ri) -> ri.getReview().getLikeCount()).reversed()
-//                        .thenComparing(ri -> ri.getReview().getRating().getValue(), Comparator.reverseOrder()))
-//                .limit(4)
-//                .toList();
-//
-//        List<MainVideoReview> dtoList = IntStream.range(0, sorted.size())
-//                .mapToObj(i -> MainVideoReview.from(sorted.get(i), i + 1))
-//                .toList();
-//
-//        return new MainVideoReviewResponse(dtoList);
-//    }
-
-
 }
