@@ -1,6 +1,8 @@
 package com.lokoko.domain.review.service;
 
 
+import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
+
 import com.lokoko.domain.image.entity.ReceiptImage;
 import com.lokoko.domain.image.entity.ReviewImage;
 import com.lokoko.domain.image.repository.ReceiptImageRepository;
@@ -9,6 +11,7 @@ import com.lokoko.domain.product.entity.ProductOption;
 import com.lokoko.domain.product.exception.ProductOptionMismatchException;
 import com.lokoko.domain.product.exception.ProductOptionNotFoundException;
 import com.lokoko.domain.product.repository.ProductOptionRepository;
+import com.lokoko.domain.review.dto.request.ReviewAdminRequest;
 import com.lokoko.domain.review.dto.request.ReviewMediaRequest;
 import com.lokoko.domain.review.dto.request.ReviewReceiptRequest;
 import com.lokoko.domain.review.dto.request.ReviewRequest;
@@ -34,18 +37,16 @@ import com.lokoko.domain.video.entity.ReviewVideo;
 import com.lokoko.domain.video.repository.ReviewVideoRepository;
 import com.lokoko.global.common.dto.PresignedUrlResponse;
 import com.lokoko.global.common.entity.MediaFile;
+import com.lokoko.global.common.entity.MediaType;
 import com.lokoko.global.common.service.S3Service;
 import com.lokoko.global.utils.S3UrlParser;
+import java.util.List;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.IntStream;
-
-import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
 
 @Service
@@ -173,7 +174,6 @@ public class ReviewService {
                 .author(user)
                 .product(option.getProduct())
                 .productOption(option)
-                .productInfo(option.getProduct().getProductDetail())
                 .rating(Rating.fromValue(request.rating()))
                 .positiveContent(request.positiveComment())
                 .negativeContent(request.negativeComment())
@@ -256,5 +256,84 @@ public class ReviewService {
 
     public VideoReviewProductDetailResponse getVideoReviewsByProduct(Long productId) {
         return reviewRepository.findVideoReviewsByProductId(productId);
+    }
+
+    /**
+     * Todo: 리뷰 데이터 확보 후, 추후 제거 예정
+     */
+
+    @Transactional
+    public void createAdminReview(Long productId, Long userId, ReviewAdminRequest request) {
+        ProductOption option = productOptionRepository.findById(request.productOptionId())
+                .orElseThrow(ProductOptionNotFoundException::new);
+        if (!option.getProduct().getId().equals(productId)) {
+            throw new ProductOptionMismatchException();
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        if (request.mediaType() == MediaType.VIDEO) {
+            if (request.videoUrl() == null || request.videoUrl().isBlank()
+                    || request.imageUrl() != null && !request.imageUrl().isEmpty()) {
+                throw new InvalidMediaTypeException(ErrorMessage.MIXED_MEDIA_TYPE_NOT_ALLOWED);
+            }
+        } else {
+            if (request.imageUrl() == null || request.imageUrl().isEmpty()
+                    || request.imageUrl().size() > 5
+                    || request.videoUrl() != null && !request.videoUrl().isBlank()) {
+                throw new InvalidMediaTypeException(ErrorMessage.TOO_MANY_IMAGE_FILES);
+            }
+        }
+        Review review = Review.builder()
+                .author(user)
+                .product(option.getProduct())
+                .productOption(option)
+                .rating(Rating.fromValue(request.rating()))
+                .positiveContent(request.positiveComment())
+                .negativeContent(request.negativeComment())
+                .build();
+        reviewRepository.save(review);
+
+        if (request.receiptUrl() != null && !request.receiptUrl().isBlank()) {
+            MediaFile receiptFile = MediaFile.builder()
+                    .fileUrl(request.receiptUrl())
+                    .build();
+            ReceiptImage ri = ReceiptImage.builder()
+                    .mediaFile(receiptFile)
+                    .displayOrder(1)
+                    .review(review)
+                    .build();
+            receiptImageRepository.save(ri);
+        }
+        if (request.mediaType() == MediaType.VIDEO) {
+            MediaFile videoFile = MediaFile.builder()
+                    .fileUrl(request.videoUrl())
+                    .build();
+            ReviewVideo rv = ReviewVideo.createReviewVideo(
+                    videoFile,
+                    1,
+                    review
+            );
+            reviewVideoRepository.save(rv);
+        } else {
+            // 이미지 여러 장
+            int order = 1;
+            for (String url : request.imageUrl()) {
+                MediaFile imgFile = MediaFile.builder()
+                        .fileUrl(url)
+                        .build();
+
+                ReviewImage ri = ReviewImage.builder()
+                        .mediaFile(imgFile)
+                        .displayOrder(order)
+                        .isMain(order == 1)
+                        .review(review)
+                        .build();
+
+                reviewImageRepository.save(ri);
+                order++;
+                review.markReceiptUploaded();
+            }
+        }
     }
 }
