@@ -22,6 +22,7 @@ import com.lokoko.domain.review.dto.response.MainVideoReviewResponse;
 import com.lokoko.domain.review.dto.response.ReviewMediaResponse;
 import com.lokoko.domain.review.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.review.dto.response.ReviewResponse;
+import com.lokoko.domain.review.dto.response.VideoReviewProductDetailResponse;
 import com.lokoko.domain.review.entity.Review;
 import com.lokoko.domain.review.entity.enums.Rating;
 import com.lokoko.domain.review.exception.ErrorMessage;
@@ -230,5 +231,9 @@ public class ReviewService {
                 .toList();
 
         return new MainVideoReviewResponse(dtoList);
+    }
+
+    public VideoReviewProductDetailResponse getVideoReviewsByProduct(Long productId) {
+        return reviewRepository.findVideoReviewsByProductId(productId);
     }
 }
