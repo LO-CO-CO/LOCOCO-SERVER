@@ -39,8 +39,7 @@ public class ReviewController {
     @Operation(summary = "영수증 presignedUrl 발급")
     @PostMapping("/receipt")
     public ApiResponse<ReviewReceiptResponse> createReceiptPresignedUrl(
-//            @Parameter(hidden = true) @CurrentUser
-            Long userId,
+            @Parameter(hidden = true) @CurrentUser Long userId,
             @RequestBody @Valid ReviewReceiptRequest request) {
         ReviewReceiptResponse response = reviewService.createReceiptPresignedUrl(userId, request);
 
@@ -51,8 +50,7 @@ public class ReviewController {
     @Operation(summary = "사진 또는 영상 presignedUrl 발급")
     @PostMapping("/media")
     public ApiResponse<ReviewMediaResponse> createMediaPresignedUrl(
-//            @Parameter(hidden = true) @CurrentUser
-            Long userId,
+            @Parameter(hidden = true) @CurrentUser Long userId,
             @RequestBody @Valid ReviewMediaRequest request) {
         ReviewMediaResponse response = reviewService.createMediaPresignedUrl(userId, request);
 
