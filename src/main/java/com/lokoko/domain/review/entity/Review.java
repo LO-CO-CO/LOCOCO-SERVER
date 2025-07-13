@@ -36,9 +36,6 @@ public class Review extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User author; // 리뷰 작성자 foreign key 매핑
 
-    @Column(nullable = false, length = 100)
-    private String productInfo;
-
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
@@ -67,5 +64,9 @@ public class Review extends BaseEntity {
     // 부정 리뷰 내용 수정
     public void changeNegativeContent(String content) {
         this.negativeContent = content;
+    }
+
+    public void markReceiptUploaded() {
+        this.receiptUploaded = true;
     }
 }
