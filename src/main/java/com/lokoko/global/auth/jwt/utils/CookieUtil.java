@@ -22,7 +22,7 @@ public class CookieUtil {
                 .path(cookiePathOption)
                 .secure(secureOption)
                 .httpOnly(true)
-                .sameSite("none")
+                .sameSite("Lax")
                 .build();
 
         response.addHeader("Set-Cookie", cookie.toString());
