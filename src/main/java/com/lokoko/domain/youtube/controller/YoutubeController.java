@@ -1,6 +1,6 @@
 package com.lokoko.domain.youtube.controller;
 
-import com.lokoko.domain.product.dto.CrawlResponse;
+import com.lokoko.domain.product.dto.response.CrawlResponse;
 import com.lokoko.domain.youtube.controller.enums.ResponseMessage;
 import com.lokoko.domain.youtube.dto.VideoResponse;
 import com.lokoko.domain.youtube.service.YoutubeReviewCrawler;
@@ -44,7 +44,7 @@ public class YoutubeController {
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.POPULAR_TRENDS_CRAWL_SUCCESS.getMessage());
     }
 
-    @Operation(summary = "인기 뷰티 트렌드 영상 조회")
+    @Operation(summary = "인기 뷰티 트렌드 영상 조회 (메인 페이지)")
     @GetMapping("/trends")
     public ApiResponse<List<VideoResponse>> getPopularTrends() {
         List<VideoResponse> videos = youtubeTrendService.findAll();

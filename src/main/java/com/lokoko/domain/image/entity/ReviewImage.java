@@ -38,12 +38,15 @@ public class ReviewImage extends BaseEntity {
     @JoinColumn(name = "review_id")
     private Review review; // 이미지가 어떤 리뷰에 대한 것인지 (외래키)
 
-    public static ReviewImage createReviewImage(String fileName,
-                                                String fileUrl, int displayOrder, Review review) {
+    public static ReviewImage createReviewImage(MediaFile mediaFile, int displayOrder, Review review) {
         return ReviewImage.builder()
-                .mediaFile(MediaFile.of(fileName, fileUrl))
+                .mediaFile(mediaFile)
                 .displayOrder(displayOrder)
                 .review(review)
                 .build();
     }
+
+    private boolean isMain;
+
+
 }

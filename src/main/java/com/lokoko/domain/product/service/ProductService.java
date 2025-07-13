@@ -8,24 +8,26 @@ import static java.util.stream.Collectors.toList;
 
 import com.lokoko.domain.image.entity.ProductImage;
 import com.lokoko.domain.image.repository.ProductImageRepository;
-import com.lokoko.domain.product.dto.NameBrandProductResponse;
-import com.lokoko.domain.product.dto.ProductResponse;
-import com.lokoko.domain.product.dto.ProductSummary;
+import com.lokoko.domain.like.repository.ProductLikeRepository;
+import com.lokoko.domain.product.dto.response.NameBrandProductResponse;
+import com.lokoko.domain.product.dto.response.ProductResponse;
+import com.lokoko.domain.product.dto.response.ProductSummary;
 import com.lokoko.domain.product.entity.Product;
 import com.lokoko.domain.product.exception.ProductNotFoundException;
 import com.lokoko.domain.product.repository.ProductRepository;
+import com.lokoko.domain.review.dto.request.RatingCount;
 import com.lokoko.domain.review.entity.enums.Rating;
 import com.lokoko.domain.review.repository.ReviewRepository;
 import com.lokoko.global.common.response.PageableResponse;
 import com.lokoko.global.kuromoji.service.KuromojiService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -43,15 +45,16 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
+    private final ProductLikeRepository productLikeRepository;
     private final ReviewRepository reviewRepository;
     private final KuromojiService kuromojiService;
 
-    public NameBrandProductResponse search(String keyword, int page, int size) {
+    public NameBrandProductResponse search(String keyword, int page, int size, Long userId) {
         List<String> tokens = kuromojiService.tokenize(keyword);
         Pageable pageable = PageRequest.of(page, size);
         Slice<Product> slice = productRepository.searchByTokens(tokens, pageable);
-        Slice<ProductResponse> responseSlice = buildProductResponseWithReviewData(slice);
-        
+        Slice<ProductResponse> responseSlice = buildProductResponseWithReviewData(slice, userId);
+
         return new NameBrandProductResponse(
                 keyword,
                 responseSlice.getContent(),
@@ -59,47 +62,46 @@ public class ProductService {
         );
     }
 
-    public List<ProductResponse> buildProductResponseWithReviewData(List<Product> products) {
-        // 1) ID 추출
+    public List<ProductResponse> buildProductResponseWithReviewData(
+            List<Product> products, Long userId
+    ) {
         List<Long> productIds = products.stream()
                 .map(Product::getId)
                 .toList();
-
-        // 2) 이미지 조회 → 맵 생성
         Map<Long, String> imageMap = createProductImageMap(
                 productImageRepository.findByProductIdIn(productIds)
         );
 
-        // 3) 리뷰 통계 조회
-        List<Object[]> stats = reviewRepository.countAndAvgRatingByProductIds(productIds);
+        List<RatingCount> stats = reviewRepository.countByProductIdsAndRating(productIds);
         Map<Long, Long> reviewCountMap = new HashMap<>();
-        Map<Long, BigDecimal> weightedSumsMap = new HashMap<>();
-        Map<Long, Map<Rating, Long>> ratingCountsMap = new HashMap<>();
-        aggregateReviewStats(stats,
-                reviewCountMap,
-                weightedSumsMap,
-                ratingCountsMap);
+        Map<Long, Long> weightedSumMap = new HashMap<>();
+        for (RatingCount rc : stats) {
+            Long pid = rc.productId();
+            int score = rc.rating().getValue();
+            Long cnt = rc.count();
 
-        // 4) 평균 별점 계산
-        Map<Long, Double> avgMap =
-                calculateAverageRatings(reviewCountMap, weightedSumsMap);
+            reviewCountMap.merge(pid, cnt, Long::sum);
+            weightedSumMap.merge(pid, score * cnt, Long::sum);
+        }
+        Map<Long, Double> avgMap = productIds.stream()
+                .collect(Collectors.toMap(
+                        pid -> pid,
+                        pid -> {
+                            long total = reviewCountMap.getOrDefault(pid, 0L);
+                            long sum = weightedSumMap.getOrDefault(pid, 0L);
+                            double raw = total == 0 ? 0.0 : (double) sum / total;
+                            return Math.round(raw * 10) / 10.0;
+                        }
+                ));
+        Map<Long, ProductSummary> summaryMap = createProductSummaryMap(
+                products, imageMap, reviewCountMap, avgMap
+        );
 
-        // 5) 정렬
-        // 4) 이제 ratingCountsMap 과 avgMap 을 각각 사용 가능
-        Map<Long, ProductSummary> summaryMap =
-                createProductSummaryMap(
-                        products,
-                        imageMap,
-                        reviewCountMap,
-                        avgMap
-                );
-
-        // 6) summary 맵 생성
-        return makeProductResponse(products, summaryMap);
+        return makeProductResponse(products, summaryMap, userId);
     }
 
-    public Slice<ProductResponse> buildProductResponseWithReviewData(Slice<Product> slice) {
-        List<ProductResponse> content = buildProductResponseWithReviewData(slice.getContent());
+    public Slice<ProductResponse> buildProductResponseWithReviewData(Slice<Product> slice, Long userId) {
+        List<ProductResponse> content = buildProductResponseWithReviewData(slice.getContent(), userId);
 
         return new SliceImpl<>(content, slice.getPageable(), slice.hasNext());
     }
@@ -163,38 +165,20 @@ public class ProductService {
     }
 
     public List<ProductResponse> makeProductResponse(List<Product> products,
-                                                     Map<Long, ProductSummary> summaryMap) {
+                                                     Map<Long, ProductSummary> summaryMap, Long userId) {
+        Set<Long> likedIds = productLikeRepository.findAllByUserId(userId).stream()
+                .map(pl -> pl.getProduct().getId())
+                .collect(Collectors.toSet());
+
+        // 2) ProductResponse.of(...) 으로 매핑
         return products.stream()
                 .map(product -> {
-                    ProductSummary s = summaryMap.getOrDefault(
+                    ProductSummary summary = summaryMap.getOrDefault(
                             product.getId(),
                             new ProductSummary("", 0L, 0.0)
                     );
-                    List<String> imageUrls = Optional.ofNullable(s.imageUrl())
-                            .filter(url -> !url.isBlank())
-                            .map(url -> {
-                                if (url.contains(",")) {
-
-                                    return Arrays.stream(url.split(","))
-                                            .map(String::trim)
-                                            .filter(u -> !u.isEmpty())
-                                            .toList();
-                                } else {
-
-                                    return List.of(url);
-                                }
-                            })
-                            .orElseGet(List::of);
-
-                    return new ProductResponse(
-                            product.getId(),
-                            imageUrls,
-                            product.getProductName(),
-                            product.getBrandName(),
-                            product.getUnit(),
-                            s.reviewCount(),
-                            s.avgRating()
-                    );
+                    boolean isLiked = likedIds.contains(product.getId());
+                    return ProductResponse.of(product, summary, isLiked);
                 })
                 .toList();
     }

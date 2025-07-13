@@ -1,0 +1,10 @@
+package com.lokoko.domain.review.dto.response;
+
+public record ImageReviewResponse(
+        Long reviewId,
+        String brandName,
+        String productName,
+        int likeCount,
+        String url
+) {
+}
