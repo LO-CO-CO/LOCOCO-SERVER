@@ -1,5 +1,6 @@
 package com.lokoko.domain.review.service;
 
+
 import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
 import com.lokoko.domain.image.entity.ReceiptImage;
@@ -13,6 +14,7 @@ import com.lokoko.domain.product.repository.ProductOptionRepository;
 import com.lokoko.domain.review.dto.request.ReviewMediaRequest;
 import com.lokoko.domain.review.dto.request.ReviewReceiptRequest;
 import com.lokoko.domain.review.dto.request.ReviewRequest;
+import com.lokoko.domain.review.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.review.dto.response.MainImageReview;
 import com.lokoko.domain.review.dto.response.MainImageReviewResponse;
 import com.lokoko.domain.review.dto.response.MainVideoReview;
@@ -38,15 +40,17 @@ import com.lokoko.global.utils.S3UrlParser;
 import java.util.List;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ReviewService {
     private final S3Service s3Service;
-
     private final ReviewRepository reviewRepository;
     private final ReceiptImageRepository receiptImageRepository;
     private final UserRepository userRepository;
@@ -115,6 +119,12 @@ public class ReviewService {
 
         return new ReviewMediaResponse(urls);
 
+    }
+
+    public ImageReviewsProductDetailResponse getImageReviewsInProductDetail(Long productId, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return reviewRepository.findImageReviewsByProductId(productId, pageable);
     }
 
     @Transactional

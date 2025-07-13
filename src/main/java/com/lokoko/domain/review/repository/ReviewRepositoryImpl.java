@@ -3,19 +3,27 @@ package com.lokoko.domain.review.repository;
 import com.lokoko.domain.image.entity.QReviewImage;
 import com.lokoko.domain.like.entity.QReviewLike;
 import com.lokoko.domain.product.entity.QProduct;
+import com.lokoko.domain.product.entity.QProductOption;
 import com.lokoko.domain.product.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.entity.enums.SubCategory;
 import com.lokoko.domain.review.dto.request.RatingCount;
+import com.lokoko.domain.review.dto.response.ImageReviewProductDetailResponse;
 import com.lokoko.domain.review.dto.response.ImageReviewResponse;
+import com.lokoko.domain.review.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.review.dto.response.VideoReviewResponse;
 import com.lokoko.domain.review.entity.QReview;
 import com.lokoko.domain.video.entity.QReviewVideo;
+import com.lokoko.global.common.response.PageableResponse;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +40,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     private final QProduct product = QProduct.product;
     private final QReviewVideo reviewVideo = QReviewVideo.reviewVideo;
     private final QReviewImage reviewImage = QReviewImage.reviewImage;
+    private final QProductOption productOption = QProductOption.productOption;
     private final QReviewLike reviewLike = QReviewLike.reviewLike;
 
 
@@ -279,5 +288,122 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public ImageReviewsProductDetailResponse findImageReviewsByProductId(Long productId, Pageable pageable) {
+
+        NumberExpression<Integer> ratingAsInt =
+                review.rating
+                        .stringValue()
+                        .when("ONE").then(1)
+                        .when("TWO").then(2)
+                        .when("THREE").then(3)
+                        .when("FOUR").then(4)
+                        .when("FIVE").then(5)
+                        .otherwise(0);
+
+        Long totalCount = queryFactory
+                .select(review.id.countDistinct())
+                .from(review)
+                .join(review.productOption, productOption)
+                .join(productOption.product, product)
+                .where(product.id.eq(productId))
+                .fetchOne();
+
+        List<Long> reviewIds = queryFactory
+                .select(review.id)
+                .from(review)
+                .join(review.productOption, productOption)
+                .join(productOption.product, product)
+                .where(product.id.eq(productId))
+                .orderBy(review.modifiedAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        if (reviewIds.isEmpty()) {
+            return new ImageReviewsProductDetailResponse(
+                    List.of(),
+                    PageableResponse.builder()
+                            .pageNumber(pageable.getPageNumber())
+                            .pageSize(pageable.getPageSize())
+                            .numberOfElements(0)
+                            .isLast(true)
+                            .build()
+            );
+        }
+
+        Map<Long, Long> likeCounts = queryFactory
+                .select(reviewLike.review.id, reviewLike.id.count())
+                .from(reviewLike)
+                .where(reviewLike.review.id.in(reviewIds))
+                .groupBy(reviewLike.review.id)
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(
+                        tuple -> tuple.get(reviewLike.review.id),
+                        tuple -> tuple.get(reviewLike.id.count())
+                ));
+
+        List<Tuple> result = queryFactory
+                .select(
+                        review.id,
+                        review.modifiedAt,
+                        review.receiptUploaded,
+                        review.positiveContent,
+                        review.negativeContent,
+                        review.author.nickname,
+                        ratingAsInt,
+                        productOption.optionName,
+                        reviewImage.mediaFile.fileUrl
+                )
+                .from(review)
+                .join(review.productOption, productOption)
+                .join(productOption.product, product)
+                .leftJoin(reviewImage).on(reviewImage.review.eq(review))
+                .where(review.id.in(reviewIds))
+                .orderBy(review.modifiedAt.desc())
+                .fetch();
+
+        Map<Long, ImageReviewProductDetailResponse> map = new LinkedHashMap<>();
+
+        for (Tuple tuple : result) {
+            Long reviewId = tuple.get(review.id);
+            String imageUrl = tuple.get(reviewImage.mediaFile.fileUrl);
+            Integer individualRating = tuple.get(ratingAsInt);
+
+            ImageReviewProductDetailResponse dto = map.computeIfAbsent(reviewId, id ->
+                    new ImageReviewProductDetailResponse(
+                            id,
+                            tuple.get(review.modifiedAt),
+                            tuple.get(review.receiptUploaded),
+                            tuple.get(review.positiveContent),
+                            tuple.get(review.negativeContent),
+                            tuple.get(review.author.nickname),
+                            individualRating != null ? individualRating.doubleValue() : 0.0,
+                            tuple.get(productOption.optionName),
+                            likeCounts.getOrDefault(id, 0L).intValue(),
+                            new ArrayList<>()
+                    )
+            );
+
+            if (imageUrl != null) {
+                dto.images().add(imageUrl);
+            }
+        }
+
+        List<ImageReviewProductDetailResponse> results = reviewIds.stream()
+                .map(map::get)
+                .toList();
+
+        boolean isLast = (pageable.getOffset() + pageable.getPageSize()) >= totalCount;
+        PageableResponse pageInfo = PageableResponse.builder()
+                .pageNumber(pageable.getPageNumber())
+                .pageSize(pageable.getPageSize())
+                .numberOfElements(results.size())
+                .isLast(isLast)
+                .build();
+
+        return new ImageReviewsProductDetailResponse(results, pageInfo);
+    }
 }
 

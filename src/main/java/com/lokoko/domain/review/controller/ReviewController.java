@@ -4,6 +4,7 @@ import com.lokoko.domain.review.controller.enums.ResponseMessage;
 import com.lokoko.domain.review.dto.request.ReviewMediaRequest;
 import com.lokoko.domain.review.dto.request.ReviewReceiptRequest;
 import com.lokoko.domain.review.dto.request.ReviewRequest;
+import com.lokoko.domain.review.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.review.dto.response.MainImageReviewResponse;
 import com.lokoko.domain.review.dto.response.MainVideoReviewResponse;
 import com.lokoko.domain.review.dto.response.ReviewMediaResponse;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -81,5 +83,19 @@ public class ReviewController {
     public ApiResponse<MainVideoReviewResponse> getMainVideoReviews() {
         MainVideoReviewResponse response = reviewService.getMainVideoReview();
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.MAIN_REVIEW_VIDEO_SUCCESS.getMessage(), response);
+    }
+
+    @Operation(summary = "제품 상세 페에지에서 유저 리뷰 조회")
+    @GetMapping("/details/image")
+    public ApiResponse<ImageReviewsProductDetailResponse> getImageReviewsInProductDetail(
+            @RequestParam Long productId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        ImageReviewsProductDetailResponse response = reviewService.getImageReviewsInProductDetail(productId, page,
+                size);
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.IMAGE_REVIEW_GET_SUCCESS.getMessage(),
+                response);
     }
 }

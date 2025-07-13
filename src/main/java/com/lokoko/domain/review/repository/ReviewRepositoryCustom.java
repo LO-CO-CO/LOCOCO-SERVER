@@ -4,6 +4,7 @@ import com.lokoko.domain.product.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.entity.enums.SubCategory;
 import com.lokoko.domain.review.dto.request.RatingCount;
 import com.lokoko.domain.review.dto.response.ImageReviewResponse;
+import com.lokoko.domain.review.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.review.dto.response.VideoReviewResponse;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,8 @@ public interface ReviewRepositoryCustom {
     Slice<ImageReviewResponse> findImageReviewsByCategory(MiddleCategory middleCategory,
                                                           Pageable pageable
     );
+
+    ImageReviewsProductDetailResponse findImageReviewsByProductId(Long productId, Pageable pageable);
 
 
     Slice<VideoReviewResponse> findVideoReviewsByKeyword(List<String> tokens, Pageable pageable);
