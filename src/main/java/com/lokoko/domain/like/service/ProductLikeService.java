@@ -31,14 +31,6 @@ public class ProductLikeService {
         processProductLike(product, user);
     }
 
-    public long getProductLikeCount(Long productId) {
-        if (!productRepository.existsById(productId)) {
-            throw new ProductNotFoundException();
-        }
-
-        return productLikeRepository.countByProductId(productId);
-    }
-
     public void processProductLike(Product product, User user) {
         Optional<ProductLike> existingLike =
                 productLikeRepository.findByProductIdAndUserId(product.getId(), user.getId());
