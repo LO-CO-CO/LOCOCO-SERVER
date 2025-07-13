@@ -2,11 +2,9 @@ package com.lokoko.domain.review.repository;
 
 import com.lokoko.domain.product.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.entity.enums.SubCategory;
-import com.lokoko.domain.review.dto.ImageReviewResponse;
-import com.lokoko.domain.review.dto.VideoReviewResponse;
-import com.lokoko.domain.review.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.review.dto.request.RatingCount;
 import com.lokoko.domain.review.dto.response.ImageReviewResponse;
+import com.lokoko.domain.review.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.review.dto.response.VideoReviewResponse;
 import java.util.List;
 import org.springframework.data.domain.Pageable;

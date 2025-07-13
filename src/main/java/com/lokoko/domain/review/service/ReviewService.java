@@ -1,6 +1,7 @@
 package com.lokoko.domain.review.service;
 
-import static com.lokoko.domain.review.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
+
+import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
 import com.lokoko.domain.image.entity.ReceiptImage;
 import com.lokoko.domain.image.entity.ReviewImage;
@@ -12,8 +13,8 @@ import com.lokoko.domain.product.exception.ProductOptionNotFoundException;
 import com.lokoko.domain.product.repository.ProductOptionRepository;
 import com.lokoko.domain.review.dto.request.ReviewMediaRequest;
 import com.lokoko.domain.review.dto.request.ReviewReceiptRequest;
-import com.lokoko.domain.review.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.review.dto.request.ReviewRequest;
+import com.lokoko.domain.review.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.review.dto.response.MainImageReview;
 import com.lokoko.domain.review.dto.response.MainImageReviewResponse;
 import com.lokoko.domain.review.dto.response.ReviewMediaResponse;
@@ -23,7 +24,6 @@ import com.lokoko.domain.review.entity.Review;
 import com.lokoko.domain.review.entity.enums.Rating;
 import com.lokoko.domain.review.exception.ErrorMessage;
 import com.lokoko.domain.review.exception.InvalidMediaTypeException;
-import com.lokoko.domain.review.repository.ReviewRepository;
 import com.lokoko.domain.review.exception.ReceiptImageCountingException;
 import com.lokoko.domain.review.repository.ReviewRepository;
 import com.lokoko.domain.review.utils.S3UrlParser;
@@ -36,24 +36,18 @@ import com.lokoko.global.common.dto.PresignedUrlResponse;
 import com.lokoko.global.common.entity.MediaFile;
 import com.lokoko.global.common.service.S3Service;
 import java.util.List;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.IntStream;
-
-import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ReviewService {
     private final S3Service s3Service;
-    private final ReviewRepository reviewRepository;
-
     private final ReviewRepository reviewRepository;
     private final ReceiptImageRepository receiptImageRepository;
     private final UserRepository userRepository;
@@ -98,15 +92,6 @@ public class ReviewService {
             throw new InvalidMediaTypeException(ErrorMessage.MIXED_MEDIA_TYPE_NOT_ALLOWED);
         }
 
-    public ImageReviewsProductDetailResponse getImageReviewsInProductDetail(Long productId, int page, int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        return reviewRepository.findImageReviewsByProductId(productId, pageable);
-    }
-
-
-}
-
         // 개수 제한 검증
         if (hasVideo && mediaTypes.size() > 1) {
             throw new InvalidMediaTypeException(ErrorMessage.TOO_MANY_VIDEO_FILES);
@@ -130,7 +115,12 @@ public class ReviewService {
                 .toList();
 
         return new ReviewMediaResponse(urls);
+    }
 
+    public ImageReviewsProductDetailResponse getImageReviewsInProductDetail(Long productId, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return reviewRepository.findImageReviewsByProductId(productId, pageable);
     }
 
     @Transactional
@@ -228,3 +218,5 @@ public class ReviewService {
         return new MainImageReviewResponse(dtoList);
     }
 }
+
+

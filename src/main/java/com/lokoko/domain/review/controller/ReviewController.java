@@ -3,8 +3,8 @@ package com.lokoko.domain.review.controller;
 import com.lokoko.domain.review.controller.enums.ResponseMessage;
 import com.lokoko.domain.review.dto.request.ReviewMediaRequest;
 import com.lokoko.domain.review.dto.request.ReviewReceiptRequest;
-import com.lokoko.domain.review.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.review.dto.request.ReviewRequest;
+import com.lokoko.domain.review.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.review.dto.response.MainImageReviewResponse;
 import com.lokoko.domain.review.dto.response.ReviewMediaResponse;
 import com.lokoko.domain.review.dto.response.ReviewReceiptResponse;
@@ -18,7 +18,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,7 +41,8 @@ public class ReviewController {
             @RequestBody @Valid ReviewReceiptRequest request) {
         ReviewReceiptResponse response = reviewService.createReceiptPresignedUrl(userId, request);
 
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_RECEIPT_PRESIGNED_URL_SUCCESS.getMessage(), response);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_RECEIPT_PRESIGNED_URL_SUCCESS.getMessage(),
+                response);
     }
 
 
@@ -53,7 +53,8 @@ public class ReviewController {
             @RequestBody @Valid ReviewMediaRequest request) {
         ReviewMediaResponse response = reviewService.createMediaPresignedUrl(userId, request);
 
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_MEDIA_PRESIGNED_URL_SUCCESS.getMessage(), response);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_MEDIA_PRESIGNED_URL_SUCCESS.getMessage(),
+                response);
     }
 
     @Operation(summary = "리뷰 작성")
@@ -75,6 +76,7 @@ public class ReviewController {
     public ApiResponse<MainImageReviewResponse> getMainImageReviews() {
         MainImageReviewResponse response = reviewService.getMainImageReview();
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.MAIN_REVIEW_IMAGE_SUCCESS.getMessage(), response);
+    }
 
     @GetMapping("/details/image")
     public ApiResponse<ImageReviewsProductDetailResponse> getImageReviewsInProductDetail(
