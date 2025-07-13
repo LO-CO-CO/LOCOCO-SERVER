@@ -1,8 +1,7 @@
-package com.lokoko.domain.review.utils;
+package com.lokoko.global.utils;
 
 import com.lokoko.domain.review.exception.PresignedUrlParsingException;
 import com.lokoko.global.common.entity.MediaFile;
-
 import java.net.URI;
 import java.nio.file.Paths;
 

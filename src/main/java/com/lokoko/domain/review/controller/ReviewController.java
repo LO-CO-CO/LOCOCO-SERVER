@@ -78,6 +78,7 @@ public class ReviewController {
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.MAIN_REVIEW_IMAGE_SUCCESS.getMessage(), response);
     }
 
+    @Operation(summary = "제품 상세 페에지에서 유저 리뷰 조회")
     @GetMapping("/details/image")
     public ApiResponse<ImageReviewsProductDetailResponse> getImageReviewsInProductDetail(
             @RequestParam Long productId,
