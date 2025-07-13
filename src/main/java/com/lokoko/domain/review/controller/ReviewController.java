@@ -69,12 +69,14 @@ public class ReviewController {
         );
     }
 
+    @Operation(summary = "메인페이지에서 이미지 리뷰 조회")
     @GetMapping("/image")
     public ApiResponse<MainImageReviewResponse> getMainImageReviews() {
         MainImageReviewResponse response = reviewService.getMainImageReview();
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.MAIN_REVIEW_IMAGE_SUCCESS.getMessage(), response);
     }
 
+    @Operation(summary = "메인페이지에서 영상 리뷰 조회")
     @GetMapping("/video")
     public ApiResponse<MainVideoReviewResponse> getMainVideoReviews() {
         MainVideoReviewResponse response = reviewService.getMainVideoReview();

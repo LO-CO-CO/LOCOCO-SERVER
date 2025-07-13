@@ -24,8 +24,10 @@ public class ReviewVideoRepositoryImpl implements ReviewVideoRepositoryCustom {
                 .selectFrom(reviewVideo)
                 .join(reviewVideo.review, review).fetchJoin()
                 .join(review.product, product).fetchJoin()
+                .leftJoin(reviewVideo).on(reviewVideo.review.eq(review))
                 // 대표 이미지 조건: displayOrder == 0
                 .where(reviewVideo.displayOrder.eq(0))
+                .groupBy(reviewVideo.id, review.id, product.id, review.rating)
                 // 정렬 조건: 좋아요 내림차순 → 평점 내림차순
                 .orderBy(
                         review.likeCount.desc(),
