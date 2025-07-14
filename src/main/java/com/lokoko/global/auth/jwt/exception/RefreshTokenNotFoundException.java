@@ -5,6 +5,6 @@ import org.springframework.http.HttpStatus;
 
 public class RefreshTokenNotFoundException extends BaseException {
     public RefreshTokenNotFoundException() {
-        super(HttpStatus.UNAUTHORIZED, JwtErrorMessage.REDIS_NOT_FOUND.getMessage());
+        super(HttpStatus.UNAUTHORIZED, JwtErrorMessage.REFRESH_NOT_FOUND.getMessage());
     }
 }
