@@ -34,7 +34,6 @@ public record VideoReviewDetailResponse(
         String rating,
         @Schema(requiredMode = REQUIRED)
         LocalDateTime uploadAt,
-        @Schema(requiredMode = REQUIRED)
         String receiptImageUrl
 ) {
     public static VideoReviewDetailResponse from(ReviewVideo reviewVideo, long likeCount,

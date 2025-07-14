@@ -40,7 +40,6 @@ public record ImageReviewDetailResponse(
         String brandName,
         @Schema(requiredMode = REQUIRED)
         String productName,
-        @Schema(requiredMode = REQUIRED)
         String receiptImageUrl
 ) {
     public static ImageReviewDetailResponse from(Review review, List<ReviewImage> reviewImages,
