@@ -1,6 +1,8 @@
 package com.lokoko.domain.review.service;
 
+import com.lokoko.domain.image.entity.ReceiptImage;
 import com.lokoko.domain.image.entity.ReviewImage;
+import com.lokoko.domain.image.repository.ReceiptImageRepository;
 import com.lokoko.domain.image.repository.ReviewImageRepository;
 import com.lokoko.domain.like.repository.ReviewLikeRepository;
 import com.lokoko.domain.review.dto.response.ImageReviewDetailResponse;
@@ -10,6 +12,7 @@ import com.lokoko.domain.review.exception.ReviewNotFoundException;
 import com.lokoko.domain.review.exception.ReviewVideoNotFoundException;
 import com.lokoko.domain.review.repository.ReviewRepository;
 import com.lokoko.domain.user.entity.User;
+import com.lokoko.domain.user.entity.enums.Role;
 import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.domain.user.repository.UserRepository;
 import com.lokoko.domain.video.entity.ReviewVideo;
@@ -28,39 +31,50 @@ public class ReviewDetailsService {
     private final ReviewVideoRepository reviewVideoRepository;
     private final ReviewLikeRepository reviewLikeRepository;
     private final ReviewImageRepository reviewImageRepository;
+    private final ReceiptImageRepository receiptImageRepository;
 
 
     public VideoReviewDetailResponse getVideoReviewDetails(Long reviewId,
                                                            Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        reviewRepository.findById(reviewId)
-                .orElseThrow(ReviewNotFoundException::new);
-
-        ReviewVideo video = reviewVideoRepository.findByReviewId(reviewId)
-                .orElseThrow(ReviewVideoNotFoundException::new);
-
+        User user = getUser(userId);
+        Review review = getReview(reviewId);
+        ReviewVideo video = getReviewVideo(reviewId);
         long totalLikes = reviewLikeRepository.countByReviewId(reviewId);
+        ReceiptImage receiptImage = getReceiptImageIfAdmin(user, reviewId);
 
-        return VideoReviewDetailResponse.from(video, totalLikes);
+        return VideoReviewDetailResponse.from(video, totalLikes, receiptImage, user.getRole());
     }
 
 
     public ImageReviewDetailResponse getImageReviewDetails(Long reviewId, Long userId) {
 
-        User author = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(ReviewNotFoundException::new);
-
+        User user = getUser(userId);
+        Review review = getReview(reviewId);
         List<ReviewImage> reviewImages = reviewImageRepository.findByReviewId(reviewId);
-
         long totalLikes = reviewLikeRepository.countByReviewId(reviewId);
+        ReceiptImage receiptImage = getReceiptImageIfAdmin(user, reviewId);
 
-        return ImageReviewDetailResponse.from(author, review, reviewImages, totalLikes);
+        return ImageReviewDetailResponse.from(review, reviewImages, totalLikes, receiptImage, user.getRole());
+    }
 
+    private User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+    }
 
+    private Review getReview(Long reviewId) {
+        return reviewRepository.findById(reviewId)
+                .orElseThrow(ReviewNotFoundException::new);
+    }
+
+    private ReviewVideo getReviewVideo(Long reviewId) {
+        return reviewVideoRepository.findByReviewId(reviewId)
+                .orElseThrow(ReviewVideoNotFoundException::new);
+    }
+
+    private ReceiptImage getReceiptImageIfAdmin(User user, Long reviewId) {
+        return user.getRole() == Role.ADMIN
+                ? receiptImageRepository.findByReviewId(reviewId).orElse(null)
+                : null;
     }
 }
