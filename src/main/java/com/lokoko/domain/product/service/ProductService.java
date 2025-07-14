@@ -9,8 +9,8 @@ import static java.util.stream.Collectors.toMap;
 import com.lokoko.domain.image.entity.ProductImage;
 import com.lokoko.domain.image.repository.ProductImageRepository;
 import com.lokoko.domain.like.repository.ProductLikeRepository;
-import com.lokoko.domain.product.dto.response.ProductMainImageResponse;
 import com.lokoko.domain.product.dto.response.NameBrandProductResponse;
+import com.lokoko.domain.product.dto.response.ProductMainImageResponse;
 import com.lokoko.domain.product.dto.response.ProductResponse;
 import com.lokoko.domain.product.dto.response.ProductSummary;
 import com.lokoko.domain.product.entity.Product;
@@ -19,6 +19,7 @@ import com.lokoko.domain.review.dto.request.RatingCount;
 import com.lokoko.domain.review.repository.ReviewRepository;
 import com.lokoko.global.common.response.PageableResponse;
 import com.lokoko.global.kuromoji.service.KuromojiService;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,15 +95,18 @@ public class ProductService {
         ));
 
         Map<Long, ProductSummary> summaryMap = createProductSummaryMap(products, imageMap, reviewCountMap, avgMap);
+
         return makeMainImageResponses(products, summaryMap, userId);
     }
 
     public List<ProductMainImageResponse> makeMainImageResponses(
             List<Product> products, Map<Long, ProductSummary> summaryMap, Long userId
     ) {
-        Set<Long> likedIds = productLikeRepository.findAllByUserId(userId).stream()
+        Set<Long> likedIds = (userId != null)
+                ? productLikeRepository.findAllByUserId(userId).stream()
                 .map(pl -> pl.getProduct().getId())
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet())
+                : Collections.emptySet();
 
         return products.stream()
                 .map(product -> {

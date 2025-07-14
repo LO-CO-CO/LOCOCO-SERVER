@@ -34,27 +34,45 @@ public class ReviewDetailsService {
     private final ReceiptImageRepository receiptImageRepository;
 
 
-    public VideoReviewDetailResponse getVideoReviewDetails(Long reviewId,
-                                                           Long userId) {
-        User user = getUser(userId);
+    public VideoReviewDetailResponse getVideoReviewDetails(Long reviewId, Long userId) {
+        User user = null;
+        if (userId != null) {
+            user = userRepository.findById(userId)
+                    .orElseThrow(UserNotFoundException::new);
+        }
         Review review = getReview(reviewId);
         ReviewVideo video = getReviewVideo(reviewId);
         long totalLikes = reviewLikeRepository.countByReviewId(reviewId);
-        ReceiptImage receiptImage = getReceiptImageIfAdmin(user, reviewId);
+        ReceiptImage receiptImage = null;
+        if (user != null && user.getRole() == Role.ADMIN) {
+            receiptImage = getReceiptImageIfAdmin(user, reviewId);
+        }
 
-        return VideoReviewDetailResponse.from(video, totalLikes, receiptImage, user.getRole());
+        String receiptImageUrl = (receiptImage != null)
+                ? receiptImage.getMediaFile().getFileUrl()
+                : null;
+
+        return VideoReviewDetailResponse.from(video, totalLikes, receiptImageUrl);
     }
 
 
     public ImageReviewDetailResponse getImageReviewDetails(Long reviewId, Long userId) {
-
-        User user = getUser(userId);
         Review review = getReview(reviewId);
         List<ReviewImage> reviewImages = reviewImageRepository.findByReviewId(reviewId);
         long totalLikes = reviewLikeRepository.countByReviewId(reviewId);
-        ReceiptImage receiptImage = getReceiptImageIfAdmin(user, reviewId);
 
-        return ImageReviewDetailResponse.from(review, reviewImages, totalLikes, receiptImage, user.getRole());
+        User user = (userId != null)
+                ? userRepository.findById(userId).orElseThrow(UserNotFoundException::new)
+                : null;
+
+        ReceiptImage receipt = (user != null && user.getRole() == Role.ADMIN)
+                ? getReceiptImageIfAdmin(user, reviewId)
+                : null;
+        String receiptImageUrl = (receipt != null)
+                ? receipt.getMediaFile().getFileUrl()
+                : null;
+
+        return ImageReviewDetailResponse.from(review, reviewImages, totalLikes, receiptImageUrl);
     }
 
     private User getUser(Long userId) {

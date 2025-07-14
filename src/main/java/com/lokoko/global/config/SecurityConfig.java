@@ -46,6 +46,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers(permitUrlConfig.getPublicUrl()).permitAll()
+                .requestMatchers(permitUrlConfig.getOptionalUrl()).permitAll()
                 .requestMatchers(permitUrlConfig.getUserUrl()).hasAnyRole(USER.name(), ADMIN.name())
                 .requestMatchers(permitUrlConfig.getAdminUrl()).hasRole(ADMIN.name())
                 .anyRequest().authenticated());
