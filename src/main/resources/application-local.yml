@@ -26,6 +26,7 @@ lokoko:
     cookieMaxAge: ${COOKIE_MAX_AGE}
     secureOption: ${SECURE_OPTION}
     cookiePathOption: ${COOKIE_PATH_OPTION}
+    cookieDomain: ${COOKIE_DOMAIN}
     refresh:
       expiration: ${REFRESH_EXP}
       header: ${REFRESH_HEAD}
