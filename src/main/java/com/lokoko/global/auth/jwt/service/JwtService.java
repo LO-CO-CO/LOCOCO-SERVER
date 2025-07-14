@@ -6,7 +6,7 @@ import com.lokoko.domain.user.entity.User;
 import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.domain.user.repository.UserRepository;
 import com.lokoko.global.auth.jwt.dto.GenerateTokenDto;
-import com.lokoko.global.auth.jwt.dto.JwtTokenDto;
+import com.lokoko.global.auth.jwt.dto.JwtTokenResponse;
 import com.lokoko.global.auth.jwt.exception.RefreshTokenNotFoundException;
 import com.lokoko.global.auth.jwt.exception.TokenExpiredException;
 import com.lokoko.global.auth.jwt.exception.TokenInvalidException;
@@ -36,7 +36,7 @@ public class JwtService {
     @Value("${lokoko.jwt.refresh.expiration}")
     private long refreshTokenExpiration;
 
-    public JwtTokenDto generateJwtToken(GenerateTokenDto dto) {
+    public JwtTokenResponse generateJwtToken(GenerateTokenDto dto) {
         String tokenId = UUID.randomUUID().toString();
         String accessToken = jwtProvider.generateAccessToken(dto.id(), dto.role(), dto.lineId());
         String refreshToken = jwtProvider.generateRefreshToken(dto.id(), dto.role(), tokenId, dto.lineId());
@@ -44,7 +44,7 @@ public class JwtService {
         String redisKey = "refreshToken:" + dto.id() + ":" + tokenId;
         redisUtil.setRefreshToken(redisKey, refreshToken, refreshTokenExpiration);
 
-        return JwtTokenDto.of(accessToken, refreshToken, tokenId);
+        return JwtTokenResponse.of(accessToken, refreshToken, tokenId);
     }
 
     public String extractRefreshTokenFromCookies(HttpServletRequest request) {
@@ -59,7 +59,7 @@ public class JwtService {
                 .orElseThrow(TokenInvalidException::new);
     }
 
-    public JwtTokenDto reissueJwtToken(HttpServletRequest request) {
+    public JwtTokenResponse reissueJwtToken(HttpServletRequest request) {
         String refreshToken = extractRefreshTokenFromCookies(request);
 
         Long userId = jwtExtractor.getId(refreshToken);
@@ -80,13 +80,13 @@ public class JwtService {
 
         String role = jwtExtractor.getRole(refreshToken);
         String lineId = jwtExtractor.getLineId(refreshToken);
-        JwtTokenDto newTokens = generateJwtToken(GenerateTokenDto.of(userId, role, lineId));
+        JwtTokenResponse newTokens = generateJwtToken(GenerateTokenDto.of(userId, role, lineId));
 
         redisUtil.deleteRefreshToken(redisKey);
         return newTokens;
     }
 
-    public JwtTokenDto issueTokensForTest(Long userId) {
+    public JwtTokenResponse issueTokensForTest(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
@@ -105,6 +105,6 @@ public class JwtService {
                 fakeLineId
         );
 
-        return JwtTokenDto.of(accessToken, refreshToken, tokenId);
+        return JwtTokenResponse.of(accessToken, refreshToken, tokenId);
     }
 }

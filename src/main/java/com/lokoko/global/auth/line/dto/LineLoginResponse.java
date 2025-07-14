@@ -1,9 +1,13 @@
 package com.lokoko.global.auth.line.dto;
 
 import com.lokoko.global.auth.entity.enums.OauthLoginStatus;
-import com.lokoko.global.auth.jwt.dto.LoginDto;
+import com.lokoko.global.auth.jwt.dto.LoginResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 public record LineLoginResponse(
+        @Schema(requiredMode = REQUIRED)
         OauthLoginStatus loginStatus
 ) {
     public static LineLoginResponse of(
@@ -12,9 +16,9 @@ public record LineLoginResponse(
         return new LineLoginResponse(loginStatus);
     }
 
-    public static LineLoginResponse from(LoginDto loginDto) {
+    public static LineLoginResponse from(LoginResponse loginResponse) {
         return new LineLoginResponse(
-                loginDto.loginStatus()
+                loginResponse.loginStatus()
         );
     }
 }

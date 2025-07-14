@@ -4,7 +4,7 @@ package com.lokoko.domain.product.service;
 import com.lokoko.domain.image.entity.ProductImage;
 import com.lokoko.domain.image.repository.ProductImageRepository;
 import com.lokoko.domain.like.service.ProductLikeService;
-import com.lokoko.domain.product.dto.ProductMainImageResponse;
+import com.lokoko.domain.product.dto.response.ProductMainImageResponse;
 import com.lokoko.domain.product.dto.response.CategoryNewProductResponse;
 import com.lokoko.domain.product.dto.response.CategoryPopularProductResponse;
 import com.lokoko.domain.product.dto.response.CategoryProductPageResponse;

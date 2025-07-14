@@ -2,18 +2,30 @@ package com.lokoko.domain.product.dto.response;
 
 
 import com.lokoko.domain.product.entity.Product;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 public record ProductResponse(
+        @Schema(requiredMode = REQUIRED)
         Long productId, // 제품 id(추후 상세조회를 위해서)
+        @Schema(requiredMode = REQUIRED)
         List<String> imageUrls, // 제품 이미지
+        @Schema(requiredMode = REQUIRED)
         String productName,// 제품 이름
+        @Schema(requiredMode = REQUIRED)
         String brandName, // 브랜드 이름
+        @Schema(requiredMode = REQUIRED)
         String unit, // 제품 단위
+        @Schema(requiredMode = REQUIRED)
         Long reviewCount, // 리뷰 개수
+        @Schema(requiredMode = REQUIRED)
         Double rating, // 별점
+        @Schema(requiredMode = REQUIRED)
         Boolean isLiked // 좋아요 여부
 ) {
     public static ProductResponse of(

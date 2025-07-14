@@ -9,7 +9,7 @@ import static java.util.stream.Collectors.toMap;
 import com.lokoko.domain.image.entity.ProductImage;
 import com.lokoko.domain.image.repository.ProductImageRepository;
 import com.lokoko.domain.like.repository.ProductLikeRepository;
-import com.lokoko.domain.product.dto.ProductMainImageResponse;
+import com.lokoko.domain.product.dto.response.ProductMainImageResponse;
 import com.lokoko.domain.product.dto.response.NameBrandProductResponse;
 import com.lokoko.domain.product.dto.response.ProductResponse;
 import com.lokoko.domain.product.dto.response.ProductSummary;

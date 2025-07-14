@@ -16,13 +16,13 @@ import com.lokoko.global.auth.entity.enums.OauthLoginStatus;
 import com.lokoko.global.auth.exception.ErrorMessage;
 import com.lokoko.global.auth.exception.OauthException;
 import com.lokoko.global.auth.exception.StateValidationException;
-import com.lokoko.global.auth.jwt.dto.LoginDto;
+import com.lokoko.global.auth.jwt.dto.LoginResponse;
 import com.lokoko.global.auth.jwt.utils.JwtProvider;
 import com.lokoko.global.auth.line.LineOAuthClient;
 import com.lokoko.global.auth.line.LineProperties;
-import com.lokoko.global.auth.line.dto.LineProfileResponse;
-import com.lokoko.global.auth.line.dto.LineTokenResponse;
-import com.lokoko.global.auth.line.dto.LineUserInfoResponse;
+import com.lokoko.global.auth.line.dto.LineProfileDto;
+import com.lokoko.global.auth.line.dto.LineTokenDto;
+import com.lokoko.global.auth.line.dto.LineUserInfoDto;
 import com.lokoko.global.utils.RedisUtil;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -49,16 +49,16 @@ public class AuthService {
     private long refreshTokenExpiration;
 
     @Transactional
-    public LoginDto loginWithLine(String code, String state) {
+    public LoginResponse loginWithLine(String code, String state) {
         try {
-            LineTokenResponse tokenResp = oAuthClient.issueToken(code);
+            LineTokenDto tokenResp = oAuthClient.issueToken(code);
             DecodedJWT idToken = JWT.decode(tokenResp.id_token());
             String email = idToken.getClaim(EMAIL_CLAIM).asString();
 
-            LineProfileResponse profile = oAuthClient.fetchProfile(tokenResp.access_token());
+            LineProfileDto profile = oAuthClient.fetchProfile(tokenResp.access_token());
             String lineUserId = profile.userId();
 
-            LineUserInfoResponse userInfo = oAuthClient.fetchUserInfo(tokenResp.access_token());
+            LineUserInfoDto userInfo = oAuthClient.fetchUserInfo(tokenResp.access_token());
             String displayName = userInfo.name();
 
             Optional<User> userOpt = userRepository.findByLineId(lineUserId);
@@ -82,7 +82,7 @@ public class AuthService {
             String refreshToken = jwtProvider.generateRefreshToken(user.getId(), user.getRole().name(), tokenId,
                     lineUserId);
 
-            return LoginDto.of(accessToken, refreshToken, loginStatus, user.getId(), tokenId);
+            return LoginResponse.of(accessToken, refreshToken, loginStatus, user.getId(), tokenId);
         } catch (StateValidationException ex) {
             log.warn("State 검증 실패: {}", ex.getMessage());
             throw ex;

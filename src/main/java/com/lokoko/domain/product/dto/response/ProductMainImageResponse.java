@@ -1,18 +1,29 @@
-package com.lokoko.domain.product.dto;
+package com.lokoko.domain.product.dto.response;
 
-import com.lokoko.domain.product.dto.response.ProductSummary;
 import com.lokoko.domain.product.entity.Product;
 import com.lokoko.domain.product.exception.MissingProductImageException;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.Arrays;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 public record ProductMainImageResponse(
+        @Schema(requiredMode = REQUIRED)
         Long productId,     // 제품 ID
+        @Schema(requiredMode = REQUIRED)
         String url,         // 대표 이미지 (반드시 존재해야 함)
+        @Schema(requiredMode = REQUIRED)
         String productName, // 제품명
+        @Schema(requiredMode = REQUIRED)
         String brandName,   // 브랜드명
+        @Schema(requiredMode = REQUIRED)
         String unit,        // 용량/단위
+        @Schema(requiredMode = REQUIRED)
         Long reviewCount,   // 리뷰 수
+        @Schema(requiredMode = REQUIRED)
         Double rating,      // 평균 별점
+        @Schema(requiredMode = REQUIRED)
         Boolean isLiked     // 사용자 좋아요 여부
 ) {
     public static ProductMainImageResponse of(

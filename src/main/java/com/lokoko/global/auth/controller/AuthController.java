@@ -5,8 +5,8 @@ import static com.lokoko.global.auth.controller.enums.ResponseMessage.REFRESH_TO
 import static com.lokoko.global.auth.jwt.utils.JwtProvider.ACCESS_TOKEN_HEADER;
 import static com.lokoko.global.auth.jwt.utils.JwtProvider.REFRESH_TOKEN_HEADER;
 
-import com.lokoko.global.auth.jwt.dto.JwtTokenDto;
-import com.lokoko.global.auth.jwt.dto.LoginDto;
+import com.lokoko.global.auth.jwt.dto.JwtTokenResponse;
+import com.lokoko.global.auth.jwt.dto.LoginResponse;
 import com.lokoko.global.auth.jwt.service.JwtService;
 import com.lokoko.global.auth.jwt.utils.CookieUtil;
 import com.lokoko.global.auth.line.dto.LineLoginResponse;
@@ -47,7 +47,7 @@ public class AuthController {
     @GetMapping("/line/login")
     public ApiResponse<LineLoginResponse> lineLogin(@RequestParam("code") String code,
                                                     @RequestParam("state") String state, HttpServletResponse response) {
-        LoginDto tokens = authService.loginWithLine(code, state);
+        LoginResponse tokens = authService.loginWithLine(code, state);
         LineLoginResponse loginResponse = LineLoginResponse.from(tokens);
         cookieUtil.setCookie(ACCESS_TOKEN_HEADER, tokens.accessToken(), response);
         cookieUtil.setCookie(REFRESH_TOKEN_HEADER, tokens.refreshToken(), response);
@@ -61,7 +61,7 @@ public class AuthController {
     @Operation(summary = "테스트용 JWT 토큰 발급")
     @PostMapping("/login")
     public ApiResponse<JwtLoginResponse> login(@RequestBody @Valid TestLoginRequest request) {
-        JwtTokenDto tokenDto = jwtService.issueTokensForTest(request.userId());
+        JwtTokenResponse tokenDto = jwtService.issueTokensForTest(request.userId());
         JwtLoginResponse loginResponse = JwtLoginResponse.of(tokenDto);
 
         return ApiResponse.success(HttpStatus.OK, LOGIN_SUCCESS.getMessage(), loginResponse);
@@ -70,7 +70,7 @@ public class AuthController {
     @PostMapping("/refresh")
     @Operation(summary = "RefreshToken 재발급")
     public ApiResponse<Void> reissueRefreshToken(HttpServletRequest request, HttpServletResponse response) {
-        JwtTokenDto tokens = jwtService.reissueJwtToken(request);
+        JwtTokenResponse tokens = jwtService.reissueJwtToken(request);
         cookieUtil.setCookie(ACCESS_TOKEN_HEADER, tokens.accessToken(), response);
         cookieUtil.setCookie(REFRESH_TOKEN_HEADER, tokens.refreshToken(), response);
 
