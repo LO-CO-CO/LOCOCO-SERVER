@@ -7,7 +7,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,8 +43,11 @@ public class YoutubeVideo extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime uploadedAt;
 
+    @Column
+    private String duration;
+
     public static YoutubeVideo of(String topic, String title, String url, Integer popularity, Long viewCount,
-                                  LocalDateTime uploadedAt) {
+                                  LocalDateTime uploadedAt, String duration) {
         YoutubeVideo video = new YoutubeVideo();
         video.topic = topic;
         video.title = title;
@@ -50,10 +55,23 @@ public class YoutubeVideo extends BaseEntity {
         video.popularity = popularity;
         video.viewCount = viewCount;
         video.uploadedAt = uploadedAt;
+        video.duration = duration;
         return video;
     }
 
     public void updatePopularity(Integer popularity) {
         this.popularity = popularity;
+    }
+
+    public Integer getDurationSeconds() {
+        if (this.duration == null || this.duration.isBlank()) {
+            return null;
+        }
+        try {
+            Duration d = Duration.parse(this.duration);
+            return (int) d.getSeconds();
+        } catch (DateTimeParseException e) {
+            return null;
+        }
     }
 }
