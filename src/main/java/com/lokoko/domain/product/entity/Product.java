@@ -58,7 +58,7 @@ public class Product extends BaseEntity {
     @Column(nullable = false)
     private String oliveYoungUrl;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String qoo10Url;
 
     @Enumerated(EnumType.STRING)
