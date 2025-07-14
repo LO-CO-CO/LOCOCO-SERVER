@@ -16,8 +16,12 @@ public class CookieUtil {
     @Value("${lokoko.jwt.cookiePathOption}")
     private String cookiePathOption;
 
+    @Value("${lokoko.jwt.cookieDomain}")
+    private String cookieDomain;
+
     public void setCookie(String name, String value, HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from(name, value)
+                .domain(cookieDomain)
                 .maxAge(cookieMaxAge)
                 .path(cookiePathOption)
                 .secure(secureOption)
@@ -30,8 +34,9 @@ public class CookieUtil {
 
     public void deleteCookie(HttpServletResponse response, String name) {
         ResponseCookie cookie = ResponseCookie.from(name, "value")
+                .domain(cookieDomain)
                 .maxAge(0)
-                .path("/")
+                .path(cookiePathOption)
                 .secure(secureOption)
                 .httpOnly(true)
                 .sameSite("none")

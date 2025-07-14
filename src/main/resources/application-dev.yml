@@ -29,6 +29,7 @@ lokoko:
     cookieMaxAge: ${COOKIE_MAX_AGE}
     secureOption: ${SECURE_OPTION}
     cookiePathOption: ${COOKIE_PATH_OPTION}
+    cookieDomain: ${COOKIE_DOMAIN}
 
 line:
   client-id: ${LINE_CHANNEL_ID}
