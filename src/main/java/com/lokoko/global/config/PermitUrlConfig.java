@@ -28,8 +28,6 @@ public class PermitUrlConfig {
      */
     public String[] getOptionalUrl() {
         return new String[]{
-                "/api/reviews/{reviewId}/image",
-                "/api/reviews/{reviewId}/video",
                 "/api/reviews/details/{reviewId}/image",
                 "/api/reviews/details/{reviewId}/video",
                 "/api/products/categories/search",
