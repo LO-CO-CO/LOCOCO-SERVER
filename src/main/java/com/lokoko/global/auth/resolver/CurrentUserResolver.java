@@ -1,7 +1,6 @@
 package com.lokoko.global.auth.resolver;
 
 import com.lokoko.global.auth.annotation.CurrentUser;
-import com.lokoko.global.auth.exception.OauthException;
 import com.lokoko.global.auth.jwt.utils.JwtProvider;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
@@ -29,8 +28,9 @@ public class CurrentUserResolver implements HandlerMethodArgumentResolver {
                                   WebDataBinderFactory binderFactory) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || !(authentication.getPrincipal() instanceof Jwt jwt)) {
-            throw new OauthException();
+        if (authentication == null || authentication.getPrincipal() == null
+                || !(authentication.getPrincipal() instanceof Jwt jwt)) {
+            return null;
         }
 
         return Long.valueOf(jwt.getClaimAsString(JwtProvider.ID_CLAIM));
