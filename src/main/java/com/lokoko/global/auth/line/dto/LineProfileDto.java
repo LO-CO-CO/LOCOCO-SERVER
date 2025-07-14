@@ -1,6 +1,6 @@
 package com.lokoko.global.auth.line.dto;
 
-public record LineProfileResponse(
+public record LineProfileDto(
         String userId,
         String displayName,
         String pictureUrl,

@@ -1,7 +1,7 @@
 package com.lokoko.global.auth.line.dto;
 
 import com.lokoko.global.auth.entity.enums.OauthLoginStatus;
-import com.lokoko.global.auth.jwt.dto.LoginDto;
+import com.lokoko.global.auth.jwt.dto.LoginResponse;
 
 public record LineLoginResponse(
         OauthLoginStatus loginStatus
@@ -12,9 +12,9 @@ public record LineLoginResponse(
         return new LineLoginResponse(loginStatus);
     }
 
-    public static LineLoginResponse from(LoginDto loginDto) {
+    public static LineLoginResponse from(LoginResponse loginResponse) {
         return new LineLoginResponse(
-                loginDto.loginStatus()
+                loginResponse.loginStatus()
         );
     }
 }
