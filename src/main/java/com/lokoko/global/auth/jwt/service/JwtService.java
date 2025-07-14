@@ -1,17 +1,23 @@
 package com.lokoko.global.auth.jwt.service;
 
+import static com.lokoko.global.auth.jwt.utils.JwtProvider.REFRESH_TOKEN_HEADER;
+
 import com.lokoko.domain.user.entity.User;
 import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.domain.user.repository.UserRepository;
 import com.lokoko.global.auth.jwt.dto.GenerateTokenDto;
 import com.lokoko.global.auth.jwt.dto.JwtTokenDto;
+import com.lokoko.global.auth.jwt.exception.RefreshTokenNotFoundException;
 import com.lokoko.global.auth.jwt.exception.TokenExpiredException;
 import com.lokoko.global.auth.jwt.exception.TokenInvalidException;
 import com.lokoko.global.auth.jwt.utils.JwtExtractor;
 import com.lokoko.global.auth.jwt.utils.JwtProvider;
 import com.lokoko.global.utils.RedisUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +47,21 @@ public class JwtService {
         return JwtTokenDto.of(accessToken, refreshToken, tokenId);
     }
 
-    public JwtTokenDto reissueJwtToken(String refreshToken) {
+    public String extractRefreshTokenFromCookies(HttpServletRequest request) {
+        if (request.getCookies() == null) {
+            throw new RefreshTokenNotFoundException();
+        }
+
+        return Arrays.stream(request.getCookies())
+                .filter(cookie -> REFRESH_TOKEN_HEADER.equals(cookie.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElseThrow(TokenInvalidException::new);
+    }
+
+    public JwtTokenDto reissueJwtToken(HttpServletRequest request) {
+        String refreshToken = extractRefreshTokenFromCookies(request);
+
         Long userId = jwtExtractor.getId(refreshToken);
         String tokenId = jwtExtractor.getTokenId(refreshToken);
         String redisKey = REFRESH_TOKEN_KEY_PREFIX + userId + KEY_DELIMITER + tokenId;
@@ -59,8 +79,8 @@ public class JwtService {
         }
 
         String role = jwtExtractor.getRole(refreshToken);
-        String email = jwtExtractor.getLineId(refreshToken);
-        JwtTokenDto newTokens = generateJwtToken(GenerateTokenDto.of(userId, role, email));
+        String lineId = jwtExtractor.getLineId(refreshToken);
+        JwtTokenDto newTokens = generateJwtToken(GenerateTokenDto.of(userId, role, lineId));
 
         redisUtil.deleteRefreshToken(redisKey);
         return newTokens;
