@@ -6,6 +6,6 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 public record ReviewLikeResponse(
         @Schema(requiredMode = REQUIRED)
-        long likeCount
+        Long likeCount
 ) {
 }
