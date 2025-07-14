@@ -1,5 +1,6 @@
 package com.lokoko.domain.product.dto.response;
 
+import com.lokoko.domain.product.dto.ProductMainImageResponse;
 import com.lokoko.global.common.response.PageableResponse;
 import java.util.List;
 import lombok.Builder;
@@ -8,7 +9,7 @@ import lombok.Builder;
 public record CategoryProductPageResponse(
         String searchQuery,
         String parentCategoryName,
-        List<ProductResponse> products,
+        List<ProductMainImageResponse> products,
         PageableResponse pageInfo
 ) {
 }
