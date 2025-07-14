@@ -26,7 +26,6 @@ public record VideoReviewDetailResponse(
         Long likeCount,
         @Schema(requiredMode = REQUIRED)
         String videoUrl,
-        @Schema(requiredMode = REQUIRED)
         String profileImageUrl,
         @Schema(requiredMode = REQUIRED)
         String authorName,

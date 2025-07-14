@@ -26,7 +26,6 @@ public record ImageReviewDetailResponse(
         String negativeComment,
         @Schema(requiredMode = REQUIRED)
         String authorName,
-        @Schema(requiredMode = REQUIRED)
         String profileImageUrl,
         @Schema(requiredMode = REQUIRED)
         String rating,
