@@ -2,24 +2,20 @@ package com.lokoko.domain.review.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 public record MainImageReview(
-
-        @Schema(description = "리뷰 아이디")
+        @Schema(requiredMode = REQUIRED)
         Long reviewId,
-
-        @Schema(description = "브랜드 이름")
+        @Schema(requiredMode = REQUIRED)
         String brandName,
-
-        @Schema(description = "상품 이름")
+        @Schema(requiredMode = REQUIRED)
         String productName,
-
-        @Schema(description = "리뷰 좋아요 개수")
-        int likeCount,
-
-        @Schema(description = "리뷰 순위")
-        int rank,
-
-        @Schema(description = "리뷰 이미지")
+        @Schema(requiredMode = REQUIRED)
+        Integer likeCount,
+        @Schema(requiredMode = REQUIRED)
+        Integer rank,
+        @Schema(requiredMode = REQUIRED)
         String reviewImage
 ) {
 }

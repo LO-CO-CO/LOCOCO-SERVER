@@ -3,19 +3,34 @@ package com.lokoko.domain.review.dto.response;
 import com.lokoko.domain.review.entity.Review;
 import com.lokoko.domain.user.entity.User;
 import com.lokoko.domain.video.entity.ReviewVideo;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.LocalDateTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 public record VideoReviewDetailResponse(
+        @Schema(requiredMode = REQUIRED)
         Long reviewId,
+        @Schema(requiredMode = REQUIRED)
         String brandName,
+        @Schema(requiredMode = REQUIRED)
         String productName,
+        @Schema(requiredMode = REQUIRED)
         String positiveContent,
+        @Schema(requiredMode = REQUIRED)
         String negativeContent,
-        long likeCount,
+        @Schema(requiredMode = REQUIRED)
+        Long likeCount,
+        @Schema(requiredMode = REQUIRED)
         String videoUrl,
+        @Schema(requiredMode = REQUIRED)
         String profileImageUrl,
+        @Schema(requiredMode = REQUIRED)
         String authorName,
+        @Schema(requiredMode = REQUIRED)
         String rating,
+        @Schema(requiredMode = REQUIRED)
         LocalDateTime uploadAt
 ) {
     public static VideoReviewDetailResponse from(ReviewVideo reviewVideo, long likeCount) {
