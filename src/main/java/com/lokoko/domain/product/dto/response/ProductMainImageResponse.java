@@ -1,6 +1,5 @@
-package com.lokoko.domain.product.dto;
+package com.lokoko.domain.product.dto.response;
 
-import com.lokoko.domain.product.dto.response.ProductSummary;
 import com.lokoko.domain.product.entity.Product;
 import com.lokoko.domain.product.exception.MissingProductImageException;
 import java.util.Arrays;
