@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PopularVideoCrawler {
     private static final List<String> SEARCH_PARTS = List.of("id");
-    private static final List<String> DETAIL_PARTS = List.of("snippet", "statistics");
+    private static final List<String> DETAIL_PARTS = List.of("snippet", "statistics", "contentDetails");
     private static final String PUBLISHED_AFTER = "2024-01-01T00:00:00Z";
     private static final long MAX_RESULTS = 10L;
     private final YouTube youtube;
@@ -59,7 +59,6 @@ public class PopularVideoCrawler {
         if (ids.isEmpty()) {
             return List.of();
         }
-
         YouTube.Videos.List list = youtube.videos().list(DETAIL_PARTS);
 
         list.setKey(apiKey).setId(ids);
@@ -71,13 +70,19 @@ public class PopularVideoCrawler {
                     Instant instant = Instant.ofEpochMilli(item.getSnippet().getPublishedAt().getValue());
                     LocalDateTime uploadedAt = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
 
+                    String duration = null;
+                    if (item.getContentDetails() != null) {
+                        duration = item.getContentDetails().getDuration();
+                    }
+
                     return YoutubeVideo.of(
                             topic,
                             item.getSnippet().getTitle(),
                             "https://www.youtube.com/watch?v=" + item.getId(),
-                            item.getStatistics().getViewCount().intValue(),
+                            null,
                             item.getStatistics().getViewCount().longValue(),
-                            uploadedAt
+                            uploadedAt,
+                            duration
                     );
                 })
                 .toList();
