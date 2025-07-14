@@ -8,13 +8,16 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class YoutubeTrendService {
     private static final List<String> BEAUTY_TOPICS = List.of(
             "2025 여름 메이크업 트렌드",
@@ -35,16 +38,24 @@ public class YoutubeTrendService {
     @Transactional
     public void crawlPopularBeautyVideos() {
         List<YoutubeVideo> allVideos = crawlService.crawl(BEAUTY_TOPICS);
-        allVideos.sort(Comparator.comparingLong(YoutubeVideo::getViewCount).reversed());
+
+        List<YoutubeVideo> nonShortLongVideos = allVideos.stream()
+                .filter(v -> v.getUrl() != null
+                        && !v.getUrl().contains("/shorts/")
+                        && v.getDurationSeconds() != null
+                        && v.getDurationSeconds() > 60)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        nonShortLongVideos.sort(Comparator.comparingLong(YoutubeVideo::getViewCount).reversed());
 
         List<YoutubeVideo> top10Unique = new ArrayList<>();
         Set<String> seenUrls = new HashSet<>();
 
-        for (YoutubeVideo video : allVideos) {
+        for (YoutubeVideo video : nonShortLongVideos) {
             if (seenUrls.add(video.getUrl())) {
                 top10Unique.add(video);
             }
-            if (top10Unique.size() == 10) {
+            if (top10Unique.size() == 30) {
                 break;
             }
         }
@@ -52,7 +63,13 @@ public class YoutubeTrendService {
             top10Unique.get(i).updatePopularity(i + 1);
         }
 
-        saveService.replaceAll(top10Unique);
+        try {
+            saveService.replaceAll(top10Unique);
+        } catch (Exception e) {
+            log.error("[저장실패] replaceAll 에러, videos={}, error={}",
+                    top10Unique, e.getMessage(), e);
+            throw e;
+        }
     }
 
     public List<VideoResponse> findAll() {
