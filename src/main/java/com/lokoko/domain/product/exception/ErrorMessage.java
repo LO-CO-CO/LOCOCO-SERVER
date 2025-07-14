@@ -14,7 +14,8 @@ public enum ErrorMessage {
     MIDDLECATEGORY_NOT_FOUND("존재하지 않는 중간 카테고리입니다."),
 
     PRODUCT_OPTION_NOT_FOUND("존재하지 않는 프로덕트 옵션입니다."),
-    PRODUCT_OPTION_MISMATCH("상품과 옵션이 일치하지 않습니다.");
+    PRODUCT_OPTION_MISMATCH("상품과 옵션이 일치하지 않습니다."),
 
+    PRODUCT_IMAGE_NOT_FOUND("상품의 대표 이미지가 존재하지 않습니다");
     private final String message;
 }
