@@ -35,7 +35,7 @@ public class CookieUtil {
     public void deleteCookie(HttpServletResponse response, String name) {
         ResponseCookie cookie = ResponseCookie.from(name, "value")
                 .domain(cookieDomain)
-                .maxAge(cookieMaxAge)
+                .maxAge(0)
                 .path(cookiePathOption)
                 .secure(secureOption)
                 .httpOnly(true)
