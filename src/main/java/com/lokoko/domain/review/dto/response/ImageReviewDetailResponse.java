@@ -1,9 +1,11 @@
 package com.lokoko.domain.review.dto.response;
 
+import com.lokoko.domain.image.entity.ReceiptImage;
 import com.lokoko.domain.image.entity.ReviewImage;
 import com.lokoko.domain.product.entity.Product;
 import com.lokoko.domain.review.entity.Review;
 import com.lokoko.domain.user.entity.User;
+import com.lokoko.domain.user.entity.enums.Role;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
@@ -37,11 +39,14 @@ public record ImageReviewDetailResponse(
         @Schema(requiredMode = REQUIRED)
         String brandName,
         @Schema(requiredMode = REQUIRED)
-        String productName
+        String productName,
+        @Schema(requiredMode = REQUIRED)
+        String receiptImageUrl
 ) {
-    public static ImageReviewDetailResponse from(User author, Review review, List<ReviewImage> reviewImages,
-                                                 long totalLikes) {
+    public static ImageReviewDetailResponse from(Review review, List<ReviewImage> reviewImages,
+                                                 long totalLikes, ReceiptImage receiptImage, Role requestUserRole) {
         Product product = review.getProduct();
+        User author = review.getAuthor();
 
         List<String> images = reviewImages.stream()
                 .map(reviewImage -> reviewImage.getMediaFile().getFileUrl())
@@ -60,7 +65,9 @@ public record ImageReviewDetailResponse(
                 totalLikes,
                 images,
                 product.getBrandName(),
-                product.getProductName()
+                product.getProductName(),
+                requestUserRole == Role.ADMIN && receiptImage != null ?
+                        receiptImage.getMediaFile().getFileUrl() : null
         );
     }
 }
