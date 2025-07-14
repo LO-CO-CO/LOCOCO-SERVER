@@ -41,7 +41,7 @@ public class JwtService {
         String accessToken = jwtProvider.generateAccessToken(dto.id(), dto.role(), dto.lineId());
         String refreshToken = jwtProvider.generateRefreshToken(dto.id(), dto.role(), tokenId, dto.lineId());
 
-        String redisKey = "refreshToken:" + dto.id() + ":" + tokenId;
+        String redisKey = REFRESH_TOKEN_KEY_PREFIX + dto.id() + ":" + tokenId;
         redisUtil.setRefreshToken(redisKey, refreshToken, refreshTokenExpiration);
 
         return JwtTokenResponse.of(accessToken, refreshToken, tokenId);
