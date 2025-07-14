@@ -193,6 +193,8 @@ public class ReviewService {
                         .build();
                 receiptImageRepository.save(ri);
             }
+
+            review.markReceiptUploaded();
         }
 
         // 일반 이미지/비디오 저장

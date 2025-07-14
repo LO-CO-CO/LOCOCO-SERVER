@@ -13,7 +13,8 @@ public enum ResponseMessage {
     REVIEW_UPLOAD_SUCCESS("리뷰가 성공적으로 작성되었습니다."),
     MAIN_REVIEW_IMAGE_SUCCESS("메인페이지 상세 리뷰 이미지 조회에 성공했습니다."),
     MAIN_REVIEW_VIDEO_SUCCESS("메인페이지 상세 리뷰 비디오 조회에 성공했습니다."),
-    VIDEO_REVIEW_DETAIL_SUCCESS("영상 리뷰 상세 조회에 성공했습니다.");
+    VIDEO_REVIEW_DETAIL_SUCCESS("영상 리뷰 상세 조회에 성공했습니다."),
+    IMAGE_REVIEW_DETAIL_SUCCESS("사진 리뷰 상세 조회에 성공했습니다.");
 
     private final String message;
 }

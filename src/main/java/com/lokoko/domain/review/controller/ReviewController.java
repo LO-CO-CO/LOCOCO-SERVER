@@ -5,6 +5,7 @@ import com.lokoko.domain.review.dto.request.ReviewAdminRequest;
 import com.lokoko.domain.review.dto.request.ReviewMediaRequest;
 import com.lokoko.domain.review.dto.request.ReviewReceiptRequest;
 import com.lokoko.domain.review.dto.request.ReviewRequest;
+import com.lokoko.domain.review.dto.response.ImageReviewDetailResponse;
 import com.lokoko.domain.review.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.review.dto.response.MainImageReviewResponse;
 import com.lokoko.domain.review.dto.response.MainVideoReviewResponse;
@@ -47,8 +48,7 @@ public class ReviewController {
             @RequestBody @Valid ReviewReceiptRequest request) {
         ReviewReceiptResponse response = reviewService.createReceiptPresignedUrl(userId, request);
 
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_RECEIPT_PRESIGNED_URL_SUCCESS.getMessage(),
-                response);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_RECEIPT_PRESIGNED_URL_SUCCESS.getMessage(), response);
     }
 
 
@@ -59,8 +59,7 @@ public class ReviewController {
             @RequestBody @Valid ReviewMediaRequest request) {
         ReviewMediaResponse response = reviewService.createMediaPresignedUrl(userId, request);
 
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_MEDIA_PRESIGNED_URL_SUCCESS.getMessage(),
-                response);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_MEDIA_PRESIGNED_URL_SUCCESS.getMessage(), response);
     }
 
     @Operation(summary = "리뷰 작성")
@@ -94,9 +93,10 @@ public class ReviewController {
 
     @Operation(summary = "제품 상세 페이지에서 유저 리뷰 조회")
     @GetMapping("/details/image")
-    public ApiResponse<ImageReviewsProductDetailResponse> getImageReviewsInProductDetail(@RequestParam Long productId,
-                                                                                         @RequestParam(defaultValue = "0") int page,
-                                                                                         @RequestParam(defaultValue = "5") int size
+    public ApiResponse<ImageReviewsProductDetailResponse> getImageReviewsInProductDetail(
+            @RequestParam Long productId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
     ) {
         ImageReviewsProductDetailResponse response = reviewService.getImageReviewsInProductDetail(productId, page,
                 size);
@@ -121,6 +121,15 @@ public class ReviewController {
         VideoReviewDetailResponse response = reviewDetailsService.getVideoReviewDetails(reviewId, userId);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.VIDEO_REVIEW_DETAIL_SUCCESS.getMessage(), response);
+    }
+
+    @Operation(summary = "사진 리뷰 상세 조회 (가장 마지막 뎁스")
+    @GetMapping("/details/{reviewId}/image")
+    public ApiResponse<ImageReviewDetailResponse> getImageReviewDetails(@PathVariable Long reviewId,
+                                                                        @Parameter(hidden = true) @CurrentUser Long userId) {
+        ImageReviewDetailResponse response = reviewDetailsService.getImageReviewDetails(reviewId, userId);
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.IMAGE_REVIEW_DETAIL_SUCCESS.getMessage(), response);
     }
 
     @Operation(summary = "어드민용 리뷰 작성 (기획 전용)")
