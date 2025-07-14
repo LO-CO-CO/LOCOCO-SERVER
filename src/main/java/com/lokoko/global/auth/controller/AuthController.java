@@ -14,6 +14,7 @@ import com.lokoko.global.auth.service.AuthService;
 import com.lokoko.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
@@ -22,7 +23,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -69,11 +69,10 @@ public class AuthController {
 
     @PostMapping("/refresh")
     @Operation(summary = "RefreshToken 재발급")
-    public ApiResponse<Void> reissueRefreshToken(@RequestHeader(REFRESH_TOKEN_HEADER) String refreshToken,
-                                                 HttpServletResponse response) {
-        JwtTokenDto jwtTokenDto = jwtService.reissueJwtToken(refreshToken);
-        cookieUtil.setCookie(ACCESS_TOKEN_HEADER, jwtTokenDto.accessToken(), response);
-        response.setHeader(REFRESH_TOKEN_HEADER, jwtTokenDto.refreshToken());
+    public ApiResponse<Void> reissueRefreshToken(HttpServletRequest request, HttpServletResponse response) {
+        JwtTokenDto tokens = jwtService.reissueJwtToken(request);
+        cookieUtil.setCookie(ACCESS_TOKEN_HEADER, tokens.accessToken(), response);
+        cookieUtil.setCookie(REFRESH_TOKEN_HEADER, tokens.refreshToken(), response);
 
         return ApiResponse.success(HttpStatus.OK, REFRESH_TOKEN_REISSUE.getMessage());
     }
