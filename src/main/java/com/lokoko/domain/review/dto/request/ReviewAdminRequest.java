@@ -10,7 +10,7 @@ public record ReviewAdminRequest(
         @NotNull Integer rating,
         @NotNull @Size(min = 15, max = 1500) String positiveComment,
         @NotNull @Size(min = 15, max = 1500) String negativeComment,
-        @NotNull MediaType mediaType,
+        MediaType mediaType,
         String videoUrl,           // mediaType == VIDEO 일 때 사용
         @Size(min = 1) List<String> imageUrl, // mediaType == IMAGE 일 때 사용
         String receiptUrl

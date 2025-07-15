@@ -40,7 +40,6 @@ import com.lokoko.domain.video.entity.ReviewVideo;
 import com.lokoko.domain.video.repository.ReviewVideoRepository;
 import com.lokoko.global.common.dto.PresignedUrlResponse;
 import com.lokoko.global.common.entity.MediaFile;
-import com.lokoko.global.common.entity.MediaType;
 import com.lokoko.global.common.service.S3Service;
 import com.lokoko.global.utils.S3UrlParser;
 import java.util.List;
@@ -288,25 +287,17 @@ public class ReviewService {
             product = productRepository.findById(productId)
                     .orElseThrow(ProductNotFoundException::new);
         }
-        if (request.mediaType() == MediaType.VIDEO) {
-            if (request.videoUrl() == null || request.videoUrl().isBlank()
-                    || (request.imageUrl() != null && !request.imageUrl().isEmpty())) {
-                throw new InvalidMediaTypeException(ErrorMessage.MIXED_MEDIA_TYPE_NOT_ALLOWED);
-            }
-        } else {
-            if (request.imageUrl() == null || request.imageUrl().isEmpty()
-                    || request.imageUrl().size() > 5
-                    || (request.videoUrl() != null && !request.videoUrl().isBlank())) {
-                throw new InvalidMediaTypeException(ErrorMessage.TOO_MANY_IMAGE_FILES);
-            }
+        boolean hasVideo = request.videoUrl() != null && !request.videoUrl().isBlank();
+        boolean hasImages = request.imageUrl() != null && !request.imageUrl().isEmpty();
+        if (hasVideo && hasImages) {
+            throw new InvalidMediaTypeException(ErrorMessage.MIXED_MEDIA_TYPE_NOT_ALLOWED);
         }
-        var builder = Review.builder()
+        Review.ReviewBuilder builder = Review.builder()
                 .author(user)
                 .product(product)
                 .rating(Rating.fromValue(request.rating()))
                 .positiveContent(request.positiveComment())
                 .negativeContent(request.negativeComment());
-
         if (option != null) {
             builder.productOption(option);
         }
@@ -314,39 +305,39 @@ public class ReviewService {
         reviewRepository.save(review);
 
         if (request.receiptUrl() != null && !request.receiptUrl().isBlank()) {
-            var receiptFile = MediaFile.builder()
+            MediaFile receiptFile = MediaFile.builder()
                     .fileUrl(request.receiptUrl())
                     .build();
-            var ri = ReceiptImage.builder()
+            ReceiptImage receiptImage = ReceiptImage.builder()
                     .mediaFile(receiptFile)
                     .displayOrder(1)
                     .review(review)
                     .build();
-            receiptImageRepository.save(ri);
+            receiptImageRepository.save(receiptImage);
+            review.markReceiptUploaded();
         }
 
-        if (request.mediaType() == MediaType.VIDEO) {
-            var videoFile = MediaFile.builder()
+        if (hasVideo) {
+            MediaFile videoFile = MediaFile.builder()
                     .fileUrl(request.videoUrl())
                     .build();
-            var rv = ReviewVideo.createReviewVideo(videoFile, 1, review);
-            reviewVideoRepository.save(rv);
-        } else {
+            ReviewVideo reviewVideo = ReviewVideo.createReviewVideo(videoFile, 1, review);
+            reviewVideoRepository.save(reviewVideo);
+        } else if (hasImages) {
             int order = 1;
             for (String url : request.imageUrl()) {
-                var imgFile = MediaFile.builder()
+                MediaFile imageFile = MediaFile.builder()
                         .fileUrl(url)
                         .build();
-                var reviewImg = ReviewImage.builder()
-                        .mediaFile(imgFile)
+                ReviewImage reviewImage = ReviewImage.builder()
+                        .mediaFile(imageFile)
                         .displayOrder(order)
                         .isMain(order == 1)
                         .review(review)
                         .build();
-                reviewImageRepository.save(reviewImg);
+                reviewImageRepository.save(reviewImage);
                 order++;
             }
-            review.markReceiptUploaded();
         }
     }
 }

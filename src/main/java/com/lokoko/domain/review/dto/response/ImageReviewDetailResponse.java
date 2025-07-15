@@ -27,7 +27,6 @@ public record ImageReviewDetailResponse(
         String profileImageUrl,
         @Schema(requiredMode = REQUIRED)
         String rating,
-        @Schema(requiredMode = REQUIRED)
         String option,
         @Schema(requiredMode = REQUIRED)
         Long likeCount,
