@@ -106,6 +106,8 @@ jobs:
                 reverse_proxy 127.0.0.1:${STANDBY_PORT}
             }" | sudo tee /etc/caddy/Caddyfile
             
+            sudo systemctl reload caddy
+            
             sudo docker stop lokoko-${ACTIVE_PORT}
             sudo docker rm lokoko-${ACTIVE_PORT}
             
