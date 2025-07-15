@@ -408,6 +408,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         }
 
         List<ImageReviewProductDetailResponse> results = reviewIds.stream()
+                .filter(map::containsKey)
                 .map(map::get)
                 .toList();
 
