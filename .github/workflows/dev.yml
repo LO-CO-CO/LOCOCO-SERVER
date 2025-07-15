@@ -69,7 +69,6 @@ jobs:
             ACTIVE_PORT=8081
             STANDBY_PORT=8080
             fi
-            
             AFTER_NAME=lokoko-${STANDBY_PORT}
             
             sudo docker run \
