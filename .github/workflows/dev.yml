@@ -70,6 +70,8 @@ jobs:
             STANDBY_PORT=8080
             fi
             
+            AFTER_NAME=lokoko-${STANDBY_PORT}
+            
             sudo docker run \
               --network lokoko-net \
               --name lokoko-${STANDBY_PORT} \
@@ -78,14 +80,20 @@ jobs:
               -e TZ=Asia/Seoul \
               ${{ secrets.DOCKER_USER_NAME }}/lokoko:latest
             
-            sleep 30
+            sleep 20
             for i in {1..5}; do
-              curl -sf "http://localhost:${STANDBY_PORT}/health-check" && HEALTHY=true && break || HEALTHY=false
-              echo "** Health-Check 실패, 재시도 중... (${i}/10)"
-              sleep 5
+              if curl -sf "http://localhost:${STANDBY_PORT}/health-check"; then
+                HEALTHY=true
+                echo "** Health-Check 성공: ${STANDBY_PORT} 포트 응답 OK"
+                break
+              else
+                echo "** Health-Check 실패, 재시도 중... (${i}/5)"
+                sleep 5
+              fi
             done
-            if [ "$HEALTH" != "200" ]; then
-            echo "헬스체크 실패, 컨테이너를 중지 후 롤백"
+            if [ "$HEALTHY" = true ]; then
+              echo "** Health-Check 성공: ${AFTER_NAME} 컨테이너 정상 작동"
+            
             sudo docker stop lokoko-${STANDBY_PORT}
             sudo docker rm lokoko-${STANDBY_PORT}
             exit 1
