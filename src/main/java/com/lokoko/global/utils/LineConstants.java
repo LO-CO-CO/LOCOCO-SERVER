@@ -20,6 +20,7 @@ public class LineConstants {
     public static final String PARAM_STATE = "&state=";
     public static final String RESPONSE_TYPE_CODE = "code";
     public static final String GRANT_TYPE_AUTH_CODE = "authorization_code";
+    public static final String PARAM_UI_LOCALES = "&ui_locales=ja";
 
     private LineConstants() {
     }

@@ -7,6 +7,7 @@ import static com.lokoko.global.utils.LineConstants.PARAM_REDIRECT_URI;
 import static com.lokoko.global.utils.LineConstants.PARAM_RESPONSE_TYPE;
 import static com.lokoko.global.utils.LineConstants.PARAM_SCOPE;
 import static com.lokoko.global.utils.LineConstants.PARAM_STATE;
+import static com.lokoko.global.utils.LineConstants.PARAM_UI_LOCALES;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -125,6 +126,7 @@ public class AuthService {
                 PARAM_CLIENT_ID + props.getClientId() +
                 PARAM_REDIRECT_URI + redirectUri +
                 PARAM_STATE + state +
-                PARAM_SCOPE;
+                PARAM_SCOPE +
+                PARAM_UI_LOCALES;
     }
 }
