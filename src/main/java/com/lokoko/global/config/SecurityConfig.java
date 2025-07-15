@@ -69,14 +69,12 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(
-                Arrays.asList("https://52.79.208.129.nip.io", "http://localhost:3000", "https://localhost:3000"));
+                Arrays.asList("https://52.79.208.129.nip.io", "http://localhost:3000", "https://localhost:3000",
+                        "https://www.lococo.beauty", "https://lococo.beauty"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("Authorization", "RefreshToken"));
         configuration.setAllowCredentials(true);
-        /*
-         * TODO: 추후에 true로 변경, setAllowedOrigins에 클라이언트 URL을 명시
-         */
 
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", configuration);
