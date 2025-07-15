@@ -2,6 +2,7 @@ package com.lokoko.domain.review.dto.response;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import com.lokoko.domain.image.entity.ProductImage;
 import com.lokoko.domain.image.entity.ReviewImage;
 import com.lokoko.domain.product.entity.Product;
 import com.lokoko.domain.review.entity.Review;
@@ -36,10 +37,16 @@ public record ImageReviewDetailResponse(
         String brandName,
         @Schema(requiredMode = REQUIRED)
         String productName,
-        String receiptImageUrl
+        @Schema(requiredMode = REQUIRED)
+        String productImageUrl,
+        String receiptImageUrl,
+        @Schema(requiredMode = REQUIRED)
+        Boolean isLiked
+
 ) {
     public static ImageReviewDetailResponse from(Review review, List<ReviewImage> reviewImages,
-                                                 long totalLikes, String receiptImage) {
+                                                 long totalLikes, String receiptImage, ProductImage productImage,
+                                                 Boolean isLiked) {
         Product product = review.getProduct();
         User author = review.getAuthor();
 
@@ -61,7 +68,9 @@ public record ImageReviewDetailResponse(
                 images,
                 product.getBrandName(),
                 product.getProductName(),
-                receiptImage
+                productImage.getUrl(),
+                receiptImage,
+                isLiked
         );
     }
 }

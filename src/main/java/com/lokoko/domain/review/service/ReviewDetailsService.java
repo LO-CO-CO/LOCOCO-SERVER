@@ -1,13 +1,17 @@
 package com.lokoko.domain.review.service;
 
+import com.lokoko.domain.image.entity.ProductImage;
 import com.lokoko.domain.image.entity.ReceiptImage;
 import com.lokoko.domain.image.entity.ReviewImage;
+import com.lokoko.domain.image.repository.ProductImageRepository;
 import com.lokoko.domain.image.repository.ReceiptImageRepository;
 import com.lokoko.domain.image.repository.ReviewImageRepository;
 import com.lokoko.domain.like.repository.ReviewLikeRepository;
+import com.lokoko.domain.product.entity.Product;
 import com.lokoko.domain.review.dto.response.ImageReviewDetailResponse;
 import com.lokoko.domain.review.dto.response.VideoReviewDetailResponse;
 import com.lokoko.domain.review.entity.Review;
+import com.lokoko.domain.review.exception.ProductImageNotFoundException;
 import com.lokoko.domain.review.exception.ReviewNotFoundException;
 import com.lokoko.domain.review.exception.ReviewVideoNotFoundException;
 import com.lokoko.domain.review.repository.ReviewRepository;
@@ -32,6 +36,7 @@ public class ReviewDetailsService {
     private final ReviewLikeRepository reviewLikeRepository;
     private final ReviewImageRepository reviewImageRepository;
     private final ReceiptImageRepository receiptImageRepository;
+    private final ProductImageRepository productImageRepository;
 
 
     public VideoReviewDetailResponse getVideoReviewDetails(Long reviewId, Long userId) {
@@ -43,16 +48,26 @@ public class ReviewDetailsService {
         Review review = getReview(reviewId);
         ReviewVideo video = getReviewVideo(reviewId);
         long totalLikes = reviewLikeRepository.countByReviewId(reviewId);
+
         ReceiptImage receiptImage = null;
         if (user != null && user.getRole() == Role.ADMIN) {
             receiptImage = getReceiptImageIfAdmin(user, reviewId);
+        }
+
+        boolean isLiked = false;
+        if (user != null) {
+            isLiked = reviewLikeRepository.existsByUserAndReview(user, review);
         }
 
         String receiptImageUrl = (receiptImage != null)
                 ? receiptImage.getMediaFile().getFileUrl()
                 : null;
 
-        return VideoReviewDetailResponse.from(video, totalLikes, receiptImageUrl);
+        Product product = review.getProduct();
+        ProductImage productImage = productImageRepository.findByProduct(product)
+                .orElseThrow(ProductImageNotFoundException::new);
+
+        return VideoReviewDetailResponse.from(video, totalLikes, receiptImageUrl, productImage, isLiked);
     }
 
 
@@ -68,16 +83,22 @@ public class ReviewDetailsService {
         ReceiptImage receipt = (user != null && user.getRole() == Role.ADMIN)
                 ? getReceiptImageIfAdmin(user, reviewId)
                 : null;
+
         String receiptImageUrl = (receipt != null)
                 ? receipt.getMediaFile().getFileUrl()
                 : null;
 
-        return ImageReviewDetailResponse.from(review, reviewImages, totalLikes, receiptImageUrl);
-    }
+        boolean isLiked = false;
+        if (user != null) {
+            isLiked = reviewLikeRepository.existsByUserAndReview(user, review);
+        }
 
-    private User getUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
+        Product product = review.getProduct();
+        ProductImage productImage = productImageRepository.findByProduct(product)
+                .orElseThrow(ProductImageNotFoundException::new);
+
+        return ImageReviewDetailResponse.from(review, reviewImages, totalLikes,
+                receiptImageUrl, productImage, isLiked);
     }
 
     private Review getReview(Long reviewId) {

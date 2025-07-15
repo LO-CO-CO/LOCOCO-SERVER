@@ -48,7 +48,8 @@ public class ReviewController {
             @RequestBody @Valid ReviewReceiptRequest request) {
         ReviewReceiptResponse response = reviewService.createReceiptPresignedUrl(userId, request);
 
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_RECEIPT_PRESIGNED_URL_SUCCESS.getMessage(), response);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_RECEIPT_PRESIGNED_URL_SUCCESS.getMessage(),
+                response);
     }
 
 
@@ -59,7 +60,8 @@ public class ReviewController {
             @RequestBody @Valid ReviewMediaRequest request) {
         ReviewMediaResponse response = reviewService.createMediaPresignedUrl(userId, request);
 
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_MEDIA_PRESIGNED_URL_SUCCESS.getMessage(), response);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_MEDIA_PRESIGNED_URL_SUCCESS.getMessage(),
+                response);
     }
 
     @Operation(summary = "리뷰 작성")
@@ -91,15 +93,16 @@ public class ReviewController {
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.MAIN_REVIEW_VIDEO_SUCCESS.getMessage(), response);
     }
 
-    @Operation(summary = "제품 상세 페이지에서 유저 리뷰 조회")
+    @Operation(summary = "제품 상세 페이지에서 사진 리뷰 조회")
     @GetMapping("/details/image")
     public ApiResponse<ImageReviewsProductDetailResponse> getImageReviewsInProductDetail(
             @RequestParam Long productId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
+            @RequestParam(defaultValue = "5") int size,
+            @Parameter(hidden = true) @CurrentUser Long userId
     ) {
         ImageReviewsProductDetailResponse response = reviewService.getImageReviewsInProductDetail(productId, page,
-                size);
+                size, userId);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.IMAGE_REVIEW_GET_SUCCESS.getMessage(),
                 response);

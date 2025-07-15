@@ -124,10 +124,10 @@ public class ReviewService {
 
     }
 
-    public ImageReviewsProductDetailResponse getImageReviewsInProductDetail(Long productId, int page, int size) {
-
+    public ImageReviewsProductDetailResponse getImageReviewsInProductDetail(Long productId, int page,
+                                                                            int size, Long userId) {
         Pageable pageable = PageRequest.of(page, size);
-        return reviewRepository.findImageReviewsByProductId(productId, pageable);
+        return reviewRepository.findImageReviewsByProductId(productId, userId, pageable);
     }
 
     @Transactional

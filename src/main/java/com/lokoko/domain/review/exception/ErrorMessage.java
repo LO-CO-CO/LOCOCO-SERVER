@@ -17,7 +17,8 @@ public enum ErrorMessage {
     INVALID_PRESIGNED_URL("Presigned URL 파싱에 실패했습니다."),
     REVIEW_NOT_FOUND("존재하지 않는 리뷰입니다."),
     REVIEW_VIDEO_NOT_FOUND("존재하지 않는 리뷰 영상입니다."),
-    RECEIPT_IMAGE_NOT_FOUND("존재하지 않는 영수증 입니다");
+    RECEIPT_IMAGE_NOT_FOUND("존재하지 않는 영수증 입니다"),
+    PRODUCT_IMAGE_NOT_FOUND("제품 이미지가 존재하지 않습니다");
 
     private final String message;
 }

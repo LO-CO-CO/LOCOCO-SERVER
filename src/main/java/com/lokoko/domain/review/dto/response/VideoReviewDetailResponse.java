@@ -2,6 +2,7 @@ package com.lokoko.domain.review.dto.response;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import com.lokoko.domain.image.entity.ProductImage;
 import com.lokoko.domain.review.entity.Review;
 import com.lokoko.domain.user.entity.User;
 import com.lokoko.domain.video.entity.ReviewVideo;
@@ -30,10 +31,15 @@ public record VideoReviewDetailResponse(
         String rating,
         @Schema(requiredMode = REQUIRED)
         LocalDateTime uploadAt,
-        String receiptImageUrl
+        @Schema(requiredMode = REQUIRED)
+        String productImageUrl,
+        String receiptImageUrl,
+        @Schema(requiredMode = REQUIRED)
+        Boolean isLiked
 ) {
     public static VideoReviewDetailResponse from(ReviewVideo reviewVideo, long likeCount,
-                                                 String receiptImageUrl) {
+                                                 String receiptImageUrl, ProductImage productImage,
+                                                 Boolean isLiked) {
         Review review = reviewVideo.getReview();
         User author = review.getAuthor();
         LocalDateTime uploadAt = reviewVideo.getCreatedAt();
@@ -50,7 +56,9 @@ public record VideoReviewDetailResponse(
                 author.getNickname(),
                 review.getRating().name(),
                 uploadAt,
-                receiptImageUrl
+                productImage.getUrl(),
+                receiptImageUrl,
+                isLiked
         );
     }
 }
