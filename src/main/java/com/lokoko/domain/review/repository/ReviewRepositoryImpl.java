@@ -308,8 +308,8 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         Long totalCount = queryFactory
                 .select(review.id.countDistinct())
                 .from(review)
-                .join(review.productOption, productOption)
-                .join(productOption.product, product)
+                .leftJoin(review.productOption, productOption)
+                .join(review.product, product)
                 .where(product.id.eq(productId))
                 .fetchOne();
 
@@ -372,8 +372,8 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                         reviewImage.mediaFile.fileUrl
                 )
                 .from(review)
-                .join(review.productOption, productOption)
-                .join(productOption.product, product)
+                .leftJoin(review.productOption, productOption)
+                .join(review.product, product)
                 .leftJoin(reviewImage).on(reviewImage.review.eq(review))
                 .where(review.id.in(reviewIds))
                 .orderBy(review.modifiedAt.desc())
