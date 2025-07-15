@@ -110,5 +110,4 @@ jobs:
             
             sudo docker stop lokoko-${ACTIVE_PORT}
             sudo docker rm lokoko-${ACTIVE_PORT}
-            
             sudo docker image prune -a -f
