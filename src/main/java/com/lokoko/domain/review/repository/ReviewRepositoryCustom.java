@@ -29,7 +29,7 @@ public interface ReviewRepositoryCustom {
                                                           Pageable pageable
     );
 
-    ImageReviewsProductDetailResponse findImageReviewsByProductId(Long productId, Pageable pageable);
+    ImageReviewsProductDetailResponse findImageReviewsByProductId(Long productId, Long userId, Pageable pageable);
 
 
     Slice<VideoReviewResponse> findVideoReviewsByKeyword(List<String> tokens, Pageable pageable);
