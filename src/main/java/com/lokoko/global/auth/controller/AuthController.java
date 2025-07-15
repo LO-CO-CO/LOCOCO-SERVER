@@ -78,8 +78,8 @@ public class AuthController {
         return ApiResponse.success(HttpStatus.OK, REFRESH_TOKEN_REISSUE.getMessage());
     }
 
-    @PostMapping("/logout")
     @Operation(summary = "로그아웃")
+    @PostMapping("/logout")
     public ApiResponse<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         authService.logout(request, response);
 
