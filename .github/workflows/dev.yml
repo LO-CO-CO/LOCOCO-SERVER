@@ -102,8 +102,8 @@ jobs:
             echo "{
                 admin 0.0.0.0:2020
             }
-              https://52.79.208.129.nip.io {
-              reverse_proxy localhost:${STANDBY_PORT}
+            https://52.79.208.129.nip.io {
+                reverse_proxy 127.0.0.1:${STANDBY_PORT}
             }" | sudo tee /etc/caddy/Caddyfile
             
             sudo docker stop lokoko-${ACTIVE_PORT}
