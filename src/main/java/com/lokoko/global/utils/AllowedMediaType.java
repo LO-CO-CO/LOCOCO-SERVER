@@ -14,6 +14,7 @@ public final class AllowedMediaType {
             "video/mp4",
             "video/avi",
             "video/mkv",
+            "video/mov",
             "video.quicktime"
     );
 }
