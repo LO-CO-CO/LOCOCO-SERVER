@@ -17,6 +17,9 @@ import com.lokoko.global.auth.exception.ErrorMessage;
 import com.lokoko.global.auth.exception.OauthException;
 import com.lokoko.global.auth.exception.StateValidationException;
 import com.lokoko.global.auth.jwt.dto.LoginResponse;
+import com.lokoko.global.auth.jwt.exception.TokenInvalidException;
+import com.lokoko.global.auth.jwt.utils.CookieUtil;
+import com.lokoko.global.auth.jwt.utils.JwtExtractor;
 import com.lokoko.global.auth.jwt.utils.JwtProvider;
 import com.lokoko.global.auth.line.LineOAuthClient;
 import com.lokoko.global.auth.line.LineProperties;
@@ -24,6 +27,8 @@ import com.lokoko.global.auth.line.dto.LineProfileDto;
 import com.lokoko.global.auth.line.dto.LineTokenDto;
 import com.lokoko.global.auth.line.dto.LineUserInfoDto;
 import com.lokoko.global.utils.RedisUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -31,6 +36,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,8 +48,12 @@ public class AuthService {
     private final LineOAuthClient oAuthClient;
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
+    private final JwtExtractor jwtExtractor;
     private final LineProperties props;
     private final RedisUtil redisUtil;
+    private final CookieUtil cookieUtil;
+    private final RedisTemplate<String, String> redisTemplate;
+    private static final String REFRESH_TOKEN_KEY_PREFIX = "refreshToken:";
 
     @Value("${lokoko.jwt.refresh.expiration}")
     private long refreshTokenExpiration;
@@ -81,6 +91,8 @@ public class AuthService {
             String tokenId = UUID.randomUUID().toString();
             String refreshToken = jwtProvider.generateRefreshToken(user.getId(), user.getRole().name(), tokenId,
                     lineUserId);
+            String redisKey = REFRESH_TOKEN_KEY_PREFIX + user.getId();
+            redisUtil.setRefreshToken(redisKey, refreshToken, refreshTokenExpiration);
 
             return LoginResponse.of(accessToken, refreshToken, loginStatus, user.getId(), tokenId);
         } catch (StateValidationException ex) {
@@ -90,6 +102,19 @@ public class AuthService {
             log.error("LINE OAuth 로그인 처리 중 오류 발생", ex);
             throw new OauthException(ErrorMessage.OAUTH_ERROR);
         }
+    }
+
+    @Transactional
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        String token = jwtExtractor.extractJwtToken(request)
+                .orElseThrow(TokenInvalidException::new);
+        Long userId = jwtExtractor.getId(token);
+
+        String redisKey = REFRESH_TOKEN_KEY_PREFIX + userId;
+        redisTemplate.delete(redisKey);
+
+        cookieUtil.deleteCookie(response, JwtProvider.ACCESS_TOKEN_HEADER);
+        cookieUtil.deleteCookie(response, JwtProvider.REFRESH_TOKEN_HEADER);
     }
 
     public String generateLineLoginUrl() {

@@ -1,6 +1,7 @@
 package com.lokoko.global.auth.controller;
 
 import static com.lokoko.global.auth.controller.enums.ResponseMessage.LOGIN_SUCCESS;
+import static com.lokoko.global.auth.controller.enums.ResponseMessage.LOGOUT_SUCCESS;
 import static com.lokoko.global.auth.controller.enums.ResponseMessage.REFRESH_TOKEN_REISSUE;
 import static com.lokoko.global.auth.jwt.utils.JwtProvider.ACCESS_TOKEN_HEADER;
 import static com.lokoko.global.auth.jwt.utils.JwtProvider.REFRESH_TOKEN_HEADER;
@@ -75,5 +76,13 @@ public class AuthController {
         cookieUtil.setCookie(REFRESH_TOKEN_HEADER, tokens.refreshToken(), response);
 
         return ApiResponse.success(HttpStatus.OK, REFRESH_TOKEN_REISSUE.getMessage());
+    }
+
+    @Operation(summary = "로그아웃")
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout(HttpServletRequest request, HttpServletResponse response) {
+        authService.logout(request, response);
+
+        return ApiResponse.success(HttpStatus.OK, LOGOUT_SUCCESS.getMessage());
     }
 }
