@@ -8,6 +8,8 @@ public record MainImageReview(
         @Schema(requiredMode = REQUIRED)
         Long reviewId,
         @Schema(requiredMode = REQUIRED)
+        Long productId,
+        @Schema(requiredMode = REQUIRED)
         String brandName,
         @Schema(requiredMode = REQUIRED)
         String productName,

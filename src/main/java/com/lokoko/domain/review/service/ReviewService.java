@@ -1,8 +1,6 @@
 package com.lokoko.domain.review.service;
 
 
-import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
-
 import com.lokoko.domain.image.entity.ReceiptImage;
 import com.lokoko.domain.image.entity.ReviewImage;
 import com.lokoko.domain.image.repository.ReceiptImageRepository;
@@ -40,13 +38,16 @@ import com.lokoko.global.common.entity.MediaFile;
 import com.lokoko.global.common.entity.MediaType;
 import com.lokoko.global.common.service.S3Service;
 import com.lokoko.global.utils.S3UrlParser;
-import java.util.List;
-import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.IntStream;
+
+import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
 
 @Service
@@ -223,6 +224,7 @@ public class ReviewService {
                     MainImageReview item = reviewImages.get(i);
                     return new MainImageReview(
                             item.reviewId(),
+                            item.productId(),
                             item.brandName(),
                             item.productName(),
                             item.likeCount(),
@@ -243,6 +245,7 @@ public class ReviewService {
                     MainVideoReview item = reviewVideo.get(i);
                     return new MainVideoReview(
                             item.reviewId(),
+                            item.productId(),
                             item.brandName(),
                             item.productName(),
                             item.likeCount(),

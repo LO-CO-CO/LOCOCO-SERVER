@@ -28,6 +28,7 @@ public class ReviewImageRepositoryImpl implements ReviewImageRepositoryCustom {
         return queryFactory
                 .select(Projections.constructor(MainImageReview.class,
                         review.id,
+                        product.id,
                         product.brandName,
                         product.productName,
                         reviewLike.count().intValue(),
