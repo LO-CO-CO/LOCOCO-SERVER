@@ -22,17 +22,18 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -292,8 +293,8 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     }
 
     @Override
-    public ImageReviewsProductDetailResponse findImageReviewsByProductId(Long productId, Pageable pageable) {
-
+    public ImageReviewsProductDetailResponse findImageReviewsByProductId(Long productId, Long userId,
+                                                                         Pageable pageable) {
         NumberExpression<Integer> ratingAsInt =
                 review.rating
                         .stringValue()
@@ -315,9 +316,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         List<Long> reviewIds = queryFactory
                 .select(review.id)
                 .from(review)
-                .join(review.productOption, productOption)
-                .join(productOption.product, product)
-                .where(product.id.eq(productId))
+                .where(review.product.id.eq(productId))
                 .orderBy(review.modifiedAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -335,6 +334,18 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
             );
         }
 
+        // 현재 조회중인 사용자가 좋아요 누른 리뷰 id
+        Set<Long> likedReviewIds = (userId != null) ? queryFactory
+                .select(reviewLike.review.id)
+                .from(reviewLike)
+                .where(
+                        reviewLike.user.id.eq(userId)
+                                .and(reviewLike.review.id.in(reviewIds))
+                )
+                .fetch()
+                .stream().collect(Collectors.toSet())
+                : Collections.emptySet();
+
         Map<Long, Long> likeCounts = queryFactory
                 .select(reviewLike.review.id, reviewLike.id.count())
                 .from(reviewLike)
@@ -347,7 +358,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                         tuple -> tuple.get(reviewLike.id.count())
                 ));
 
-        List<Tuple> result = queryFactory
+        List<Tuple> tuples = queryFactory
                 .select(
                         review.id,
                         review.modifiedAt,
@@ -355,6 +366,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                         review.positiveContent,
                         review.negativeContent,
                         review.author.nickname,
+                        review.author.id,
                         ratingAsInt,
                         productOption.optionName,
                         reviewImage.mediaFile.fileUrl
@@ -368,29 +380,30 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .fetch();
 
         Map<Long, ImageReviewProductDetailResponse> map = new LinkedHashMap<>();
-
-        for (Tuple tuple : result) {
-            Long reviewId = tuple.get(review.id);
-            String imageUrl = tuple.get(reviewImage.mediaFile.fileUrl);
-            Integer individualRating = tuple.get(ratingAsInt);
-
-            ImageReviewProductDetailResponse dto = map.computeIfAbsent(reviewId, id ->
-                    new ImageReviewProductDetailResponse(
-                            id,
-                            tuple.get(review.modifiedAt),
-                            tuple.get(review.receiptUploaded),
-                            tuple.get(review.positiveContent),
-                            tuple.get(review.negativeContent),
-                            tuple.get(review.author.nickname),
-                            individualRating != null ? individualRating.doubleValue() : 0.0,
-                            tuple.get(productOption.optionName),
-                            likeCounts.getOrDefault(id, 0L).intValue(),
-                            new ArrayList<>()
-                    )
-            );
-
-            if (imageUrl != null) {
-                dto.images().add(imageUrl);
+        for (Tuple t : tuples) {
+            Long id = t.get(review.id);
+            ImageReviewProductDetailResponse dto = map.computeIfAbsent(id, k -> {
+                boolean isMine = (userId != null && userId.equals(t.get(review.author.id)));
+                boolean isLiked = likedReviewIds.contains(k);
+                return new ImageReviewProductDetailResponse(
+                        k,
+                        t.get(review.modifiedAt),
+                        t.get(review.receiptUploaded),
+                        t.get(review.positiveContent),
+                        t.get(review.negativeContent),
+                        t.get(review.author.nickname),
+                        t.get(review.author.id),
+                        t.get(ratingAsInt).doubleValue(),
+                        t.get(productOption.optionName),
+                        likeCounts.getOrDefault(k, 0L).intValue(),
+                        new ArrayList<>(),
+                        isLiked,
+                        isMine
+                );
+            });
+            String img = t.get(reviewImage.mediaFile.fileUrl);
+            if (img != null) {
+                dto.images().add(img);
             }
         }
 
