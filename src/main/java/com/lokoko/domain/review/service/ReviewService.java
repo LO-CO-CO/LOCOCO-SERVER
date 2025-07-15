@@ -1,14 +1,19 @@
 package com.lokoko.domain.review.service;
 
 
+import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
+
 import com.lokoko.domain.image.entity.ReceiptImage;
 import com.lokoko.domain.image.entity.ReviewImage;
 import com.lokoko.domain.image.repository.ReceiptImageRepository;
 import com.lokoko.domain.image.repository.ReviewImageRepository;
+import com.lokoko.domain.product.entity.Product;
 import com.lokoko.domain.product.entity.ProductOption;
+import com.lokoko.domain.product.exception.ProductNotFoundException;
 import com.lokoko.domain.product.exception.ProductOptionMismatchException;
 import com.lokoko.domain.product.exception.ProductOptionNotFoundException;
 import com.lokoko.domain.product.repository.ProductOptionRepository;
+import com.lokoko.domain.product.repository.ProductRepository;
 import com.lokoko.domain.review.dto.request.ReviewAdminRequest;
 import com.lokoko.domain.review.dto.request.ReviewMediaRequest;
 import com.lokoko.domain.review.dto.request.ReviewReceiptRequest;
@@ -38,16 +43,13 @@ import com.lokoko.global.common.entity.MediaFile;
 import com.lokoko.global.common.entity.MediaType;
 import com.lokoko.global.common.service.S3Service;
 import com.lokoko.global.utils.S3UrlParser;
+import java.util.List;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.IntStream;
-
-import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
 
 @Service
@@ -60,6 +62,7 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final ReviewImageRepository reviewImageRepository;
     private final ProductOptionRepository productOptionRepository;
+    private final ProductRepository productRepository;
     private final ReviewVideoRepository reviewVideoRepository;
 
     public ReviewReceiptResponse createReceiptPresignedUrl(Long userId,
@@ -269,73 +272,78 @@ public class ReviewService {
 
     @Transactional
     public void createAdminReview(Long productId, Long userId, ReviewAdminRequest request) {
-        ProductOption option = productOptionRepository.findById(request.productOptionId())
-                .orElseThrow(ProductOptionNotFoundException::new);
-        if (!option.getProduct().getId().equals(productId)) {
-            throw new ProductOptionMismatchException();
-        }
         User user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
+        Product product;
+        ProductOption option = null;
+        if (request.productOptionId() != null) {
+            option = productOptionRepository.findById(request.productOptionId())
+                    .orElseThrow(ProductOptionNotFoundException::new);
+            product = option.getProduct();
+            if (!product.getId().equals(productId)) {
+                throw new ProductOptionMismatchException();
+            }
+        } else {
+            product = productRepository.findById(productId)
+                    .orElseThrow(ProductNotFoundException::new);
+        }
         if (request.mediaType() == MediaType.VIDEO) {
             if (request.videoUrl() == null || request.videoUrl().isBlank()
-                    || request.imageUrl() != null && !request.imageUrl().isEmpty()) {
+                    || (request.imageUrl() != null && !request.imageUrl().isEmpty())) {
                 throw new InvalidMediaTypeException(ErrorMessage.MIXED_MEDIA_TYPE_NOT_ALLOWED);
             }
         } else {
             if (request.imageUrl() == null || request.imageUrl().isEmpty()
                     || request.imageUrl().size() > 5
-                    || request.videoUrl() != null && !request.videoUrl().isBlank()) {
+                    || (request.videoUrl() != null && !request.videoUrl().isBlank())) {
                 throw new InvalidMediaTypeException(ErrorMessage.TOO_MANY_IMAGE_FILES);
             }
         }
-        Review review = Review.builder()
+        var builder = Review.builder()
                 .author(user)
-                .product(option.getProduct())
-                .productOption(option)
+                .product(product)
                 .rating(Rating.fromValue(request.rating()))
                 .positiveContent(request.positiveComment())
-                .negativeContent(request.negativeComment())
-                .build();
+                .negativeContent(request.negativeComment());
+
+        if (option != null) {
+            builder.productOption(option);
+        }
+        Review review = builder.build();
         reviewRepository.save(review);
 
         if (request.receiptUrl() != null && !request.receiptUrl().isBlank()) {
-            MediaFile receiptFile = MediaFile.builder()
+            var receiptFile = MediaFile.builder()
                     .fileUrl(request.receiptUrl())
                     .build();
-            ReceiptImage ri = ReceiptImage.builder()
+            var ri = ReceiptImage.builder()
                     .mediaFile(receiptFile)
                     .displayOrder(1)
                     .review(review)
                     .build();
             receiptImageRepository.save(ri);
         }
+
         if (request.mediaType() == MediaType.VIDEO) {
-            MediaFile videoFile = MediaFile.builder()
+            var videoFile = MediaFile.builder()
                     .fileUrl(request.videoUrl())
                     .build();
-            ReviewVideo rv = ReviewVideo.createReviewVideo(
-                    videoFile,
-                    1,
-                    review
-            );
+            var rv = ReviewVideo.createReviewVideo(videoFile, 1, review);
             reviewVideoRepository.save(rv);
         } else {
-            // 이미지 여러 장
             int order = 1;
             for (String url : request.imageUrl()) {
-                MediaFile imgFile = MediaFile.builder()
+                var imgFile = MediaFile.builder()
                         .fileUrl(url)
                         .build();
-
-                ReviewImage ri = ReviewImage.builder()
+                var reviewImg = ReviewImage.builder()
                         .mediaFile(imgFile)
                         .displayOrder(order)
                         .isMain(order == 1)
                         .review(review)
                         .build();
-
-                reviewImageRepository.save(ri);
+                reviewImageRepository.save(reviewImg);
                 order++;
             }
             review.markReceiptUploaded();
