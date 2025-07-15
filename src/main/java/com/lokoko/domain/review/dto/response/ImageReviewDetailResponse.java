@@ -53,6 +53,10 @@ public record ImageReviewDetailResponse(
                 .map(reviewImage -> reviewImage.getMediaFile().getFileUrl())
                 .toList();
 
+        String optionName = review.getProductOption() != null
+                ? review.getProductOption().getOptionName()
+                : null;
+
         return new ImageReviewDetailResponse(
                 review.getId(),
                 review.getModifiedAt(),
@@ -62,7 +66,7 @@ public record ImageReviewDetailResponse(
                 author.getNickname(),
                 author.getProfileImageUrl(),
                 review.getRating().name(),
-                review.getProductOption().getOptionName(),
+                optionName,
                 totalLikes,
                 images,
                 product.getBrandName(),
