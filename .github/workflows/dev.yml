@@ -80,7 +80,7 @@ jobs:
             
             sleep 30
             for i in {1..5}; do
-              curl -sf "http://localhost:${STANDBY_PORT}/actuator/health" && HEALTHY=true && break || HEALTHY=false
+              curl -sf "http://localhost:${STANDBY_PORT}/health-check" && HEALTHY=true && break || HEALTHY=false
               echo "** Health-Check 실패, 재시도 중... (${i}/10)"
               sleep 5
             done
