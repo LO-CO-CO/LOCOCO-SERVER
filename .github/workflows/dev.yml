@@ -57,23 +57,57 @@ jobs:
           key: ${{ secrets.EC2_SECRET_PEM }}
           envs: GITHUB_SHA
           script: |
-            SERVER_PORT=8080
-            
             sudo docker pull ${{ secrets.DOCKER_USER_NAME }}/lokoko:latest
             
-            sudo docker stop app || true
-            sudo docker rm app   || true
-
-            sudo docker run --name app -d \
-            --network lokoko-net \
-            -p 8080:8080 \
-            --env-file /home/ubuntu/lokoko-dev.env \
-            -e TZ=Asia/Seoul \
-            ${{ secrets.DOCKER_USER_NAME }}/lokoko:latest
-
-            sleep 5
-            curl -f http://localhost:8080/health-check
+            ACTIVE_PORT=8080
+            STANDBY_PORT=8081
+            
+            if sudo docker ps | grep ":8080"; then
+            ACTIVE_PORT=8080
+            STANDBY_PORT=8081
+            else
+            ACTIVE_PORT=8081
+            STANDBY_PORT=8080
+            fi
+            
+            AFTER_NAME=lokoko-${STANDBY_PORT}
+            
+            sudo docker run \
+              --network lokoko-net \
+              --name lokoko-${STANDBY_PORT} \
+              -d -p ${STANDBY_PORT}:8080 \
+              --env-file ./lokoko-dev.env \
+              -e TZ=Asia/Seoul \
+              ${{ secrets.DOCKER_USER_NAME }}/lokoko:latest
+            
+            sleep 20
+            for i in {1..5}; do
+              if curl -sf "http://localhost:${STANDBY_PORT}/health-check"; then
+                HEALTHY=true
+                echo "** Health-Check 성공: ${STANDBY_PORT} 포트 응답 OK"
+                break
+              else
+                echo "** Health-Check 실패, 재시도 중... (${i}/5)"
+                sleep 5
+              fi
+            done
+            if [ "$HEALTHY" = true ]; then
+              echo "** Health-Check 성공: ${AFTER_NAME} 컨테이너 정상 작동"
+            
+            sudo docker stop lokoko-${STANDBY_PORT}
+            sudo docker rm lokoko-${STANDBY_PORT}
+            exit 1
+            fi
+            
+            echo "{
+                admin 0.0.0.0:2020
+            }
+            https://52.79.208.129.nip.io {
+                reverse_proxy 127.0.0.1:${STANDBY_PORT}
+            }" | sudo tee /etc/caddy/Caddyfile
             
             sudo systemctl reload caddy
             
+            sudo docker stop lokoko-${ACTIVE_PORT}
+            sudo docker rm lokoko-${ACTIVE_PORT}
             sudo docker image prune -a -f
