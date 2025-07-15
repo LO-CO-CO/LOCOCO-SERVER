@@ -310,7 +310,7 @@ public class ReviewService {
                     .build();
             ReceiptImage receiptImage = ReceiptImage.builder()
                     .mediaFile(receiptFile)
-                    .displayOrder(1)
+                    .displayOrder(0)
                     .review(review)
                     .build();
             receiptImageRepository.save(receiptImage);
@@ -321,18 +321,18 @@ public class ReviewService {
             MediaFile videoFile = MediaFile.builder()
                     .fileUrl(request.videoUrl())
                     .build();
-            ReviewVideo reviewVideo = ReviewVideo.createReviewVideo(videoFile, 1, review);
+            ReviewVideo reviewVideo = ReviewVideo.createReviewVideo(videoFile, 0, review);
             reviewVideoRepository.save(reviewVideo);
         } else if (hasImages) {
-            int order = 1;
+            int order = 0;
             for (String url : request.imageUrl()) {
                 MediaFile imageFile = MediaFile.builder()
                         .fileUrl(url)
                         .build();
                 ReviewImage reviewImage = ReviewImage.builder()
                         .mediaFile(imageFile)
-                        .displayOrder(order)
-                        .isMain(order == 1)
+                        .displayOrder(order++)
+                        .isMain(order == 0)
                         .review(review)
                         .build();
                 reviewImageRepository.save(reviewImage);
