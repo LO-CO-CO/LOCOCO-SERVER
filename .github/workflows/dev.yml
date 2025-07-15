@@ -78,11 +78,12 @@ jobs:
               -e TZ=Asia/Seoul \
               ${{ secrets.DOCKER_USER_NAME }}/lokoko:latest
             
-            sleep 20
-            HEALTH=$(
-            curl -s -o /dev/null -w "%{http_code}" \
-            http://localhost:${STANDBY_PORT}/health-check
-            )
+            sleep 30
+            for i in {1..5}; do
+              curl -sf "http://localhost:${STANDBY_PORT}/actuator/health" && HEALTHY=true && break || HEALTHY=false
+              echo "** Health-Check 실패, 재시도 중... (${i}/10)"
+              sleep 5
+            done
             if [ "$HEALTH" != "200" ]; then
             echo "헬스체크 실패, 컨테이너를 중지 후 롤백"
             sudo docker stop lokoko-${STANDBY_PORT}
