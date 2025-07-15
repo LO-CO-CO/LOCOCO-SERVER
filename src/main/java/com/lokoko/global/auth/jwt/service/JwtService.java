@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class JwtService {
     private static final String REFRESH_TOKEN_KEY_PREFIX = "refreshToken:";
-    private static final String KEY_DELIMITER = ":";
     private final JwtProvider jwtProvider;
     private final JwtExtractor jwtExtractor;
     private final RedisUtil redisUtil;
@@ -41,7 +40,7 @@ public class JwtService {
         String accessToken = jwtProvider.generateAccessToken(dto.id(), dto.role(), dto.lineId());
         String refreshToken = jwtProvider.generateRefreshToken(dto.id(), dto.role(), tokenId, dto.lineId());
 
-        String redisKey = REFRESH_TOKEN_KEY_PREFIX + dto.id() + ":" + tokenId;
+        String redisKey = REFRESH_TOKEN_KEY_PREFIX + dto.id();
         redisUtil.setRefreshToken(redisKey, refreshToken, refreshTokenExpiration);
 
         return JwtTokenResponse.of(accessToken, refreshToken, tokenId);
@@ -63,8 +62,7 @@ public class JwtService {
         String refreshToken = extractRefreshTokenFromCookies(request);
 
         Long userId = jwtExtractor.getId(refreshToken);
-        String tokenId = jwtExtractor.getTokenId(refreshToken);
-        String redisKey = REFRESH_TOKEN_KEY_PREFIX + userId + KEY_DELIMITER + tokenId;
+        String redisKey = REFRESH_TOKEN_KEY_PREFIX + userId;
         String stored = redisUtil.getRefreshToken(redisKey);
 
         if (!MessageDigest.isEqual(
@@ -77,13 +75,10 @@ public class JwtService {
         if (jwtExtractor.isExpired(refreshToken)) {
             throw new TokenExpiredException();
         }
-
         String role = jwtExtractor.getRole(refreshToken);
         String lineId = jwtExtractor.getLineId(refreshToken);
-        JwtTokenResponse newTokens = generateJwtToken(GenerateTokenDto.of(userId, role, lineId));
 
-        redisUtil.deleteRefreshToken(redisKey);
-        return newTokens;
+        return generateJwtToken(GenerateTokenDto.of(userId, role, lineId));
     }
 
     public JwtTokenResponse issueTokensForTest(Long userId) {
