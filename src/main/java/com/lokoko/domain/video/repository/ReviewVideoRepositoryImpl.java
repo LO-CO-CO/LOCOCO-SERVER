@@ -28,6 +28,7 @@ public class ReviewVideoRepositoryImpl implements ReviewVideoRepositoryCustom {
         return queryFactory
                 .select(Projections.constructor(MainVideoReview.class,
                         review.id,
+                        product.id,
                         product.brandName,
                         product.productName,
                         reviewLike.count().intValue(),
