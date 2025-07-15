@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 public record ReviewAdminRequest(
-        @NotNull Long productOptionId,
+        Long productOptionId,
         @NotNull Integer rating,
         @NotNull @Size(min = 15, max = 1500) String positiveComment,
         @NotNull @Size(min = 15, max = 1500) String negativeComment,
