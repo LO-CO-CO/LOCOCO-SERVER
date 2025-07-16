@@ -1,7 +1,6 @@
 package com.lokoko.domain.like.service;
 
 import com.lokoko.domain.like.entity.ReviewLike;
-import com.lokoko.domain.like.exception.SelfReviewLikeNotAllowedException;
 import com.lokoko.domain.like.repository.ReviewLikeRepository;
 import com.lokoko.domain.review.entity.Review;
 import com.lokoko.domain.review.exception.ReviewNotFoundException;
@@ -28,10 +27,6 @@ public class ReviewLikeService {
                 .orElseThrow(ReviewNotFoundException::new);
         User user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
-
-        if (review.getAuthor().getId().equals(userId)) {
-            throw new SelfReviewLikeNotAllowedException();
-        }
 
         Optional<ReviewLike> existing = reviewLikeRepository
                 .findByReviewIdAndUserId(reviewId, userId);
