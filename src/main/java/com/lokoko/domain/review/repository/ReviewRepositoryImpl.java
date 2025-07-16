@@ -20,6 +20,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.ArrayList;
@@ -196,7 +197,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
 
     private BooleanBuilder keywordCondition(List<String> tokens) {
         if (tokens == null || tokens.isEmpty()) {
-            return null;
+            return new BooleanBuilder().and(Expressions.booleanTemplate("1 = 0")); // false
         }
 
         // 1단계: 완전 일치 검색
