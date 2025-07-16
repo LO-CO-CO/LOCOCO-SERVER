@@ -70,6 +70,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(
                 Arrays.asList("https://52.79.208.129.nip.io", "http://localhost:3000", "https://localhost:3000",
+                        "https://lococo-test.vercel.app/",
                         "https://www.lococo.beauty", "https://lococo.beauty"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
