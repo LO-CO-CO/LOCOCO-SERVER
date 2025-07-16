@@ -28,7 +28,7 @@ public record VideoReviewDetailResponse(
         @Schema(requiredMode = REQUIRED)
         String authorName,
         @Schema(requiredMode = REQUIRED)
-        String rating,
+        Double rating,
         @Schema(requiredMode = REQUIRED)
         LocalDateTime uploadAt,
         @Schema(requiredMode = REQUIRED)
@@ -54,7 +54,7 @@ public record VideoReviewDetailResponse(
                 reviewVideo.getMediaFile().getFileUrl(),
                 author.getProfileImageUrl(),
                 author.getNickname(),
-                review.getRating().name(),
+                (double) review.getRating().getValue(),
                 uploadAt,
                 productImage.getUrl(),
                 receiptImageUrl,
