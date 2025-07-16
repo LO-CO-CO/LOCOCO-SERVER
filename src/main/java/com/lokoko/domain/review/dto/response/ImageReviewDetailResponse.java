@@ -26,7 +26,7 @@ public record ImageReviewDetailResponse(
         String authorName,
         String profileImageUrl,
         @Schema(requiredMode = REQUIRED)
-        String rating,
+        Double rating,
         String option,
         @Schema(requiredMode = REQUIRED)
         Long likeCount,
@@ -65,7 +65,7 @@ public record ImageReviewDetailResponse(
                 review.getNegativeContent(),
                 author.getNickname(),
                 author.getProfileImageUrl(),
-                review.getRating().name(),
+                (double) review.getRating().getValue(),
                 optionName,
                 totalLikes,
                 images,
