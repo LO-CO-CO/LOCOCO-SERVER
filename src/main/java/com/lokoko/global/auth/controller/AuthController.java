@@ -48,12 +48,9 @@ public class AuthController {
     @GetMapping("/line/login")
     public ApiResponse<LineLoginResponse> lineLogin(@RequestParam("code") String code,
                                                     @RequestParam("state") String state,
-                                                    @RequestParam(value = "redirectUri", defaultValue = "https://lococo.beauty/api/auth/line/login") String redirectUri,
-                                                    HttpServletResponse response) {
+                                                    @RequestParam("redirectUri") String redirectUri) {
         LoginResponse tokens = authService.loginWithLine(code, state, redirectUri);
         LineLoginResponse loginResponse = LineLoginResponse.from(tokens);
-        cookieUtil.setCookie(ACCESS_TOKEN_HEADER, tokens.accessToken(), response);
-        cookieUtil.setCookie(REFRESH_TOKEN_HEADER, tokens.refreshToken(), response);
 
         return ApiResponse.success(HttpStatus.OK, LOGIN_SUCCESS.getMessage(), loginResponse);
     }
