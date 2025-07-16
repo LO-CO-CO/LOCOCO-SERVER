@@ -40,7 +40,9 @@ public record ImageReviewDetailResponse(
         String productImageUrl,
         String receiptImageUrl,
         @Schema(requiredMode = REQUIRED)
-        Boolean isLiked
+        Boolean isLiked,
+        @Schema(requiredMode = REQUIRED)
+        Long productId
 
 ) {
     public static ImageReviewDetailResponse from(Review review, List<ReviewImage> reviewImages,
@@ -73,7 +75,8 @@ public record ImageReviewDetailResponse(
                 product.getProductName(),
                 productImage.getUrl(),
                 receiptImage,
-                isLiked
+                isLiked,
+                product.getId()
         );
     }
 }
