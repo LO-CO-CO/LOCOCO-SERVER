@@ -60,9 +60,9 @@ public class AuthService {
     private long refreshTokenExpiration;
 
     @Transactional
-    public LoginResponse loginWithLine(String code, String state) {
+    public LoginResponse loginWithLine(String code, String state, String redirectUri) {
         try {
-            LineTokenDto tokenResp = oAuthClient.issueToken(code);
+            LineTokenDto tokenResp = oAuthClient.issueToken(code, redirectUri);
             DecodedJWT idToken = JWT.decode(tokenResp.id_token());
             String email = idToken.getClaim(EMAIL_CLAIM).asString();
 

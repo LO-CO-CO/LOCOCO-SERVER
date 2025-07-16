@@ -15,12 +15,12 @@ public class LineOAuthClient {
     private final WebClient lineWebClient;
     private final LineProperties props;
 
-    public LineTokenDto issueToken(String code) {
+    public LineTokenDto issueToken(String code, String redirectUri) {
         return lineWebClient.post()
                 .uri(LineConstants.TOKEN_PATH)
                 .body(BodyInserters.fromFormData(LineConstants.PARAM_GRANT_TYPE, LineConstants.GRANT_TYPE_AUTH_CODE)
                         .with(LineConstants.PARAM_CODE, code)
-                        .with(LineConstants.REDIRECT_URI, props.getRedirectUri())
+                        .with(LineConstants.REDIRECT_URI, redirectUri)
                         .with(LineConstants.CLIENT_ID, props.getClientId())
                         .with(LineConstants.PARAM_CLIENT_SECRET, props.getClientSecret()))
                 .retrieve()
