@@ -124,7 +124,8 @@ public class ProductService {
             List<Product> products, Long userId
     ) {
         List<Long> productIds = products.stream().map(Product::getId).toList();
-        Map<Long, String> imageMap = createProductImageMap(productImageRepository.findByProductIdIn(productIds));
+        Map<Long, String> imageMap = createProductImageMap(
+                productImageRepository.findByProductIdInAndIsRepresentativeTrue(productIds));
 
         List<RatingCount> stats = reviewRepository.countByProductIdsAndRating(productIds);
         Map<Long, Long> reviewCountMap = new HashMap<>();
