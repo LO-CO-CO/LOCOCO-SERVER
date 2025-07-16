@@ -48,7 +48,7 @@ public class AuthController {
     @GetMapping("/line/login")
     public ApiResponse<LineLoginResponse> lineLogin(@RequestParam("code") String code,
                                                     @RequestParam("state") String state,
-                                                    @RequestParam("redirectUri") String redirectUri,
+                                                    @RequestParam(value = "redirectUri", defaultValue = "https://lococo.beauty/api/auth/line/login") String redirectUri,
                                                     HttpServletResponse response) {
         LoginResponse tokens = authService.loginWithLine(code, state, redirectUri);
         LineLoginResponse loginResponse = LineLoginResponse.from(tokens);
