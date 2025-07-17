@@ -143,11 +143,16 @@ public class ReviewService {
             Long userId,
             ReviewRequest request
     ) {
-        ProductOption option = productOptionRepository.findById(request.productOptionId())
-                .orElseThrow(ProductOptionNotFoundException::new);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(ProductNotFoundException::new);
 
-        if (!option.getProduct().getId().equals(productId)) {
-            throw new ProductOptionMismatchException();
+        ProductOption option = null;
+        if (request.productOptionId() != null) {
+            option = productOptionRepository.findById(request.productOptionId())
+                    .orElseThrow(ProductOptionNotFoundException::new);
+            if (!option.getProduct().getId().equals(productId)) {
+                throw new ProductOptionMismatchException();
+            }
         }
 
         User user = userRepository.findById(userId)
@@ -179,7 +184,7 @@ public class ReviewService {
 
         Review review = Review.builder()
                 .author(user)
-                .product(option.getProduct())
+                .product(product)
                 .productOption(option)
                 .rating(Rating.fromValue(request.rating()))
                 .positiveContent(request.positiveComment())
