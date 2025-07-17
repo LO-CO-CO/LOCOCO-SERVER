@@ -4,12 +4,13 @@ package com.lokoko.domain.product.service;
 import com.lokoko.domain.image.entity.ProductImage;
 import com.lokoko.domain.image.repository.ProductImageRepository;
 import com.lokoko.domain.like.service.ProductLikeService;
-import com.lokoko.domain.product.dto.response.ProductMainImageResponse;
 import com.lokoko.domain.product.dto.response.CategoryNewProductResponse;
 import com.lokoko.domain.product.dto.response.CategoryPopularProductResponse;
 import com.lokoko.domain.product.dto.response.CategoryProductPageResponse;
+import com.lokoko.domain.product.dto.response.PopularProductProjection;
 import com.lokoko.domain.product.dto.response.ProductDetailResponse;
 import com.lokoko.domain.product.dto.response.ProductDetailYoutubeResponse;
+import com.lokoko.domain.product.dto.response.ProductMainImageResponse;
 import com.lokoko.domain.product.dto.response.ProductOptionResponse;
 import com.lokoko.domain.product.dto.response.ProductResponse;
 import com.lokoko.domain.product.dto.response.ProductSummary;
@@ -89,19 +90,31 @@ public class ProductReadService {
         );
     }
 
+
     public CategoryPopularProductResponse searchPopularProductsByCategory(MiddleCategory middleCategory, Long userId,
                                                                           int page,
                                                                           int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Slice<Product> slice = productRepository
-                .findProductsByPopularityAndRating(middleCategory, pageable);
-        Slice<ProductResponse> responseSlice =
-                productService.buildProductResponseSliceWithReviewData(slice, userId);
+
+        // 한 번의 쿼리로 모든 필요한 데이터 조회
+        Slice<PopularProductProjection> projectionSlice =
+                productRepository.findPopularProductsWithDetails(middleCategory, userId, pageable);
+
+        // 간단한 변환만 수행
+        List<ProductResponse> products = projectionSlice.getContent()
+                .stream()
+                .map(PopularProductProjection::toProductResponse)
+                .toList();
 
         return new CategoryPopularProductResponse(
                 middleCategory.getDisplayName(),
-                responseSlice.getContent(),
-                PageableResponse.of(responseSlice)
+                products,
+                PageableResponse.builder()
+                        .pageNumber(projectionSlice.getNumber())
+                        .pageSize(projectionSlice.getSize())
+                        .numberOfElements(projectionSlice.getNumberOfElements())
+                        .isLast(projectionSlice.isLast())
+                        .build()
         );
     }
 

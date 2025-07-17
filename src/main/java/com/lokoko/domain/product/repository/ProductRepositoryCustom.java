@@ -1,5 +1,6 @@
 package com.lokoko.domain.product.repository;
 
+import com.lokoko.domain.product.dto.response.PopularProductProjection;
 import com.lokoko.domain.product.entity.Product;
 import com.lokoko.domain.product.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.entity.enums.SubCategory;
@@ -16,4 +17,7 @@ public interface ProductRepositoryCustom {
 
     Slice<Product> findProductsByPopularityAndRating(MiddleCategory category, SubCategory subCategory,
                                                      Pageable pageable);
+
+    Slice<PopularProductProjection> findPopularProductsWithDetails(MiddleCategory middleCategory, Long userId,
+                                                                   Pageable pageable);
 }

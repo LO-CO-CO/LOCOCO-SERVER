@@ -1,16 +1,17 @@
 package com.lokoko.domain.product.dto.response;
 
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lokoko.domain.product.entity.Product;
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import lombok.Builder;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
+@Builder
 public record ProductResponse(
         @Schema(requiredMode = REQUIRED)
         Long productId, // 제품 id(추후 상세조회를 위해서)

@@ -1,5 +1,8 @@
 package com.lokoko.domain.product.repository;
 
+import com.lokoko.domain.image.entity.QProductImage;
+import com.lokoko.domain.like.entity.QProductLike;
+import com.lokoko.domain.product.dto.response.PopularProductProjection;
 import com.lokoko.domain.product.entity.Product;
 import com.lokoko.domain.product.entity.QProduct;
 import com.lokoko.domain.product.entity.enums.MiddleCategory;
@@ -7,9 +10,12 @@ import com.lokoko.domain.product.entity.enums.SubCategory;
 import com.lokoko.domain.review.entity.QReview;
 import com.lokoko.domain.review.entity.enums.Rating;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +37,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     private final JPAQueryFactory queryFactory;
     private final QProduct p = QProduct.product;
     private final QReview r = QReview.review;
+    private final QProductImage productImage = QProductImage.productImage;
+    private final QProductLike productLike = QProductLike.productLike;
 
     /**
      * 주어진 토큰 리스트를 기반으로 상품 검색 단계적으로 검색이 수행되고, 각 단계에서 결과가 존재하면 바로 반환
@@ -202,6 +210,61 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .fetch();
 
         boolean hasNext = content.size() == pageable.getPageSize();
+        return new SliceImpl<>(content, pageable, hasNext);
+    }
+
+    @Override
+    public Slice<PopularProductProjection> findPopularProductsWithDetails(
+            MiddleCategory category,
+            Long userId,
+            Pageable pageable) {
+
+        NumberExpression<Integer> ratingValue = new CaseBuilder()
+                .when(r.rating.eq(Rating.ONE)).then(1)
+                .when(r.rating.eq(Rating.TWO)).then(2)
+                .when(r.rating.eq(Rating.THREE)).then(3)
+                .when(r.rating.eq(Rating.FOUR)).then(4)
+                .when(r.rating.eq(Rating.FIVE)).then(5)
+                .otherwise(0);
+
+        JPAQuery<PopularProductProjection> query = queryFactory
+                .select(Projections.constructor(PopularProductProjection.class,
+                        p.id,
+                        p.productName,
+                        p.brandName,
+                        p.unit,
+                        r.id.count(),
+                        ratingValue.avg(),
+                        productImage.url,
+                        // userId에 따라 다른 expression 사용
+                        userId != null ?
+                                productLike.id.isNotNull() :
+                                Expressions.FALSE  // 또는 Expressions.asBoolean(false)
+                ))
+                .from(p)
+                .leftJoin(r).on(r.product.eq(p))
+                .leftJoin(productImage).on(productImage.product.eq(p).and(productImage.isMain.eq(true)));
+
+        // userId가 있을 때만 productLike 조인
+        if (userId != null) {
+            query.leftJoin(productLike).on(
+                    productLike.product.eq(p).and(productLike.user.id.eq(userId))
+            );
+        }
+
+        List<PopularProductProjection> content = query
+                .where(p.middleCategory.eq(category))
+                .groupBy(p.id, p.productName, p.brandName, p.unit, productImage.url)
+                .orderBy(r.id.count().desc(), ratingValue.avg().desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        boolean hasNext = content.size() > pageable.getPageSize();
+        if (hasNext) {
+            content.remove(content.size() - 1);
+        }
+
         return new SliceImpl<>(content, pageable, hasNext);
     }
 }
