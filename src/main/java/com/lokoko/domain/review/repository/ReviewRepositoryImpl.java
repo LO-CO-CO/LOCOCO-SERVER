@@ -14,6 +14,10 @@ import com.lokoko.domain.review.dto.response.VideoReviewProductDetail;
 import com.lokoko.domain.review.dto.response.VideoReviewProductDetailResponse;
 import com.lokoko.domain.review.dto.response.VideoReviewResponse;
 import com.lokoko.domain.review.entity.QReview;
+import com.lokoko.domain.user.entity.User;
+import com.lokoko.domain.user.entity.enums.Role;
+import com.lokoko.domain.user.exception.UserNotFoundException;
+import com.lokoko.domain.user.repository.UserRepository;
 import com.lokoko.domain.video.entity.QReviewVideo;
 import com.lokoko.global.common.response.PageableResponse;
 import com.querydsl.core.BooleanBuilder;
@@ -47,6 +51,8 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     private final QReviewImage reviewImage = QReviewImage.reviewImage;
     private final QProductOption productOption = QProductOption.productOption;
     private final QReviewLike reviewLike = QReviewLike.reviewLike;
+
+    private final UserRepository userRepository;
 
 
     @Override
@@ -295,6 +301,9 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     @Override
     public ImageReviewsProductDetailResponse findImageReviewsByProductId(Long productId, Long userId,
                                                                          Pageable pageable) {
+
+        boolean isAdmin = validateAdmin(userId);
+
         NumberExpression<Integer> ratingAsInt =
                 review.rating
                         .stringValue()
@@ -324,6 +333,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
 
         if (reviewIds.isEmpty()) {
             return new ImageReviewsProductDetailResponse(
+                    isAdmin,
                     List.of(),
                     PageableResponse.builder()
                             .pageNumber(pageable.getPageNumber())
@@ -420,7 +430,21 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .isLast(isLast)
                 .build();
 
-        return new ImageReviewsProductDetailResponse(results, pageInfo);
+        return new ImageReviewsProductDetailResponse(isAdmin, results, pageInfo);
+    }
+
+    private boolean validateAdmin(Long userId) {
+        boolean isAdmin = false;
+
+        if (userId != null) {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(UserNotFoundException::new);
+
+            if (user.getRole() == Role.ADMIN) {
+                isAdmin = true;
+            }
+        }
+        return isAdmin;
     }
 
     @Override
