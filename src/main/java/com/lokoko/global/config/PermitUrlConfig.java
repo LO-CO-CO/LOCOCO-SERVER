@@ -46,7 +46,8 @@ public class PermitUrlConfig {
                 "/api/likes/**",
                 "/api/reviews/{productId}",
                 "/api/reviews/media",
-                "/api/reviews/receipt"
+                "/api/reviews/receipt",
+                "/api/reviews/{reviewId}"
         };
     }
 
