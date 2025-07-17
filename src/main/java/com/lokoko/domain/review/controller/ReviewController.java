@@ -150,7 +150,7 @@ public class ReviewController {
         return ApiResponse.success(HttpStatus.CREATED, ResponseMessage.REVIEW_UPLOAD_SUCCESS.getMessage());
     }
 
-    @Operation(summary = "리뷰 삭제 (본인이 작성한 리뷰)")
+    @Operation(summary = "리뷰 삭제 (일반 유저 및 어드민 모두 가능")
     @DeleteMapping("/{reviewId}")
     public ApiResponse<Void> deleteReview(@Parameter(hidden = true) @CurrentUser Long userId,
                                           @PathVariable Long reviewId) {
