@@ -1,5 +1,6 @@
 package com.lokoko.domain.product.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lokoko.domain.product.entity.Product;
 import com.lokoko.domain.product.exception.MissingProductImageException;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -21,6 +22,7 @@ public record ProductMainImageResponse(
         String unit,        // 용량/단위
         @Schema(requiredMode = REQUIRED)
         Long reviewCount,   // 리뷰 수
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")
         @Schema(requiredMode = REQUIRED)
         Double rating,      // 평균 별점
         @Schema(requiredMode = REQUIRED)

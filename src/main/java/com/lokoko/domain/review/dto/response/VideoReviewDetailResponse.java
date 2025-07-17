@@ -2,6 +2,7 @@ package com.lokoko.domain.review.dto.response;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lokoko.domain.image.entity.ProductImage;
 import com.lokoko.domain.product.entity.Product;
 import com.lokoko.domain.review.entity.Review;
@@ -28,6 +29,7 @@ public record VideoReviewDetailResponse(
         String profileImageUrl,
         @Schema(requiredMode = REQUIRED)
         String authorName,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")
         @Schema(requiredMode = REQUIRED)
         Double rating,
         @Schema(requiredMode = REQUIRED)
