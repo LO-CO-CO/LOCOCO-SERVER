@@ -278,13 +278,14 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     public List<RatingCount> countByProductIdsAndRating(List<Long> productIds) {
         List<Tuple> tuples = queryFactory
                 .select(
-                        review.product.id,
+                        product.id,
                         review.rating,
                         review.id.count()
                 )
                 .from(review)
-                .where(review.product.id.in(productIds))
-                .groupBy(review.product.id, review.rating)
+                .join(review.product, product)
+                .where(product.id.in(productIds))
+                .groupBy(product.id, review.rating)
                 .fetch();
 
         return tuples.stream()
