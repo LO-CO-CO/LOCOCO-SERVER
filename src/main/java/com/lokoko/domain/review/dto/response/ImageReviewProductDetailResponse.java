@@ -2,6 +2,7 @@ package com.lokoko.domain.review.dto.response;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public record ImageReviewProductDetailResponse(
         String authorName,
         @Schema(requiredMode = REQUIRED)
         Long authorId,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")
         @Schema(requiredMode = REQUIRED)
         Double rating,
         @Schema(requiredMode = REQUIRED)
