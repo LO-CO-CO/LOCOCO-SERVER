@@ -16,7 +16,6 @@ public class PermitUrlConfig {
                 "/api/youtube/trends",
                 "/api/reviews/image",
                 "/api/reviews/video",
-                "/api/reviews/details/image",
                 "/api/reviews/details/video",
                 "/api/reviews/{productId}/{userId}",
                 "/api/products/details/{productId}/youtube"
@@ -28,6 +27,7 @@ public class PermitUrlConfig {
      */
     public String[] getOptionalUrl() {
         return new String[]{
+                "/api/reviews/details/image",
                 "/api/reviews/details/{reviewId}/image",
                 "/api/reviews/details/{reviewId}/video",
                 "/api/products/categories/search",
