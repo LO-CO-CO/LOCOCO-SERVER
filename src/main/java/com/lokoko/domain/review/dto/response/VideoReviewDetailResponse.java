@@ -3,12 +3,11 @@ package com.lokoko.domain.review.dto.response;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.lokoko.domain.image.entity.ProductImage;
-import com.lokoko.domain.product.entity.Product;
 import com.lokoko.domain.review.entity.Review;
-import com.lokoko.domain.user.entity.User;
 import com.lokoko.domain.video.entity.ReviewVideo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record VideoReviewDetailResponse(
         @Schema(requiredMode = REQUIRED)
@@ -24,7 +23,7 @@ public record VideoReviewDetailResponse(
         @Schema(requiredMode = REQUIRED)
         Long likeCount,
         @Schema(requiredMode = REQUIRED)
-        String videoUrl,
+        List<String> videoUrls,
         String profileImageUrl,
         @Schema(requiredMode = REQUIRED)
         String authorName,
@@ -40,30 +39,34 @@ public record VideoReviewDetailResponse(
         @Schema(requiredMode = REQUIRED)
         Long productId
 ) {
-    public static VideoReviewDetailResponse from(ReviewVideo reviewVideo, long likeCount,
+    public static VideoReviewDetailResponse from(Review review, List<ReviewVideo> reviewVideos, long likeCount,
                                                  String receiptImageUrl, ProductImage productImage,
                                                  Boolean isLiked) {
-        Review review = reviewVideo.getReview();
-        Product product = review.getProduct();
-        User author = review.getAuthor();
-        LocalDateTime uploadAt = reviewVideo.getCreatedAt();
+        List<String> videoUrls = reviewVideos.stream()
+                .map(rv -> rv.getMediaFile().getFileUrl())
+                .toList();
+
+        LocalDateTime uploadAt = reviewVideos.stream()
+                .map(ReviewVideo::getCreatedAt)
+                .max(LocalDateTime::compareTo)
+                .orElse(review.getCreatedAt());
 
         return new VideoReviewDetailResponse(
                 review.getId(),
-                product.getBrandName(),
-                product.getProductName(),
+                review.getProduct().getBrandName(),
+                review.getProduct().getProductName(),
                 review.getPositiveContent(),
                 review.getNegativeContent(),
                 likeCount,
-                reviewVideo.getMediaFile().getFileUrl(),
-                author.getProfileImageUrl(),
-                author.getNickname(),
+                videoUrls,
+                review.getAuthor().getProfileImageUrl(),
+                review.getAuthor().getNickname(),
                 (double) review.getRating().getValue(),
                 uploadAt,
                 productImage.getUrl(),
                 receiptImageUrl,
                 isLiked,
-                product.getId()
+                review.getProduct().getId()
         );
     }
 }

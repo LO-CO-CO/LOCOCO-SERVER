@@ -46,28 +46,30 @@ public class ReviewDetailsService {
                     .orElseThrow(UserNotFoundException::new);
         }
         Review review = getReview(reviewId);
-        ReviewVideo video = getReviewVideo(reviewId);
+        List<ReviewVideo> reviewVideos = reviewVideoRepository.findAllByReviewId(reviewId);
         long totalLikes = reviewLikeRepository.countByReviewId(reviewId);
-
         ReceiptImage receiptImage = null;
         if (user != null && user.getRole() == Role.ADMIN) {
             receiptImage = getReceiptImageIfAdmin(user, reviewId);
         }
-
-        boolean isLiked = false;
-        if (user != null) {
-            isLiked = reviewLikeRepository.existsByUserAndReview(user, review);
-        }
-
         String receiptImageUrl = (receiptImage != null)
                 ? receiptImage.getMediaFile().getFileUrl()
                 : null;
-
+        boolean isLiked = (user != null)
+                && reviewLikeRepository.existsByUserAndReview(user, review);
         Product product = review.getProduct();
-        ProductImage productImage = productImageRepository.findByProductAndIsMainTrue(product)
+        ProductImage productImage = productImageRepository
+                .findByProductAndIsMainTrue(product)
                 .orElseThrow(ProductImageNotFoundException::new);
 
-        return VideoReviewDetailResponse.from(video, totalLikes, receiptImageUrl, productImage, isLiked);
+        return VideoReviewDetailResponse.from(
+                review,
+                reviewVideos,
+                totalLikes,
+                receiptImageUrl,
+                productImage,
+                isLiked
+        );
     }
 
 
