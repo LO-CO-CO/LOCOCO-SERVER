@@ -14,7 +14,6 @@ import com.lokoko.domain.review.dto.response.VideoReviewProductDetail;
 import com.lokoko.domain.review.dto.response.VideoReviewProductDetailResponse;
 import com.lokoko.domain.review.dto.response.VideoReviewResponse;
 import com.lokoko.domain.review.entity.QReview;
-import com.lokoko.domain.user.entity.User;
 import com.lokoko.domain.user.entity.enums.Role;
 import com.lokoko.domain.user.repository.UserRepository;
 import com.lokoko.domain.video.entity.QReviewVideo;
@@ -301,7 +300,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     public ImageReviewsProductDetailResponse findImageReviewsByProductId(Long productId, Long userId,
                                                                          Pageable pageable) {
 
-        boolean isAdmin = validateAdmin(userId);
+        boolean isAdmin = (userId != null && validateAdmin(userId));
 
         NumberExpression<Integer> ratingAsInt =
                 review.rating
@@ -435,13 +434,13 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     }
 
     private boolean validateAdmin(Long userId) {
-        boolean isAdmin = false;
-        User user = userRepository.findById(userId).orElse(null);
-
-        if (user != null && user.getRole() == Role.ADMIN) {
-            isAdmin = true;
+        if (userId == null) {
+            return false;
         }
-        return isAdmin;
+
+        return userRepository.findById(userId)
+                .map(user -> user.getRole() == Role.ADMIN)
+                .orElse(false);
     }
 
     @Override
