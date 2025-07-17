@@ -16,7 +16,6 @@ import com.lokoko.domain.review.dto.response.VideoReviewResponse;
 import com.lokoko.domain.review.entity.QReview;
 import com.lokoko.domain.user.entity.User;
 import com.lokoko.domain.user.entity.enums.Role;
-import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.domain.user.repository.UserRepository;
 import com.lokoko.domain.video.entity.QReviewVideo;
 import com.lokoko.global.common.response.PageableResponse;
@@ -437,14 +436,10 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
 
     private boolean validateAdmin(Long userId) {
         boolean isAdmin = false;
+        User user = userRepository.findById(userId).orElse(null);
 
-        if (userId != null) {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(UserNotFoundException::new);
-
-            if (user.getRole() == Role.ADMIN) {
-                isAdmin = true;
-            }
+        if (user != null && user.getRole() == Role.ADMIN) {
+            isAdmin = true;
         }
         return isAdmin;
     }
