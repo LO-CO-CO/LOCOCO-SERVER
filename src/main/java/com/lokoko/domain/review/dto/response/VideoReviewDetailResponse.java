@@ -31,11 +31,14 @@ public record VideoReviewDetailResponse(
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")
         @Schema(requiredMode = REQUIRED)
         Double rating,
+        String option,
         @Schema(requiredMode = REQUIRED)
         LocalDateTime uploadAt,
         @Schema(requiredMode = REQUIRED)
         String productImageUrl,
         String receiptImageUrl,
+        @Schema(requiredMode = REQUIRED)
+        Boolean receiptUploaded,
         @Schema(requiredMode = REQUIRED)
         Boolean isLiked,
         @Schema(requiredMode = REQUIRED)
@@ -53,6 +56,10 @@ public record VideoReviewDetailResponse(
                 .max(LocalDateTime::compareTo)
                 .orElse(review.getCreatedAt());
 
+        String optionName = review.getProductOption() != null
+                ? review.getProductOption().getOptionName()
+                : null;
+
         return new VideoReviewDetailResponse(
                 review.getId(),
                 review.getProduct().getBrandName(),
@@ -64,9 +71,11 @@ public record VideoReviewDetailResponse(
                 review.getAuthor().getProfileImageUrl(),
                 review.getAuthor().getNickname(),
                 (double) review.getRating().getValue(),
+                optionName,
                 uploadAt,
                 productImage.getUrl(),
                 receiptImageUrl,
+                review.isReceiptUploaded(),
                 isLiked,
                 review.getProduct().getId()
         );
