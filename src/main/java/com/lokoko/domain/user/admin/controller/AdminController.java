@@ -5,6 +5,7 @@ import com.lokoko.domain.user.admin.service.AdminReviewService;
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,8 @@ public class AdminController {
 
     @Operation(summary = "어드민 리뷰 삭제")
     @DeleteMapping("/reviews/{reviewId}")
-    public ApiResponse<Void> deleteReviewByAdmin(@CurrentUser Long userId, @PathVariable Long reviewId) {
+    public ApiResponse<Void> deleteReviewByAdmin(@Parameter(hidden = true) @CurrentUser Long userId,
+                                                 @PathVariable Long reviewId) {
         adminReviewService.deleteReview(userId, reviewId);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_REVIEW_DELETE_SUCCESS.getMessage());
     }
