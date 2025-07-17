@@ -7,6 +7,7 @@ import com.lokoko.domain.image.entity.ReceiptImage;
 import com.lokoko.domain.image.entity.ReviewImage;
 import com.lokoko.domain.image.repository.ReceiptImageRepository;
 import com.lokoko.domain.image.repository.ReviewImageRepository;
+import com.lokoko.domain.like.repository.ReviewLikeRepository;
 import com.lokoko.domain.product.entity.Product;
 import com.lokoko.domain.product.entity.ProductOption;
 import com.lokoko.domain.product.exception.ProductNotFoundException;
@@ -35,8 +36,8 @@ import com.lokoko.domain.review.exception.ReceiptImageCountingException;
 import com.lokoko.domain.review.exception.ReviewNotFoundException;
 import com.lokoko.domain.review.exception.ReviewPermissionException;
 import com.lokoko.domain.review.repository.ReviewRepository;
-import com.lokoko.domain.user.admin.service.AdminReviewService;
 import com.lokoko.domain.user.entity.User;
+import com.lokoko.domain.user.entity.enums.Role;
 import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.domain.user.repository.UserRepository;
 import com.lokoko.domain.video.entity.ReviewVideo;
@@ -59,7 +60,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class ReviewService {
     private final S3Service s3Service;
-    private final AdminReviewService adminReviewService;
     private final ReviewRepository reviewRepository;
     private final ReceiptImageRepository receiptImageRepository;
     private final UserRepository userRepository;
@@ -67,6 +67,7 @@ public class ReviewService {
     private final ProductOptionRepository productOptionRepository;
     private final ProductRepository productRepository;
     private final ReviewVideoRepository reviewVideoRepository;
+    private final ReviewLikeRepository reviewLikeRepository;
 
     public ReviewReceiptResponse createReceiptPresignedUrl(Long userId,
                                                            ReviewReceiptRequest request) {
@@ -359,11 +360,22 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(ReviewNotFoundException::new);
 
-        if (!review.getAuthor().getId().equals(userId)) {
-            throw new ReviewPermissionException();
+        if (user.getRole() == Role.USER) {
+            if (!review.getAuthor().getId().equals(userId)) {
+                throw new ReviewPermissionException();
+            }
         }
 
-        adminReviewService.deleteAllMediaOfReview(review);
+        deleteAllReferenceOfReview(review);
         reviewRepository.delete(review);
     }
+
+    public void deleteAllReferenceOfReview(Review review) {
+        receiptImageRepository.deleteAllByReview(review);
+        reviewImageRepository.deleteAllByReview(review);
+        reviewVideoRepository.deleteAllByReview(review);
+        reviewLikeRepository.deleteAllByReview(review);
+    }
+
+
 }
