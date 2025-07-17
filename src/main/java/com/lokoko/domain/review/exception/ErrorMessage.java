@@ -18,7 +18,8 @@ public enum ErrorMessage {
     REVIEW_NOT_FOUND("존재하지 않는 리뷰입니다."),
     REVIEW_VIDEO_NOT_FOUND("존재하지 않는 리뷰 영상입니다."),
     RECEIPT_IMAGE_NOT_FOUND("존재하지 않는 영수증 입니다"),
-    PRODUCT_IMAGE_NOT_FOUND("제품 이미지가 존재하지 않습니다");
+    PRODUCT_IMAGE_NOT_FOUND("제품 이미지가 존재하지 않습니다"),
+    REVIEW_DELETE_FORBIDDEN("본인이 작성한 리뷰만 삭제할 수 있습니다");
 
     private final String message;
 }
