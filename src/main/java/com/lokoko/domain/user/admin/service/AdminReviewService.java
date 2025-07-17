@@ -39,7 +39,10 @@ public class AdminReviewService {
         reviewRepository.delete(review);
     }
 
-    private void deleteAllMediaOfReview(Review review) {
+    /**
+     * Todo: 리뷰에 연결된 모든 미디어(영수증, 사진, 비디오)를 삭제하는 메소드 추후 유틸 클래스로 분리 예정
+     */
+    public void deleteAllMediaOfReview(Review review) {
         receiptImageRepository.deleteAllByReview(review);
         reviewImageRepository.deleteAllByReview(review);
         reviewVideoRepository.deleteAllByReview(review);

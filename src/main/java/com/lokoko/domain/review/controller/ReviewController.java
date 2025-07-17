@@ -1,5 +1,7 @@
 package com.lokoko.domain.review.controller;
 
+import static com.lokoko.domain.review.controller.enums.ResponseMessage.REVIEW_DELETE_SUCCESS;
+
 import com.lokoko.domain.review.controller.enums.ResponseMessage;
 import com.lokoko.domain.review.dto.request.ReviewAdminRequest;
 import com.lokoko.domain.review.dto.request.ReviewMediaRequest;
@@ -24,6 +26,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -145,5 +148,13 @@ public class ReviewController {
         reviewService.createAdminReview(productId, userId, request);
 
         return ApiResponse.success(HttpStatus.CREATED, ResponseMessage.REVIEW_UPLOAD_SUCCESS.getMessage());
+    }
+
+    @Operation(summary = "리뷰 삭제 (본인이 작성한 리뷰)")
+    @DeleteMapping("/{reviewId}")
+    public ApiResponse<Void> deleteReview(@Parameter(hidden = true) @CurrentUser Long userId,
+                                          @PathVariable Long reviewId) {
+        reviewService.deleteReview(userId, reviewId);
+        return ApiResponse.success(HttpStatus.OK, REVIEW_DELETE_SUCCESS.getMessage());
     }
 }

@@ -32,7 +32,10 @@ import com.lokoko.domain.review.entity.enums.Rating;
 import com.lokoko.domain.review.exception.ErrorMessage;
 import com.lokoko.domain.review.exception.InvalidMediaTypeException;
 import com.lokoko.domain.review.exception.ReceiptImageCountingException;
+import com.lokoko.domain.review.exception.ReviewNotFoundException;
+import com.lokoko.domain.review.exception.ReviewPermissionException;
 import com.lokoko.domain.review.repository.ReviewRepository;
+import com.lokoko.domain.user.admin.service.AdminReviewService;
 import com.lokoko.domain.user.entity.User;
 import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.domain.user.repository.UserRepository;
@@ -56,6 +59,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class ReviewService {
     private final S3Service s3Service;
+    private final AdminReviewService adminReviewService;
     private final ReviewRepository reviewRepository;
     private final ReceiptImageRepository receiptImageRepository;
     private final UserRepository userRepository;
@@ -339,5 +343,22 @@ public class ReviewService {
                 order++;
             }
         }
+    }
+
+    @Transactional
+    public void deleteReview(Long userId, Long reviewId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(ReviewNotFoundException::new);
+
+        if (!review.getAuthor().getId().equals(userId)) {
+            throw new ReviewPermissionException();
+        }
+
+        adminReviewService.deleteAllMediaOfReview(review);
+        reviewRepository.delete(review);
     }
 }
