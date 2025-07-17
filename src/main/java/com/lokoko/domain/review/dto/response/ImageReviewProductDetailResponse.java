@@ -19,6 +19,8 @@ public record ImageReviewProductDetailResponse(
         @Schema(requiredMode = REQUIRED)
         String negativeComment,
         @Schema(requiredMode = REQUIRED)
+        String profileImageUrl,
+        @Schema(requiredMode = REQUIRED)
         String authorName,
         @Schema(requiredMode = REQUIRED)
         Long authorId,
@@ -38,7 +40,7 @@ public record ImageReviewProductDetailResponse(
 
     public ImageReviewProductDetailResponse(Long reviewId, LocalDateTime writtenTime,
                                             Boolean receiptUploaded, String positiveComment,
-                                            String negativeComment, String authorName,
+                                            String negativeComment, String profileImageUrl, String authorName,
                                             Long authorId, Double rating, String option,
                                             Integer likeCount, List<String> images,
                                             Boolean isLiked, Boolean isMine
@@ -48,6 +50,7 @@ public record ImageReviewProductDetailResponse(
         this.receiptUploaded = receiptUploaded;
         this.positiveComment = positiveComment;
         this.negativeComment = negativeComment;
+        this.profileImageUrl = profileImageUrl;
         this.authorName = authorName;
         this.authorId = authorId;
         this.rating = rating;
