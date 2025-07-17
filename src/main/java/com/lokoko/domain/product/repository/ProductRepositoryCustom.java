@@ -1,5 +1,6 @@
 package com.lokoko.domain.product.repository;
 
+import com.lokoko.domain.product.dto.response.NewProductProjection;
 import com.lokoko.domain.product.dto.response.PopularProductProjection;
 import com.lokoko.domain.product.entity.Product;
 import com.lokoko.domain.product.entity.enums.MiddleCategory;
@@ -20,4 +21,10 @@ public interface ProductRepositoryCustom {
 
     Slice<PopularProductProjection> findPopularProductsWithDetails(MiddleCategory middleCategory, Long userId,
                                                                    Pageable pageable);
+
+    Slice<NewProductProjection> findNewProductsWithDetails(
+            MiddleCategory category,
+            Long userId,
+            Pageable pageable
+    );
 }

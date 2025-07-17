@@ -7,6 +7,7 @@ import com.lokoko.domain.like.service.ProductLikeService;
 import com.lokoko.domain.product.dto.response.CategoryNewProductResponse;
 import com.lokoko.domain.product.dto.response.CategoryPopularProductResponse;
 import com.lokoko.domain.product.dto.response.CategoryProductPageResponse;
+import com.lokoko.domain.product.dto.response.NewProductProjection;
 import com.lokoko.domain.product.dto.response.PopularProductProjection;
 import com.lokoko.domain.product.dto.response.ProductDetailResponse;
 import com.lokoko.domain.product.dto.response.ProductDetailYoutubeResponse;
@@ -18,7 +19,6 @@ import com.lokoko.domain.product.dto.response.ScorePercent;
 import com.lokoko.domain.product.entity.Product;
 import com.lokoko.domain.product.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.entity.enums.SubCategory;
-import com.lokoko.domain.product.entity.enums.Tag;
 import com.lokoko.domain.product.exception.ProductNotFoundException;
 import com.lokoko.domain.product.repository.ProductOptionRepository;
 import com.lokoko.domain.product.repository.ProductRepository;
@@ -77,16 +77,26 @@ public class ProductReadService {
     public CategoryNewProductResponse searchNewProductsByCategory(MiddleCategory middleCategory, Long userId, int page,
                                                                   int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Slice<Product> slice = productRepository.findByMiddleCategoryAndTag(
-                middleCategory, Tag.NEW, pageable
-        );
-        Slice<ProductResponse> responseSlice =
-                productService.buildProductResponseSliceWithReviewData(slice, userId);
+
+        // 한 번의 쿼리로 모든 필요한 데이터 조회
+        Slice<NewProductProjection> projectionSlice =
+                productRepository.findNewProductsWithDetails(middleCategory, userId, pageable);
+
+        // 간단한 변환만 수행
+        List<ProductResponse> products = projectionSlice.getContent()
+                .stream()
+                .map(NewProductProjection::toProductResponse)
+                .toList();
 
         return new CategoryNewProductResponse(
-                middleCategory.name(),
-                responseSlice.getContent(),
-                PageableResponse.of(responseSlice)
+                middleCategory.getDisplayName(), // name() 대신 getDisplayName() 사용
+                products,
+                PageableResponse.builder()
+                        .pageNumber(projectionSlice.getNumber())
+                        .pageSize(projectionSlice.getSize())
+                        .numberOfElements(projectionSlice.getNumberOfElements())
+                        .isLast(projectionSlice.isLast())
+                        .build()
         );
     }
 
