@@ -15,4 +15,7 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, Long
     List<ProductImage> findByProductIdInAndIsMainTrue(List<Long> productIds);
 
     Optional<ProductImage> findByProduct(Product product);
+
+    Optional<ProductImage> findByProductAndIsMainTrue(Product product);
+
 }

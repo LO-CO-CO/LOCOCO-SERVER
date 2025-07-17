@@ -64,7 +64,7 @@ public class ReviewDetailsService {
                 : null;
 
         Product product = review.getProduct();
-        ProductImage productImage = productImageRepository.findByProduct(product)
+        ProductImage productImage = productImageRepository.findByProductAndIsMainTrue(product)
                 .orElseThrow(ProductImageNotFoundException::new);
 
         return VideoReviewDetailResponse.from(video, totalLikes, receiptImageUrl, productImage, isLiked);
