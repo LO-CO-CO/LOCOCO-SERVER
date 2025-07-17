@@ -1,5 +1,6 @@
 package com.lokoko.domain.product.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lokoko.domain.product.entity.Product;
 import com.lokoko.domain.product.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.entity.enums.SubCategory;
@@ -24,6 +25,7 @@ public record ProductDetailResponse(
         String unit,
         @Schema(requiredMode = REQUIRED)
         Long reviewCount,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")
         @Schema(requiredMode = REQUIRED)
         Double rating,
         @Schema(requiredMode = REQUIRED)

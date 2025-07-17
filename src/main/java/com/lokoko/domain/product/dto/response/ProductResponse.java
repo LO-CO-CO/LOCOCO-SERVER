@@ -1,6 +1,7 @@
 package com.lokoko.domain.product.dto.response;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lokoko.domain.product.entity.Product;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -23,6 +24,7 @@ public record ProductResponse(
         String unit, // 제품 단위
         @Schema(requiredMode = REQUIRED)
         Long reviewCount, // 리뷰 개수
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")
         @Schema(requiredMode = REQUIRED)
         Double rating, // 별점
         @Schema(requiredMode = REQUIRED)
