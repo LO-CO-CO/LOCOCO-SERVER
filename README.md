@@ -1,11 +1,17 @@
 # LOCOCO_SERVER
 
 <div align="center">
-<img width="1000" alt="image" src="https://github.com/user-attachments/assets/5f6a85f0-aee0-4b4d-b61f-4aa5f2a7bdd3">
+<img width="1000" alt="image" src="https://github.com/user-attachments/assets/8fa95cd4-b47a-474c-84cb-2c3d4860a05a">
 
 </div>
 
 ### 당신의 이야기를 담고, 모두와 나누는 K-뷰티 서비스 LOCOCO
+
+<div align="center">
+<img width="1000" alt="image" src="https://github.com/user-attachments/assets/5f6a85f0-aee0-4b4d-b61f-4aa5f2a7bdd3">
+
+</div>
+
 > **전국 대학생 연합 IT 벤처창업 동아리 SOPT 36기** <br/> **개발기간: 2025.06. ~ 진행중**
 
 ## 팀 소개
