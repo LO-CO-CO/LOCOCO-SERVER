@@ -193,7 +193,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .where(keywordCondition(tokens),
                         reviewImage.isMain.eq(true))
                 .groupBy(review.id, product.brandName, product.productName, reviewImage.mediaFile.fileUrl)
-                .orderBy(review.createdAt.desc())
+                .orderBy(reviewLike.count().desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
