@@ -75,11 +75,8 @@ public class ReviewController {
             @RequestBody @Valid ReviewRequest request
     ) {
         ReviewResponse response = reviewService.createReview(productId, userId, request);
-        return ApiResponse.success(
-                HttpStatus.OK,
-                ResponseMessage.REVIEW_UPLOAD_SUCCESS.getMessage(),
-                response
-        );
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_UPLOAD_SUCCESS.getMessage(), response);
     }
 
     @Operation(summary = "메인페이지에서 이미지 리뷰 조회")
