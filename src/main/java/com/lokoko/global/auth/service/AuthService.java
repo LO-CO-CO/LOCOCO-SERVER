@@ -114,8 +114,8 @@ public class AuthService {
         String redisKey = REFRESH_TOKEN_KEY_PREFIX + userId;
         redisTemplate.delete(redisKey);
 
-        cookieUtil.deleteCookie(response, JwtProvider.ACCESS_TOKEN_HEADER);
-        cookieUtil.deleteCookie(response, JwtProvider.REFRESH_TOKEN_HEADER);
+        cookieUtil.deleteCookie(JwtProvider.ACCESS_TOKEN_HEADER, response);
+        cookieUtil.deleteCookie(JwtProvider.REFRESH_TOKEN_HEADER, response);
     }
 
     public String generateLineLoginUrl() {

@@ -25,8 +25,8 @@ public class CookieUtil {
         response.addHeader("Set-Cookie", cookie.toString());
     }
 
-    public void deleteCookie(HttpServletResponse response, String name) {
-        ResponseCookie cookie = ResponseCookie.from(name, "value")
+    public void deleteCookie(String name, HttpServletResponse response) {
+        ResponseCookie cookie = ResponseCookie.from(name, "")
                 .domain(cookieConfig.getCookieDomain())
                 .maxAge(0)
                 .path(cookieConfig.getCookiePathOption())
@@ -35,6 +35,6 @@ public class CookieUtil {
                 .sameSite("None")
                 .build();
 
-        response.setHeader("Set-Cookie", cookie.toString());
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 }
