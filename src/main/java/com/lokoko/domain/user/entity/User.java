@@ -16,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -35,15 +36,17 @@ public class User extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String lineId;
 
-    @Column(unique = true)
+    @Column
     private String email;
 
     @Column
-    private LocalDateTime lastLoginAt;
+    private String nickname;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role = Role.USER;
+    @Column
+    private String profileImageUrl;
+
+    @Column
+    private LocalDateTime lastLoginAt;
 
     @Enumerated(EnumType.STRING)
     @Column
@@ -57,17 +60,21 @@ public class User extends BaseEntity {
     @Column
     private SkinType skinType;
 
-    @Column(name = "status", nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    @Column(nullable = false)
+    private Role role = Role.USER;
+
+    @Column(nullable = false, length = 20)
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     private UserStatus status = UserStatus.ACTIVE;
 
-    /*
-     * TODO: 추후 scope 확장 시, 필드추가
-     */
-
-    public static User createLineUser(String lineUserId) {
+    public static User createLineUser(String lineUserId, String email, String displayName) {
         return User.builder()
                 .lineId(lineUserId)
+                .email(email)
+                .nickname(displayName)
                 .role(Role.USER)
                 .status(UserStatus.ACTIVE)
                 .lastLoginAt(LocalDateTime.now())
@@ -76,5 +83,13 @@ public class User extends BaseEntity {
 
     public void updateLastLoginAt() {
         this.lastLoginAt = LocalDateTime.now();
+    }
+
+    public void updateDisplayName(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
     }
 }

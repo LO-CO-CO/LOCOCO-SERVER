@@ -7,6 +7,7 @@ import com.lokoko.global.auth.authentication.CustomAccessDeniedHandler;
 import com.lokoko.global.auth.authentication.CustomAuthenticationEntryPoint;
 import com.lokoko.global.auth.jwt.filter.JwtAuthenticationFilter;
 import com.lokoko.global.auth.jwt.utils.JwtExtractor;
+import com.lokoko.global.auth.jwt.utils.JwtProvider;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +33,7 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint authEntryPoint;
     private final CustomAccessDeniedHandler deniedHandler;
     private final JwtExtractor jwtExtractor;
+    private final JwtProvider jwtProvider;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -44,6 +46,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers(permitUrlConfig.getPublicUrl()).permitAll()
+                .requestMatchers(permitUrlConfig.getOptionalUrl()).permitAll()
                 .requestMatchers(permitUrlConfig.getUserUrl()).hasAnyRole(USER.name(), ADMIN.name())
                 .requestMatchers(permitUrlConfig.getAdminUrl()).hasRole(ADMIN.name())
                 .anyRequest().authenticated());
@@ -51,7 +54,8 @@ public class SecurityConfig {
         http.exceptionHandling(e -> e
                 .authenticationEntryPoint(authEntryPoint)
                 .accessDeniedHandler(deniedHandler));
-        http.addFilterBefore(new JwtAuthenticationFilter(jwtExtractor), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtExtractor, jwtProvider),
+                UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -65,11 +69,13 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(
-                Arrays.asList("*"));
+                Arrays.asList("https://52.79.208.129.nip.io", "http://localhost:3000", "https://localhost:3000",
+                        "https://lococo-test.vercel.app/",
+                        "https://www.lococo.beauty", "https://lococo.beauty"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("Authorization", "RefreshToken"));
-        configuration.setAllowCredentials(false);
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", configuration);
