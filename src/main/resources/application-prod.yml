@@ -1,0 +1,55 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${RDS_USER_NAME}
+    password: ${RDS_USER_PW}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+
+lokoko:
+  jwt:
+    key: ${JWT_KEY}
+    access:
+      expiration: ${ACCESS_EXP}
+      header: ${ACCESS_HEAD}
+    refresh:
+      expiration: ${REFRESH_EXP}
+      header: ${REFRESH_HEAD}
+    cookieMaxAge: ${COOKIE_MAX_AGE}
+    secureOption: ${SECURE_OPTION}
+    cookiePathOption: ${COOKIE_PATH_OPTION}
+    cookieDomain: ${COOKIE_DOMAIN}
+
+line:
+  client-id: ${LINE_CHANNEL_ID}
+  client-secret: ${LINE_CHANNEL_SECRET}
+  redirect-uri: ${LINE_CALLBACK_URL}
+  base-url: ${LINE_BASE_URL}
+  scope: ${LINE_SCOPE}
+
+youtube:
+  api-key: ${YOUTUBE_API_KEY}
+
+cloud:
+  aws:
+    s3:
+      bucket: ${S3_BUCKET_NAME}
+    credentials:
+      access-key: ${S3_ACCESS_KEY}
+      secret-key: ${S3_SECRET_KEY}
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false
