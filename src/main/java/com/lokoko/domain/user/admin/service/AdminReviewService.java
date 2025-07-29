@@ -8,7 +8,7 @@ import com.lokoko.domain.review.repository.ReviewRepository;
 import com.lokoko.domain.user.entity.User;
 import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.domain.user.repository.UserRepository;
-import com.lokoko.domain.video.repository.ReviewVideoRepository;
+import com.lokoko.domain.video.domain.repository.ReviewVideoRepository;
 import com.lokoko.global.utils.AdminValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -5,7 +5,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lokoko.domain.image.entity.ProductImage;
 import com.lokoko.domain.review.entity.Review;
-import com.lokoko.domain.video.entity.ReviewVideo;
+import com.lokoko.domain.video.domain.entity.ReviewVideo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;

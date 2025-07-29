@@ -1,6 +1,6 @@
 package com.lokoko.domain.image.entity;
 
-import com.lokoko.domain.product.entity.Product;
+import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

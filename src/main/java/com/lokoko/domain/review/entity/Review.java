@@ -2,8 +2,8 @@ package com.lokoko.domain.review.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 
-import com.lokoko.domain.product.entity.Product;
-import com.lokoko.domain.product.entity.ProductOption;
+import com.lokoko.domain.product.domain.entity.Product;
+import com.lokoko.domain.product.domain.entity.ProductOption;
 import com.lokoko.domain.review.entity.enums.Rating;
 import com.lokoko.domain.user.entity.User;
 import com.lokoko.global.common.entity.BaseEntity;
