@@ -1,8 +1,8 @@
 package com.lokoko.domain.youtube.application.crawler;
 
-import com.lokoko.domain.product.entity.Product;
+import com.lokoko.domain.product.domain.entity.Product;
+import com.lokoko.domain.product.domain.repository.ProductRepository;
 import com.lokoko.domain.product.exception.ProductNotFoundException;
-import com.lokoko.domain.product.repository.ProductRepository;
 import com.lokoko.domain.youtube.application.service.YoutubeApiService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

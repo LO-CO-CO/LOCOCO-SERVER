@@ -1,6 +1,8 @@
 package com.lokoko.domain.like.entity;
 
-import com.lokoko.domain.product.entity.Product;
+import static jakarta.persistence.FetchType.LAZY;
+
+import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.user.entity.User;
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -16,8 +18,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import static jakarta.persistence.FetchType.LAZY;
 
 /**
  * 상품 좋아요

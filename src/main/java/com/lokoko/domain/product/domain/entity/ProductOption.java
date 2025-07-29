@@ -1,10 +1,10 @@
-package com.lokoko.domain.image.entity;
+package com.lokoko.domain.product.domain.entity;
 
-import com.lokoko.domain.product.domain.entity.Product;
+import static jakarta.persistence.FetchType.LAZY;
+
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,21 +19,17 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProductImage extends BaseEntity {
+public class ProductOption extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "product_image_id")
+    @Column(name = "product_option_id")
     private Long id;
 
-    private String url;
+    @Column(nullable = false)
+    private String optionName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "product_id")
     private Product product;
-
-    @Column(name = "is_main")
-    private boolean isMain; // 제품에 대한 대표 이미지인지 아난지
-
-
 }

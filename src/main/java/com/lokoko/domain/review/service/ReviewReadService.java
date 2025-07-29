@@ -1,7 +1,7 @@
 package com.lokoko.domain.review.service;
 
-import com.lokoko.domain.product.entity.enums.MiddleCategory;
-import com.lokoko.domain.product.entity.enums.SubCategory;
+import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
+import com.lokoko.domain.product.domain.entity.enums.SubCategory;
 import com.lokoko.domain.review.dto.response.ImageReviewListResponse;
 import com.lokoko.domain.review.dto.response.ImageReviewResponse;
 import com.lokoko.domain.review.dto.response.KeywordImageReviewListResponse;

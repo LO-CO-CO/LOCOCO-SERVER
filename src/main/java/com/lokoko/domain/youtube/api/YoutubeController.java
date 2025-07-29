@@ -1,6 +1,6 @@
 package com.lokoko.domain.youtube.api;
 
-import com.lokoko.domain.product.dto.response.CrawlResponse;
+import com.lokoko.domain.product.api.dto.response.VideoCrawlResponse;
 import com.lokoko.domain.youtube.api.dto.TrendsYoutubeResponse;
 import com.lokoko.domain.youtube.api.message.ResponseMessage;
 import com.lokoko.domain.youtube.application.crawler.YoutubeReviewCrawler;
@@ -29,11 +29,11 @@ public class YoutubeController {
     @Hidden
     @Operation(summary = "유튜브 리뷰 크롤링 (SERVER ONLY)")
     @PostMapping("/{productId}/crawl")
-    public ApiResponse<CrawlResponse> crawl(@PathVariable Long productId) {
+    public ApiResponse<VideoCrawlResponse> crawl(@PathVariable Long productId) {
         List<String> videoUrls = youtubeReviewCrawler.crawlAndStoreReviews(productId);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_CRAWL_SUCCESS.getMessage(),
-                CrawlResponse.of(videoUrls));
+                VideoCrawlResponse.of(videoUrls));
     }
 
     @Hidden

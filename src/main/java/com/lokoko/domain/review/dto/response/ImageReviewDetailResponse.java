@@ -5,7 +5,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lokoko.domain.image.entity.ProductImage;
 import com.lokoko.domain.image.entity.ReviewImage;
-import com.lokoko.domain.product.entity.Product;
+import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.review.entity.Review;
 import com.lokoko.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;

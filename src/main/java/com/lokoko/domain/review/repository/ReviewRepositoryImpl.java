@@ -2,10 +2,10 @@ package com.lokoko.domain.review.repository;
 
 import com.lokoko.domain.image.entity.QReviewImage;
 import com.lokoko.domain.like.entity.QReviewLike;
-import com.lokoko.domain.product.entity.QProduct;
-import com.lokoko.domain.product.entity.QProductOption;
-import com.lokoko.domain.product.entity.enums.MiddleCategory;
-import com.lokoko.domain.product.entity.enums.SubCategory;
+import com.lokoko.domain.product.domain.entity.QProduct;
+import com.lokoko.domain.product.domain.entity.QProductOption;
+import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
+import com.lokoko.domain.product.domain.entity.enums.SubCategory;
 import com.lokoko.domain.review.dto.request.RatingCount;
 import com.lokoko.domain.review.dto.response.ImageReviewProductDetailResponse;
 import com.lokoko.domain.review.dto.response.ImageReviewResponse;
