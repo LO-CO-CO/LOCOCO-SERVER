@@ -1,4 +1,4 @@
-package com.lokoko.global.config;
+package com.lokoko.global.config.redis;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -9,8 +9,6 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 
 @Configuration
 public class RedisConfig {
-
-    public static final String WILD_CARD = "*";
 
     @Value("${spring.data.redis.host}")
     private String host;
