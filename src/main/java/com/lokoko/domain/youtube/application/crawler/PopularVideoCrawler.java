@@ -1,4 +1,4 @@
-package com.lokoko.domain.youtube.service;
+package com.lokoko.domain.youtube.application.crawler;
 
 import com.google.api.services.youtube.YouTube;
 import com.lokoko.domain.video.domain.entity.YoutubeVideo;

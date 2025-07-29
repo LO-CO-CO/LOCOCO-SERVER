@@ -1,10 +1,10 @@
-package com.lokoko.domain.youtube.controller;
+package com.lokoko.domain.youtube.api;
 
 import com.lokoko.domain.product.dto.response.CrawlResponse;
-import com.lokoko.domain.youtube.controller.enums.ResponseMessage;
-import com.lokoko.domain.youtube.dto.TrendsYoutubeResponse;
-import com.lokoko.domain.youtube.service.YoutubeReviewCrawler;
-import com.lokoko.domain.youtube.service.YoutubeTrendService;
+import com.lokoko.domain.youtube.api.dto.TrendsYoutubeResponse;
+import com.lokoko.domain.youtube.api.message.ResponseMessage;
+import com.lokoko.domain.youtube.application.crawler.YoutubeReviewCrawler;
+import com.lokoko.domain.youtube.application.service.YoutubeTrendService;
 import com.lokoko.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;

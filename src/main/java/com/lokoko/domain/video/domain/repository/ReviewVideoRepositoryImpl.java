@@ -5,7 +5,7 @@ import static com.lokoko.domain.like.entity.QReviewLike.reviewLike;
 import com.lokoko.domain.product.entity.QProduct;
 import com.lokoko.domain.review.dto.response.MainVideoReview;
 import com.lokoko.domain.review.entity.QReview;
-import com.lokoko.domain.video.entity.QReviewVideo;
+import com.lokoko.domain.video.domain.entity.QReviewVideo;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;

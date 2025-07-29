@@ -1,7 +1,7 @@
-package com.lokoko.domain.youtube.service;
+package com.lokoko.domain.youtube.application.service;
 
 import com.lokoko.domain.video.domain.entity.YoutubeVideo;
-import com.lokoko.domain.youtube.repository.YoutubeVideoRepository;
+import com.lokoko.domain.youtube.domain.repository.YoutubeVideoRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

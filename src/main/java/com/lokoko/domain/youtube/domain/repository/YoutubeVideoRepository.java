@@ -1,4 +1,4 @@
-package com.lokoko.domain.youtube.repository;
+package com.lokoko.domain.youtube.domain.repository;
 
 import com.lokoko.domain.video.domain.entity.YoutubeVideo;
 import org.springframework.data.jpa.repository.JpaRepository;

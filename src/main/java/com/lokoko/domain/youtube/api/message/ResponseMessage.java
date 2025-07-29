@@ -1,4 +1,4 @@
-package com.lokoko.domain.youtube.controller.enums;
+package com.lokoko.domain.youtube.api.message;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

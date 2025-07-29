@@ -1,4 +1,4 @@
-package com.lokoko.domain.youtube.dto;
+package com.lokoko.domain.youtube.api.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 

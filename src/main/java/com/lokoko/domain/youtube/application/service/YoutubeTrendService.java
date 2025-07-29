@@ -1,8 +1,10 @@
-package com.lokoko.domain.youtube.service;
+package com.lokoko.domain.youtube.application.service;
 
 import com.lokoko.domain.video.domain.entity.YoutubeVideo;
-import com.lokoko.domain.youtube.dto.TrendsYoutubeResponse;
-import com.lokoko.domain.youtube.repository.YoutubeVideoRepository;
+import com.lokoko.domain.youtube.api.dto.TrendsYoutubeResponse;
+import com.lokoko.domain.youtube.application.crawler.PopularVideoCrawler;
+import com.lokoko.domain.youtube.domain.repository.YoutubeVideoRepository;
+import com.lokoko.domain.youtube.mapper.YoutubeMapper;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -34,6 +36,7 @@ public class YoutubeTrendService {
     private final PopularVideoCrawler crawlService;
     private final VideoSaveService saveService;
     private final YoutubeVideoRepository repository;
+    private final YoutubeMapper youtubeMapper;
 
     @Transactional
     public void crawlPopularBeautyVideos() {
@@ -73,9 +76,8 @@ public class YoutubeTrendService {
     }
 
     public List<TrendsYoutubeResponse> findAll() {
-        return repository.findAll()
-                .stream()
-                .map(TrendsYoutubeResponse::from)
-                .toList();
+        List<YoutubeVideo> videos = repository.findAll();
+
+        return youtubeMapper.toTrendsResponse(videos);
     }
 }

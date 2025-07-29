@@ -1,4 +1,4 @@
-package com.lokoko.domain.youtube.service;
+package com.lokoko.domain.youtube.application.service;
 
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchListResponse;

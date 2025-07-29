@@ -16,7 +16,7 @@ import com.lokoko.domain.review.dto.response.VideoReviewResponse;
 import com.lokoko.domain.review.entity.QReview;
 import com.lokoko.domain.user.entity.enums.Role;
 import com.lokoko.domain.user.repository.UserRepository;
-import com.lokoko.domain.video.entity.QReviewVideo;
+import com.lokoko.domain.video.domain.entity.QReviewVideo;
 import com.lokoko.global.common.response.PageableResponse;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
