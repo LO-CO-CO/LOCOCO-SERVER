@@ -1,7 +1,7 @@
 package com.lokoko.domain.youtube.service;
 
-import com.lokoko.domain.video.entity.YoutubeVideo;
-import com.lokoko.domain.youtube.dto.VideoResponse;
+import com.lokoko.domain.video.domain.entity.YoutubeVideo;
+import com.lokoko.domain.youtube.dto.TrendsYoutubeResponse;
 import com.lokoko.domain.youtube.repository.YoutubeVideoRepository;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -72,10 +72,10 @@ public class YoutubeTrendService {
         }
     }
 
-    public List<VideoResponse> findAll() {
+    public List<TrendsYoutubeResponse> findAll() {
         return repository.findAll()
                 .stream()
-                .map(VideoResponse::from)
+                .map(TrendsYoutubeResponse::from)
                 .toList();
     }
 }

@@ -1,4 +1,4 @@
-package com.lokoko.domain.video.entity;
+package com.lokoko.domain.video.domain.entity;
 
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;

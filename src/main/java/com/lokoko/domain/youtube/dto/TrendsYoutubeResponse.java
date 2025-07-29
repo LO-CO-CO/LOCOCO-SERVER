@@ -1,13 +1,12 @@
 package com.lokoko.domain.youtube.dto;
 
-import com.lokoko.domain.video.entity.YoutubeVideo;
-import io.swagger.v3.oas.annotations.media.Schema;
-
-import java.time.LocalDateTime;
-
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-public record VideoResponse(
+import com.lokoko.domain.video.domain.entity.YoutubeVideo;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDateTime;
+
+public record TrendsYoutubeResponse(
         @Schema(requiredMode = REQUIRED)
         Long id,
         @Schema(requiredMode = REQUIRED)
@@ -23,8 +22,8 @@ public record VideoResponse(
         @Schema(requiredMode = REQUIRED)
         LocalDateTime uploadedAt
 ) {
-    public static VideoResponse from(YoutubeVideo video) {
-        return new VideoResponse(
+    public static TrendsYoutubeResponse from(YoutubeVideo video) {
+        return new TrendsYoutubeResponse(
                 video.getId(),
                 video.getTopic(),
                 video.getTitle(),

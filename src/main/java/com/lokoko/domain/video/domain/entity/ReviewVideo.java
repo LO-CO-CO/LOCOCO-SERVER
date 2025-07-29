@@ -1,4 +1,4 @@
-package com.lokoko.domain.video.entity;
+package com.lokoko.domain.video.domain.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 

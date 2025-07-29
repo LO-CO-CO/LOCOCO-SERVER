@@ -1,6 +1,6 @@
 package com.lokoko.domain.youtube.service;
 
-import com.lokoko.domain.video.entity.YoutubeVideo;
+import com.lokoko.domain.video.domain.entity.YoutubeVideo;
 import com.lokoko.domain.youtube.repository.YoutubeVideoRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
