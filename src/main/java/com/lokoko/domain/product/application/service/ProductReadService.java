@@ -24,11 +24,9 @@ import com.lokoko.domain.product.domain.repository.ProductRepository;
 import com.lokoko.domain.product.exception.ProductNotFoundException;
 import com.lokoko.domain.product.mapper.ProductMapper;
 import com.lokoko.domain.review.dto.request.RatingCount;
-import com.lokoko.domain.review.entity.enums.Rating;
 import com.lokoko.domain.review.repository.ReviewRepository;
 import com.lokoko.global.common.response.PageableResponse;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,6 +50,7 @@ public class ProductReadService {
 
     private final ProductService productService;
     private final ProductLikeService productLikeService;
+    private final ProductStatsCalculatorService productStatsCalculatorService;
 
     private final ProductMapper productMapper;
 
@@ -108,24 +107,11 @@ public class ProductReadService {
         Map<Long, List<String>> imageUrlsMap = productService.createProductImageUrlsMap(images);
         String joinedUrls = String.join(",", imageUrlsMap.getOrDefault(productId, List.of()));
         List<RatingCount> stats = reviewRepository.countByProductIdsAndRating(List.of(productId));
-        long totalCount = 0L;
-        Map<Rating, Long> countMap = new HashMap<>();
-        long weightedSum = 0L;
 
-        for (RatingCount rc : stats) {
-            Rating rating = rc.rating();
-            Long cnt = rc.count();
-
-            countMap.put(rating, cnt);
-            totalCount += cnt;
-            weightedSum += rating.getValue() * cnt;
-        }
-        double rawAvg = totalCount == 0
-                ? 0.0
-                : (double) weightedSum / totalCount;
-        double avgRating = Math.round(rawAvg * 10) / 10.0;
-        Map<Long, Long> reviewCountMap = Map.of(productId, totalCount);
-        Map<Long, Double> avgRatingMap = Map.of(productId, avgRating);
+        Map<Long, Long> reviewCountMap = productStatsCalculatorService.calculateReviewCount(stats);
+        Map<Long, Long> weightedSumMap = productStatsCalculatorService.calculateWeightedSum(stats);
+        Map<Long, Double> avgRatingMap = productStatsCalculatorService.calculateAvgRating(reviewCountMap,
+                weightedSumMap);
         Map<Long, ProductStatsResponse> summaryMap = productService.createProductSummaryMap(
                 List.of(product),
                 Map.of(productId, joinedUrls),
@@ -139,24 +125,8 @@ public class ProductReadService {
                 .map(productMapper::toProductOptionResponse)
                 .toList();
 
-        long cnt5 = countMap.getOrDefault(Rating.FIVE, 0L);
-        long cnt4 = countMap.getOrDefault(Rating.FOUR, 0L);
-        long cnt3 = countMap.getOrDefault(Rating.THREE, 0L);
-        long cnt2 = countMap.getOrDefault(Rating.TWO, 0L);
-        long cnt1 = countMap.getOrDefault(Rating.ONE, 0L);
-        long pct5 = totalCount == 0 ? 0L : (cnt5 * 100) / totalCount;
-        long pct4 = totalCount == 0 ? 0L : (cnt4 * 100) / totalCount;
-        long pct3 = totalCount == 0 ? 0L : (cnt3 * 100) / totalCount;
-        long pct2 = totalCount == 0 ? 0L : (cnt2 * 100) / totalCount;
-        long pct1 = totalCount == 0 ? 0L : (cnt1 * 100) / totalCount;
-        List<RatingPercentResponse> starPercent = List.of(
-                new RatingPercentResponse(5, pct5),
-                new RatingPercentResponse(4, pct4),
-                new RatingPercentResponse(3, pct3),
-                new RatingPercentResponse(2, pct2),
-                new RatingPercentResponse(1, pct1)
-        );
         boolean isLiked = productLikeService.isLiked(productId, userId);
+        List<RatingPercentResponse> starPercent = productStatsCalculatorService.calculateRatingPercent(stats);
 
         return productMapper.toProductDetailResponse(
                 productBasicResponse,
@@ -176,7 +146,7 @@ public class ProductReadService {
                 .map(u -> Arrays.stream(u.split(","))
                         .map(String::trim)
                         .toList())
-                .orElse(null);
+                .orElseGet(List::of);
 
         return productMapper.toProductDetailYoutubeResponse(urls);
     }

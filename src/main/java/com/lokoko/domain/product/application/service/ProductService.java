@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 import com.lokoko.domain.image.entity.ProductImage;
 import com.lokoko.domain.image.repository.ProductImageRepository;
@@ -46,6 +45,7 @@ public class ProductService {
     private final ReviewRepository reviewRepository;
 
     private final KuromojiService kuromojiService;
+    private final ProductStatsCalculatorService productStatsCalculatorService;
 
     private final ProductMapper productMapper;
 
@@ -69,94 +69,32 @@ public class ProductService {
     public List<ProductListItemResponse> buildMainImageResponsesWithReviewData(
             List<Product> products, Long userId
     ) {
-        List<Long> productIds = products.stream().map(Product::getId).toList();
-        Map<Long, String> imageMap = createProductImageMap(productImageRepository.findByProductIdIn(productIds));
+        List<Long> productIds = products.stream()
+                .map(Product::getId)
+                .toList();
+
+        Map<Long, String> imageMap = createProductImageMap(
+                productImageRepository.findByProductIdIn(productIds)
+        );
 
         List<RatingCount> stats = reviewRepository.countByProductIdsAndRating(productIds);
-        Map<Long, Long> reviewCountMap = new HashMap<>();
-        Map<Long, Long> weightedSumMap = new HashMap<>();
+        Map<Long, Long> reviewCountMap = productStatsCalculatorService.calculateReviewCount(stats);
+        Map<Long, Long> weightedSumMap = productStatsCalculatorService.calculateWeightedSum(stats);
+        Map<Long, Double> avgRatingMap = productStatsCalculatorService.calculateAvgRating(reviewCountMap,
+                weightedSumMap);
 
-        for (RatingCount ratingCount : stats) {
-            Long pid = ratingCount.productId();
-            int score = ratingCount.rating().getValue();
-            Long cnt = ratingCount.count();
-            reviewCountMap.merge(pid, cnt, Long::sum);
-            weightedSumMap.merge(pid, score * cnt, Long::sum);
-        }
+        Map<Long, ProductStatsResponse> summaryMap = createProductSummaryMap(
+                products, imageMap, reviewCountMap, avgRatingMap
+        );
 
-        Map<Long, Double> avgMap = productIds.stream().collect(toMap(
-                pid -> pid,
-                pid -> {
-                    long total = reviewCountMap.getOrDefault(pid, 0L);
-                    long sum = weightedSumMap.getOrDefault(pid, 0L);
-                    double raw = total == 0 ? 0.0 : (double) sum / total;
-                    return Math.round(raw * 10) / 10.0;
-                }
-        ));
-
-        Map<Long, ProductStatsResponse> summaryMap = createProductSummaryMap(products, imageMap, reviewCountMap,
-                avgMap);
-
-        return makeMainImageResponses(products, summaryMap, userId);
-    }
-
-    public List<ProductListItemResponse> makeMainImageResponses(
-            List<Product> products, Map<Long, ProductStatsResponse> summaryMap, Long userId
-    ) {
         Set<Long> likedIds = (userId != null)
-                ? productLikeRepository.findAllByUserId(userId).stream()
+                ? productLikeRepository.findAllByUserId(userId)
+                .stream()
                 .map(pl -> pl.getProduct().getId())
                 .collect(Collectors.toSet())
                 : Collections.emptySet();
 
-        return products.stream()
-                .map(product -> productMapper.toProductMainImageResponse(
-                        product,
-                        summaryMap.getOrDefault(product.getId(), new ProductStatsResponse("", 0L, 0.0)),
-                        likedIds.contains(product.getId())
-                ))
-                .toList();
-    }
-
-    public List<ProductBasicResponse> buildProductResponseWithReviewData(
-            List<Product> products, Long userId
-    ) {
-        List<Long> productIds = products.stream().map(Product::getId).toList();
-        Map<Long, String> imageMap = createProductImageMap(
-                productImageRepository.findByProductIdInAndIsMainTrue(productIds));
-
-        List<RatingCount> stats = reviewRepository.countByProductIdsAndRating(productIds);
-        Map<Long, Long> reviewCountMap = new HashMap<>();
-        Map<Long, Long> weightedSumMap = new HashMap<>();
-
-        for (RatingCount rc : stats) {
-            Long pid = rc.productId();
-            int score = rc.rating().getValue();
-            Long cnt = rc.count();
-            reviewCountMap.merge(pid, cnt, Long::sum);
-            weightedSumMap.merge(pid, score * cnt, Long::sum);
-        }
-
-        Map<Long, Double> avgMap = productIds.stream().collect(toMap(
-                pid -> pid,
-                pid -> {
-                    long total = reviewCountMap.getOrDefault(pid, 0L);
-                    long sum = weightedSumMap.getOrDefault(pid, 0L);
-                    double raw = total == 0 ? 0.0 : (double) sum / total;
-                    return Math.round(raw * 10) / 10.0;
-                }
-        ));
-
-        Map<Long, ProductStatsResponse> summaryMap = createProductSummaryMap(products, imageMap, reviewCountMap,
-                avgMap);
-        return makeProductResponse(products, summaryMap, userId);
-    }
-
-    public Slice<ProductBasicResponse> buildProductResponseSliceWithReviewData(
-            Slice<Product> slice, Long userId
-    ) {
-        List<ProductBasicResponse> content = buildProductResponseWithReviewData(slice.getContent(), userId);
-        return new SliceImpl<>(content, slice.getPageable(), slice.hasNext());
+        return productMapper.toProductListItemResponses(products, summaryMap, likedIds);
     }
 
     public List<ProductBasicResponse> makeProductResponse(

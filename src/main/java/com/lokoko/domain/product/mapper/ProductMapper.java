@@ -19,6 +19,8 @@ import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
 import com.lokoko.global.common.response.PageableResponse;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -145,6 +147,51 @@ public interface ProductMapper {
     }
 
     // 내부 재사용 DTO
+
+    /**
+     * 상품 엔티티·통계·좋아요 여부를 ProductBasicResponse DTO로 변환
+     *
+     * @param products   상품 엔티티 목록
+     * @param summaryMap 제품별 통계 정보
+     * @param likedIds   사용자가 좋아요한 상품 ID 집합
+     * @return DTO 리스트
+     */
+    default List<ProductBasicResponse> toProductBasicResponses(
+            List<Product> products,
+            Map<Long, ProductStatsResponse> summaryMap,
+            Set<Long> likedIds
+    ) {
+        return products.stream()
+                .map(product -> {
+                    ProductStatsResponse summary = summaryMap.getOrDefault(
+                            product.getId(),
+                            new ProductStatsResponse("", 0L, 0.0)
+                    );
+                    boolean isLiked = likedIds.contains(product.getId());
+                    return ProductBasicResponse.of(product, summary, isLiked);
+                })
+                .toList();
+    }
+
+    /**
+     * 상품 엔티티·통계·좋아요 여부를 ProductListItemResponse DTO로 변환
+     *
+     * @param products   상품 엔티티 목록
+     * @param summaryMap 제품별 통계 정보
+     * @param likedIds   사용자가 좋아요한 상품 ID 집합
+     * @return DTO 리스트
+     */
+    default List<ProductListItemResponse> toProductListItemResponses(
+            List<Product> products,
+            Map<Long, ProductStatsResponse> summaryMap,
+            Set<Long> likedIds
+    ) {
+        return products.stream()
+                .map(product -> toProductMainImageResponse(product,
+                        summaryMap.getOrDefault(product.getId(), new ProductStatsResponse("", 0L, 0.0)),
+                        likedIds.contains(product.getId())))
+                .toList();
+    }
 
     /**
      * 상품 목록용 아이템 DTO로 매핑
