@@ -1,6 +1,6 @@
 package com.lokoko.domain.video.domain.repository;
 
-import com.lokoko.domain.review.entity.Review;
+import com.lokoko.domain.review.domain.entity.Review;
 import com.lokoko.domain.video.domain.entity.ReviewVideo;
 import java.util.List;
 import java.util.Optional;

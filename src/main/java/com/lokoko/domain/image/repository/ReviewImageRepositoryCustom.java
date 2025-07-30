@@ -1,6 +1,6 @@
 package com.lokoko.domain.image.repository;
 
-import com.lokoko.domain.review.dto.response.MainImageReview;
+import com.lokoko.domain.review.api.dto.response.MainImageReview;
 
 import java.util.List;
 

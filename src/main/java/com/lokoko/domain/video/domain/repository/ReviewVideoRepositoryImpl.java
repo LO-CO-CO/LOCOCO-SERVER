@@ -3,7 +3,7 @@ package com.lokoko.domain.video.domain.repository;
 import static com.lokoko.domain.like.entity.QReviewLike.reviewLike;
 
 import com.lokoko.domain.product.domain.entity.QProduct;
-import com.lokoko.domain.review.dto.response.MainVideoReview;
+import com.lokoko.domain.review.api.dto.response.MainVideoReview;
 import com.lokoko.domain.review.entity.QReview;
 import com.lokoko.domain.video.domain.entity.QReviewVideo;
 import com.querydsl.core.types.Projections;

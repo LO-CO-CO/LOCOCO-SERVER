@@ -1,7 +1,7 @@
 package com.lokoko.domain.like.repository;
 
 import com.lokoko.domain.like.entity.ReviewLike;
-import com.lokoko.domain.review.entity.Review;
+import com.lokoko.domain.review.domain.entity.Review;
 import com.lokoko.domain.user.entity.User;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

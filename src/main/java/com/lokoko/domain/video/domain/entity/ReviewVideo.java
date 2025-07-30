@@ -2,7 +2,7 @@ package com.lokoko.domain.video.domain.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 
-import com.lokoko.domain.review.entity.Review;
+import com.lokoko.domain.review.domain.entity.Review;
 import com.lokoko.global.common.entity.BaseEntity;
 import com.lokoko.global.common.entity.MediaFile;
 import jakarta.persistence.Column;
