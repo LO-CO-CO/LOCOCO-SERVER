@@ -8,6 +8,7 @@ import com.lokoko.domain.review.dto.response.KeywordImageReviewListResponse;
 import com.lokoko.domain.review.dto.response.KeywordVideoReviewListResponse;
 import com.lokoko.domain.review.dto.response.VideoReviewListResponse;
 import com.lokoko.domain.review.dto.response.VideoReviewResponse;
+import com.lokoko.domain.review.mapper.ReviewMapper;
 import com.lokoko.domain.review.repository.ReviewRepository;
 import com.lokoko.global.common.response.PageableResponse;
 import com.lokoko.global.kuromoji.service.KuromojiService;
@@ -24,6 +25,7 @@ public class ReviewReadService {
 
     private final ReviewRepository reviewRepository;
     private final KuromojiService kuromojiService;
+    private final ReviewMapper reviewMapper;
 
     // 카테고리별 영상 리뷰 조회
     public VideoReviewListResponse searchVideoReviewsByCategory(MiddleCategory middleCategory,
@@ -36,16 +38,14 @@ public class ReviewReadService {
                 ? reviewRepository.findVideoReviewsByCategory(middleCategory, pageable)
                 : reviewRepository.findVideoReviewsByCategory(middleCategory, subCategory, pageable);
 
-        return VideoReviewListResponse.builder()
-                .searchQuery(subCategory == null
-                        ? middleCategory.getDisplayName()
-                        : subCategory.getDisplayName())
-                .parentCategoryName(subCategory == null
-                        ? middleCategory.getParent().getDisplayName()
-                        : subCategory.getMiddleCategory().getParent().getDisplayName())
-                .reviews(videoReviews.getContent())
-                .pageInfo(PageableResponse.of(videoReviews))
-                .build();
+        PageableResponse pageInfo = PageableResponse.of(videoReviews);
+
+        return reviewMapper.toVideoReviewListResponse(
+                videoReviews.getContent(),
+                middleCategory,
+                subCategory,
+                pageInfo
+        );
 
     }
 
@@ -60,18 +60,14 @@ public class ReviewReadService {
                 ? reviewRepository.findImageReviewsByCategory(middleCategory, pageable)
                 : reviewRepository.findImageReviewsByCategory(middleCategory, subCategory, pageable);
 
-//        return new ImageReviewListResponse(imageReviews.getContent(), PageableResponse.of(imageReviews));
+        PageableResponse pageInfo = PageableResponse.of(imageReviews);
 
-        return ImageReviewListResponse.builder()
-                .searchQuery(subCategory == null
-                        ? middleCategory.getDisplayName()
-                        : subCategory.getDisplayName())
-                .parentCategoryName(subCategory == null
-                        ? middleCategory.getParent().getDisplayName()
-                        : subCategory.getMiddleCategory().getParent().getDisplayName())
-                .reviews(imageReviews.getContent())
-                .pageInfo(PageableResponse.of(imageReviews))
-                .build();
+        return reviewMapper.toImageReviewListResponse(
+                imageReviews.getContent(),
+                middleCategory,
+                subCategory,
+                pageInfo
+        );
     }
 
     public KeywordVideoReviewListResponse searchVideoReviewsByKeyword(String keyword, int page, int size) {
@@ -83,7 +79,6 @@ public class ReviewReadService {
                 pageable);
 
         return KeywordVideoReviewListResponse.from(keyword, videoReviews);
-//        return ReviewListResponse.from(keyword, videoReviews);
     }
 
     public KeywordImageReviewListResponse searchImageReviewsByKeyword(String keyword, int page, int size) {
@@ -95,6 +90,5 @@ public class ReviewReadService {
                 pageable);
 
         return KeywordImageReviewListResponse.from(keyword, imageReviews);
-//        return ReviewListResponse.from(keyword, imageReviews);
     }
 }
