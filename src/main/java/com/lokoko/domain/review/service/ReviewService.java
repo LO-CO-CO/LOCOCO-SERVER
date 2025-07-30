@@ -35,6 +35,7 @@ import com.lokoko.domain.review.exception.InvalidMediaTypeException;
 import com.lokoko.domain.review.exception.ReceiptImageCountingException;
 import com.lokoko.domain.review.exception.ReviewNotFoundException;
 import com.lokoko.domain.review.exception.ReviewPermissionException;
+import com.lokoko.domain.review.mapper.ReviewMapper;
 import com.lokoko.domain.review.repository.ReviewRepository;
 import com.lokoko.domain.user.entity.User;
 import com.lokoko.domain.user.entity.enums.Role;
@@ -47,7 +48,6 @@ import com.lokoko.global.common.entity.MediaFile;
 import com.lokoko.global.common.service.S3Service;
 import com.lokoko.global.utils.S3UrlParser;
 import java.util.List;
-import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -68,6 +68,7 @@ public class ReviewService {
     private final ProductRepository productRepository;
     private final ReviewVideoRepository reviewVideoRepository;
     private final ReviewLikeRepository reviewLikeRepository;
+    private final ReviewMapper reviewMapper;
 
     public ReviewReceiptResponse createReceiptPresignedUrl(Long userId,
                                                            ReviewReceiptRequest request) {
@@ -88,7 +89,8 @@ public class ReviewService {
 
         PresignedUrlResponse response = s3Service.generatePresignedUrl(mediaType);
         String presignedUrl = response.presignedUrl();
-        return new ReviewReceiptResponse(List.of(presignedUrl));
+
+        return reviewMapper.toReviewReceiptUrl(List.of(presignedUrl));
     }
 
     public ReviewMediaResponse createMediaPresignedUrl(
@@ -128,8 +130,7 @@ public class ReviewService {
                 .map(PresignedUrlResponse::presignedUrl)
                 .toList();
 
-        return new ReviewMediaResponse(urls);
-
+        return reviewMapper.toReviewMediaResponse(urls);
     }
 
     public ImageReviewsProductDetailResponse getImageReviewsInProductDetail(Long productId, int page,
@@ -183,15 +184,7 @@ public class ReviewService {
             }
         }
 
-        Review review = Review.builder()
-                .author(user)
-                .product(product)
-                .productOption(option)
-                .rating(Rating.fromValue(request.rating()))
-                .positiveContent(request.positiveComment())
-                .negativeContent(request.negativeComment())
-                .build();
-
+        Review review = reviewMapper.toReview(request, user, product, option);
         reviewRepository.save(review);
 
         // 영수증 이미지 저장
