@@ -134,7 +134,7 @@ public class ProductController {
             throw new MissingMediaTypeException();
         }
         // 상품 검색
-        SearchProductsResponse searchResults = productService.search(keyword, page,
+        SearchProductsResponse searchResults = productReadService.search(keyword, page,
                 size, userId);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.NAME_BRAND_SEARCH_SUCCESS.getMessage(),

@@ -17,6 +17,7 @@ import com.lokoko.domain.product.api.dto.response.ProductStatsResponse;
 import com.lokoko.domain.product.api.dto.response.ProductYoutubeResponse;
 import com.lokoko.domain.product.api.dto.response.ProductsByCategoryResponse;
 import com.lokoko.domain.product.api.dto.response.RatingPercentResponse;
+import com.lokoko.domain.product.api.dto.response.SearchProductsResponse;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
@@ -27,6 +28,7 @@ import com.lokoko.domain.product.mapper.ProductMapper;
 import com.lokoko.domain.review.dto.request.RatingCount;
 import com.lokoko.domain.review.repository.ReviewRepository;
 import com.lokoko.global.common.response.PageableResponse;
+import com.lokoko.global.kuromoji.service.KuromojiService;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -50,10 +52,22 @@ public class ProductReadService {
     private final ReviewRepository reviewRepository;
 
     private final ProductService productService;
+    private final KuromojiService kuromojiService;
+    private final ProductImageService productImageService;
     private final ProductLikeService productLikeService;
     private final ProductStatsCalculatorService productStatsCalculatorService;
 
     private final ProductMapper productMapper;
+
+    public SearchProductsResponse search(String keyword, int page, int size, Long userId) {
+        List<String> tokens = kuromojiService.tokenize(keyword);
+        Slice<Product> slice = productRepository.searchByTokens(tokens, PageRequest.of(page, size));
+
+        List<ProductListItemResponse> products = productService.buildMainImageResponsesWithReviewData(
+                slice.getContent(), userId);
+
+        return productMapper.toNameBrandProductResponse(products, keyword, PageableResponse.of(slice));
+    }
 
     // 카테고리 id 로 제품 리스트 조회
     public ProductsByCategoryResponse searchProductsByCategory(MiddleCategory middleCategory, SubCategory subCategory,
@@ -106,7 +120,7 @@ public class ProductReadService {
                 .orElseThrow(ProductNotFoundException::new);
 
         List<ProductImage> images = productImageRepository.findByProductIdIn(List.of(productId));
-        Map<Long, List<String>> imageUrlsMap = productService.createProductImageUrlsMap(images);
+        Map<Long, List<String>> imageUrlsMap = productImageService.mapAllImageUrls(images);
         String joinedUrls = String.join(",", imageUrlsMap.getOrDefault(productId, List.of()));
 
         List<RatingCount> stats = reviewRepository.countByProductIdsAndRating(List.of(productId));
