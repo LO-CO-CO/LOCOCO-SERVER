@@ -1,7 +1,7 @@
 package com.lokoko.domain.product.domain.repository;
 
-import com.lokoko.domain.product.api.dto.response.NewProductProjection;
-import com.lokoko.domain.product.api.dto.response.PopularProductProjection;
+import com.lokoko.domain.product.api.dto.NewProductProjection;
+import com.lokoko.domain.product.api.dto.PopularProductProjection;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;

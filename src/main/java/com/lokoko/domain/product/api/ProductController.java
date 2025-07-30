@@ -19,7 +19,6 @@ import com.lokoko.domain.product.api.message.ResponseMessage;
 import com.lokoko.domain.product.application.crawler.NewProductCrawler;
 import com.lokoko.domain.product.application.crawler.ProductCrawler;
 import com.lokoko.domain.product.application.service.ProductReadService;
-import com.lokoko.domain.product.application.service.ProductService;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
 import com.lokoko.domain.review.dto.response.ImageReviewListResponse;
@@ -53,7 +52,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ProductController {
     private final ProductReadService productReadService;
-    private final ProductService productService;
     private final ProductCrawler productCrawler;
     private final NewProductCrawler newProductCrawler;
     private final ProductMigrationService productMigrationService;
@@ -134,7 +132,7 @@ public class ProductController {
             throw new MissingMediaTypeException();
         }
         // 상품 검색
-        SearchProductsResponse searchResults = productService.search(keyword, page,
+        SearchProductsResponse searchResults = productReadService.search(keyword, page,
                 size, userId);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.NAME_BRAND_SEARCH_SUCCESS.getMessage(),

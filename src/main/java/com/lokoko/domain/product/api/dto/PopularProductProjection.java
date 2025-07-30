@@ -1,9 +1,9 @@
-package com.lokoko.domain.product.api.dto.response;
+package com.lokoko.domain.product.api.dto;
 
-import java.time.LocalDateTime;
+import com.lokoko.domain.product.api.dto.response.ProductBasicResponse;
 import java.util.List;
 
-public record NewProductProjection(
+public record PopularProductProjection(
         Long productId,
         String productName,
         String brandName,
@@ -11,11 +11,10 @@ public record NewProductProjection(
         Long reviewCount,
         Double avgRating,
         String imageUrl,
-        Boolean isLiked,
-        LocalDateTime createdAt
+        Boolean isLiked
 ) {
     // Compact constructor로 데이터 정규화
-    public NewProductProjection {
+    public PopularProductProjection {
         reviewCount = reviewCount != null ? reviewCount : 0L;
         avgRating = avgRating != null ? Math.round(avgRating * 10) / 10.0 : 0.0;
         isLiked = isLiked != null ? isLiked : false;
