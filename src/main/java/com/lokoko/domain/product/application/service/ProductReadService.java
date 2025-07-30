@@ -4,9 +4,10 @@ package com.lokoko.domain.product.application.service;
 import com.lokoko.domain.image.entity.ProductImage;
 import com.lokoko.domain.image.repository.ProductImageRepository;
 import com.lokoko.domain.like.service.ProductLikeService;
-import com.lokoko.domain.product.api.dto.response.NewProductProjection;
+import com.lokoko.domain.product.api.dto.NewProductProjection;
+import com.lokoko.domain.product.api.dto.PopularProductProjection;
+import com.lokoko.domain.product.api.dto.ReviewStats;
 import com.lokoko.domain.product.api.dto.response.NewProductsByCategoryResponse;
-import com.lokoko.domain.product.api.dto.response.PopularProductProjection;
 import com.lokoko.domain.product.api.dto.response.PopularProductsByCategoryResponse;
 import com.lokoko.domain.product.api.dto.response.ProductBasicResponse;
 import com.lokoko.domain.product.api.dto.response.ProductDetailResponse;
@@ -103,30 +104,33 @@ public class ProductReadService {
     public ProductDetailResponse getProductDetail(Long productId, Long userId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(ProductNotFoundException::new);
+
         List<ProductImage> images = productImageRepository.findByProductIdIn(List.of(productId));
         Map<Long, List<String>> imageUrlsMap = productService.createProductImageUrlsMap(images);
         String joinedUrls = String.join(",", imageUrlsMap.getOrDefault(productId, List.of()));
-        List<RatingCount> stats = reviewRepository.countByProductIdsAndRating(List.of(productId));
 
-        Map<Long, Long> reviewCountMap = productStatsCalculatorService.calculateReviewCount(stats);
-        Map<Long, Long> weightedSumMap = productStatsCalculatorService.calculateWeightedSum(stats);
-        Map<Long, Double> avgRatingMap = productStatsCalculatorService.calculateAvgRating(reviewCountMap,
-                weightedSumMap);
-        Map<Long, ProductStatsResponse> summaryMap = productService.createProductSummaryMap(
-                List.of(product),
-                Map.of(productId, joinedUrls),
-                reviewCountMap,
-                avgRatingMap
+        List<RatingCount> stats = reviewRepository.countByProductIdsAndRating(List.of(productId));
+        Map<Long, ReviewStats> statsMap = productStatsCalculatorService.calculateProductStats(stats);
+        ReviewStats reviewStats = statsMap.getOrDefault(productId, new ReviewStats(0L, 0L, 0.0));
+
+        ProductStatsResponse summary = new ProductStatsResponse(
+                joinedUrls,
+                reviewStats.reviewCount(),
+                reviewStats.avgRating()
         );
-        ProductBasicResponse productBasicResponse = productService.makeProductResponse(
-                List.of(product), summaryMap, userId
-        ).stream().findFirst().orElseThrow(ProductNotFoundException::new);
+        ProductBasicResponse productBasicResponse = ProductBasicResponse.of(
+                product,
+                summary,
+                productLikeService.isLiked(productId, userId)
+        );
+
         List<ProductOptionResponse> options = productOptionRepository.findByProduct(product).stream()
                 .map(productMapper::toProductOptionResponse)
                 .toList();
 
         boolean isLiked = productLikeService.isLiked(productId, userId);
-        List<RatingPercentResponse> starPercent = productStatsCalculatorService.calculateRatingPercent(stats);
+        List<RatingPercentResponse> starPercent =
+                productStatsCalculatorService.calculateRatingPercent(stats);
 
         return productMapper.toProductDetailResponse(
                 productBasicResponse,

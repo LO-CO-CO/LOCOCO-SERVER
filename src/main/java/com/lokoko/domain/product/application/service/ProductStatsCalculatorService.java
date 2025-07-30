@@ -1,5 +1,6 @@
 package com.lokoko.domain.product.application.service;
 
+import com.lokoko.domain.product.api.dto.ReviewStats;
 import com.lokoko.domain.product.api.dto.response.RatingPercentResponse;
 import com.lokoko.domain.review.dto.request.RatingCount;
 import com.lokoko.domain.review.entity.enums.Rating;
@@ -84,5 +85,27 @@ public class ProductStatsCalculatorService {
                     return new RatingPercentResponse(r.getValue(), pct);
                 })
                 .toList();
+    }
+
+    /**
+     * 주어진 리뷰 통계 리스트에서 제품별 리뷰 개수, 가중합, 평균을 한 번에 계산 후 ReviewStats 객체로 묶어 반환
+     *
+     * @param stats 리뷰별 count 정보 리스트
+     * @return 제품 ID를 키로, ReviewStats를 값으로 하는 맵
+     */
+    public Map<Long, ReviewStats> calculateProductStats(List<RatingCount> stats) {
+        Map<Long, Long> countMap = calculateReviewCount(stats);
+        Map<Long, Long> sumMap = calculateWeightedSum(stats);
+        Map<Long, Double> avgMap = calculateAvgRating(countMap, sumMap);
+
+        return countMap.keySet().stream()
+                .collect(Collectors.toMap(
+                        id -> id,
+                        id -> new ReviewStats(
+                                countMap.getOrDefault(id, 0L),
+                                sumMap.getOrDefault(id, 0L),
+                                avgMap.getOrDefault(id, 0.0)
+                        )
+                ));
     }
 }

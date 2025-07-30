@@ -1,8 +1,8 @@
 package com.lokoko.domain.product.mapper;
 
-import com.lokoko.domain.product.api.dto.response.NewProductProjection;
+import com.lokoko.domain.product.api.dto.NewProductProjection;
+import com.lokoko.domain.product.api.dto.PopularProductProjection;
 import com.lokoko.domain.product.api.dto.response.NewProductsByCategoryResponse;
-import com.lokoko.domain.product.api.dto.response.PopularProductProjection;
 import com.lokoko.domain.product.api.dto.response.PopularProductsByCategoryResponse;
 import com.lokoko.domain.product.api.dto.response.ProductBasicResponse;
 import com.lokoko.domain.product.api.dto.response.ProductDetailResponse;
