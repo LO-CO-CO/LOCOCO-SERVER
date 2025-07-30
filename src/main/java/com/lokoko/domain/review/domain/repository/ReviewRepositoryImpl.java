@@ -13,7 +13,7 @@ import com.lokoko.domain.review.api.dto.response.ImageReviewsProductDetailRespon
 import com.lokoko.domain.review.api.dto.response.VideoReviewProductDetail;
 import com.lokoko.domain.review.api.dto.response.VideoReviewProductDetailResponse;
 import com.lokoko.domain.review.api.dto.response.VideoReviewResponse;
-import com.lokoko.domain.review.entity.QReview;
+import com.lokoko.domain.review.domain.entity.QReview;
 import com.lokoko.domain.user.entity.enums.Role;
 import com.lokoko.domain.user.repository.UserRepository;
 import com.lokoko.domain.video.domain.entity.QReviewVideo;

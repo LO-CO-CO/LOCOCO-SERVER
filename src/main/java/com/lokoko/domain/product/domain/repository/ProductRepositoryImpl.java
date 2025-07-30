@@ -9,7 +9,7 @@ import com.lokoko.domain.product.domain.entity.QProduct;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
 import com.lokoko.domain.product.domain.entity.enums.Tag;
-import com.lokoko.domain.review.entity.QReview;
+import com.lokoko.domain.review.domain.entity.QReview;
 import com.lokoko.domain.review.domain.entity.enums.Rating;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Expression;
