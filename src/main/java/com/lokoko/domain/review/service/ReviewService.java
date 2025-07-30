@@ -218,50 +218,21 @@ public class ReviewService {
             }
         }
 
-        return new ReviewResponse(review.getId());
+        return reviewMapper.toReviewResponse(review);
     }
 
     public MainImageReviewResponse getMainImageReview() {
         List<MainImageReview> reviewImages = reviewImageRepository.findMainImageReviewSorted();
+        List<MainImageReview> rankedList = reviewMapper.addRankingToImageReviews(reviewImages);
 
-        List<MainImageReview> rankedList = IntStream.range(0, reviewImages.size())
-                .mapToObj(i -> {
-                    MainImageReview item = reviewImages.get(i);
-                    return new MainImageReview(
-                            item.reviewId(),
-                            item.productId(),
-                            item.brandName(),
-                            item.productName(),
-                            item.likeCount(),
-                            // 여기서 순위 부여
-                            i + 1,
-                            item.reviewImage()
-                    );
-                })
-                .toList();
-
-        return new MainImageReviewResponse(rankedList);
+        return reviewMapper.toMainImageReviewResponse(rankedList);
     }
 
     public MainVideoReviewResponse getMainVideoReview() {
         List<MainVideoReview> reviewVideo = reviewVideoRepository.findMainVideoReviewSorted();
-        List<MainVideoReview> rankedList = IntStream.range(0, reviewVideo.size())
-                .mapToObj(i -> {
-                    MainVideoReview item = reviewVideo.get(i);
-                    return new MainVideoReview(
-                            item.reviewId(),
-                            item.productId(),
-                            item.brandName(),
-                            item.productName(),
-                            item.likeCount(),
-                            // 여기서 순위 부여
-                            i + 1,
-                            item.reviewVideo()
-                    );
-                })
-                .toList();
+        List<MainVideoReview> rankedList = reviewMapper.addRankingToVideoReviews(reviewVideo);
 
-        return new MainVideoReviewResponse(rankedList);
+        return reviewMapper.toMainVideoReviewResponse(rankedList);
     }
 
     public VideoReviewProductDetailResponse getVideoReviewsByProduct(Long productId) {
