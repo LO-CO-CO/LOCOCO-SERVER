@@ -3,6 +3,8 @@ package com.lokoko.domain.product.application.service;
 
 import com.lokoko.domain.image.entity.ProductImage;
 import com.lokoko.domain.image.repository.ProductImageRepository;
+import com.lokoko.domain.like.entity.ProductLike;
+import com.lokoko.domain.like.repository.ProductLikeRepository;
 import com.lokoko.domain.like.service.ProductLikeService;
 import com.lokoko.domain.product.api.dto.NewProductProjection;
 import com.lokoko.domain.product.api.dto.PopularProductProjection;
@@ -30,14 +32,18 @@ import com.lokoko.domain.review.repository.ReviewRepository;
 import com.lokoko.global.common.response.PageableResponse;
 import com.lokoko.global.kuromoji.service.KuromojiService;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,9 +55,9 @@ public class ProductReadService {
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
     private final ProductOptionRepository productOptionRepository;
+    private final ProductLikeRepository productLikeRepository;
     private final ReviewRepository reviewRepository;
 
-    private final ProductService productService;
     private final KuromojiService kuromojiService;
     private final ProductImageService productImageService;
     private final ProductLikeService productLikeService;
@@ -62,9 +68,7 @@ public class ProductReadService {
     public SearchProductsResponse search(String keyword, int page, int size, Long userId) {
         List<String> tokens = kuromojiService.tokenize(keyword);
         Slice<Product> slice = productRepository.searchByTokens(tokens, PageRequest.of(page, size));
-
-        List<ProductListItemResponse> products = productService.buildMainImageResponsesWithReviewData(
-                slice.getContent(), userId);
+        List<ProductListItemResponse> products = mapToProductList(slice.getContent(), userId);
 
         return productMapper.toNameBrandProductResponse(products, keyword, PageableResponse.of(slice));
     }
@@ -77,8 +81,7 @@ public class ProductReadService {
                 ? productRepository.findProductsByPopularityAndRating(middleCategory, pageable)
                 : productRepository.findProductsByPopularityAndRating(middleCategory, subCategory, pageable);
 
-        Slice<ProductListItemResponse> responseSlice =
-                productService.buildMainImageResponseSliceWithReviewData(slice, userId);
+        Slice<ProductListItemResponse> responseSlice = mapToProductListItems(slice, userId);
 
         return productMapper.toCategoryProductPageResponse(
                 responseSlice.getContent(),
@@ -167,5 +170,49 @@ public class ProductReadService {
                 .orElseGet(List::of);
 
         return productMapper.toProductDetailYoutubeResponse(urls);
+    }
+
+    public Slice<ProductListItemResponse> mapToProductListItems(
+            Slice<Product> productSlice,
+            Long userId
+    ) {
+        List<ProductListItemResponse> dtos = mapToProductList(productSlice.getContent(), userId);
+        return new SliceImpl<>(dtos, productSlice.getPageable(), productSlice.hasNext());
+    }
+
+    private List<ProductListItemResponse> mapToProductList(
+            List<Product> products,
+            Long userId
+    ) {
+        List<Long> productIds = products.stream()
+                .map(Product::getId)
+                .toList();
+
+        Map<Long, String> imageMap = productImageService.mapMainImageUrlsByProductIds(productIds);
+        List<RatingCount> stats = reviewRepository.countByProductIdsAndRating(productIds);
+        Map<Long, ReviewStats> reviewStatsMap = productStatsCalculatorService.calculateProductStats(stats);
+
+        ReviewStats defaultStats = new ReviewStats(0L, 0L, 0.0);
+        Map<Long, ProductStatsResponse> summaryMap = products.stream()
+                .collect(Collectors.toMap(
+                        Product::getId,
+                        p -> {
+                            ReviewStats statsForP = reviewStatsMap.getOrDefault(p.getId(), defaultStats);
+                            return new ProductStatsResponse(
+                                    imageMap.getOrDefault(p.getId(), ""),
+                                    statsForP.reviewCount(),
+                                    statsForP.avgRating()
+                            );
+                        }
+                ));
+
+        List<ProductLike> likes = Optional.ofNullable(userId)
+                .map(productLikeRepository::findAllByUserId)
+                .orElseGet(Collections::emptyList);
+        Set<Long> likedIds = likes.stream()
+                .map(pl -> pl.getProduct().getId())
+                .collect(Collectors.toSet());
+
+        return productMapper.toProductListItemResponses(products, summaryMap, likedIds);
     }
 }
