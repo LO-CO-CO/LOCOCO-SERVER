@@ -2,8 +2,8 @@ package com.lokoko.domain.product.domain.repository;
 
 import com.lokoko.domain.image.entity.QProductImage;
 import com.lokoko.domain.like.entity.QProductLike;
-import com.lokoko.domain.product.api.dto.response.NewProductProjection;
-import com.lokoko.domain.product.api.dto.response.PopularProductProjection;
+import com.lokoko.domain.product.api.dto.NewProductProjection;
+import com.lokoko.domain.product.api.dto.PopularProductProjection;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.QProduct;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
