@@ -1,7 +1,7 @@
-package com.lokoko.domain.like.service;
+package com.lokoko.domain.like.application.service;
 
-import com.lokoko.domain.like.entity.ProductLike;
-import com.lokoko.domain.like.repository.ProductLikeRepository;
+import com.lokoko.domain.like.domain.entity.ProductLike;
+import com.lokoko.domain.like.domain.repository.ProductLikeRepository;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.repository.ProductRepository;
 import com.lokoko.domain.product.exception.ProductNotFoundException;

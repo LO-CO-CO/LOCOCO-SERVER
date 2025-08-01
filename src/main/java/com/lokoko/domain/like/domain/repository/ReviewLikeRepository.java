@@ -1,6 +1,6 @@
-package com.lokoko.domain.like.repository;
+package com.lokoko.domain.like.domain.repository;
 
-import com.lokoko.domain.like.entity.ReviewLike;
+import com.lokoko.domain.like.domain.entity.ReviewLike;
 import com.lokoko.domain.review.domain.entity.Review;
 import com.lokoko.domain.user.entity.User;
 import java.util.Optional;

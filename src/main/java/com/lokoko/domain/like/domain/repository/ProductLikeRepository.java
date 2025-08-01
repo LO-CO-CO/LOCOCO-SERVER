@@ -1,6 +1,6 @@
-package com.lokoko.domain.like.repository;
+package com.lokoko.domain.like.domain.repository;
 
-import com.lokoko.domain.like.entity.ProductLike;
+import com.lokoko.domain.like.domain.entity.ProductLike;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

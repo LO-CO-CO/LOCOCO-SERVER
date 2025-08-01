@@ -1,7 +1,7 @@
 package com.lokoko.domain.image.repository;
 
 import com.lokoko.domain.image.entity.QReviewImage;
-import com.lokoko.domain.like.entity.QReviewLike;
+import com.lokoko.domain.like.domain.entity.QReviewLike;
 import com.lokoko.domain.product.domain.entity.QProduct;
 import com.lokoko.domain.review.api.dto.response.MainImageReview;
 import com.lokoko.domain.review.domain.entity.QReview;

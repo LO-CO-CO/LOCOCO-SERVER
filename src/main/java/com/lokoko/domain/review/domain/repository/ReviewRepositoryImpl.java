@@ -1,7 +1,7 @@
 package com.lokoko.domain.review.domain.repository;
 
 import com.lokoko.domain.image.entity.QReviewImage;
-import com.lokoko.domain.like.entity.QReviewLike;
+import com.lokoko.domain.like.domain.entity.QReviewLike;
 import com.lokoko.domain.product.domain.entity.QProduct;
 import com.lokoko.domain.product.domain.entity.QProductOption;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;

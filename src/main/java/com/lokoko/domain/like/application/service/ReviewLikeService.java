@@ -1,7 +1,7 @@
-package com.lokoko.domain.like.service;
+package com.lokoko.domain.like.application.service;
 
-import com.lokoko.domain.like.entity.ReviewLike;
-import com.lokoko.domain.like.repository.ReviewLikeRepository;
+import com.lokoko.domain.like.domain.entity.ReviewLike;
+import com.lokoko.domain.like.domain.repository.ReviewLikeRepository;
 import com.lokoko.domain.review.domain.entity.Review;
 import com.lokoko.domain.review.exception.ReviewNotFoundException;
 import com.lokoko.domain.review.domain.repository.ReviewRepository;

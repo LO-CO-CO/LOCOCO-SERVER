@@ -1,6 +1,5 @@
 package com.lokoko.domain.video.domain.repository;
 
-import static com.lokoko.domain.like.entity.QReviewLike.reviewLike;
 
 import com.lokoko.domain.product.domain.entity.QProduct;
 import com.lokoko.domain.review.api.dto.response.MainVideoReview;
@@ -12,6 +11,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import static com.lokoko.domain.like.domain.entity.QReviewLike.reviewLike;
 
 @Repository
 @RequiredArgsConstructor

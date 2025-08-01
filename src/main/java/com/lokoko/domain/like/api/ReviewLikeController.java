@@ -1,9 +1,9 @@
-package com.lokoko.domain.like.controller;
+package com.lokoko.domain.like.api;
 
-import static com.lokoko.domain.like.controller.enums.ResponseMessage.REVIEW_LIKE_TOGGLE_SUCCESS;
+import static com.lokoko.domain.like.api.message.ResponseMessage.REVIEW_LIKE_TOGGLE_SUCCESS;
 
-import com.lokoko.domain.like.dto.response.ReviewLikeResponse;
-import com.lokoko.domain.like.service.ReviewLikeService;
+import com.lokoko.domain.like.api.dto.response.ReviewLikeResponse;
+import com.lokoko.domain.like.application.service.ReviewLikeService;
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;

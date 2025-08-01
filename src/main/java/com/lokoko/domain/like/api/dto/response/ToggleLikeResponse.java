@@ -1,4 +1,4 @@
-package com.lokoko.domain.like.dto.response;
+package com.lokoko.domain.like.api.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

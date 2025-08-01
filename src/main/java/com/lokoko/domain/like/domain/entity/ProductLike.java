@@ -1,4 +1,4 @@
-package com.lokoko.domain.like.entity;
+package com.lokoko.domain.like.domain.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 

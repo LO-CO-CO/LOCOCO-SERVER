@@ -7,7 +7,7 @@ import com.lokoko.domain.image.entity.ReceiptImage;
 import com.lokoko.domain.image.entity.ReviewImage;
 import com.lokoko.domain.image.repository.ReceiptImageRepository;
 import com.lokoko.domain.image.repository.ReviewImageRepository;
-import com.lokoko.domain.like.repository.ReviewLikeRepository;
+import com.lokoko.domain.like.domain.repository.ReviewLikeRepository;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.ProductOption;
 import com.lokoko.domain.product.domain.repository.ProductOptionRepository;
