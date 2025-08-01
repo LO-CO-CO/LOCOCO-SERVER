@@ -1,10 +1,10 @@
-package com.lokoko.domain.user.entity;
+package com.lokoko.domain.user.domain.entity;
 
-import com.lokoko.domain.user.entity.enums.PersonalColor;
-import com.lokoko.domain.user.entity.enums.Role;
-import com.lokoko.domain.user.entity.enums.SkinTone;
-import com.lokoko.domain.user.entity.enums.SkinType;
-import com.lokoko.domain.user.entity.enums.UserStatus;
+import com.lokoko.domain.user.domain.entity.enums.PersonalColor;
+import com.lokoko.domain.user.domain.entity.enums.Role;
+import com.lokoko.domain.user.domain.entity.enums.SkinTone;
+import com.lokoko.domain.user.domain.entity.enums.SkinType;
+import com.lokoko.domain.user.domain.entity.enums.UserStatus;
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

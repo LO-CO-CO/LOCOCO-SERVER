@@ -1,7 +1,7 @@
-package com.lokoko.domain.user.admin.controller;
+package com.lokoko.domain.user.api;
 
-import com.lokoko.domain.user.admin.controller.enums.ResponseMessage;
-import com.lokoko.domain.user.admin.service.AdminReviewService;
+import com.lokoko.domain.user.api.message.ResponseMessage;
+import com.lokoko.domain.user.application.service.AdminReviewService;
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Hidden;

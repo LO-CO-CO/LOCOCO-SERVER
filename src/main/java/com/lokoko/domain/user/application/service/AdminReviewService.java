@@ -1,13 +1,13 @@
-package com.lokoko.domain.user.admin.service;
+package com.lokoko.domain.user.application.service;
 
-import com.lokoko.domain.image.repository.ReceiptImageRepository;
-import com.lokoko.domain.image.repository.ReviewImageRepository;
+import com.lokoko.domain.image.domain.repository.ReceiptImageRepository;
+import com.lokoko.domain.image.domain.repository.ReviewImageRepository;
 import com.lokoko.domain.review.domain.entity.Review;
 import com.lokoko.domain.review.exception.ReviewNotFoundException;
 import com.lokoko.domain.review.domain.repository.ReviewRepository;
-import com.lokoko.domain.user.entity.User;
+import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.exception.UserNotFoundException;
-import com.lokoko.domain.user.repository.UserRepository;
+import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.domain.video.domain.repository.ReviewVideoRepository;
 import com.lokoko.global.utils.AdminValidator;
 import lombok.RequiredArgsConstructor;
