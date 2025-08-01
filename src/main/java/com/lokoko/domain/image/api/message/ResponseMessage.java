@@ -1,4 +1,4 @@
-package com.lokoko.domain.image.controller.enums;
+package com.lokoko.domain.image.api.message;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,6 +1,6 @@
-package com.lokoko.domain.image.repository;
+package com.lokoko.domain.image.domain.repository;
 
-import com.lokoko.domain.image.entity.QReviewImage;
+import com.lokoko.domain.image.domain.entity.QReviewImage;
 import com.lokoko.domain.like.domain.entity.QReviewLike;
 import com.lokoko.domain.product.domain.entity.QProduct;
 import com.lokoko.domain.review.api.dto.response.MainImageReview;

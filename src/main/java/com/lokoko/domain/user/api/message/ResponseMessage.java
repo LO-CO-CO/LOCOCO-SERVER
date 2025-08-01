@@ -1,4 +1,4 @@
-package com.lokoko.domain.user.admin.controller.enums;
+package com.lokoko.domain.user.api.message;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

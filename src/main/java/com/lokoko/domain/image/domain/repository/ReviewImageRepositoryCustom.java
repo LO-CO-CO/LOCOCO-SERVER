@@ -1,4 +1,4 @@
-package com.lokoko.domain.image.repository;
+package com.lokoko.domain.image.domain.repository;
 
 import com.lokoko.domain.review.api.dto.response.MainImageReview;
 

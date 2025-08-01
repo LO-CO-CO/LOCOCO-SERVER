@@ -1,6 +1,6 @@
-package com.lokoko.domain.image.repository;
+package com.lokoko.domain.image.domain.repository;
 
-import com.lokoko.domain.image.entity.ReceiptImage;
+import com.lokoko.domain.image.domain.entity.ReceiptImage;
 import com.lokoko.domain.review.domain.entity.Review;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
