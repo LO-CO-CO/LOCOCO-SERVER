@@ -1,8 +1,8 @@
 package com.lokoko.domain.product.application.service;
 
 
-import com.lokoko.domain.image.entity.ProductImage;
-import com.lokoko.domain.image.repository.ProductImageRepository;
+import com.lokoko.domain.image.domain.entity.ProductImage;
+import com.lokoko.domain.image.domain.repository.ProductImageRepository;
 import com.lokoko.domain.like.domain.entity.ProductLike;
 import com.lokoko.domain.like.domain.repository.ProductLikeRepository;
 import com.lokoko.domain.like.application.service.ProductLikeService;

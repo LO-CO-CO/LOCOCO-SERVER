@@ -1,4 +1,4 @@
-package com.lokoko.domain.image.entity;
+package com.lokoko.domain.image.domain.entity;
 
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.global.common.entity.BaseEntity;

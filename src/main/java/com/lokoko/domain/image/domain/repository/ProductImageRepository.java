@@ -1,6 +1,6 @@
-package com.lokoko.domain.image.repository;
+package com.lokoko.domain.image.domain.repository;
 
-import com.lokoko.domain.image.entity.ProductImage;
+import com.lokoko.domain.image.domain.entity.ProductImage;
 import com.lokoko.domain.product.domain.entity.Product;
 import java.util.List;
 import java.util.Optional;
