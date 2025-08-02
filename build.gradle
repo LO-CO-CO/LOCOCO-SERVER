@@ -15,6 +15,7 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 def querydslDir = 'src/main/generated'
@@ -69,6 +70,20 @@ dependencies {
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    // logging
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
+
+    // AOP
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    // discord
+    implementation 'com.github.napstr:logback-discord-appender:1.0.0'
+
+    // JSON
+    implementation 'org.json:json:20230227'
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.3'
 
     // Netty DNS Resolver
     runtimeOnly("io.netty:netty-resolver-dns-native-macos:4.1.94.Final:osx-aarch_64")
