@@ -3,11 +3,11 @@ package com.lokoko.domain.review.api.dto.response;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lokoko.domain.image.entity.ProductImage;
-import com.lokoko.domain.image.entity.ReviewImage;
+import com.lokoko.domain.image.domain.entity.ProductImage;
+import com.lokoko.domain.image.domain.entity.ReviewImage;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.review.domain.entity.Review;
-import com.lokoko.domain.user.entity.User;
+import com.lokoko.domain.user.domain.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;

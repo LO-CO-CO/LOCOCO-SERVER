@@ -1,7 +1,7 @@
 package com.lokoko.global.utils;
 
-import com.lokoko.domain.user.entity.User;
-import com.lokoko.domain.user.entity.enums.Role;
+import com.lokoko.domain.user.domain.entity.User;
+import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.global.auth.exception.AdminPermissionRequiredException;
 
 public class AdminValidator {

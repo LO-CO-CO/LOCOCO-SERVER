@@ -5,7 +5,7 @@ import static jakarta.persistence.FetchType.LAZY;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.ProductOption;
 import com.lokoko.domain.review.domain.entity.enums.Rating;
-import com.lokoko.domain.user.entity.User;
+import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

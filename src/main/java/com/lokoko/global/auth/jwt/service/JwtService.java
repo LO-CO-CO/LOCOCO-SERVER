@@ -2,9 +2,9 @@ package com.lokoko.global.auth.jwt.service;
 
 import static com.lokoko.global.auth.jwt.utils.JwtProvider.REFRESH_TOKEN_HEADER;
 
-import com.lokoko.domain.user.entity.User;
+import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.exception.UserNotFoundException;
-import com.lokoko.domain.user.repository.UserRepository;
+import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.global.auth.jwt.dto.GenerateTokenDto;
 import com.lokoko.global.auth.jwt.dto.JwtTokenResponse;
 import com.lokoko.global.auth.jwt.exception.RefreshTokenNotFoundException;

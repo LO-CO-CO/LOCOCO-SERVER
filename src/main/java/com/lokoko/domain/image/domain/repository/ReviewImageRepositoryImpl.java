@@ -1,10 +1,10 @@
-package com.lokoko.domain.video.domain.repository;
+package com.lokoko.domain.image.domain.repository;
 
-
+import com.lokoko.domain.image.domain.entity.QReviewImage;
+import com.lokoko.domain.like.domain.entity.QReviewLike;
 import com.lokoko.domain.product.domain.entity.QProduct;
-import com.lokoko.domain.review.api.dto.response.MainVideoReview;
+import com.lokoko.domain.review.api.dto.response.MainImageReview;
 import com.lokoko.domain.review.domain.entity.QReview;
-import com.lokoko.domain.video.domain.entity.QReviewVideo;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -12,21 +12,20 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import static com.lokoko.domain.like.domain.entity.QReviewLike.reviewLike;
-
 @Repository
 @RequiredArgsConstructor
-public class ReviewVideoRepositoryImpl implements ReviewVideoRepositoryCustom {
+public class ReviewImageRepositoryImpl implements ReviewImageRepositoryCustom {
+
     private final JPAQueryFactory queryFactory;
-    private static final QReviewVideo reviewVideo = QReviewVideo.reviewVideo;
+    private static final QReviewImage reviewImage = QReviewImage.reviewImage;
     private static final QReview review = QReview.review;
     private static final QProduct product = QProduct.product;
-
+    private static final QReviewLike reviewLike = QReviewLike.reviewLike;
 
     @Override
-    public List<MainVideoReview> findMainVideoReviewSorted() {
+    public List<MainImageReview> findMainImageReviewSorted() {
         return queryFactory
-                .select(Projections.constructor(MainVideoReview.class,
+                .select(Projections.constructor(MainImageReview.class,
                         review.id,
                         product.id,
                         product.brandName,
@@ -34,14 +33,14 @@ public class ReviewVideoRepositoryImpl implements ReviewVideoRepositoryCustom {
                         reviewLike.count().intValue(),
                         // 일단 여기서 rank 0, service에서 추가
                         Expressions.constant(0),
-                        reviewVideo.mediaFile.fileUrl
+                        reviewImage.mediaFile.fileUrl
                 ))
-                .from(reviewVideo)
-                .join(reviewVideo.review, review)
+                .from(reviewImage)
+                .join(reviewImage.review, review)
                 .join(review.product, product)
                 .leftJoin(reviewLike).on(reviewLike.review.eq(review))
-                .where(reviewVideo.displayOrder.eq(0))
-                .groupBy(review.id, product.brandName, product.productName, reviewVideo.mediaFile.fileUrl)
+                .where(reviewImage.displayOrder.eq(0))
+                .groupBy(review.id, product.brandName, product.productName, reviewImage.mediaFile.fileUrl)
                 .orderBy(reviewLike.count().desc(), review.rating.desc())
                 .limit(4)
                 .fetch();

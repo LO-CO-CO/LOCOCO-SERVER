@@ -1,7 +1,7 @@
 package com.lokoko.global.config;
 
-import static com.lokoko.domain.user.entity.enums.Role.ADMIN;
-import static com.lokoko.domain.user.entity.enums.Role.USER;
+import static com.lokoko.domain.user.domain.entity.enums.Role.ADMIN;
+import static com.lokoko.domain.user.domain.entity.enums.Role.USER;
 
 import com.lokoko.global.auth.authentication.CustomAccessDeniedHandler;
 import com.lokoko.global.auth.authentication.CustomAuthenticationEntryPoint;

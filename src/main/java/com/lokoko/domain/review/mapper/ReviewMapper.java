@@ -17,7 +17,7 @@ import com.lokoko.domain.review.api.dto.response.ReviewResponse;
 import com.lokoko.domain.review.api.dto.response.VideoReviewListResponse;
 import com.lokoko.domain.review.api.dto.response.VideoReviewResponse;
 import com.lokoko.domain.review.domain.entity.Review;
-import com.lokoko.domain.user.entity.User;
+import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.global.common.response.PageableResponse;
 import jakarta.annotation.Nullable;
 import java.util.List;

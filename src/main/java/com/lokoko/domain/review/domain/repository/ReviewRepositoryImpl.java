@@ -1,7 +1,7 @@
 package com.lokoko.domain.review.domain.repository;
 
-import com.lokoko.domain.image.entity.QReviewImage;
-import com.lokoko.domain.like.entity.QReviewLike;
+import com.lokoko.domain.image.domain.entity.QReviewImage;
+import com.lokoko.domain.like.domain.entity.QReviewLike;
 import com.lokoko.domain.product.domain.entity.QProduct;
 import com.lokoko.domain.product.domain.entity.QProductOption;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
@@ -14,8 +14,8 @@ import com.lokoko.domain.review.api.dto.response.VideoReviewProductDetail;
 import com.lokoko.domain.review.api.dto.response.VideoReviewProductDetailResponse;
 import com.lokoko.domain.review.api.dto.response.VideoReviewResponse;
 import com.lokoko.domain.review.domain.entity.QReview;
-import com.lokoko.domain.user.entity.enums.Role;
-import com.lokoko.domain.user.repository.UserRepository;
+import com.lokoko.domain.user.domain.entity.enums.Role;
+import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.domain.video.domain.entity.QReviewVideo;
 import com.lokoko.global.common.response.PageableResponse;
 import com.querydsl.core.BooleanBuilder;
