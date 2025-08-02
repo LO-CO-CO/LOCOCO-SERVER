@@ -53,3 +53,8 @@ cloud:
       auto: false
     stack:
       auto: false
+
+logging:
+  discord-error:
+    webhook-url: ${DISCORD_ERROR_WEBHOOK_URL}
+    config: classpath:logback-spring.xml
