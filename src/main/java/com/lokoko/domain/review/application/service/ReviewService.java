@@ -30,19 +30,20 @@ import com.lokoko.domain.review.api.dto.response.ReviewResponse;
 import com.lokoko.domain.review.api.dto.response.VideoReviewProductDetailResponse;
 import com.lokoko.domain.review.domain.entity.Review;
 import com.lokoko.domain.review.domain.entity.enums.Rating;
+import com.lokoko.domain.review.domain.repository.ReviewRepository;
 import com.lokoko.domain.review.exception.ErrorMessage;
 import com.lokoko.domain.review.exception.InvalidMediaTypeException;
 import com.lokoko.domain.review.exception.ReceiptImageCountingException;
 import com.lokoko.domain.review.exception.ReviewNotFoundException;
 import com.lokoko.domain.review.exception.ReviewPermissionException;
 import com.lokoko.domain.review.mapper.ReviewMapper;
-import com.lokoko.domain.review.domain.repository.ReviewRepository;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.entity.enums.Role;
-import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.domain.user.domain.repository.UserRepository;
+import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.domain.video.domain.entity.ReviewVideo;
 import com.lokoko.domain.video.domain.repository.ReviewVideoRepository;
+import com.lokoko.global.common.annotation.DistributedLock;
 import com.lokoko.global.common.dto.PresignedUrlResponse;
 import com.lokoko.global.common.entity.MediaFile;
 import com.lokoko.global.common.service.S3Service;
@@ -139,7 +140,7 @@ public class ReviewService {
         return reviewRepository.findImageReviewsByProductId(productId, userId, pageable);
     }
 
-    @Transactional
+    @DistributedLock(key = "'review:product:' + #productId")
     public ReviewResponse createReview(
             Long productId,
             Long userId,
