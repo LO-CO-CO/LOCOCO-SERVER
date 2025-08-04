@@ -3,11 +3,12 @@ package com.lokoko.domain.like.application.service;
 import com.lokoko.domain.like.domain.entity.ReviewLike;
 import com.lokoko.domain.like.domain.repository.ReviewLikeRepository;
 import com.lokoko.domain.review.domain.entity.Review;
-import com.lokoko.domain.review.exception.ReviewNotFoundException;
 import com.lokoko.domain.review.domain.repository.ReviewRepository;
+import com.lokoko.domain.review.exception.ReviewNotFoundException;
 import com.lokoko.domain.user.domain.entity.User;
-import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.domain.user.domain.repository.UserRepository;
+import com.lokoko.domain.user.exception.UserNotFoundException;
+import com.lokoko.global.common.annotation.DistributedLock;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class ReviewLikeService {
     private final UserRepository userRepository;
     private final ReviewLikeRepository reviewLikeRepository;
 
-    @Transactional
+    @DistributedLock(key = "'like:review:' + #reviewId + ':user:' + #userId")
     public long toggleReviewLike(Long reviewId, Long userId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(ReviewNotFoundException::new);
