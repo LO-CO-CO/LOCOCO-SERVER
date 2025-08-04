@@ -15,7 +15,6 @@ import com.lokoko.domain.product.domain.repository.ProductRepository;
 import com.lokoko.domain.product.exception.ProductNotFoundException;
 import com.lokoko.domain.product.exception.ProductOptionMismatchException;
 import com.lokoko.domain.product.exception.ProductOptionNotFoundException;
-import com.lokoko.domain.review.api.dto.request.ReviewAdminRequest;
 import com.lokoko.domain.review.api.dto.request.ReviewMediaRequest;
 import com.lokoko.domain.review.api.dto.request.ReviewReceiptRequest;
 import com.lokoko.domain.review.api.dto.request.ReviewRequest;
@@ -29,7 +28,6 @@ import com.lokoko.domain.review.api.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.review.api.dto.response.ReviewResponse;
 import com.lokoko.domain.review.api.dto.response.VideoReviewProductDetailResponse;
 import com.lokoko.domain.review.domain.entity.Review;
-import com.lokoko.domain.review.domain.entity.enums.Rating;
 import com.lokoko.domain.review.domain.repository.ReviewRepository;
 import com.lokoko.domain.review.exception.ErrorMessage;
 import com.lokoko.domain.review.exception.InvalidMediaTypeException;
@@ -238,82 +236,6 @@ public class ReviewService {
 
     public VideoReviewProductDetailResponse getVideoReviewsByProduct(Long productId) {
         return reviewRepository.findVideoReviewsByProductId(productId);
-    }
-
-    /**
-     * Todo: 리뷰 데이터 확보 후, 추후 제거 예정
-     */
-
-    @Transactional
-    public void createAdminReview(Long productId, Long userId, ReviewAdminRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        Product product;
-        ProductOption option = null;
-        if (request.productOptionId() != null) {
-            option = productOptionRepository.findById(request.productOptionId())
-                    .orElseThrow(ProductOptionNotFoundException::new);
-            product = option.getProduct();
-            if (!product.getId().equals(productId)) {
-                throw new ProductOptionMismatchException();
-            }
-        } else {
-            product = productRepository.findById(productId)
-                    .orElseThrow(ProductNotFoundException::new);
-        }
-        boolean hasVideo = request.videoUrl() != null && !request.videoUrl().isBlank();
-        boolean hasImages = request.imageUrl() != null && !request.imageUrl().isEmpty();
-        if (hasVideo && hasImages) {
-            throw new InvalidMediaTypeException(ErrorMessage.MIXED_MEDIA_TYPE_NOT_ALLOWED);
-        }
-        Review.ReviewBuilder builder = Review.builder()
-                .author(user)
-                .product(product)
-                .rating(Rating.fromValue(request.rating()))
-                .positiveContent(request.positiveComment())
-                .negativeContent(request.negativeComment());
-        if (option != null) {
-            builder.productOption(option);
-        }
-        Review review = builder.build();
-        reviewRepository.save(review);
-
-        if (request.receiptUrl() != null && !request.receiptUrl().isBlank()) {
-            MediaFile receiptFile = MediaFile.builder()
-                    .fileUrl(request.receiptUrl())
-                    .build();
-            ReceiptImage receiptImage = ReceiptImage.builder()
-                    .mediaFile(receiptFile)
-                    .displayOrder(0)
-                    .review(review)
-                    .build();
-            receiptImageRepository.save(receiptImage);
-            review.markReceiptUploaded();
-        }
-
-        if (hasVideo) {
-            MediaFile videoFile = MediaFile.builder()
-                    .fileUrl(request.videoUrl())
-                    .build();
-            ReviewVideo reviewVideo = ReviewVideo.createReviewVideo(videoFile, 0, review);
-            reviewVideoRepository.save(reviewVideo);
-        } else if (hasImages) {
-            int order = 0;
-            for (String url : request.imageUrl()) {
-                MediaFile imageFile = MediaFile.builder()
-                        .fileUrl(url)
-                        .build();
-                ReviewImage reviewImage = ReviewImage.builder()
-                        .mediaFile(imageFile)
-                        .displayOrder(order++)
-                        .isMain(order == 0)
-                        .review(review)
-                        .build();
-                reviewImageRepository.save(reviewImage);
-                order++;
-            }
-        }
     }
 
     @Transactional

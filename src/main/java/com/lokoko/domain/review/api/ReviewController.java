@@ -2,8 +2,6 @@ package com.lokoko.domain.review.api;
 
 import static com.lokoko.domain.review.api.message.ResponseMessage.REVIEW_DELETE_SUCCESS;
 
-import com.lokoko.domain.review.api.message.ResponseMessage;
-import com.lokoko.domain.review.api.dto.request.ReviewAdminRequest;
 import com.lokoko.domain.review.api.dto.request.ReviewMediaRequest;
 import com.lokoko.domain.review.api.dto.request.ReviewReceiptRequest;
 import com.lokoko.domain.review.api.dto.request.ReviewRequest;
@@ -16,6 +14,7 @@ import com.lokoko.domain.review.api.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.review.api.dto.response.ReviewResponse;
 import com.lokoko.domain.review.api.dto.response.VideoReviewDetailResponse;
 import com.lokoko.domain.review.api.dto.response.VideoReviewProductDetailResponse;
+import com.lokoko.domain.review.api.message.ResponseMessage;
 import com.lokoko.domain.review.application.service.ReviewDetailsService;
 import com.lokoko.domain.review.application.service.ReviewService;
 import com.lokoko.global.auth.annotation.CurrentUser;
@@ -133,18 +132,6 @@ public class ReviewController {
         ImageReviewDetailResponse response = reviewDetailsService.getImageReviewDetails(reviewId, userId);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.IMAGE_REVIEW_DETAIL_SUCCESS.getMessage(), response);
-    }
-
-    @Operation(summary = "어드민용 리뷰 작성 (기획 전용)")
-    @PostMapping("/{productId}/{userId}")
-    public ApiResponse<Void> createAdminReview(
-            @PathVariable Long productId,
-            @PathVariable Long userId,
-            @RequestBody @Valid ReviewAdminRequest request
-    ) {
-        reviewService.createAdminReview(productId, userId, request);
-
-        return ApiResponse.success(HttpStatus.CREATED, ResponseMessage.REVIEW_UPLOAD_SUCCESS.getMessage());
     }
 
     @Operation(summary = "리뷰 삭제 (일반 유저 및 어드민 모두 가능")
