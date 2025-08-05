@@ -1,0 +1,31 @@
+name: Close Jira issue
+on:
+  issues:
+    types:
+      - closed
+
+jobs:
+  close-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Jira
+        uses: atlassian/gajira-login@v3
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+
+      - name: Extract Jira issue key
+        id: extract-key
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const m = context.payload.issue.title.match(/[A-Z]+-\d+/);
+            return m ? m[0] : '';
+
+      - name: Close Jira issue
+        if: steps.extract-key.outputs.result != ''
+        uses: atlassian/gajira-transition@v3
+        with:
+          issue: ${{ steps.extract-key.outputs.result }}
+          transition: 완료
