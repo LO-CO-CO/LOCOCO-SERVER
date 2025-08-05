@@ -321,7 +321,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .groupBy(p.id, p.productName, p.brandName, p.unit, productImage.url, p.createdAt)
                 .orderBy(
                         r.id.count().desc(), //  리뷰 수
-                        ratingValue.avg().desc() // 별점
+                        ratingValue.avg().desc(), // 별점
+                        p.createdAt.desc()
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
