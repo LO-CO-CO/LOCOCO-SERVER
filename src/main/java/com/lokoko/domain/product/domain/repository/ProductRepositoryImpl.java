@@ -320,8 +320,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 )
                 .groupBy(p.id, p.productName, p.brandName, p.unit, productImage.url, p.createdAt)
                 .orderBy(
-                        p.createdAt.desc(),  // 신상품은 최신 순으로 정렬
-                        r.id.count().desc()  // 그 다음 리뷰 개수 순
+                        r.id.count().desc(), //  리뷰 수
+                        ratingValue.avg().desc() // 별점
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
