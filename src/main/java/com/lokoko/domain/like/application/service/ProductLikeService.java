@@ -6,8 +6,9 @@ import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.repository.ProductRepository;
 import com.lokoko.domain.product.exception.ProductNotFoundException;
 import com.lokoko.domain.user.domain.entity.User;
-import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.domain.user.domain.repository.UserRepository;
+import com.lokoko.domain.user.exception.UserNotFoundException;
+import com.lokoko.global.common.annotation.DistributedLock;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class ProductLikeService {
     private final UserRepository userRepository;
     private final ProductLikeRepository productLikeRepository;
 
-    @Transactional
+    @DistributedLock(key = "'like:product:' + #productId + ':user:' + #userId")
     public void toggleProductLike(Long productId, Long userId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(ProductNotFoundException::new);
