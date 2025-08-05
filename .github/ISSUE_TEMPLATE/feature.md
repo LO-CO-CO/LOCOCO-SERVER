@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: 새로운 기능 구현시 사용.
-title: "[FEAT] #이슈번호 blahblah "
+title: "LCO-00 blahblah "
 labels: 'Feature'
 assignees: ''
 ---
