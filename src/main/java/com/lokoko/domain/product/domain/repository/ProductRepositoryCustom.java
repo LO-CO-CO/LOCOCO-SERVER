@@ -19,12 +19,11 @@ public interface ProductRepositoryCustom {
     Slice<Product> findProductsByPopularityAndRating(MiddleCategory category, SubCategory subCategory,
                                                      Pageable pageable);
 
-    Slice<PopularProductProjection> findPopularProductsWithDetails(MiddleCategory middleCategory, Long userId,
+    Slice<PopularProductProjection> findPopularProductsWithDetails(MiddleCategory middleCategory,
                                                                    Pageable pageable);
 
     Slice<NewProductProjection> findNewProductsWithDetails(
             MiddleCategory category,
-            Long userId,
             Pageable pageable
     );
 }
