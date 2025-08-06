@@ -1,4 +1,8 @@
 name: Create Jira issue
+
+permissions:
+  contents: write
+
 on:
   issues:
     types:
