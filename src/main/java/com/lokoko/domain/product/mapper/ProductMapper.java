@@ -2,6 +2,8 @@ package com.lokoko.domain.product.mapper;
 
 import com.lokoko.domain.product.api.dto.NewProductProjection;
 import com.lokoko.domain.product.api.dto.PopularProductProjection;
+import com.lokoko.domain.product.api.dto.response.CachedNewProduct;
+import com.lokoko.domain.product.api.dto.response.CachedNewProductsResponse;
 import com.lokoko.domain.product.api.dto.response.CachedPopularProduct;
 import com.lokoko.domain.product.api.dto.response.CachedPopularProductsResponse;
 import com.lokoko.domain.product.api.dto.response.NewProductsByCategoryResponse;
@@ -266,6 +268,45 @@ public interface ProductMapper {
                 .orElseGet(List::of);
 
         return CachedPopularProduct.builder()
+                .productId(projection.productId())
+                .imageUrls(images)
+                .productName(projection.productName())
+                .brandName(projection.brandName())
+                .unit(projection.unit())
+                .reviewCount(projection.reviewCount())
+                .rating(projection.avgRating())
+                .build();
+    }
+
+    default CachedNewProductsResponse toNewProductResponse(
+            List<NewProductProjection> projections,
+            MiddleCategory middleCategory,
+            PageableResponse pageInfo) {
+
+        List<CachedNewProduct> products = projections.stream()
+                .map(this::toCachedNewProduct)
+                .toList();
+
+        return CachedNewProductsResponse.builder()
+                .searchQuery(middleCategory.getDisplayName())
+                .products(products)
+                .pageInfo(pageInfo)
+                .build();
+    }
+
+
+    default CachedNewProduct toCachedNewProduct(NewProductProjection projection) {
+        List<String> images = Optional.ofNullable(projection.imageUrl())
+                .filter(u -> !u.isBlank())
+                .map(u -> u.contains(",")
+                        ? Arrays.stream(u.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .toList()
+                        : List.of(u))
+                .orElseGet(List::of);
+
+        return CachedNewProduct.builder()
                 .productId(projection.productId())
                 .imageUrls(images)
                 .productName(projection.productName())

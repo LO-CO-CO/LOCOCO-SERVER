@@ -1,6 +1,8 @@
 package com.lokoko.domain.product.application.service;
 
+import com.lokoko.domain.product.api.dto.NewProductProjection;
 import com.lokoko.domain.product.api.dto.PopularProductProjection;
+import com.lokoko.domain.product.api.dto.response.CachedNewProductsResponse;
 import com.lokoko.domain.product.api.dto.response.CachedPopularProductsResponse;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.repository.ProductRepository;
@@ -27,7 +29,7 @@ public class ProductCacheService {
         Pageable pageable = PageRequest.of(0, 4);
 
         Slice<PopularProductProjection> projectionSlice =
-                productRepository.findPopularProductsWithDetails(middleCategory, null, pageable);
+                productRepository.findPopularProductsWithDetails(middleCategory, pageable);
 
         return productMapper.toCachedPopularProductResponse(
                 projectionSlice.getContent(),
@@ -36,4 +38,18 @@ public class ProductCacheService {
         );
     }
 
+    @Cacheable(value = "newProducts", key = "#middleCategory.name() + ':top4'")
+    public CachedNewProductsResponse getNewProductsFromCache(MiddleCategory middleCategory) {
+
+        Pageable pageable = PageRequest.of(0, 4);
+
+        Slice<NewProductProjection> projectionSlice =
+                productRepository.findNewProductsWithDetails(middleCategory, pageable);
+
+        return productMapper.toNewProductResponse(
+                projectionSlice.getContent(),
+                middleCategory,
+                PageableResponse.of(projectionSlice)
+        );
+    }
 }
