@@ -44,7 +44,7 @@ jobs:
         with:
           project: LCO
           issuetype: |
-            name: "Sub-task"
+            name: "하위 작업"
           summary: ${{ github.event.issue.title }}
           description: ${{ steps.md2jira.outputs.output-text }}
           fields: |
