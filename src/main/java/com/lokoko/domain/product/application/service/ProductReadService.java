@@ -3,12 +3,13 @@ package com.lokoko.domain.product.application.service;
 
 import com.lokoko.domain.image.domain.entity.ProductImage;
 import com.lokoko.domain.image.domain.repository.ProductImageRepository;
+import com.lokoko.domain.like.application.service.ProductLikeService;
 import com.lokoko.domain.like.domain.entity.ProductLike;
 import com.lokoko.domain.like.domain.repository.ProductLikeRepository;
-import com.lokoko.domain.like.application.service.ProductLikeService;
 import com.lokoko.domain.product.api.dto.NewProductProjection;
-import com.lokoko.domain.product.api.dto.PopularProductProjection;
 import com.lokoko.domain.product.api.dto.ReviewStats;
+import com.lokoko.domain.product.api.dto.response.CachedPopularProduct;
+import com.lokoko.domain.product.api.dto.response.CachedPopularProductsResponse;
 import com.lokoko.domain.product.api.dto.response.NewProductsByCategoryResponse;
 import com.lokoko.domain.product.api.dto.response.PopularProductsByCategoryResponse;
 import com.lokoko.domain.product.api.dto.response.ProductBasicResponse;
@@ -62,6 +63,7 @@ public class ProductReadService {
     private final ProductImageService productImageService;
     private final ProductLikeService productLikeService;
     private final ProductStatsCalculatorService productStatsCalculatorService;
+    private final ProductCacheService productCacheService;
 
     private final ProductMapper productMapper;
 
@@ -105,18 +107,42 @@ public class ProductReadService {
     }
 
 
-    public PopularProductsByCategoryResponse searchPopularProductsByCategory(MiddleCategory middleCategory, Long userId,
-                                                                             int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Slice<PopularProductProjection> projectionSlice =
-                productRepository.findPopularProductsWithDetails(middleCategory, userId, pageable);
+    public PopularProductsByCategoryResponse searchPopularProductsByCategory(MiddleCategory middleCategory,
+                                                                             Long userId) {
 
-        return productMapper.toCategoryPopularProductResponse(
-                projectionSlice.getContent(),
-                middleCategory,
-                PageableResponse.of(projectionSlice)
+        CachedPopularProductsResponse cachedData = productCacheService.getPopularProductsFromCache(middleCategory);
+        return addUserLikeData(cachedData, userId);
+
+    }
+
+    private PopularProductsByCategoryResponse addUserLikeData(CachedPopularProductsResponse cachedData, Long userId) {
+
+        List<Long> productIds = cachedData.products().stream()
+                .map(CachedPopularProduct::productId)
+                .toList();
+
+        Map<Long, Boolean> likeStatusMap = productLikeService.getLikeStatusMap(userId, productIds);
+
+        List<ProductBasicResponse> productsWithLikeStatus = cachedData.products().stream()
+                .map(cached -> ProductBasicResponse.builder()
+                        .productId(cached.productId())
+                        .imageUrls(cached.imageUrls())
+                        .productName(cached.productName())
+                        .brandName(cached.brandName())
+                        .unit(cached.unit())
+                        .reviewCount(cached.reviewCount())
+                        .rating(cached.rating())
+                        .isLiked(likeStatusMap.getOrDefault(cached.productId(), false))
+                        .build())
+                .toList();
+
+        return new PopularProductsByCategoryResponse(
+                cachedData.searchQuery(),
+                productsWithLikeStatus,
+                cachedData.pageInfo()
         );
     }
+
 
     public ProductDetailResponse getProductDetail(Long productId, Long userId) {
         Product product = productRepository.findById(productId)

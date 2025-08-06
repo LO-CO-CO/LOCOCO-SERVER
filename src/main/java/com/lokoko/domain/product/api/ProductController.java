@@ -25,8 +25,8 @@ import com.lokoko.domain.review.api.dto.response.ImageReviewListResponse;
 import com.lokoko.domain.review.api.dto.response.KeywordImageReviewListResponse;
 import com.lokoko.domain.review.api.dto.response.KeywordVideoReviewListResponse;
 import com.lokoko.domain.review.api.dto.response.VideoReviewListResponse;
-import com.lokoko.domain.review.exception.MissingMediaTypeException;
 import com.lokoko.domain.review.application.service.ReviewReadService;
+import com.lokoko.domain.review.exception.MissingMediaTypeException;
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.common.entity.MediaType;
 import com.lokoko.global.common.entity.SearchType;
@@ -161,7 +161,7 @@ public class ProductController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         PopularProductsByCategoryResponse popularProductsByCategoryResponse = productReadService.searchPopularProductsByCategory(
-                middleCategory, userId, page, size);
+                middleCategory, userId);
 
         return ApiResponse.success(HttpStatus.OK, CATEGORY_POPULAR_LIST_SUCCESS.getMessage(),
                 popularProductsByCategoryResponse);
