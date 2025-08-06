@@ -148,7 +148,7 @@ public class ProductController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         NewProductsByCategoryResponse newProductsByCategoryResponse = productReadService.searchNewProductsByCategory(
-                middleCategory, userId, page, size);
+                middleCategory, userId);
 
         return ApiResponse.success(HttpStatus.OK, CATEGORY_NEW_LIST_SUCCESS.getMessage(),
                 newProductsByCategoryResponse);

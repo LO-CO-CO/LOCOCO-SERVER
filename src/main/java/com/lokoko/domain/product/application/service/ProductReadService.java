@@ -6,8 +6,9 @@ import com.lokoko.domain.image.domain.repository.ProductImageRepository;
 import com.lokoko.domain.like.application.service.ProductLikeService;
 import com.lokoko.domain.like.domain.entity.ProductLike;
 import com.lokoko.domain.like.domain.repository.ProductLikeRepository;
-import com.lokoko.domain.product.api.dto.NewProductProjection;
 import com.lokoko.domain.product.api.dto.ReviewStats;
+import com.lokoko.domain.product.api.dto.response.CachedNewProduct;
+import com.lokoko.domain.product.api.dto.response.CachedNewProductsResponse;
 import com.lokoko.domain.product.api.dto.response.CachedPopularProduct;
 import com.lokoko.domain.product.api.dto.response.CachedPopularProductsResponse;
 import com.lokoko.domain.product.api.dto.response.NewProductsByCategoryResponse;
@@ -93,37 +94,53 @@ public class ProductReadService {
         );
     }
 
-    public NewProductsByCategoryResponse searchNewProductsByCategory(MiddleCategory middleCategory, Long userId,
-                                                                     int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Slice<NewProductProjection> projectionSlice =
-                productRepository.findNewProductsWithDetails(middleCategory, userId, pageable);
+    public NewProductsByCategoryResponse searchNewProductsByCategory(MiddleCategory middleCategory, Long userId) {
 
-        return productMapper.toCategoryNewProductResponse(
-                projectionSlice.getContent(),
-                middleCategory,
-                PageableResponse.of(projectionSlice)
-        );
+        CachedNewProductsResponse newProductsCachedData = productCacheService.getNewProductsFromCache(middleCategory);
+        return addUserLikeData(newProductsCachedData, userId);
+
     }
 
 
     public PopularProductsByCategoryResponse searchPopularProductsByCategory(MiddleCategory middleCategory,
                                                                              Long userId) {
 
-        CachedPopularProductsResponse cachedData = productCacheService.getPopularProductsFromCache(middleCategory);
-        return addUserLikeData(cachedData, userId);
+        CachedPopularProductsResponse popularProductsCachedData = productCacheService.getPopularProductsFromCache(
+                middleCategory);
+        return addUserLikeData(popularProductsCachedData, userId);
 
     }
 
     private PopularProductsByCategoryResponse addUserLikeData(CachedPopularProductsResponse cachedData, Long userId) {
+        List<ProductBasicResponse> productsWithLikeStatus = addLikeStatusToPopularProducts(cachedData.products(),
+                userId);
 
-        List<Long> productIds = cachedData.products().stream()
+        return new PopularProductsByCategoryResponse(
+                cachedData.searchQuery(),
+                productsWithLikeStatus,
+                cachedData.pageInfo()
+        );
+    }
+
+    private NewProductsByCategoryResponse addUserLikeData(CachedNewProductsResponse cachedData, Long userId) {
+        List<ProductBasicResponse> productsWithLikeStatus = addLikeStatusToNewProducts(cachedData.products(), userId);
+
+        return new NewProductsByCategoryResponse(
+                cachedData.searchQuery(),
+                productsWithLikeStatus,
+                cachedData.pageInfo()
+        );
+    }
+
+    private List<ProductBasicResponse> addLikeStatusToPopularProducts(List<CachedPopularProduct> products,
+                                                                      Long userId) {
+        List<Long> productIds = products.stream()
                 .map(CachedPopularProduct::productId)
                 .toList();
 
         Map<Long, Boolean> likeStatusMap = productLikeService.getLikeStatusMap(userId, productIds);
 
-        List<ProductBasicResponse> productsWithLikeStatus = cachedData.products().stream()
+        return products.stream()
                 .map(cached -> ProductBasicResponse.builder()
                         .productId(cached.productId())
                         .imageUrls(cached.imageUrls())
@@ -135,12 +152,27 @@ public class ProductReadService {
                         .isLiked(likeStatusMap.getOrDefault(cached.productId(), false))
                         .build())
                 .toList();
+    }
 
-        return new PopularProductsByCategoryResponse(
-                cachedData.searchQuery(),
-                productsWithLikeStatus,
-                cachedData.pageInfo()
-        );
+    private List<ProductBasicResponse> addLikeStatusToNewProducts(List<CachedNewProduct> products, Long userId) {
+        List<Long> productIds = products.stream()
+                .map(CachedNewProduct::productId)
+                .toList();
+
+        Map<Long, Boolean> likeStatusMap = productLikeService.getLikeStatusMap(userId, productIds);
+
+        return products.stream()
+                .map(cached -> ProductBasicResponse.builder()
+                        .productId(cached.productId())
+                        .imageUrls(cached.imageUrls())
+                        .productName(cached.productName())
+                        .brandName(cached.brandName())
+                        .unit(cached.unit())
+                        .reviewCount(cached.reviewCount())
+                        .rating(cached.rating())
+                        .isLiked(likeStatusMap.getOrDefault(cached.productId(), false))
+                        .build())
+                .toList();
     }
 
 
