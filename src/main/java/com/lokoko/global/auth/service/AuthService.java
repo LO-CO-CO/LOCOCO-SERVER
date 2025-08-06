@@ -100,7 +100,7 @@ public class AuthService {
             log.warn("State 검증 실패: {}", ex.getMessage());
             throw ex;
         } catch (Exception ex) {
-            log.error("LINE OAuth 로그인 처리 중 오류 발생", ex);
+            log.warn("LINE OAuth 로그인 처리 중 오류 발생", ex);
             throw new OauthException(ErrorMessage.OAUTH_ERROR);
         }
     }
