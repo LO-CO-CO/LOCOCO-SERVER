@@ -41,6 +41,7 @@ import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.domain.video.domain.entity.ReviewVideo;
 import com.lokoko.domain.video.domain.repository.ReviewVideoRepository;
+import com.lokoko.domain.product.application.cache.PopularProductsCacheManager;
 import com.lokoko.global.common.annotation.DistributedLock;
 import com.lokoko.global.common.dto.PresignedUrlResponse;
 import com.lokoko.global.common.entity.MediaFile;
@@ -67,6 +68,7 @@ public class ReviewService {
     private final ProductRepository productRepository;
     private final ReviewVideoRepository reviewVideoRepository;
     private final ReviewLikeRepository reviewLikeRepository;
+    private final PopularProductsCacheManager popularProductsCacheManager;
     private final ReviewMapper reviewMapper;
 
     public ReviewReceiptResponse createReceiptPresignedUrl(Long userId,
@@ -217,6 +219,9 @@ public class ReviewService {
             }
         }
 
+        // 인기 상품 캐시 무효화
+        popularProductsCacheManager.evictCategoryCache(product.getMiddleCategory());
+
         return reviewMapper.toReviewResponse(review);
     }
 
@@ -253,6 +258,9 @@ public class ReviewService {
             }
         }
 
+        // 인기 상품 캐시 무효화
+        popularProductsCacheManager.evictCategoryCache(review.getProduct().getMiddleCategory());
+        
         deleteAllReferenceOfReview(review);
         reviewRepository.delete(review);
     }
