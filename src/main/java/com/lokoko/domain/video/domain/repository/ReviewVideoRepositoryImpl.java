@@ -1,6 +1,8 @@
 package com.lokoko.domain.video.domain.repository;
 
 
+import static com.lokoko.domain.like.domain.entity.QReviewLike.reviewLike;
+
 import com.lokoko.domain.product.domain.entity.QProduct;
 import com.lokoko.domain.review.api.dto.response.MainVideoReview;
 import com.lokoko.domain.review.domain.entity.QReview;
@@ -11,8 +13,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-
-import static com.lokoko.domain.like.domain.entity.QReviewLike.reviewLike;
 
 @Repository
 @RequiredArgsConstructor
@@ -41,7 +41,8 @@ public class ReviewVideoRepositoryImpl implements ReviewVideoRepositoryCustom {
                 .join(review.product, product)
                 .leftJoin(reviewLike).on(reviewLike.review.eq(review))
                 .where(reviewVideo.displayOrder.eq(0))
-                .groupBy(review.id, product.brandName, product.productName, reviewVideo.mediaFile.fileUrl)
+                .groupBy(review.id, product.id, product.brandName, product.productName, review.rating,
+                        reviewVideo.mediaFile.fileUrl)
                 .orderBy(reviewLike.count().desc(), review.rating.desc())
                 .limit(4)
                 .fetch();
