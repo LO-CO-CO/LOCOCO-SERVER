@@ -8,7 +8,7 @@ import java.util.List;
 import lombok.Builder;
 
 @Builder
-public record CachedNewProductsResponse(
+public record CachedNewProductListResponse(
         @Schema(requiredMode = REQUIRED)
         String searchQuery,
 

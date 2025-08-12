@@ -3,9 +3,9 @@ package com.lokoko.domain.product.mapper;
 import com.lokoko.domain.product.api.dto.NewProductProjection;
 import com.lokoko.domain.product.api.dto.PopularProductProjection;
 import com.lokoko.domain.product.api.dto.response.CachedNewProduct;
-import com.lokoko.domain.product.api.dto.response.CachedNewProductsResponse;
+import com.lokoko.domain.product.api.dto.response.CachedNewProductListResponse;
 import com.lokoko.domain.product.api.dto.response.CachedPopularProduct;
-import com.lokoko.domain.product.api.dto.response.CachedPopularProductsResponse;
+import com.lokoko.domain.product.api.dto.response.CachedPopularProductListResponse;
 import com.lokoko.domain.product.api.dto.response.NewProductsByCategoryResponse;
 import com.lokoko.domain.product.api.dto.response.PopularProductsByCategoryResponse;
 import com.lokoko.domain.product.api.dto.response.ProductBasicResponse;
@@ -240,7 +240,7 @@ public interface ProductMapper {
     ProductBasicResponse toProductResponse(PopularProductProjection projection);
 
 
-    default CachedPopularProductsResponse toCachedPopularProductResponse(
+    default CachedPopularProductListResponse toCachedPopularProductResponse(
             List<PopularProductProjection> projections,
             MiddleCategory middleCategory,
             PageableResponse pageInfo) {
@@ -249,7 +249,7 @@ public interface ProductMapper {
                 .map(this::toCachedPopularProduct)
                 .toList();
 
-        return CachedPopularProductsResponse.builder()
+        return CachedPopularProductListResponse.builder()
                 .searchQuery(middleCategory.getDisplayName())
                 .products(products)
                 .pageInfo(pageInfo)
@@ -278,7 +278,7 @@ public interface ProductMapper {
                 .build();
     }
 
-    default CachedNewProductsResponse toNewProductResponse(
+    default CachedNewProductListResponse toNewProductResponse(
             List<NewProductProjection> projections,
             MiddleCategory middleCategory,
             PageableResponse pageInfo) {
@@ -287,7 +287,7 @@ public interface ProductMapper {
                 .map(this::toCachedNewProduct)
                 .toList();
 
-        return CachedNewProductsResponse.builder()
+        return CachedNewProductListResponse.builder()
                 .searchQuery(middleCategory.getDisplayName())
                 .products(products)
                 .pageInfo(pageInfo)

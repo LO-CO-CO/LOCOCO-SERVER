@@ -8,9 +8,9 @@ import com.lokoko.domain.like.domain.entity.ProductLike;
 import com.lokoko.domain.like.domain.repository.ProductLikeRepository;
 import com.lokoko.domain.product.api.dto.ReviewStats;
 import com.lokoko.domain.product.api.dto.response.CachedNewProduct;
-import com.lokoko.domain.product.api.dto.response.CachedNewProductsResponse;
+import com.lokoko.domain.product.api.dto.response.CachedNewProductListResponse;
 import com.lokoko.domain.product.api.dto.response.CachedPopularProduct;
-import com.lokoko.domain.product.api.dto.response.CachedPopularProductsResponse;
+import com.lokoko.domain.product.api.dto.response.CachedPopularProductListResponse;
 import com.lokoko.domain.product.api.dto.response.NewProductsByCategoryResponse;
 import com.lokoko.domain.product.api.dto.response.PopularProductsByCategoryResponse;
 import com.lokoko.domain.product.api.dto.response.ProductBasicResponse;
@@ -96,7 +96,7 @@ public class ProductReadService {
 
     public NewProductsByCategoryResponse searchNewProductsByCategory(MiddleCategory middleCategory, Long userId) {
 
-        CachedNewProductsResponse newProductsCachedData = productCacheService.getNewProductsFromCache(middleCategory);
+        CachedNewProductListResponse newProductsCachedData = productCacheService.getNewProductsFromCache(middleCategory);
         return addUserLikeData(newProductsCachedData, userId);
 
     }
@@ -105,13 +105,13 @@ public class ProductReadService {
     public PopularProductsByCategoryResponse searchPopularProductsByCategory(MiddleCategory middleCategory,
                                                                              Long userId) {
 
-        CachedPopularProductsResponse popularProductsCachedData = productCacheService.getPopularProductsFromCache(
+        CachedPopularProductListResponse popularProductsCachedData = productCacheService.getPopularProductsFromCache(
                 middleCategory);
         return addUserLikeData(popularProductsCachedData, userId);
 
     }
 
-    private PopularProductsByCategoryResponse addUserLikeData(CachedPopularProductsResponse cachedData, Long userId) {
+    private PopularProductsByCategoryResponse addUserLikeData(CachedPopularProductListResponse cachedData, Long userId) {
         List<ProductBasicResponse> productsWithLikeStatus = addLikeStatusToPopularProducts(cachedData.products(),
                 userId);
 
@@ -122,7 +122,7 @@ public class ProductReadService {
         );
     }
 
-    private NewProductsByCategoryResponse addUserLikeData(CachedNewProductsResponse cachedData, Long userId) {
+    private NewProductsByCategoryResponse addUserLikeData(CachedNewProductListResponse cachedData, Long userId) {
         List<ProductBasicResponse> productsWithLikeStatus = addLikeStatusToNewProducts(cachedData.products(), userId);
 
         return new NewProductsByCategoryResponse(

@@ -144,9 +144,7 @@ public class ProductController {
     @GetMapping("/categories/new")
     public ApiResponse<NewProductsByCategoryResponse> searchNewProductsByCategory(
             @RequestParam MiddleCategory middleCategory,
-            @Parameter(hidden = true) @CurrentUser Long userId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @Parameter(hidden = true) @CurrentUser Long userId) {
         NewProductsByCategoryResponse newProductsByCategoryResponse = productReadService.searchNewProductsByCategory(
                 middleCategory, userId);
 
@@ -157,9 +155,7 @@ public class ProductController {
     @Operation(summary = "인기상품 카테고리별 조회 (메인 페이지)")
     @GetMapping("/categories/popular")
     public ApiResponse<PopularProductsByCategoryResponse> searchPopularProductsByCategory(
-            @RequestParam MiddleCategory middleCategory, @Parameter(hidden = true) @CurrentUser Long userId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam MiddleCategory middleCategory, @Parameter(hidden = true) @CurrentUser Long userId) {
         PopularProductsByCategoryResponse popularProductsByCategoryResponse = productReadService.searchPopularProductsByCategory(
                 middleCategory, userId);
 

@@ -2,8 +2,8 @@ package com.lokoko.domain.product.application.service;
 
 import com.lokoko.domain.product.api.dto.NewProductProjection;
 import com.lokoko.domain.product.api.dto.PopularProductProjection;
-import com.lokoko.domain.product.api.dto.response.CachedNewProductsResponse;
-import com.lokoko.domain.product.api.dto.response.CachedPopularProductsResponse;
+import com.lokoko.domain.product.api.dto.response.CachedNewProductListResponse;
+import com.lokoko.domain.product.api.dto.response.CachedPopularProductListResponse;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.repository.ProductRepository;
 import com.lokoko.domain.product.mapper.ProductMapper;
@@ -24,7 +24,7 @@ public class ProductCacheService {
 
 
     @Cacheable(value = "popularProducts", key = "#middleCategory.name() + ':top4'")
-    public CachedPopularProductsResponse getPopularProductsFromCache(MiddleCategory middleCategory) {
+    public CachedPopularProductListResponse getPopularProductsFromCache(MiddleCategory middleCategory) {
 
         Pageable pageable = PageRequest.of(0, 4);
 
@@ -39,7 +39,7 @@ public class ProductCacheService {
     }
 
     @Cacheable(value = "newProducts", key = "#middleCategory.name() + ':top4'")
-    public CachedNewProductsResponse getNewProductsFromCache(MiddleCategory middleCategory) {
+    public CachedNewProductListResponse getNewProductsFromCache(MiddleCategory middleCategory) {
 
         Pageable pageable = PageRequest.of(0, 4);
 
