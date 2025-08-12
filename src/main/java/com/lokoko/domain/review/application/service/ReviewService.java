@@ -8,7 +8,8 @@ import com.lokoko.domain.image.domain.entity.ReviewImage;
 import com.lokoko.domain.image.domain.repository.ReceiptImageRepository;
 import com.lokoko.domain.image.domain.repository.ReviewImageRepository;
 import com.lokoko.domain.like.domain.repository.ReviewLikeRepository;
-import com.lokoko.domain.product.application.cache.PopularProductsCacheManager;
+import com.lokoko.domain.product.application.event.PopularProductsCacheEvictEvent;
+import com.lokoko.domain.review.application.event.PopularReviewsCacheEvictEvent;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.ProductOption;
 import com.lokoko.domain.product.domain.repository.ProductOptionRepository;
@@ -43,6 +44,7 @@ import com.lokoko.global.common.service.S3Service;
 import com.lokoko.global.utils.S3UrlParser;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,7 +65,7 @@ public class ReviewService {
     private final S3Service s3Service;
     private final ReviewCacheService reviewCacheService;
 
-    private final PopularProductsCacheManager popularProductsCacheManager;
+    private final ApplicationEventPublisher eventPublisher;
     private final ReviewMapper reviewMapper;
 
     public ReviewReceiptResponse createReceiptPresignedUrl(Long userId,
@@ -168,8 +170,8 @@ public class ReviewService {
         // 일반 이미지/비디오 저장
         saveMediaFiles(mediaUrls, review);
 
-        // 인기 상품 캐시 무효화
-        popularProductsCacheManager.evictCategoryCache(product.getMiddleCategory());
+        eventPublisher.publishEvent(new PopularProductsCacheEvictEvent(product.getMiddleCategory()));
+        eventPublisher.publishEvent(new PopularReviewsCacheEvictEvent());
 
         return reviewMapper.toReviewResponse(review);
     }
@@ -246,8 +248,8 @@ public class ReviewService {
             }
         }
 
-        // 인기 상품 캐시 무효화
-        popularProductsCacheManager.evictCategoryCache(review.getProduct().getMiddleCategory());
+        eventPublisher.publishEvent(new PopularProductsCacheEvictEvent(review.getProduct().getMiddleCategory()));
+        eventPublisher.publishEvent(new PopularReviewsCacheEvictEvent());
 
         deleteAllReferenceOfReview(review);
         reviewRepository.delete(review);
