@@ -35,6 +35,9 @@ import com.lokoko.global.kuromoji.service.ProductMigrationService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -67,7 +70,21 @@ public class ProductController {
 
     }
 
-    @Operation(summary = "카테고리 별 상품 검색")
+    @Operation(summary = "카테고리 별 상품 및 리뷰 검색")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "카테고리별 상품 또는 리뷰 검색 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(oneOf = {
+                                    ProductsByCategoryResponse.class,
+                                    VideoReviewListResponse.class,
+                                    ImageReviewListResponse.class
+                            })
+                    )
+            )
+    })
     @GetMapping("/categories/search")
     public ApiResponse<?> searchProductsByCategory(
             @RequestParam MiddleCategory middleCategory,
@@ -102,6 +119,20 @@ public class ProductController {
     }
 
     @Operation(summary = "상품명 또는 브랜드명 상품 및 리뷰 검색")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "상품명/브랜드명 검색 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(oneOf = {
+                                    SearchProductsResponse.class,
+                                    KeywordVideoReviewListResponse.class,
+                                    KeywordImageReviewListResponse.class
+                            })
+                    )
+            )
+    })
     @GetMapping("/search")
     public ApiResponse<?> search(
             @RequestParam String keyword,
