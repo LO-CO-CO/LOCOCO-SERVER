@@ -16,7 +16,7 @@ public class NewProductsCacheEventHandler {
     public void handleCacheEviction(NewProductsCacheEvictEvent event) {
         // 메인페이지 캐시 무효화
         newProductsCacheManager.evictCategoryCache(event.getMiddleCategory());
-        // 더보기 페이지 캐시 무효화
-        newProductsCacheManager.evictMorePageCacheForCategory(event.getMiddleCategory());
+        // 해당 카테고리의 신상품 더보기 페이지 캐시만 정밀 무효화
+        newProductsCacheManager.evictNewMorePageCacheForCategory(event.getMiddleCategory());
     }
 }

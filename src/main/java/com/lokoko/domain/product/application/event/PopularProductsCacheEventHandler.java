@@ -16,7 +16,7 @@ public class PopularProductsCacheEventHandler {
     public void handleCacheEviction(PopularProductsCacheEvictEvent event) {
         // 메인페이지 캐시 무효화
         popularProductsCacheManager.evictCategoryCache(event.getMiddleCategory());
-        // 더보기 페이지 캐시 무효화
-        popularProductsCacheManager.evictMorePageCacheForCategory(event.getMiddleCategory());
+        // 해당 카테고리의 인기상품 더보기 페이지 캐시만 정밀 무효화
+        popularProductsCacheManager.evictPopularMorePageCacheForCategory(event.getMiddleCategory());
     }
 }
