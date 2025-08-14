@@ -97,6 +97,8 @@ public class ProductReadService {
     public NewProductsByCategoryResponse searchNewProductsByCategory(MiddleCategory middleCategory, Long userId) {
 
         CachedNewProductListResponse newProductsCachedData = productCacheService.getNewProductsFromCache(middleCategory);
+
+        productCacheService.preloadNewProductsForMorePage(middleCategory);
         return addUserLikeData(newProductsCachedData, userId);
 
     }
@@ -107,6 +109,8 @@ public class ProductReadService {
 
         CachedPopularProductListResponse popularProductsCachedData = productCacheService.getPopularProductsFromCache(
                 middleCategory);
+
+        productCacheService.preloadPopularProductsForMorePage(middleCategory);
         return addUserLikeData(popularProductsCachedData, userId);
 
     }
@@ -130,6 +134,24 @@ public class ProductReadService {
                 productsWithLikeStatus,
                 cachedData.pageInfo()
         );
+    }
+
+    public PopularProductsByCategoryResponse getPopularProductsForMorePage(
+            MiddleCategory middleCategory, int page, int size, Long userId) {
+        
+        CachedPopularProductListResponse cachedData = 
+            productCacheService.getPopularProductsForMorePage(middleCategory, page, size);
+        
+        return addUserLikeData(cachedData, userId);
+    }
+
+    public NewProductsByCategoryResponse getNewProductsForMorePage(
+            MiddleCategory middleCategory, int page, int size, Long userId) {
+        
+        CachedNewProductListResponse cachedData = 
+            productCacheService.getNewProductsForMorePage(middleCategory, page, size);
+        
+        return addUserLikeData(cachedData, userId);
     }
 
     private List<ProductBasicResponse> addLikeStatusToPopularProducts(List<CachedPopularProduct> products,

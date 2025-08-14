@@ -140,24 +140,59 @@ public class ProductController {
 
     }
 
-    @Operation(summary = "신상품 카테고리별 조회 (메인 페이지)")
+    /**
+     *  메인페이지 4개 : 기존 캐시 사용 이후, 더보기 프리페치 실행
+     *  더보기용: 페이지별 캐시 사용
+     * @param middleCategory
+     * @param page
+     * @param size
+     * @param userId
+     * @return
+     */
+    @Operation(summary = "신상품 카테고리별 조회 (메인 페이지 + 더보기)")
     @GetMapping("/categories/new")
     public ApiResponse<NewProductsByCategoryResponse> searchNewProductsByCategory(
             @RequestParam MiddleCategory middleCategory,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "4") int size,
             @Parameter(hidden = true) @CurrentUser Long userId) {
-        NewProductsByCategoryResponse newProductsByCategoryResponse = productReadService.searchNewProductsByCategory(
-                middleCategory, userId);
+        
+        NewProductsByCategoryResponse newProductsByCategoryResponse;
+        
+        if (page == 0 && size == 4) {
+            newProductsByCategoryResponse = productReadService.searchNewProductsByCategory(middleCategory, userId);
+        } else {
+            newProductsByCategoryResponse = productReadService.getNewProductsForMorePage(middleCategory, page, size, userId);
+        }
 
         return ApiResponse.success(HttpStatus.OK, CATEGORY_NEW_LIST_SUCCESS.getMessage(),
                 newProductsByCategoryResponse);
     }
 
-    @Operation(summary = "인기상품 카테고리별 조회 (메인 페이지)")
+    /**
+     *  메인페이지 : 기존 캐시 사용 + 프리페치 실행
+     *  더보기용: 페이지별 캐시 사용
+     * @param middleCategory
+     * @param page
+     * @param size
+     * @param userId
+     * @return
+     */
+    @Operation(summary = "인기상품 카테고리별 조회 (메인 페이지 + 더보기)")
     @GetMapping("/categories/popular")
     public ApiResponse<PopularProductsByCategoryResponse> searchPopularProductsByCategory(
-            @RequestParam MiddleCategory middleCategory, @Parameter(hidden = true) @CurrentUser Long userId) {
-        PopularProductsByCategoryResponse popularProductsByCategoryResponse = productReadService.searchPopularProductsByCategory(
-                middleCategory, userId);
+            @RequestParam MiddleCategory middleCategory,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "4") int size,
+            @Parameter(hidden = true) @CurrentUser Long userId) {
+        
+        PopularProductsByCategoryResponse popularProductsByCategoryResponse;
+        
+        if (page == 0 && size == 4) {
+            popularProductsByCategoryResponse = productReadService.searchPopularProductsByCategory(middleCategory, userId);
+        } else {
+            popularProductsByCategoryResponse = productReadService.getPopularProductsForMorePage(middleCategory, page, size, userId);
+        }
 
         return ApiResponse.success(HttpStatus.OK, CATEGORY_POPULAR_LIST_SUCCESS.getMessage(),
                 popularProductsByCategoryResponse);

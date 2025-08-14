@@ -9,52 +9,24 @@ import com.lokoko.domain.product.domain.repository.ProductRepository;
 import com.lokoko.domain.product.mapper.ProductMapper;
 import com.lokoko.global.common.response.PageableResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
-public class ProductCacheService {
+public class ProductCachePrefetchService {
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
-    private final ProductCachePrefetchService productCachePrefetchService;
 
+    @Cacheable(value = "morePageProducts", key = "#middleCategory.name() + ':popular:p' + #page + ':s' + #size")
     public CachedPopularProductListResponse getPopularProductsForMorePage(
             MiddleCategory middleCategory, int page, int size) {
-        return productCachePrefetchService.getPopularProductsForMorePage(middleCategory, page, size);
-    }
 
-    public CachedNewProductListResponse getNewProductsForMorePage(
-            MiddleCategory middleCategory, int page, int size) {
-        return productCachePrefetchService.getNewProductsForMorePage(middleCategory, page, size);
-    }
-
-    public void preloadPopularProductsForMorePage(MiddleCategory middleCategory) {
-        try {
-            productCachePrefetchService.getPopularProductsForMorePage(middleCategory, 0, 20);
-        } catch (Exception e) {
-            log.warn("Popular products preload failed for category: {}", middleCategory, e);
-        }
-    }
-
-    public void preloadNewProductsForMorePage(MiddleCategory middleCategory) {
-        try {
-            productCachePrefetchService.getNewProductsForMorePage(middleCategory, 0, 20);
-        } catch (Exception e) {
-            log.warn("New products preload failed for category: {}", middleCategory, e);
-        }
-    }
-
-    @Cacheable(value = "popularProducts", key = "#middleCategory.name() + ':top4'")
-    public CachedPopularProductListResponse getPopularProductsFromCache(MiddleCategory middleCategory) {
-
-        Pageable pageable = PageRequest.of(0, 4);
+        Pageable pageable = PageRequest.of(page, size);
 
         Slice<PopularProductProjection> projectionSlice =
                 productRepository.findPopularProductsWithDetails(middleCategory, pageable);
@@ -66,10 +38,11 @@ public class ProductCacheService {
         );
     }
 
-    @Cacheable(value = "newProducts", key = "#middleCategory.name() + ':top4'")
-    public CachedNewProductListResponse getNewProductsFromCache(MiddleCategory middleCategory) {
+    @Cacheable(value = "morePageProducts", key = "#middleCategory.name() + ':new:p' + #page + ':s' + #size")
+    public CachedNewProductListResponse getNewProductsForMorePage(
+            MiddleCategory middleCategory, int page, int size) {
 
-        Pageable pageable = PageRequest.of(0, 4);
+        Pageable pageable = PageRequest.of(page, size);
 
         Slice<NewProductProjection> projectionSlice =
                 productRepository.findNewProductsWithDetails(middleCategory, pageable);
