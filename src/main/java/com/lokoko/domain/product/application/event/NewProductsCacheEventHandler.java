@@ -14,6 +14,9 @@ public class NewProductsCacheEventHandler {
     
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleCacheEviction(NewProductsCacheEvictEvent event) {
+        // 메인페이지 캐시 무효화
         newProductsCacheManager.evictCategoryCache(event.getMiddleCategory());
+        // 더보기 페이지 캐시 무효화
+        newProductsCacheManager.evictMorePageCacheForCategory(event.getMiddleCategory());
     }
 }
