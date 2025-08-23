@@ -8,6 +8,8 @@ import com.lokoko.domain.image.domain.entity.ReviewImage;
 import com.lokoko.domain.image.domain.repository.ReceiptImageRepository;
 import com.lokoko.domain.image.domain.repository.ReviewImageRepository;
 import com.lokoko.domain.like.domain.repository.ReviewLikeRepository;
+import com.lokoko.domain.product.application.event.PopularProductsCacheEvictEvent;
+import com.lokoko.domain.review.application.event.PopularReviewsCacheEvictEvent;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.ProductOption;
 import com.lokoko.domain.product.domain.repository.ProductOptionRepository;
@@ -18,15 +20,9 @@ import com.lokoko.domain.product.exception.ProductOptionNotFoundException;
 import com.lokoko.domain.review.api.dto.request.ReviewMediaRequest;
 import com.lokoko.domain.review.api.dto.request.ReviewReceiptRequest;
 import com.lokoko.domain.review.api.dto.request.ReviewRequest;
-import com.lokoko.domain.review.api.dto.response.ImageReviewsProductDetailResponse;
-import com.lokoko.domain.review.api.dto.response.MainImageReview;
-import com.lokoko.domain.review.api.dto.response.MainImageReviewResponse;
-import com.lokoko.domain.review.api.dto.response.MainVideoReview;
-import com.lokoko.domain.review.api.dto.response.MainVideoReviewResponse;
 import com.lokoko.domain.review.api.dto.response.ReviewMediaResponse;
 import com.lokoko.domain.review.api.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.review.api.dto.response.ReviewResponse;
-import com.lokoko.domain.review.api.dto.response.VideoReviewProductDetailResponse;
 import com.lokoko.domain.review.domain.entity.Review;
 import com.lokoko.domain.review.domain.repository.ReviewRepository;
 import com.lokoko.domain.review.exception.ErrorMessage;
@@ -48,8 +44,7 @@ import com.lokoko.global.common.service.S3Service;
 import com.lokoko.global.utils.S3UrlParser;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,7 +53,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ReviewService {
-    private final S3Service s3Service;
     private final ReviewRepository reviewRepository;
     private final ReceiptImageRepository receiptImageRepository;
     private final UserRepository userRepository;
@@ -67,6 +61,11 @@ public class ReviewService {
     private final ProductRepository productRepository;
     private final ReviewVideoRepository reviewVideoRepository;
     private final ReviewLikeRepository reviewLikeRepository;
+
+    private final S3Service s3Service;
+    private final ReviewCacheService reviewCacheService;
+
+    private final ApplicationEventPublisher eventPublisher;
     private final ReviewMapper reviewMapper;
 
     public ReviewReceiptResponse createReceiptPresignedUrl(Long userId,
@@ -132,12 +131,6 @@ public class ReviewService {
         return reviewMapper.toReviewMediaResponse(urls);
     }
 
-    public ImageReviewsProductDetailResponse getImageReviewsInProductDetail(Long productId, int page,
-                                                                            int size, Long userId) {
-        Pageable pageable = PageRequest.of(page, size);
-        return reviewRepository.findImageReviewsByProductId(productId, userId, pageable);
-    }
-
     @DistributedLock(key = "'review:product:' + #productId")
     public ReviewResponse createReview(
             Long productId,
@@ -163,30 +156,43 @@ public class ReviewService {
         List<String> mediaUrls = request.mediaUrl();
 
         // 영수증 1장 초과 검증
-        if (receiptUrls != null && receiptUrls.size() > 1) {
-            throw new ReceiptImageCountingException(ErrorMessage.TOO_MANY_RECEIPT_IMAGES);
-        }
+        validateReceiptCount(receiptUrls);
 
         // 미디어 검증 (동영상 1개 이하, 이미지 5개 이하, 혼용 불가)
-        if (mediaUrls != null && !mediaUrls.isEmpty()) {
-            long videoCount = mediaUrls.stream().filter(url -> url.contains("/video/")).count();
-            long imageCount = mediaUrls.stream().filter(url -> url.contains("/image/")).count();
-
-            if (videoCount > 0 && imageCount > 0) {
-                throw new InvalidMediaTypeException(ErrorMessage.MIXED_MEDIA_TYPE_NOT_ALLOWED);
-            }
-            if (videoCount > 1) {
-                throw new InvalidMediaTypeException(ErrorMessage.TOO_MANY_VIDEO_FILES);
-            }
-            if (imageCount > 5) {
-                throw new InvalidMediaTypeException(ErrorMessage.TOO_MANY_IMAGE_FILES);
-            }
-        }
+        validateMediaFiles(mediaUrls);
 
         Review review = reviewMapper.toReview(request, user, product, option);
         reviewRepository.save(review);
 
         // 영수증 이미지 저장
+        saveReceiptImages(receiptUrls, review);
+
+        // 일반 이미지/비디오 저장
+        saveMediaFiles(mediaUrls, review);
+
+        eventPublisher.publishEvent(new PopularProductsCacheEvictEvent(product.getMiddleCategory()));
+        eventPublisher.publishEvent(new PopularReviewsCacheEvictEvent());
+
+        return reviewMapper.toReviewResponse(review);
+    }
+
+    private void saveMediaFiles(List<String> mediaUrls, Review review) {
+        if (mediaUrls != null) {
+            int order = 0;
+            for (String url : mediaUrls) {
+                MediaFile mediaFile = S3UrlParser.parsePresignedUrl(url);
+                if (url.contains("/video/")) {
+                    ReviewVideo rv = ReviewVideo.createReviewVideo(mediaFile, order++, review);
+                    reviewVideoRepository.save(rv);
+                } else {
+                    ReviewImage ri = ReviewImage.createReviewImage(mediaFile, order++, review);
+                    reviewImageRepository.save(ri);
+                }
+            }
+        }
+    }
+
+    private void saveReceiptImages(List<String> receiptUrls, Review review) {
         if (receiptUrls != null) {
             int order = 0;
             for (String url : receiptUrls) {
@@ -201,42 +207,31 @@ public class ReviewService {
 
             review.markReceiptUploaded();
         }
+    }
 
-        // 일반 이미지/비디오 저장
-        if (mediaUrls != null) {
-            int order = 0;
-            for (String url : mediaUrls) {
-                MediaFile mediaFile = S3UrlParser.parsePresignedUrl(url);
-                if (url.contains("/video/")) {
-                    ReviewVideo rv = ReviewVideo.createReviewVideo(mediaFile, order++, review);
-                    reviewVideoRepository.save(rv);
-                } else {
-                    ReviewImage ri = ReviewImage.createReviewImage(mediaFile, order++, review);
-                    reviewImageRepository.save(ri);
-                }
+    private static void validateMediaFiles(List<String> mediaUrls) {
+        if (mediaUrls != null && !mediaUrls.isEmpty()) {
+            long videoCount = mediaUrls.stream().filter(url -> url.contains("/video/")).count();
+            long imageCount = mediaUrls.stream().filter(url -> url.contains("/image/")).count();
+
+            if (videoCount > 0 && imageCount > 0) {
+                throw new InvalidMediaTypeException(ErrorMessage.MIXED_MEDIA_TYPE_NOT_ALLOWED);
+            }
+            if (videoCount > 1) {
+                throw new InvalidMediaTypeException(ErrorMessage.TOO_MANY_VIDEO_FILES);
+            }
+            if (imageCount > 5) {
+                throw new InvalidMediaTypeException(ErrorMessage.TOO_MANY_IMAGE_FILES);
             }
         }
-
-        return reviewMapper.toReviewResponse(review);
     }
 
-    public MainImageReviewResponse getMainImageReview() {
-        List<MainImageReview> reviewImages = reviewImageRepository.findMainImageReviewSorted();
-        List<MainImageReview> rankedList = reviewMapper.addRankingToImageReviews(reviewImages);
-
-        return reviewMapper.toMainImageReviewResponse(rankedList);
+    private static void validateReceiptCount(List<String> receiptUrls) {
+        if (receiptUrls != null && receiptUrls.size() > 1) {
+            throw new ReceiptImageCountingException(ErrorMessage.TOO_MANY_RECEIPT_IMAGES);
+        }
     }
 
-    public MainVideoReviewResponse getMainVideoReview() {
-        List<MainVideoReview> reviewVideo = reviewVideoRepository.findMainVideoReviewSorted();
-        List<MainVideoReview> rankedList = reviewMapper.addRankingToVideoReviews(reviewVideo);
-
-        return reviewMapper.toMainVideoReviewResponse(rankedList);
-    }
-
-    public VideoReviewProductDetailResponse getVideoReviewsByProduct(Long productId) {
-        return reviewRepository.findVideoReviewsByProductId(productId);
-    }
 
     @Transactional
     public void deleteReview(Long userId, Long reviewId) {
@@ -252,6 +247,9 @@ public class ReviewService {
                 throw new ReviewPermissionException();
             }
         }
+
+        eventPublisher.publishEvent(new PopularProductsCacheEvictEvent(review.getProduct().getMiddleCategory()));
+        eventPublisher.publishEvent(new PopularReviewsCacheEvictEvent());
 
         deleteAllReferenceOfReview(review);
         reviewRepository.delete(review);

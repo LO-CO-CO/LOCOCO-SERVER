@@ -9,7 +9,10 @@ import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.global.common.annotation.DistributedLock;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,5 +52,20 @@ public class ProductLikeService {
             throw new ProductNotFoundException();
         }
         return productLikeRepository.existsByProductIdAndUserId(productId, userId);
+    }
+
+    public Map<Long, Boolean> getLikeStatusMap(Long userId, List<Long> productIds) {
+        if (userId == null || productIds.isEmpty()) {
+            return productIds.stream()
+                    .collect(Collectors.toMap(id -> id, id -> false));
+        }
+
+        List<Long> likedProductIds = productLikeRepository.findLikedProductIds(userId, productIds);
+
+        return productIds.stream()
+                .collect(Collectors.toMap(
+                        id -> id,
+                        likedProductIds::contains
+                ));
     }
 }

@@ -25,8 +25,8 @@ import com.lokoko.domain.review.api.dto.response.ImageReviewListResponse;
 import com.lokoko.domain.review.api.dto.response.KeywordImageReviewListResponse;
 import com.lokoko.domain.review.api.dto.response.KeywordVideoReviewListResponse;
 import com.lokoko.domain.review.api.dto.response.VideoReviewListResponse;
-import com.lokoko.domain.review.exception.MissingMediaTypeException;
 import com.lokoko.domain.review.application.service.ReviewReadService;
+import com.lokoko.domain.review.exception.MissingMediaTypeException;
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.common.entity.MediaType;
 import com.lokoko.global.common.entity.SearchType;
@@ -171,28 +171,59 @@ public class ProductController {
 
     }
 
-    @Operation(summary = "신상품 카테고리별 조회 (메인 페이지)")
+    /**
+     *  메인페이지 4개 : 기존 캐시 사용 이후, 더보기 프리페치 실행
+     *  더보기용: 페이지별 캐시 사용
+     * @param middleCategory
+     * @param page
+     * @param size
+     * @param userId
+     * @return
+     */
+    @Operation(summary = "신상품 카테고리별 조회 (메인 페이지 + 더보기)")
     @GetMapping("/categories/new")
     public ApiResponse<NewProductsByCategoryResponse> searchNewProductsByCategory(
             @RequestParam MiddleCategory middleCategory,
-            @Parameter(hidden = true) @CurrentUser Long userId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        NewProductsByCategoryResponse newProductsByCategoryResponse = productReadService.searchNewProductsByCategory(
-                middleCategory, userId, page, size);
+            @RequestParam(defaultValue = "4") int size,
+            @Parameter(hidden = true) @CurrentUser Long userId) {
+        
+        NewProductsByCategoryResponse newProductsByCategoryResponse;
+        
+        if (page == 0 && size == 4) {
+            newProductsByCategoryResponse = productReadService.searchNewProductsByCategory(middleCategory, userId);
+        } else {
+            newProductsByCategoryResponse = productReadService.getNewProductsForMorePage(middleCategory, page, size, userId);
+        }
 
         return ApiResponse.success(HttpStatus.OK, CATEGORY_NEW_LIST_SUCCESS.getMessage(),
                 newProductsByCategoryResponse);
     }
 
-    @Operation(summary = "인기상품 카테고리별 조회 (메인 페이지)")
+    /**
+     *  메인페이지 : 기존 캐시 사용 + 프리페치 실행
+     *  더보기용: 페이지별 캐시 사용
+     * @param middleCategory
+     * @param page
+     * @param size
+     * @param userId
+     * @return
+     */
+    @Operation(summary = "인기상품 카테고리별 조회 (메인 페이지 + 더보기)")
     @GetMapping("/categories/popular")
     public ApiResponse<PopularProductsByCategoryResponse> searchPopularProductsByCategory(
-            @RequestParam MiddleCategory middleCategory, @Parameter(hidden = true) @CurrentUser Long userId,
+            @RequestParam MiddleCategory middleCategory,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        PopularProductsByCategoryResponse popularProductsByCategoryResponse = productReadService.searchPopularProductsByCategory(
-                middleCategory, userId, page, size);
+            @RequestParam(defaultValue = "4") int size,
+            @Parameter(hidden = true) @CurrentUser Long userId) {
+        
+        PopularProductsByCategoryResponse popularProductsByCategoryResponse;
+        
+        if (page == 0 && size == 4) {
+            popularProductsByCategoryResponse = productReadService.searchPopularProductsByCategory(middleCategory, userId);
+        } else {
+            popularProductsByCategoryResponse = productReadService.getPopularProductsForMorePage(middleCategory, page, size, userId);
+        }
 
         return ApiResponse.success(HttpStatus.OK, CATEGORY_POPULAR_LIST_SUCCESS.getMessage(),
                 popularProductsByCategoryResponse);

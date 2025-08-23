@@ -16,6 +16,7 @@ import com.lokoko.domain.review.api.dto.response.VideoReviewDetailResponse;
 import com.lokoko.domain.review.api.dto.response.VideoReviewProductDetailResponse;
 import com.lokoko.domain.review.api.message.ResponseMessage;
 import com.lokoko.domain.review.application.service.ReviewDetailsService;
+import com.lokoko.domain.review.application.service.ReviewReadService;
 import com.lokoko.domain.review.application.service.ReviewService;
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.common.response.ApiResponse;
@@ -42,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReviewController {
     private final ReviewService reviewService;
     private final ReviewDetailsService reviewDetailsService;
+    private final ReviewReadService reviewReadService;
 
     @Operation(summary = "영수증 presignedUrl 발급")
     @PostMapping("/receipt")
@@ -81,14 +83,14 @@ public class ReviewController {
     @Operation(summary = "메인페이지에서 이미지 리뷰 조회")
     @GetMapping("/image")
     public ApiResponse<MainImageReviewResponse> getMainImageReviews() {
-        MainImageReviewResponse response = reviewService.getMainImageReview();
+        MainImageReviewResponse response = reviewReadService.getMainImageReview();
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.MAIN_REVIEW_IMAGE_SUCCESS.getMessage(), response);
     }
 
     @Operation(summary = "메인페이지에서 영상 리뷰 조회")
     @GetMapping("/video")
     public ApiResponse<MainVideoReviewResponse> getMainVideoReviews() {
-        MainVideoReviewResponse response = reviewService.getMainVideoReview();
+        MainVideoReviewResponse response = reviewReadService.getMainVideoReview();
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.MAIN_REVIEW_VIDEO_SUCCESS.getMessage(), response);
     }
 
@@ -100,7 +102,7 @@ public class ReviewController {
             @RequestParam(defaultValue = "5") int size,
             @Parameter(hidden = true) @CurrentUser Long userId
     ) {
-        ImageReviewsProductDetailResponse response = reviewService.getImageReviewsInProductDetail(productId, page,
+        ImageReviewsProductDetailResponse response = reviewReadService.getImageReviewsInProductDetail(productId, page,
                 size, userId);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.IMAGE_REVIEW_GET_SUCCESS.getMessage(),
@@ -112,7 +114,7 @@ public class ReviewController {
     public ApiResponse<VideoReviewProductDetailResponse> getVideoReviewsInProductDetail(
             @RequestParam Long productId
     ) {
-        VideoReviewProductDetailResponse response = reviewService.getVideoReviewsByProduct(productId);
+        VideoReviewProductDetailResponse response = reviewReadService.getVideoReviewsByProduct(productId);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.VIDEO_REVIEW_GET_SUCCESS.getMessage(), response);
     }
 
