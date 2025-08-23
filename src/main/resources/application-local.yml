@@ -17,6 +17,10 @@ spring:
       port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD}
 
+deepl:
+  api:
+    key: ${DEEPL_API_KEY}
+
 lokoko:
   jwt:
     key: ${JWT_KEY}
