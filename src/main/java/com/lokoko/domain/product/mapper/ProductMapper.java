@@ -2,6 +2,10 @@ package com.lokoko.domain.product.mapper;
 
 import com.lokoko.domain.product.api.dto.NewProductProjection;
 import com.lokoko.domain.product.api.dto.PopularProductProjection;
+import com.lokoko.domain.product.api.dto.response.CachedNewProduct;
+import com.lokoko.domain.product.api.dto.response.CachedNewProductListResponse;
+import com.lokoko.domain.product.api.dto.response.CachedPopularProduct;
+import com.lokoko.domain.product.api.dto.response.CachedPopularProductListResponse;
 import com.lokoko.domain.product.api.dto.response.NewProductsByCategoryResponse;
 import com.lokoko.domain.product.api.dto.response.PopularProductsByCategoryResponse;
 import com.lokoko.domain.product.api.dto.response.ProductBasicResponse;
@@ -18,8 +22,10 @@ import com.lokoko.domain.product.domain.entity.ProductOption;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
 import com.lokoko.global.common.response.PageableResponse;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -232,4 +238,82 @@ public interface ProductMapper {
      * 프로젝션(PopularProductProjection) → 기본 상품 DTO 매핑
      */
     ProductBasicResponse toProductResponse(PopularProductProjection projection);
+
+
+    default CachedPopularProductListResponse toCachedPopularProductResponse(
+            List<PopularProductProjection> projections,
+            MiddleCategory middleCategory,
+            PageableResponse pageInfo) {
+
+        List<CachedPopularProduct> products = projections.stream()
+                .map(this::toCachedPopularProduct)
+                .toList();
+
+        return CachedPopularProductListResponse.builder()
+                .searchQuery(middleCategory.getDisplayName())
+                .products(products)
+                .pageInfo(pageInfo)
+                .build();
+    }
+
+    default CachedPopularProduct toCachedPopularProduct(PopularProductProjection projection) {
+        List<String> images = Optional.ofNullable(projection.imageUrl())
+                .filter(u -> !u.isBlank())
+                .map(u -> u.contains(",")
+                        ? Arrays.stream(u.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .toList()
+                        : List.of(u))
+                .orElseGet(List::of);
+
+        return CachedPopularProduct.builder()
+                .productId(projection.productId())
+                .imageUrls(images)
+                .productName(projection.productName())
+                .brandName(projection.brandName())
+                .unit(projection.unit())
+                .reviewCount(projection.reviewCount())
+                .rating(projection.avgRating())
+                .build();
+    }
+
+    default CachedNewProductListResponse toNewProductResponse(
+            List<NewProductProjection> projections,
+            MiddleCategory middleCategory,
+            PageableResponse pageInfo) {
+
+        List<CachedNewProduct> products = projections.stream()
+                .map(this::toCachedNewProduct)
+                .toList();
+
+        return CachedNewProductListResponse.builder()
+                .searchQuery(middleCategory.getDisplayName())
+                .products(products)
+                .pageInfo(pageInfo)
+                .build();
+    }
+
+
+    default CachedNewProduct toCachedNewProduct(NewProductProjection projection) {
+        List<String> images = Optional.ofNullable(projection.imageUrl())
+                .filter(u -> !u.isBlank())
+                .map(u -> u.contains(",")
+                        ? Arrays.stream(u.split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .toList()
+                        : List.of(u))
+                .orElseGet(List::of);
+
+        return CachedNewProduct.builder()
+                .productId(projection.productId())
+                .imageUrls(images)
+                .productName(projection.productName())
+                .brandName(projection.brandName())
+                .unit(projection.unit())
+                .reviewCount(projection.reviewCount())
+                .rating(projection.avgRating())
+                .build();
+    }
 }

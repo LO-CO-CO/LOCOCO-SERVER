@@ -4,12 +4,16 @@ import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
 import com.lokoko.domain.review.api.dto.response.ImageReviewListResponse;
 import com.lokoko.domain.review.api.dto.response.ImageReviewResponse;
+import com.lokoko.domain.review.api.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.review.api.dto.response.KeywordImageReviewListResponse;
 import com.lokoko.domain.review.api.dto.response.KeywordVideoReviewListResponse;
+import com.lokoko.domain.review.api.dto.response.MainImageReviewResponse;
+import com.lokoko.domain.review.api.dto.response.MainVideoReviewResponse;
 import com.lokoko.domain.review.api.dto.response.VideoReviewListResponse;
+import com.lokoko.domain.review.api.dto.response.VideoReviewProductDetailResponse;
 import com.lokoko.domain.review.api.dto.response.VideoReviewResponse;
-import com.lokoko.domain.review.mapper.ReviewMapper;
 import com.lokoko.domain.review.domain.repository.ReviewRepository;
+import com.lokoko.domain.review.mapper.ReviewMapper;
 import com.lokoko.global.common.response.PageableResponse;
 import com.lokoko.global.kuromoji.service.KuromojiService;
 import java.util.List;
@@ -24,7 +28,10 @@ import org.springframework.stereotype.Service;
 public class ReviewReadService {
 
     private final ReviewRepository reviewRepository;
+
+    private final ReviewCacheService reviewCacheService;
     private final KuromojiService kuromojiService;
+
     private final ReviewMapper reviewMapper;
 
     // 카테고리별 영상 리뷰 조회
@@ -91,4 +98,25 @@ public class ReviewReadService {
 
         return KeywordImageReviewListResponse.from(keyword, imageReviews);
     }
+
+    public ImageReviewsProductDetailResponse getImageReviewsInProductDetail(Long productId, int page,
+                                                                            int size, Long userId) {
+        Pageable pageable = PageRequest.of(page, size);
+        return reviewRepository.findImageReviewsByProductId(productId, userId, pageable);
+    }
+
+    public VideoReviewProductDetailResponse getVideoReviewsByProduct(Long productId) {
+        return reviewRepository.findVideoReviewsByProductId(productId);
+    }
+
+
+    public MainImageReviewResponse getMainImageReview() {
+        return reviewCacheService.getPopularImageReviewsFromCache();
+    }
+
+    public MainVideoReviewResponse getMainVideoReview() {
+        return reviewCacheService.getPopularVideoReviewsFromCache();
+    }
+
+
 }

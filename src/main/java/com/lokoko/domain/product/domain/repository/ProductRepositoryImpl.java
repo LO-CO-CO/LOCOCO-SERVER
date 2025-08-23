@@ -13,7 +13,6 @@ import com.lokoko.domain.product.domain.entity.enums.Tag;
 import com.lokoko.domain.review.domain.entity.QReview;
 import com.lokoko.domain.review.domain.entity.enums.Rating;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
@@ -220,7 +219,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     @Override
     public Slice<PopularProductProjection> findPopularProductsWithDetails(
             MiddleCategory category,
-            Long userId,
             Pageable pageable) {
 
         NumberExpression<Integer> ratingValue = new CaseBuilder()
@@ -240,21 +238,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         r.id.count(),
                         ratingValue.avg(),
                         productImage.url,
-                        // userId에 따라 다른 expression 사용
-                        userId != null ?
-                                productLike.id.isNotNull() :
-                                Expressions.FALSE  // 또는 Expressions.asBoolean(false)
+                        Expressions.FALSE  // 또는 Expressions.asBoolean(false)
                 ))
                 .from(p)
                 .leftJoin(r).on(r.product.eq(p))
                 .leftJoin(productImage).on(productImage.product.eq(p).and(productImage.isMain.eq(true)));
-
-        // userId가 있을 때만 productLike 조인
-        if (userId != null) {
-            query.leftJoin(productLike).on(
-                    productLike.product.eq(p).and(productLike.user.id.eq(userId))
-            );
-        }
 
         List<PopularProductProjection> content = query
                 .where(p.middleCategory.eq(category))
@@ -275,7 +263,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     @Override
     public Slice<NewProductProjection> findNewProductsWithDetails(
             MiddleCategory category,
-            Long userId,
             Pageable pageable) {
 
         NumberExpression<Integer> ratingValue = new CaseBuilder()
@@ -286,10 +273,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .when(r.rating.eq(Rating.FIVE)).then(5)
                 .otherwise(0);
 
-        Expression<Boolean> isLikedExpression = userId != null ?
-                productLike.id.isNotNull() :
-                Expressions.FALSE;
-
         JPAQuery<NewProductProjection> query = queryFactory
                 .select(Projections.constructor(NewProductProjection.class,
                         p.id,
@@ -299,19 +282,12 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         r.id.count(),
                         ratingValue.avg(),
                         productImage.url,
-                        isLikedExpression,
+                        Expressions.FALSE,
                         p.createdAt
                 ))
                 .from(p)
                 .leftJoin(r).on(r.product.eq(p))
                 .leftJoin(productImage).on(productImage.product.eq(p).and(productImage.isMain.eq(true)));
-
-        // userId가 있을 때만 productLike 조인
-        if (userId != null) {
-            query.leftJoin(productLike).on(
-                    productLike.product.eq(p).and(productLike.user.id.eq(userId))
-            );
-        }
 
         List<NewProductProjection> content = query
                 .where(
