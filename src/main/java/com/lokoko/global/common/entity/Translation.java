@@ -4,11 +4,9 @@ import com.lokoko.global.common.enums.Language;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.Comment;
 
 @Entity
-@Setter
 @Getter
 @NoArgsConstructor
 @Table(name = "translation", indexes = {
