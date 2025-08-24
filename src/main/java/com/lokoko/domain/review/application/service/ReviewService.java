@@ -247,7 +247,7 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(ReviewNotFoundException::new);
 
-        if (user.getRole() == Role.USER) {
+        if (user.getRole() == Role.CUSTOMER) {
             if (!review.getAuthor().getId().equals(userId)) {
                 throw new ReviewPermissionException();
             }

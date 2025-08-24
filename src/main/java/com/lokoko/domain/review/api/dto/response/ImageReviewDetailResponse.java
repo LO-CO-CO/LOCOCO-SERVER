@@ -67,7 +67,7 @@ public record ImageReviewDetailResponse(
                 review.isReceiptUploaded(),
                 review.getPositiveContent(),
                 review.getNegativeContent(),
-                author.getNickname(),
+                author.getName(),
                 author.getProfileImageUrl(),
                 (double) review.getRating().getValue(),
                 optionName,
