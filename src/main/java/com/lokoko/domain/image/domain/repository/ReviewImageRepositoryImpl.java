@@ -40,7 +40,8 @@ public class ReviewImageRepositoryImpl implements ReviewImageRepositoryCustom {
                 .join(review.product, product)
                 .leftJoin(reviewLike).on(reviewLike.review.eq(review))
                 .where(reviewImage.displayOrder.eq(0))
-                .groupBy(review.id, product.brandName, product.productName, reviewImage.mediaFile.fileUrl)
+                .groupBy(review.id, product.id, product.brandName, product.productName, review.rating,
+                        reviewImage.mediaFile.fileUrl)
                 .orderBy(reviewLike.count().desc(), review.rating.desc())
                 .limit(4)
                 .fetch();

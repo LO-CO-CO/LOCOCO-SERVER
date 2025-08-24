@@ -2,6 +2,7 @@ package com.lokoko.domain.like.application.service;
 
 import com.lokoko.domain.like.domain.entity.ReviewLike;
 import com.lokoko.domain.like.domain.repository.ReviewLikeRepository;
+import com.lokoko.domain.review.application.event.PopularReviewsCacheEvictEvent;
 import com.lokoko.domain.review.domain.entity.Review;
 import com.lokoko.domain.review.domain.repository.ReviewRepository;
 import com.lokoko.domain.review.exception.ReviewNotFoundException;
@@ -11,6 +12,7 @@ import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.global.common.annotation.DistributedLock;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ public class ReviewLikeService {
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final ReviewLikeRepository reviewLikeRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @DistributedLock(key = "'like:review:' + #reviewId + ':user:' + #userId")
     public long toggleReviewLike(Long reviewId, Long userId) {
@@ -36,6 +39,8 @@ public class ReviewLikeService {
         } else {
             reviewLikeRepository.save(ReviewLike.of(review, user));
         }
+
+        eventPublisher.publishEvent(new PopularReviewsCacheEvictEvent());
 
         return reviewLikeRepository.countByReviewId(reviewId);
     }
