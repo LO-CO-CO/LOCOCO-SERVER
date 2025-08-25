@@ -63,7 +63,8 @@ public class PermitUrlConfig {
                 "/api/products/crawl/options",
                 "/api/products/search-fields/migrate",
                 "/api/youtube/{productId}/crawl",
-                "/api/youtube/trends/crawl"
+                "/api/youtube/trends/crawl",
+                "/api/migration/**"
         };
     }
 
