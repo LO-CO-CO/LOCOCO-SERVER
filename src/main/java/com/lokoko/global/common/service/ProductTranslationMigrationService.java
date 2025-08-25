@@ -5,8 +5,10 @@ import com.deepl.api.TextResult;
 import com.deepl.api.Translator;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.repository.ProductRepository;
+import com.lokoko.domain.product.exception.ProductNotFoundException;
 import com.lokoko.global.common.entity.Translation;
 import com.lokoko.global.common.enums.Language;
+import com.lokoko.global.common.exception.translation.MigrationFailedException;
 import com.lokoko.global.common.repository.TranslationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -76,16 +78,13 @@ public class ProductTranslationMigrationService {
                         log.info("Progress: {}/{} products migrated", i + 1, totalProducts);
                     }
                 } catch (Exception e) {
-                    failedCount++;
-                    log.error("Failed to migrate product {}: {}", product.getId(), e.getMessage());
+                    throw new MigrationFailedException();
                 }
             }
-            
             log.info("Migration completed. Successfully migrated: {}/{} products, Failed: {}", 
                     processedCount, totalProducts, failedCount);
         } catch (Exception e) {
-            log.error("Fatal error during migration: {}", e.getMessage(), e);
-            throw new RuntimeException("Migration failed", e);
+            throw new MigrationFailedException();
         }
     }
     
@@ -96,7 +95,8 @@ public class ProductTranslationMigrationService {
     public void migrateProductInNewTransaction(Long productId) {
         log.debug("Starting migration for product ID={}", productId);
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
+                .orElseThrow(ProductNotFoundException::new);
+
         migrateProduct(product);
     }
     
@@ -109,7 +109,7 @@ public class ProductTranslationMigrationService {
         
         try {
             Product product = productRepository.findById(productId)
-                    .orElseThrow(() -> new RuntimeException("Product not found with ID: " + productId));
+                    .orElseThrow(ProductNotFoundException::new);
             
             log.info("Found product: ID={}, Name={}", 
                     product.getId(), 
@@ -126,28 +126,10 @@ public class ProductTranslationMigrationService {
             
         } catch (Exception e) {
             log.error("Failed to migrate product ID={}: {}", productId, e.getMessage(), e);
-            throw new RuntimeException("Migration failed for product ID=" + productId, e);
+            throw new MigrationFailedException();
         }
     }
-    
-    /**
-     * 마이그레이션 후 검증 (별도 트랜잭션)
-     */
-    @Transactional(readOnly = true)
-    public boolean validateSingleProduct(Long productId) {
-        log.info("Validating product ID={}", productId);
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + productId));
-        
-        boolean isValid = validateProduct(product);
-        if (isValid) {
-            log.info("Validation passed for product ID={}", productId);
-        } else {
-            log.warn("Validation failed for product ID={}", productId);
-        }
-        return isValid;
-    }
-    
+
     /**
      * 기존 번역 삭제
      */
