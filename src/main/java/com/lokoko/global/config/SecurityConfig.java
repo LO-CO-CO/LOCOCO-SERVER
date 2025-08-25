@@ -1,14 +1,10 @@
 package com.lokoko.global.config;
 
-import static com.lokoko.domain.user.domain.entity.enums.Role.ADMIN;
-import static com.lokoko.domain.user.domain.entity.enums.Role.CUSTOMER;
-
 import com.lokoko.global.auth.authentication.CustomAccessDeniedHandler;
 import com.lokoko.global.auth.authentication.CustomAuthenticationEntryPoint;
 import com.lokoko.global.auth.jwt.filter.JwtAuthenticationFilter;
 import com.lokoko.global.auth.jwt.utils.JwtExtractor;
 import com.lokoko.global.auth.jwt.utils.JwtProvider;
-import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +19,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+
+import static com.lokoko.domain.user.domain.entity.enums.Role.*;
 
 @Configuration
 @EnableWebSecurity
@@ -47,7 +47,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests((auth) -> auth
                 .requestMatchers(permitUrlConfig.getPublicUrl()).permitAll()
                 .requestMatchers(permitUrlConfig.getOptionalUrl()).permitAll()
-                .requestMatchers(permitUrlConfig.getUserUrl()).hasAnyRole(CUSTOMER.name(), ADMIN.name())
+                .requestMatchers(permitUrlConfig.getUserUrl()).hasAnyRole(CUSTOMER.name(), CREATOR.name(), BRAND.name(), ADMIN.name())
                 .requestMatchers(permitUrlConfig.getAdminUrl()).hasRole(ADMIN.name())
                 .anyRequest().authenticated());
 

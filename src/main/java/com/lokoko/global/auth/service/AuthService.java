@@ -70,7 +70,7 @@ public class AuthService {
             LineUserInfoDto userInfo = oAuthClient.fetchUserInfo(tokenResp.access_token());
             String displayName = userInfo.name();
 
-            Optional<User> userOpt = customerRepository.findByLineId(lineUserId);
+            Optional<Customer> userOpt = customerRepository.findByLineId(lineUserId);
             User user;
             OauthLoginStatus loginStatus;
 
