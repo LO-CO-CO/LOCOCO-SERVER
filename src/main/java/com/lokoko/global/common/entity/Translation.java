@@ -17,8 +17,8 @@ public class Translation {
     @EmbeddedId
     private TranslationId translationId;
 
-    @Lob
-    @Column(nullable = false)
+
+    @Column(columnDefinition = "TEXT", nullable = false)
     @Comment("번역 값")
     private String value;
 
