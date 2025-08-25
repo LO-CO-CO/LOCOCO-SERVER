@@ -20,7 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Entity
@@ -46,7 +46,7 @@ public class User extends BaseEntity {
     private String profileImageUrl;
 
     @Column
-    private LocalDateTime lastLoginAt;
+    private Instant lastLoginAt;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
@@ -59,11 +59,11 @@ public class User extends BaseEntity {
     private UserStatus status = UserStatus.ACTIVE;
 
     public void updateLastLoginAt() {
-        this.lastLoginAt = LocalDateTime.now();
+        this.lastLoginAt = Instant.now();
     }
 
-    public void updateDisplayName(String nickname) {
-        this.name = nickname;
+    public void updateDisplayName(String name) {
+        this.name = name;
     }
 
     public void updateEmail(String email) {
