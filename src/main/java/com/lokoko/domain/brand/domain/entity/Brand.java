@@ -1,14 +1,12 @@
 package com.lokoko.domain.brand.domain.entity;
 
 import com.lokoko.domain.user.domain.entity.User;
-import com.lokoko.domain.user.domain.entity.enums.Address;
-import com.lokoko.domain.user.domain.entity.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,22 +21,40 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Brand extends User {
 
+    @NotBlank
     @Column(nullable = false)
     private String brandName;
 
-    @Column
-    private String manager;
+    @NotBlank
+    @Column(nullable = false)
+    private String managerName;
 
-    @Embedded
-    private Address address;
+    @NotBlank
+    @Column(nullable = false)
+    private String managerPosition;
 
-    public static Brand of(String email, String name, String brandName, Address address) {
-        return Brand.builder()
-                .email(email)
-                .name(name)
-                .brandName(brandName)
-                .address(address)
-                .role(Role.BRAND)
-                .build();
-    }
+    @NotBlank
+    @Column(nullable = false)
+    private String managerPhoneNumber;
+
+    // 시/도
+    @NotBlank
+    @Column(nullable = false)
+    private String province;
+
+    // 시/군/구
+    @NotBlank
+    @Column(nullable = false)
+    private String cityDistrict;
+
+    // 도로명
+    @NotBlank
+    @Column(nullable = false)
+    private String streetName;
+
+    // 건물명/건물번호
+    @NotBlank
+    @Column(nullable = false)
+    private String buildingDetail;
+
 }
