@@ -35,7 +35,11 @@ public class Brand extends User {
 
     @NotBlank
     @Column(nullable = false)
-    private String managerPhoneNumber;
+    private String countryCode;
+
+    @NotBlank
+    @Column(nullable = false)
+    private String phoneNumber;
 
     // 시/도
     @NotBlank
@@ -56,5 +60,10 @@ public class Brand extends User {
     @NotBlank
     @Column(nullable = false)
     private String buildingDetail;
+
+    //최종 전화번호
+    public String getBrandPhoneNumber() {
+        return countryCode + phoneNumber;
+    }
 
 }

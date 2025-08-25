@@ -46,6 +46,14 @@ public class Creator extends User {
 
     @NotBlank
     @Column(nullable = false)
+    private String countryCode;
+
+    @NotBlank
+    @Column(nullable = false)
+    private String phoneNumber;
+
+    @NotBlank
+    @Column(nullable = false)
     private String country;
 
     @NotBlank
@@ -73,4 +81,8 @@ public class Creator extends User {
     @Column
     private String tiktokLink;
 
+    //최종 전화번호
+    public String getCreatorPhoneNumber() {
+        return countryCode + phoneNumber;
+    }
 }
