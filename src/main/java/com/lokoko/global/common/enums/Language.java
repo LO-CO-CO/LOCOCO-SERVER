@@ -36,9 +36,8 @@ public enum Language {
 
     public static Language ofLocale() {
         String languageStr = LocaleContextHolder.getLocale().getLanguage();
-        Locale locale = new Locale(languageStr);
         return Arrays.stream(Language.values())
-                .filter(language -> language.getLocale().equals(locale))
+                .filter(language -> language.getLocale().getLanguage().equals(languageStr))
                 .findAny()
                 .orElse(EN); // 기본값으로 영어 반환
     }
