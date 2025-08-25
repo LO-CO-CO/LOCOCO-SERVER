@@ -9,10 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,13 +23,13 @@ public class TranslationService {
     /**
      * 키와 특정 언어로 번역 조회
      */
-    public String getTranslation(String key, Language language) {
+    public Optional<String> getTranslation(String key, Language language) {
         Optional<Translation> translation = translationRepository.findByKeyAndLanguage(key, language);
-        return translation.map(Translation::getValue).orElse(null);
+        return translation.map(Translation::getValue);
     }
 
     /**
-     * 키와 언어로 번역 조회 (fallback 지원)
+     * 키로 번역 조회 (fallback 지원)
      */
     public String getTranslationWithFallback(String key) {
         Language currentLanguage = Language.ofLocale();
@@ -93,6 +90,10 @@ public class TranslationService {
      * 여러 키에 대한 특정 언어 번역들을 Map으로 반환
      */
     public Map<String, String> getTranslations(List<String> keys, Language language) {
+
+        if (keys == null || keys.isEmpty()) {
+            return Collections.emptyMap();
+        }
         List<Translation> translations = translationRepository.findByKeys(keys);
         
         return keys.stream()
@@ -143,32 +144,7 @@ public class TranslationService {
         translationRepository.deleteAll(translations);
     }
 
-    /**
-     * 키 패턴으로 번역 검색
-     */
-    public List<Translation> findByKeyPattern(String pattern) {
-        return translationRepository.findByKeyPattern("%" + pattern + "%");
-    }
 
-    public Map<String, String> getBatchTranslations(List<String> keys, Language language) {
-        // 단일 쿼리로 모든 번역 조회
-        List<Translation> translations = translationRepository.findByKeysAndLanguage(keys, language);
-        
-        // 조회된 번역을 Map으로 변환
-        Map<String, String> translationMap = translations.stream()
-                .collect(Collectors.toMap(
-                        Translation::getKey,
-                        Translation::getValue,
-                        (existing, replacement) -> existing // 중복 키 처리
-                ));
-        
-        // 번역이 없는 키들에 대해 null 값 설정
-        return keys.stream()
-                .collect(Collectors.toMap(
-                        key -> key,
-                        key -> translationMap.getOrDefault(key, null)
-                ));
-    }
     
     /**
      * 문자열 언어 코드를 Language enum으로 변환
