@@ -20,7 +20,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Admin extends User {
 
-    public static Admin of(String email, String name) {
+    public static Admin createAdmin(String email, String name) {
         return Admin.builder()
                 .email(email)
                 .name(name)
