@@ -15,19 +15,15 @@ jobs:
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
           JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
 
-      - name: Extract Jira issue key
+      - name: Extract Jira issue key from GitHub issue title
         id: extract-key
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const m = context.payload.issue.title.match(/\b[A-Z]+-\d+\b/);
-            const key = m ? m[0] : '';
-            core.info(`Parsed Jira key: ${key}`);
-            core.setOutput('key', key);
+        run: |
+          ISSUE_TITLE="${{ github.event.issue.title }}"
+          JIRA_KEY=$(echo "$ISSUE_TITLE" | grep -oE '[A-Z]+-[0-9]+')
 
       - name: Close Jira issue
-        if: ${{ steps.extract-key.outputs.key != '' }}
+        if: env.JIRA_KEY != ''
         uses: atlassian/gajira-transition@v3
         with:
-          issue: ${{ steps.extract-key.outputs.key }}
+          issue: ${{ env.JIRA_KEY }}
           transition: 완료
