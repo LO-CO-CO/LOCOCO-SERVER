@@ -1,6 +1,7 @@
 package com.lokoko.domain.brand.domain.entity;
 
 import com.lokoko.domain.user.domain.entity.User;
+import com.lokoko.domain.user.domain.entity.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -64,6 +65,31 @@ public class Brand extends User {
     //최종 전화번호
     public String getBrandPhoneNumber() {
         return countryCode + phoneNumber;
+    }
+
+    public static Brand createBrand(
+            String brandName,
+            String managerName,
+            String managerPosition,
+            String countryCode,
+            String phoneNumber,
+            String province,
+            String cityDistrict,
+            String streetName,
+            String buildingDetail
+    ) {
+        return Brand.builder()
+                .role(Role.BRAND)
+                .brandName(brandName)
+                .managerName(managerName)
+                .managerPosition(managerPosition)
+                .countryCode(countryCode)
+                .phoneNumber(phoneNumber)
+                .province(province)
+                .cityDistrict(cityDistrict)
+                .streetName(streetName)
+                .buildingDetail(buildingDetail)
+                .build();
     }
 
 }

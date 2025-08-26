@@ -3,6 +3,7 @@ package com.lokoko.domain.creator.domain.entity;
 import com.lokoko.domain.creator.domain.entity.enums.CreatorLevel;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.entity.enums.PersonalColor;
+import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.domain.user.domain.entity.enums.SkinTone;
 import com.lokoko.domain.user.domain.entity.enums.SkinType;
 import jakarta.persistence.Column;
@@ -84,5 +85,35 @@ public class Creator extends User {
     //최종 전화번호
     public String getCreatorPhoneNumber() {
         return countryCode + phoneNumber;
+    }
+
+    public static Creator createCreator(
+            String email,
+            String name,
+            String creatorName,
+            String countryCode,
+            String phoneNumber,
+            String country,
+            String stateOrProvince,
+            String city,
+            String postalCode,
+            String addressLine1,
+            String addressLine2
+    ) {
+        return Creator.builder()
+                .role(Role.CREATOR)
+                .email(email)
+                .name(name)
+                .creatorName(creatorName)
+                .countryCode(countryCode)
+                .phoneNumber(phoneNumber)
+                .country(country)
+                .stateOrProvince(stateOrProvince)
+                .city(city)
+                .postalCode(postalCode)
+                .addressLine1(addressLine1)
+                .addressLine2(addressLine2)
+                .creatorLevel(CreatorLevel.LEVEL_1)
+                .build();
     }
 }
