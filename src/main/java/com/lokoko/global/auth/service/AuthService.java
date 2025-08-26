@@ -1,16 +1,9 @@
 package com.lokoko.global.auth.service;
 
-import static com.lokoko.global.auth.jwt.utils.JwtProvider.EMAIL_CLAIM;
-import static com.lokoko.global.utils.LineConstants.AUTHORIZE_PATH;
-import static com.lokoko.global.utils.LineConstants.PARAM_CLIENT_ID;
-import static com.lokoko.global.utils.LineConstants.PARAM_REDIRECT_URI;
-import static com.lokoko.global.utils.LineConstants.PARAM_RESPONSE_TYPE;
-import static com.lokoko.global.utils.LineConstants.PARAM_SCOPE;
-import static com.lokoko.global.utils.LineConstants.PARAM_STATE;
-import static com.lokoko.global.utils.LineConstants.PARAM_UI_LOCALES;
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.lokoko.domain.customer.domain.entity.Customer;
+import com.lokoko.domain.customer.domain.repository.CustomerRepository;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.global.auth.entity.enums.OauthLoginStatus;
@@ -30,16 +23,20 @@ import com.lokoko.global.auth.line.dto.LineUserInfoDto;
 import com.lokoko.global.utils.RedisUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+import java.util.UUID;
+
+import static com.lokoko.global.auth.jwt.utils.JwtProvider.EMAIL_CLAIM;
+import static com.lokoko.global.utils.LineConstants.*;
 
 @Slf4j
 @Service
@@ -48,6 +45,7 @@ public class AuthService {
     private final StateService stateService;
     private final LineOAuthClient oAuthClient;
     private final UserRepository userRepository;
+    private final CustomerRepository customerRepository;
     private final JwtProvider jwtProvider;
     private final JwtExtractor jwtExtractor;
     private final LineProperties props;
@@ -72,7 +70,7 @@ public class AuthService {
             LineUserInfoDto userInfo = oAuthClient.fetchUserInfo(tokenResp.access_token());
             String displayName = userInfo.name();
 
-            Optional<User> userOpt = userRepository.findByLineId(lineUserId);
+            Optional<Customer> userOpt = customerRepository.findByLineId(lineUserId);
             User user;
             OauthLoginStatus loginStatus;
 
@@ -84,7 +82,7 @@ public class AuthService {
                 userRepository.save(user);
                 loginStatus = OauthLoginStatus.LOGIN;
             } else {
-                user = User.createLineUser(lineUserId, email, displayName);
+                user = Customer.createLineUser(lineUserId, email, displayName);
                 user = userRepository.save(user);
                 loginStatus = OauthLoginStatus.REGISTER;
             }

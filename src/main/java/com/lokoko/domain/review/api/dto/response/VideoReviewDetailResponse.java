@@ -69,7 +69,7 @@ public record VideoReviewDetailResponse(
                 likeCount,
                 videoUrls,
                 review.getAuthor().getProfileImageUrl(),
-                review.getAuthor().getNickname(),
+                review.getAuthor().getName(),
                 (double) review.getRating().getValue(),
                 optionName,
                 uploadAt,
