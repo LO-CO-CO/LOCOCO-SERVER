@@ -20,14 +20,14 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const m = context.payload.issue.title.match(/[A-Z]+-\d+/);
-            if (m) {
-              core.setOutput("key", m[0]);
-            }
+            const m = context.payload.issue.title.match(/\b[A-Z]+-\d+\b/);
+            const key = m ? m[0] : '';
+            core.info(`Parsed Jira key: ${key}`);
+            core.setOutput('key', key);
 
       - name: Close Jira issue
-        if: steps.extract-key.outputs.result != ''
+        if: ${{ steps.extract-key.outputs.key != '' }}
         uses: atlassian/gajira-transition@v3
         with:
-          issue: ${{ steps.extract-key.outputs.result }}
+          issue: ${{ steps.extract-key.outputs.key }}
           transition: 완료
