@@ -21,7 +21,9 @@ jobs:
         with:
           script: |
             const m = context.payload.issue.title.match(/[A-Z]+-\d+/);
-            return m ? m[0] : '';
+            if (m) {
+              core.setOutput("key", m[0]);
+            }
 
       - name: Close Jira issue
         if: steps.extract-key.outputs.result != ''
