@@ -11,8 +11,8 @@ import static com.lokoko.global.utils.LineConstants.PARAM_UI_LOCALES;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.lokoko.domain.user.entity.User;
-import com.lokoko.domain.user.repository.UserRepository;
+import com.lokoko.domain.user.domain.entity.User;
+import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.global.auth.entity.enums.OauthLoginStatus;
 import com.lokoko.global.auth.exception.ErrorMessage;
 import com.lokoko.global.auth.exception.OauthException;
@@ -100,7 +100,7 @@ public class AuthService {
             log.warn("State 검증 실패: {}", ex.getMessage());
             throw ex;
         } catch (Exception ex) {
-            log.error("LINE OAuth 로그인 처리 중 오류 발생", ex);
+            log.warn("LINE OAuth 로그인 처리 중 오류 발생", ex);
             throw new OauthException(ErrorMessage.OAUTH_ERROR);
         }
     }

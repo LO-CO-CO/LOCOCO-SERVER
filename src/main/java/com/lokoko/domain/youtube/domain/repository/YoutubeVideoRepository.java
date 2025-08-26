@@ -1,0 +1,10 @@
+package com.lokoko.domain.youtube.domain.repository;
+
+import com.lokoko.domain.video.domain.entity.YoutubeVideo;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface YoutubeVideoRepository extends JpaRepository<YoutubeVideo, Long> {
+
+}

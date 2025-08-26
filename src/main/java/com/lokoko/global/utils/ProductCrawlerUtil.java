@@ -1,12 +1,12 @@
 package com.lokoko.global.utils;
 
 
-import com.lokoko.domain.product.entity.Product;
-import com.lokoko.domain.product.entity.ProductOption;
-import com.lokoko.domain.product.entity.enums.MiddleCategory;
-import com.lokoko.domain.product.entity.enums.SubCategory;
-import com.lokoko.domain.product.entity.enums.Tag;
-import com.lokoko.domain.product.repository.ProductOptionRepository;
+import com.lokoko.domain.product.domain.entity.Product;
+import com.lokoko.domain.product.domain.entity.ProductOption;
+import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
+import com.lokoko.domain.product.domain.entity.enums.SubCategory;
+import com.lokoko.domain.product.domain.entity.enums.Tag;
+import com.lokoko.domain.product.domain.repository.ProductOptionRepository;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;

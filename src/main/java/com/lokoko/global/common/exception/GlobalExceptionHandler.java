@@ -11,6 +11,7 @@ import com.lokoko.global.common.exception.response.ValidErrorResponse;
 import com.lokoko.global.common.response.ApiResponse;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     private <T> ResponseEntity<ApiResponse<T>> buildError(
@@ -57,26 +59,27 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException e) {
         ErrorCode errorCode = ErrorCode.INVALID_ARGUMENT;
 
-        return buildError(errorCode.getStatus(), e.getMessage(), null);
+        return buildError(errorCode.getStatus(), errorCode.getMessage(), null);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNoResourceFound(NoResourceFoundException e) {
         ErrorCode errorCode = ErrorCode.RESOURCE_NOT_FOUND;
 
-        return buildError(errorCode.getStatus(), e.getMessage(), null);
+        return buildError(errorCode.getStatus(), errorCode.getMessage(), null);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ApiResponse<Void>> handleMethodNotAllowed(HttpRequestMethodNotSupportedException e) {
         ErrorCode errorCode = ErrorCode.METHOD_NOT_ALLOWED;
 
-        return buildError(errorCode.getStatus(), e.getMessage(), null);
+        return buildError(errorCode.getStatus(), errorCode.getMessage(), null);
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<List<JsonErrorResponseDetail>>> handleJsonParseException(
             HttpMessageNotReadableException ex) {
+
         Throwable cause = ex.getMostSpecificCause();
         List<JsonErrorResponseDetail> details = new ArrayList<>();
 
@@ -109,6 +112,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleAll(Exception e) {
+        log.error("서버 내부 에러 발생 : {}", e.getMessage(), e);
+
         ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
 
         return buildError(errorCode.getStatus(), e.getMessage(), null);
