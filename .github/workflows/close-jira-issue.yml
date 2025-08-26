@@ -17,9 +17,20 @@ jobs:
 
       - name: Extract & sanitize Jira key from title
         run: |
-          ISSUE_TITLE="${{ github.event.issue.title }}"
-          JIRA_KEY=$(echo "$ISSUE_TITLE" | grep -oE '[A-Z]+-[0-9]+')
-          echo "JIRA_KEY=$JIRA_KEY" >> $GITHUB_ENV
+          set -euo pipefail
+          TITLE='${{ github.event.issue.title }}'
+          KEY=$(printf '%s\n' "$TITLE" | sed -nE 's/.*([A-Z]+-[0-9]+).*/\1/p' | head -n1 || true)
+
+          KEY=$(printf '%s' "$KEY" \
+            | sed -e 's/["'\'']//g' \
+                  -e 's/[\xE2\x80\x8B\xE2\x80\x8C\xE2\x80\x8D]//g' \
+                  -e 's/^[[:space:]]*//;s/[[:space:]]*$//' \
+            | tr -cd 'A-Z0-9-')
+          
+          echo "Parsed Jira key visible: [$KEY]"
+          echo -n "$KEY" | od -An -t x1
+          
+          echo "JIRA_KEY=$KEY" >> "$GITHUB_ENV"
 
       - name: Close Jira issue
         if: env.JIRA_KEY != ''
