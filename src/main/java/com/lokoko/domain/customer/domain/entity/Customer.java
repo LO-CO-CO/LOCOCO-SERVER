@@ -26,6 +26,9 @@ public class Customer extends User {
     @Column(name = "line_id", unique = true)
     private String lineId;
 
+    @Column(name = "google_id", unique = true)
+    private String googleId;
+
     public static Customer createLineUser(String lineUserId, String email, String displayName) {
         return Customer.builder()
                 .lineId(lineUserId)
@@ -36,4 +39,13 @@ public class Customer extends User {
                 .build();
     }
 
+    public static Customer createGoogleUser(String googleUserId, String email, String displayName) {
+        return Customer.builder()
+                .googleId(googleUserId)
+                .email(email)
+                .name(displayName)
+                .role(Role.CUSTOMER)
+                .lastLoginAt(Instant.now())
+                .build();
+    }
 }
