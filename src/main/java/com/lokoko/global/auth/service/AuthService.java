@@ -10,6 +10,10 @@ import com.lokoko.global.auth.entity.enums.OauthLoginStatus;
 import com.lokoko.global.auth.exception.ErrorMessage;
 import com.lokoko.global.auth.exception.OauthException;
 import com.lokoko.global.auth.exception.StateValidationException;
+import com.lokoko.global.auth.google.GoogleOAuthClient;
+import com.lokoko.global.auth.google.GoogleProperties;
+import com.lokoko.global.auth.google.dto.GoogleProfileDto;
+import com.lokoko.global.auth.google.dto.GoogleTokenDto;
 import com.lokoko.global.auth.jwt.dto.LoginResponse;
 import com.lokoko.global.auth.jwt.exception.TokenInvalidException;
 import com.lokoko.global.auth.jwt.utils.CookieUtil;
@@ -20,6 +24,7 @@ import com.lokoko.global.auth.line.LineProperties;
 import com.lokoko.global.auth.line.dto.LineProfileDto;
 import com.lokoko.global.auth.line.dto.LineTokenDto;
 import com.lokoko.global.auth.line.dto.LineUserInfoDto;
+import com.lokoko.global.utils.GoogleConstants;
 import com.lokoko.global.utils.RedisUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -44,11 +49,13 @@ import static com.lokoko.global.utils.LineConstants.*;
 public class AuthService {
     private final StateService stateService;
     private final LineOAuthClient oAuthClient;
+    private final GoogleOAuthClient googleOAuthClient;
     private final UserRepository userRepository;
     private final CustomerRepository customerRepository;
     private final JwtProvider jwtProvider;
     private final JwtExtractor jwtExtractor;
     private final LineProperties props;
+    private final GoogleProperties googleProps;
     private final RedisUtil redisUtil;
     private final CookieUtil cookieUtil;
     private final RedisTemplate<String, String> redisTemplate;
@@ -127,4 +134,65 @@ public class AuthService {
                 PARAM_SCOPE +
                 PARAM_UI_LOCALES;
     }
+
+
+    @Transactional
+    public LoginResponse loginWithGoogle(String code, String state) {
+        try {
+            GoogleTokenDto tokenResp = googleOAuthClient.issueToken(code);
+
+            GoogleProfileDto profile = googleOAuthClient.fetchProfile(tokenResp.accessToken());
+
+            String googleUserId = profile.userId();
+            String email = profile.email();
+            String displayName = profile.name();
+
+            Optional<Customer> userOpt = customerRepository.findByGoogleId(googleUserId);
+            User user;
+            OauthLoginStatus loginStatus;
+
+            if (userOpt.isPresent()) {
+                user = userOpt.get();
+                user.updateLastLoginAt();
+                user.updateEmail(email);
+                user.updateDisplayName(displayName);
+                userRepository.save(user);
+                loginStatus = OauthLoginStatus.LOGIN;
+            } else {
+                user = Customer.createGoogleUser(googleUserId, email, displayName);
+                user = userRepository.save(user);
+                loginStatus = OauthLoginStatus.REGISTER;
+            }
+
+            String accessToken = jwtProvider.generateAccessToken(user.getId(), user.getRole().name(), googleUserId);
+
+            String tokenId = UUID.randomUUID().toString();
+            String refreshToken = jwtProvider.generateRefreshToken(user.getId(), user.getRole().name(), tokenId, googleUserId);
+
+            String redisKey = REFRESH_TOKEN_KEY_PREFIX + user.getId();
+            redisUtil.setRefreshToken(redisKey, refreshToken, refreshTokenExpiration);
+
+            LoginResponse response = LoginResponse.of(accessToken, refreshToken, loginStatus, user.getId(), tokenId);
+
+            return response;
+        } catch (Exception ex) {
+            throw new OauthException(ErrorMessage.OAUTH_ERROR);
+        }
+    }
+
+    public String generateGoogleLoginUrl() {
+        String state = stateService.generateState();
+        String redirectUri = URLEncoder.encode(googleProps.getRedirectUri(), StandardCharsets.UTF_8);
+        String scopes = googleProps.getScope().replace(" ", "+");
+
+        String url = GoogleConstants.AUTHORIZE_BASE_URL +
+                GoogleConstants.PARAM_RESPONSE_TYPE +
+                GoogleConstants.PARAM_CLIENT_ID + googleProps.getClientId() +
+                GoogleConstants.PARAM_REDIRECT_URI + redirectUri +
+                GoogleConstants.PARAM_SCOPE + scopes +
+                GoogleConstants.PARAM_STATE + state;
+
+        return url;
+    }
+
 }
