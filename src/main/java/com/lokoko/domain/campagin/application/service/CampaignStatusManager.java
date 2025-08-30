@@ -31,7 +31,7 @@ public class CampaignStatusManager {
 
         // 모집 중
         if (determineCampaignStatus(campaign) == CampaignStatus.RECRUITING) {
-            if (participation != null) { // 지원하지 않았다면
+            if (participation == null) { // 지원하지 않았다면
                 return "Apply Now!";
             } else { // 이미 지원한 상태라면
                 return "Successfully Applied";
@@ -106,7 +106,7 @@ public class CampaignStatusManager {
      * 크리에이터가 참여한 캠페인의 상태 결정
      * 피그마 뷰 - 크리에이터 마이페이지의 상태표 참고
      */
-    public void updateParticipationStatus(CreatorCampaign creatorCampaign) {
+    public ParticipationStatus determineParticipationStatus(CreatorCampaign creatorCampaign) {
         ParticipationStatus currentStatus = creatorCampaign.getStatus();
         Campaign campaign = creatorCampaign.getCampaign();
         Instant now = Instant.now();
@@ -115,28 +115,28 @@ public class CampaignStatusManager {
             case PENDING:
                 // 크리에이터 선정 기간이 지난 경우 PENDING -> REJECTED 처리
                 if (now.isAfter(campaign.getCreatorAnnouncementDate())) {
-                    creatorCampaign.changeStatus(ParticipationStatus.REJECTED);
+                    return ParticipationStatus.REJECTED;
                 }
                 break;
             case APPROVED:
                 // 배송지 입력을 했다면, ACTIVE 로 전환
                 if (creatorCampaign.isAddressConfirmed()) {
-                    creatorCampaign.changeStatus(ParticipationStatus.ACTIVE);
+                    return ParticipationStatus.ACTIVE;
                 }
                 // 배송지 확인 기간 초과되면, EXPIRED (배송지 확인 기간은 7일로 임시 선정)
                 else if (now.isAfter(campaign.getCreatorAnnouncementDate().plus(7, ChronoUnit.DAYS))) {
-                    creatorCampaign.changeStatus(ParticipationStatus.EXPIRED);
+                    return ParticipationStatus.EXPIRED;
                 }
                 break;
                 
             case ACTIVE:
                 // 2차 리뷰 까지 완료했다면, COMPLETED 로 전환
                 if (creatorCampaign.isSecondReviewSubmitted()) {
-                    creatorCampaign.changeStatus(ParticipationStatus.COMPLETED);
+                    return ParticipationStatus.COMPLETED;
                 }
                 // 리뷰 제출 기한 초과 시
                 else if (now.isAfter(campaign.getReviewSubmissionDeadline())) {
-                    creatorCampaign.changeStatus(ParticipationStatus.EXPIRED);
+                    return ParticipationStatus.EXPIRED;
                 }
                 break;
                 
@@ -144,52 +144,8 @@ public class CampaignStatusManager {
                 // 예상치 못한 상태는 그대로 유지
                 break;
         }
+
+        return currentStatus;
     }
-
-    /**
-     * 캠페인 선정(당첨)시 상태 변경
-     */
-    public void approveCreator(CreatorCampaign participation) {
-        participation.changeStatus(ParticipationStatus.APPROVED);
-    }
-
-    /**
-     * 캠페인 탈락시 상태 변경
-     */
-    public void rejectCreator(CreatorCampaign participation) {
-        participation.changeStatus(ParticipationStatus.REJECTED);
-    }
-
-    /**
-     * 배송지 확인시
-     */
-    public void confirmAddress(CreatorCampaign participation) {
-        participation.changeAddressConfirmed(true);
-    }
-
-    /**
-     * 1차 리뷰 제출
-     */
-    public void submitFirstReview(CreatorCampaign participation) {
-        participation.changeFirstReviewSubmitted(true);
-    }
-
-    /**
-     * 브랜드 수정 요청
-     */
-    public void requestRevision(CreatorCampaign participation) {
-        participation.changeRevisionRequested(true);
-    }
-
-    /**
-     * 2차 리뷰 제출
-     */
-    public void submitSecondReview(CreatorCampaign participation) {
-        participation.changeSecondReviewSubmitted(true);
-        updateParticipationStatus(participation); // COMPLETED로 자동 전환
-    }
-
-
-
 
 }
