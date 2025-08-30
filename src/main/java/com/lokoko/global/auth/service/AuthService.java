@@ -11,6 +11,7 @@ import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.global.auth.entity.enums.OauthLoginStatus;
 import com.lokoko.global.auth.exception.ErrorMessage;
+import com.lokoko.global.auth.exception.InvalidRoleException;
 import com.lokoko.global.auth.exception.OauthException;
 import com.lokoko.global.auth.exception.StateValidationException;
 import com.lokoko.global.auth.exception.UserRoleAlreadyExistException;
@@ -209,6 +210,9 @@ public class AuthService {
 
         if (user.getRole() != Role.PENDING) {
             throw new UserRoleAlreadyExistException();
+        }
+        if (newRole == Role.PENDING || newRole == Role.ADMIN) {
+            throw new InvalidRoleException();
         }
 
         user.updateRole(newRole);
