@@ -2,18 +2,23 @@ package com.lokoko.global.auth.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.lokoko.domain.brand.domain.entity.Brand;
+import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.customer.domain.entity.Customer;
-import com.lokoko.domain.customer.domain.repository.CustomerRepository;
 import com.lokoko.domain.user.domain.entity.User;
+import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.domain.user.domain.repository.UserRepository;
+import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.global.auth.entity.enums.OauthLoginStatus;
 import com.lokoko.global.auth.exception.ErrorMessage;
 import com.lokoko.global.auth.exception.OauthException;
 import com.lokoko.global.auth.exception.StateValidationException;
+import com.lokoko.global.auth.exception.UserRoleAlreadyExistException;
 import com.lokoko.global.auth.google.GoogleOAuthClient;
 import com.lokoko.global.auth.google.GoogleProperties;
 import com.lokoko.global.auth.google.dto.GoogleProfileDto;
 import com.lokoko.global.auth.google.dto.GoogleTokenDto;
+import com.lokoko.global.auth.google.dto.RoleUpdateResponse;
 import com.lokoko.global.auth.jwt.dto.LoginResponse;
 import com.lokoko.global.auth.jwt.exception.TokenInvalidException;
 import com.lokoko.global.auth.jwt.utils.CookieUtil;
@@ -51,7 +56,6 @@ public class AuthService {
     private final LineOAuthClient oAuthClient;
     private final GoogleOAuthClient googleOAuthClient;
     private final UserRepository userRepository;
-    private final CustomerRepository customerRepository;
     private final JwtProvider jwtProvider;
     private final JwtExtractor jwtExtractor;
     private final LineProperties props;
@@ -77,7 +81,7 @@ public class AuthService {
             LineUserInfoDto userInfo = oAuthClient.fetchUserInfo(tokenResp.access_token());
             String displayName = userInfo.name();
 
-            Optional<Customer> userOpt = customerRepository.findByLineId(lineUserId);
+            Optional<User> userOpt = userRepository.findByLineId(lineUserId);
             User user;
             OauthLoginStatus loginStatus;
 
@@ -89,7 +93,7 @@ public class AuthService {
                 userRepository.save(user);
                 loginStatus = OauthLoginStatus.LOGIN;
             } else {
-                user = Customer.createLineUser(lineUserId, email, displayName);
+                user = User.createLineUser(lineUserId, email, displayName);
                 user = userRepository.save(user);
                 loginStatus = OauthLoginStatus.REGISTER;
             }
@@ -140,14 +144,13 @@ public class AuthService {
     public LoginResponse loginWithGoogle(String code, String state) {
         try {
             GoogleTokenDto tokenResp = googleOAuthClient.issueToken(code);
-
             GoogleProfileDto profile = googleOAuthClient.fetchProfile(tokenResp.accessToken());
 
             String googleUserId = profile.userId();
             String email = profile.email();
             String displayName = profile.name();
 
-            Optional<Customer> userOpt = customerRepository.findByGoogleId(googleUserId);
+            Optional<User> userOpt = userRepository.findByGoogleId(googleUserId);
             User user;
             OauthLoginStatus loginStatus;
 
@@ -156,25 +159,27 @@ public class AuthService {
                 user.updateLastLoginAt();
                 user.updateEmail(email);
                 user.updateDisplayName(displayName);
-                userRepository.save(user);
-                loginStatus = OauthLoginStatus.LOGIN;
+
+                if (user.getRole() == Role.PENDING) {
+                    loginStatus = OauthLoginStatus.REGISTER;
+                } else {
+                    loginStatus = OauthLoginStatus.LOGIN;
+                }
             } else {
-                user = Customer.createGoogleUser(googleUserId, email, displayName);
-                user = userRepository.save(user);
+                user = User.createGoogleUser(googleUserId, email, displayName);
                 loginStatus = OauthLoginStatus.REGISTER;
             }
 
-            String accessToken = jwtProvider.generateAccessToken(user.getId(), user.getRole().name(), googleUserId);
+            user = userRepository.save(user);
 
+            String accessToken = jwtProvider.generateAccessToken(user.getId(), user.getRole().name(), googleUserId);
             String tokenId = UUID.randomUUID().toString();
             String refreshToken = jwtProvider.generateRefreshToken(user.getId(), user.getRole().name(), tokenId, googleUserId);
 
             String redisKey = REFRESH_TOKEN_KEY_PREFIX + user.getId();
             redisUtil.setRefreshToken(redisKey, refreshToken, refreshTokenExpiration);
 
-            LoginResponse response = LoginResponse.of(accessToken, refreshToken, loginStatus, user.getId(), tokenId);
-
-            return response;
+            return LoginResponse.of(accessToken, refreshToken, loginStatus, user.getId(), tokenId);
         } catch (Exception ex) {
             throw new OauthException(ErrorMessage.OAUTH_ERROR);
         }
@@ -195,4 +200,49 @@ public class AuthService {
         return url;
     }
 
+
+    @Transactional
+    public RoleUpdateResponse updateUserRole(Long userId, Role newRole) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+
+        if (user.getRole() != Role.PENDING) {
+            throw new UserRoleAlreadyExistException();
+        }
+
+        user.updateRole(newRole);
+
+        switch (newRole) {
+            case CUSTOMER -> {
+                Customer customer = Customer.builder()
+                        .user(user)
+                        .build();
+                user.setCustomer(customer);
+            }
+            case CREATOR -> {
+                Creator creator = Creator.builder()
+                        .user(user)
+                        .build();
+                user.setCreator(creator);
+            }
+            case BRAND -> {
+                Brand brand = Brand.builder()
+                        .user(user)
+                        .build();
+                user.setBrand(brand);
+            }
+        }
+
+        userRepository.save(user);
+
+        String tokenId = UUID.randomUUID().toString();
+        String accessToken = jwtProvider.generateAccessToken(userId, newRole.name(), user.getGoogleId());
+        String refreshToken = jwtProvider.generateRefreshToken(userId, newRole.name(), tokenId, user.getGoogleId());
+
+        String redisKey = REFRESH_TOKEN_KEY_PREFIX + userId;
+        redisUtil.setRefreshToken(redisKey, refreshToken, refreshTokenExpiration);
+
+        return new RoleUpdateResponse(accessToken, refreshToken, newRole, userId, tokenId);
+    }
 }

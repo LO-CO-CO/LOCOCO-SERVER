@@ -1,5 +1,8 @@
 package com.lokoko.global.auth.controller;
 
+import com.lokoko.global.auth.annotation.CurrentUser;
+import com.lokoko.global.auth.google.dto.RoleUpdateRequest;
+import com.lokoko.global.auth.google.dto.RoleUpdateResponse;
 import com.lokoko.global.auth.jwt.dto.JwtTokenResponse;
 import com.lokoko.global.auth.jwt.dto.LoginResponse;
 import com.lokoko.global.auth.jwt.service.JwtService;
@@ -8,6 +11,7 @@ import com.lokoko.global.auth.line.dto.LineLoginResponse;
 import com.lokoko.global.auth.service.AuthService;
 import com.lokoko.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -76,6 +80,22 @@ public class AuthController {
         cookieUtil.setCookie(REFRESH_TOKEN_HEADER, tokens.refreshToken(), response);
 
         return ApiResponse.success(HttpStatus.OK, LOGIN_SUCCESS.getMessage(), loginResponse);
+    }
+
+    @Operation(summary = "사용자 역할 설정")
+    @PostMapping("/role")
+    public ApiResponse<RoleUpdateResponse> updateUserRole(
+            @Parameter(hidden = true) @CurrentUser Long userId,
+            @RequestBody @Valid RoleUpdateRequest request,
+            HttpServletResponse response) {
+
+
+        RoleUpdateResponse roleResponse = authService.updateUserRole(userId, request.role());
+
+        cookieUtil.setCookie(ACCESS_TOKEN_HEADER, roleResponse.accessToken(), response);
+        cookieUtil.setCookie(REFRESH_TOKEN_HEADER, roleResponse.refreshToken(), response);
+
+        return ApiResponse.success(HttpStatus.OK, ROLE_ASSIGNED_SUCCESS.getMessage(), roleResponse);
     }
 
     /**
