@@ -71,7 +71,6 @@ public class CampaignStatusManager {
         }
 
         Instant now = Instant.now();
-
         // 승인 대기인 상태(관리자의 승인이 필요한 경우)
         if (campaign.getCampaignStatus() == CampaignStatus.WAITING_APPROVE) {
             return CampaignStatus.WAITING_APPROVE;
