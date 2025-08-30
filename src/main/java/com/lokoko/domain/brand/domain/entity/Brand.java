@@ -1,26 +1,35 @@
 package com.lokoko.domain.brand.domain.entity;
 
 import com.lokoko.domain.user.domain.entity.User;
-import com.lokoko.domain.user.domain.entity.enums.Role;
 import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 @Getter
 @Entity
 @Table(name = "brands")
-@DiscriminatorValue("BRAND")
-@PrimaryKeyJoinColumn(name = "user_id")
-@SuperBuilder
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Brand extends User {
+@AllArgsConstructor
+public class Brand {
+
+    @Id
+    private Long id;
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @NotBlank
     @Column(nullable = false)
@@ -67,29 +76,5 @@ public class Brand extends User {
         return countryCode + phoneNumber;
     }
 
-    public static Brand createBrand(
-            String brandName,
-            String managerName,
-            String managerPosition,
-            String countryCode,
-            String phoneNumber,
-            String province,
-            String cityDistrict,
-            String streetName,
-            String buildingDetail
-    ) {
-        return Brand.builder()
-                .role(Role.BRAND)
-                .brandName(brandName)
-                .managerName(managerName)
-                .managerPosition(managerPosition)
-                .countryCode(countryCode)
-                .phoneNumber(phoneNumber)
-                .province(province)
-                .cityDistrict(cityDistrict)
-                .streetName(streetName)
-                .buildingDetail(buildingDetail)
-                .build();
-    }
 
 }
