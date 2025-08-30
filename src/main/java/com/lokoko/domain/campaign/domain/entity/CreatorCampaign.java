@@ -1,6 +1,6 @@
-package com.lokoko.domain.campagin.domain.entity;
+package com.lokoko.domain.campaign.domain.entity;
 
-import com.lokoko.domain.campagin.domain.entity.enums.ParticipationStatus;
+import com.lokoko.domain.campaign.domain.entity.enums.ParticipationStatus;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.*;

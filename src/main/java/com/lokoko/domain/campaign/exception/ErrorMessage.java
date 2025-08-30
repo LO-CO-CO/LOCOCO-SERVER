@@ -1,4 +1,4 @@
-package com.lokoko.domain.campagin.exception;
+package com.lokoko.domain.campaign.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

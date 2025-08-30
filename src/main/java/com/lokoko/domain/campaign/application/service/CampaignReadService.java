@@ -1,6 +1,6 @@
-package com.lokoko.domain.campagin.application.service;
+package com.lokoko.domain.campaign.application.service;
 
-import com.lokoko.domain.campagin.domain.repository.CampaignRepository;
+import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

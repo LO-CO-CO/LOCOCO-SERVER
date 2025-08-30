@@ -1,4 +1,4 @@
-package com.lokoko.domain.campagin.api.message;
+package com.lokoko.domain.campaign.api.message;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

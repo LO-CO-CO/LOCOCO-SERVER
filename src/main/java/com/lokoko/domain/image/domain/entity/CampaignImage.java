@@ -1,6 +1,6 @@
 package com.lokoko.domain.image.domain.entity;
 
-import com.lokoko.domain.campagin.domain.entity.Campaign;
+import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

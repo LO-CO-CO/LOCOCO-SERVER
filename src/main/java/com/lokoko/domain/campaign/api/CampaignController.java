@@ -1,7 +1,7 @@
-package com.lokoko.domain.campagin.api;
+package com.lokoko.domain.campaign.api;
 
-import com.lokoko.domain.campagin.application.service.CampaignReadService;
-import com.lokoko.domain.campagin.application.service.CampaignService;
+import com.lokoko.domain.campaign.application.service.CampaignReadService;
+import com.lokoko.domain.campaign.application.service.CampaignService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;

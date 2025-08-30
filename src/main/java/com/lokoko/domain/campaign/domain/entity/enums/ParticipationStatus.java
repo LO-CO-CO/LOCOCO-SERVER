@@ -1,4 +1,4 @@
-package com.lokoko.domain.campagin.domain.entity.enums;
+package com.lokoko.domain.campaign.domain.entity.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

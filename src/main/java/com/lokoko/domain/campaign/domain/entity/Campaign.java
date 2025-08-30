@@ -1,9 +1,9 @@
-package com.lokoko.domain.campagin.domain.entity;
+package com.lokoko.domain.campaign.domain.entity;
 
 
 import com.lokoko.domain.brand.domain.entity.Brand;
-import com.lokoko.domain.campagin.domain.entity.enums.CampaignStatus;
-import com.lokoko.domain.campagin.domain.entity.enums.CampaignType;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

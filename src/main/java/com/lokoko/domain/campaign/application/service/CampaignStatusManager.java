@@ -1,9 +1,9 @@
-package com.lokoko.domain.campagin.application.service;
+package com.lokoko.domain.campaign.application.service;
 
-import com.lokoko.domain.campagin.domain.entity.Campaign;
-import com.lokoko.domain.campagin.domain.entity.CreatorCampaign;
-import com.lokoko.domain.campagin.domain.entity.enums.CampaignStatus;
-import com.lokoko.domain.campagin.domain.entity.enums.ParticipationStatus;
+import com.lokoko.domain.campaign.domain.entity.Campaign;
+import com.lokoko.domain.campaign.domain.entity.CreatorCampaign;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
+import com.lokoko.domain.campaign.domain.entity.enums.ParticipationStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
