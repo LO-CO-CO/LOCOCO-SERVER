@@ -26,6 +26,9 @@ public class Brand extends User {
     @Column(nullable = false)
     private String brandName;
 
+    @Column
+    private String profileImageUrl;
+
     @NotBlank
     @Column(nullable = false)
     private String managerName;
@@ -69,6 +72,7 @@ public class Brand extends User {
 
     public static Brand createBrand(
             String brandName,
+            String profileImageUrl,
             String managerName,
             String managerPosition,
             String countryCode,
@@ -81,6 +85,7 @@ public class Brand extends User {
         return Brand.builder()
                 .role(Role.BRAND)
                 .brandName(brandName)
+                .profileImageUrl(profileImageUrl)
                 .managerName(managerName)
                 .managerPosition(managerPosition)
                 .countryCode(countryCode)
