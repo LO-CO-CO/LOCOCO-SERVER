@@ -7,6 +7,5 @@ import org.springframework.http.HttpStatus;
 public class InvalidRoleTransitionException extends BaseException {
     public InvalidRoleTransitionException() {
         super(HttpStatus.BAD_REQUEST, ErrorMessage.ROLE_TRANSITION_NOT_ALLOWED.getMessage());
-        ;
     }
 }
