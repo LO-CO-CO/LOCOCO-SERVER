@@ -19,7 +19,12 @@ public enum ErrorMessage {
     STATE_PARAMETER_EXPIRED("State 매개변수가 만료되었습니다.", HttpStatus.BAD_REQUEST.value()),
 
     // 권한 관련
-    ADMIN_PERMISSION_REQUIRED("관리자 권한이 필요합니다.", HttpStatus.FORBIDDEN.value());
+    ADMIN_PERMISSION_REQUIRED("관리자 권한이 필요합니다.", HttpStatus.FORBIDDEN.value()),
+
+    // 역할 관련
+    ROLE_INVALID_TYPE("선택할 수 없는 역할입니다", HttpStatus.BAD_REQUEST.value()),
+    ROLE_ALREADY_EXIST("이미 역할이 설정된 사용자입니다", HttpStatus.BAD_REQUEST.value()),
+    ROLE_TRANSITION_NOT_ALLOWED ("역할 변경은 PENDING 상태에서만 가능합니다",HttpStatus.BAD_REQUEST.value());
 
     private final String message;
     private final int httpStatus;
