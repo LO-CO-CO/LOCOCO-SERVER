@@ -18,6 +18,6 @@ public class SocialClip {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "socialclip_id")
+    @Column(name = "social_clip_id")
     private Long id;
 }
