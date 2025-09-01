@@ -15,7 +15,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static jakarta.persistence.FetchType.*;
+import static jakarta.persistence.FetchType.LAZY;
 
 @Getter
 @Entity
@@ -65,7 +65,6 @@ public class Campaign extends BaseEntity {
 
     @Column(nullable = false)
     private int recruitmentNumber;
-
 
     /**
      * 크리에이터 참여 보상 목록
