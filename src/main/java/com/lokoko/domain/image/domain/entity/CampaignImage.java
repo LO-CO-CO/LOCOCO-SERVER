@@ -29,6 +29,4 @@ public class CampaignImage extends BaseEntity {
 
     @Column(name = "is_main")
     private boolean isMain;
-
-
 }
