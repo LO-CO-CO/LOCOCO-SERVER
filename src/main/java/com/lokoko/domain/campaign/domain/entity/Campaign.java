@@ -1,8 +1,6 @@
 package com.lokoko.domain.campaign.domain.entity;
 
-
 import com.lokoko.domain.brand.domain.entity.Brand;
-import com.lokoko.domain.campaign.api.dto.request.CampaignCreateRequest;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
 import com.lokoko.global.common.entity.BaseEntity;
@@ -136,23 +134,5 @@ public class Campaign extends BaseEntity {
                 this.deliverableRequirements == null || this.deliverableRequirements.isEmpty(),
                 this.eligibilityRequirements == null || this.eligibilityRequirements.isEmpty()
         ).anyMatch(condition -> condition);
-    }
-
-    public static Campaign createCampaign(CampaignCreateRequest request, Brand brand){
-        return Campaign.builder()
-                .brand(brand)
-                .title(request.campaignTitle())
-                .language(request.language())
-                .campaignType(request.campaignType())
-                .campaignStatus(CampaignStatus.DRAFT)  // 초기 상태는 DRAFT
-                .applyStartDate(request.applyStartDate())
-                .applyDeadline(request.applyDeadline())
-                .creatorAnnouncementDate(request.creatorAnnouncementDate())
-                .reviewSubmissionDeadline(request.reviewSubmissionDeadline())
-                .recruitmentNumber(request.recruitmentNumber())
-                .participationRewards(request.participationRewards())
-                .deliverableRequirements(request.deliverableRequirements())
-                .eligibilityRequirements(request.eligibilityRequirements())
-                .build();
     }
 }
