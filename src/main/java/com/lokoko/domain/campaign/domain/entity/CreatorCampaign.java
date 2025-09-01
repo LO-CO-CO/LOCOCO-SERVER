@@ -44,35 +44,39 @@ public class CreatorCampaign extends BaseEntity {
     private Instant appliedAt;
 
     // 배송지 입력 여부 및 시간
-    private boolean addressConfirmed;
+    private Boolean addressConfirmed;
     private Instant addressConfirmedAt;
 
     // 1차 리뷰 업로드 여부 및 시간
-    private boolean firstReviewSubmitted;
+    private Boolean firstReviewSubmitted;
     private Instant firstReviewSubmittedAt;
 
     // 수정 요청 여부 및 시간
-    private boolean revisionRequested;
+    private Boolean revisionRequested;
     private Instant revisionRequestedAt;
 
     // 2차 리뷰 업로드 여부 및 시간
-    private boolean secondReviewSubmitted;
+    private Boolean secondReviewSubmitted;
     private Instant secondReviewSubmittedAt;
 
     public void changeAddressConfirmed(boolean addressConfirmed) {
         this.addressConfirmed = addressConfirmed;
+        this.addressConfirmedAt = Instant.now();
     }
 
     public void changeFirstReviewSubmitted(boolean firstReviewSubmitted) {
         this.firstReviewSubmitted = firstReviewSubmitted;
+        this.firstReviewSubmittedAt = Instant.now();
     }
 
     public void changeRevisionRequested(boolean revisionRequested) {
         this.revisionRequested = revisionRequested;
+        this.revisionRequestedAt = Instant.now();
     }
 
     public void changeSecondReviewSubmitted(boolean secondReviewSubmitted) {
         this.secondReviewSubmitted = secondReviewSubmitted;
+        this.secondReviewSubmittedAt = Instant.now();
     }
 
     public void changeStatus(ParticipationStatus newStatus) {
