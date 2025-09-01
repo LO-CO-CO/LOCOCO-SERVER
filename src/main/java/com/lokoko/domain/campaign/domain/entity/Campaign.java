@@ -2,17 +2,20 @@ package com.lokoko.domain.campaign.domain.entity;
 
 
 import com.lokoko.domain.brand.domain.entity.Brand;
+import com.lokoko.domain.campaign.api.dto.request.CampaignCreateRequest;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
 import com.lokoko.global.common.entity.BaseEntity;
+import com.lokoko.global.common.enums.Language;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.Instant;
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static jakarta.persistence.FetchType.LAZY;
@@ -34,6 +37,13 @@ public class Campaign extends BaseEntity {
 
     @Column(nullable = false)
     private String title;
+
+    /**
+     * 캠페인 진행언어
+     */
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
+    private Language language;
 
     /**
      * 캠페인 종류
@@ -74,7 +84,8 @@ public class Campaign extends BaseEntity {
             name = "campaign_participation_rewards",
             joinColumns = @JoinColumn(name = "campaign_id")
     )
-    private List<String> participationRewards;
+    @BatchSize(size = 5)
+    private Set<String> participationRewards;
 
     /**
      * 크리에이터 제출 콘텐츠 목록
@@ -84,7 +95,8 @@ public class Campaign extends BaseEntity {
             name = "campaign_deliverable_requirements",
             joinColumns = @JoinColumn(name = "campaign_id")
     )
-    private List<String> deliverableRequirements;
+    @BatchSize(size = 5)
+    private Set<String> deliverableRequirements;
 
     /**
      * 크리에이터 참여 조건 목록
@@ -94,8 +106,8 @@ public class Campaign extends BaseEntity {
             name = "campaign_eligibility_requirements",
             joinColumns = @JoinColumn(name = "campaign_id")
     )
-    private List<String> eligibilityRequirements;
-
+    @BatchSize(size = 5)
+    private Set<String> eligibilityRequirements;
 
     /**
      * 캠페인 상태 변경
@@ -124,6 +136,24 @@ public class Campaign extends BaseEntity {
                 this.deliverableRequirements == null || this.deliverableRequirements.isEmpty(),
                 this.eligibilityRequirements == null || this.eligibilityRequirements.isEmpty()
         ).anyMatch(condition -> condition);
+    }
+
+    public static Campaign createCampaign(CampaignCreateRequest request, Brand brand){
+        return Campaign.builder()
+                .brand(brand)
+                .title(request.campaignTitle())
+                .language(request.language())
+                .campaignType(request.campaignType())
+                .campaignStatus(CampaignStatus.DRAFT)  // 초기 상태는 DRAFT
+                .applyStartDate(request.applyStartDate())
+                .applyDeadline(request.applyDeadline())
+                .creatorAnnouncementDate(request.creatorAnnouncementDate())
+                .reviewSubmissionDeadline(request.reviewSubmissionDeadline())
+                .recruitmentNumber(request.recruitmentNumber())
+                .participationRewards(request.participationRewards())
+                .deliverableRequirements(request.deliverableRequirements())
+                .eligibilityRequirements(request.eligibilityRequirements())
+                .build();
     }
 
 
