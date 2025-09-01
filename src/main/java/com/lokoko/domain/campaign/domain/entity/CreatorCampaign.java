@@ -41,6 +41,7 @@ public class CreatorCampaign extends BaseEntity {
     private ParticipationStatus status;
 
     // 캠페인에 지원한 날짜
+    @Column(nullable = false)
     private Instant appliedAt;
 
     // 배송지 입력 여부 및 시간
