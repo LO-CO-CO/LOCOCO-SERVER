@@ -11,17 +11,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CampaignStatus {
 
-    // 준비 단계
+    // 캠페인 시작 전
     DRAFT("임시 저장"),                    // 브랜드가 캠페인 작성 중인 단계
 
-    // 모집 단계
-    WAITING_APPROVE("대기 중"),            // 캠페인 제출 후, 승인 대기 전
+    // 대기 단계
+    WAITING_APPROVAL("대기 중"),            // 캠페인 제출 후, 승인 대기 전
     OPEN_RESERVED("오픈 예정"),             // 캠페인 승인 후, 오픈 전
-    RECRUITING("진행 중"),                 // 캠페인 지원자 모집 시작
-    RECRUITMENT_CLOSED("진행 중"),         // 캠페인 지원자 모집 종료
 
-    // 진행 단계
-    IN_REVIEW("진행 중"),                  // 캠페인 리뷰 컨텐츠 조회
+    // 캠페인 진행 단계
+    RECRUITING("모집 중"),                 // 캠페인 지원자 모집 시작
+    RECRUITMENT_CLOSED("모집 완료"),       // 캠페인 지원자 모집 종료
+    IN_REVIEW("리뷰 진행 중"),                  // 캠페인 리뷰 컨텐츠 조회
 
     // 종료 단계
     COMPLETED("종료");                     // 캠페인 종료
