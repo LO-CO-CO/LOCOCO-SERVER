@@ -1,6 +1,7 @@
 package com.lokoko.global.auth.controller;
 
 import com.lokoko.global.auth.annotation.CurrentUser;
+import com.lokoko.global.auth.google.dto.GoogleLoginResponse;
 import com.lokoko.global.auth.google.dto.RoleUpdateRequest;
 import com.lokoko.global.auth.google.dto.RoleUpdateResponse;
 import com.lokoko.global.auth.jwt.dto.JwtTokenResponse;
@@ -70,12 +71,12 @@ public class AuthController {
 
     @Operation(summary = "구글 소셜 로그인, JWT 토큰 발급 후 저장")
     @GetMapping("/google/login")
-    public ApiResponse<LineLoginResponse> googleLogin(@RequestParam("code") String code,
-                                                      @RequestParam("state") String state,
-                                                      HttpServletResponse response) {
+    public ApiResponse<GoogleLoginResponse> googleLogin(@RequestParam("code") String code,
+                                                        @RequestParam("state") String state,
+                                                        HttpServletResponse response) {
 
         LoginResponse tokens = authService.loginWithGoogle(code, state);
-        LineLoginResponse loginResponse = LineLoginResponse.from(tokens);
+        GoogleLoginResponse loginResponse = GoogleLoginResponse.from(tokens);
         cookieUtil.setCookie(ACCESS_TOKEN_HEADER, tokens.accessToken(), response);
         cookieUtil.setCookie(REFRESH_TOKEN_HEADER, tokens.refreshToken(), response);
 
