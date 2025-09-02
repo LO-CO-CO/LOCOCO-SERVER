@@ -5,7 +5,6 @@ import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.customer.domain.entity.Customer;
 import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.domain.user.domain.entity.enums.UserStatus;
-import com.lokoko.domain.user.exception.InvalidRoleTransitionException;
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -65,8 +64,9 @@ public class User extends BaseEntity {
     @Column
     private Instant lastLoginAt;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
     private Role role = Role.PENDING;
 
     @Column(nullable = false, length = 20)
@@ -87,12 +87,6 @@ public class User extends BaseEntity {
         this.email = email;
     }
 
-    public void updateRole(Role newRole) {
-        if (this.role != Role.PENDING) {
-            throw new InvalidRoleTransitionException();
-        }
-        this.role = newRole;
-    }
 
     public static User createLineUser(String lineUserId, String email, String displayName) {
         return User.builder()
@@ -115,17 +109,19 @@ public class User extends BaseEntity {
     }
 
 
-    public void setCustomer(Customer customer) {
+    public void assignCustomer(Customer customer) {
         this.customer = customer;
     }
 
-    public void setCreator(Creator creator) {
+    public void assignCreator(Creator creator) {
         this.creator = creator;
     }
 
-    public void setBrand(Brand brand) {
+    public void assignBrand(Brand brand) {
         this.brand = brand;
     }
 
-
+    public void updateRole(Role role) {
+        this.role = role;
+    }
 }
