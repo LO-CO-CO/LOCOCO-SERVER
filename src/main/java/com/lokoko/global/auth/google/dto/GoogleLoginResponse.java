@@ -9,10 +9,6 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 public record GoogleLoginResponse(
         @Schema(requiredMode = REQUIRED)
-        String accessToken,
-        @Schema(requiredMode = REQUIRED)
-        String refreshToken,
-        @Schema(requiredMode = REQUIRED)
         OauthLoginStatus loginStatus,
         @Schema(requiredMode = REQUIRED)
         Role role
@@ -20,8 +16,6 @@ public record GoogleLoginResponse(
 
     public static GoogleLoginResponse from(LoginResponse loginResponse) {
         return new GoogleLoginResponse(
-                loginResponse.accessToken(),
-                loginResponse.refreshToken(),
                 loginResponse.loginStatus(),
                 loginResponse.role()
         );
