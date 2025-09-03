@@ -20,9 +20,9 @@ public class GoogleOAuthClient {
                 .uri(GoogleConstants.TOKEN_PATH)
                 .body(BodyInserters.fromFormData(GoogleConstants.PARAM_GRANT_TYPE, GoogleConstants.GRANT_TYPE_AUTH_CODE)
                         .with(GoogleConstants.PARAM_CODE, code)
-                        .with(GoogleConstants.REDIRECT_URI, props.getRedirectUri())
-                        .with(GoogleConstants.CLIENT_ID, props.getClientId())
-                        .with(GoogleConstants.PARAM_CLIENT_SECRET, props.getClientSecret()))
+                        .with(GoogleConstants.REDIRECT_URI, props.redirectUri())
+                        .with(GoogleConstants.CLIENT_ID, props.clientId())
+                        .with(GoogleConstants.PARAM_CLIENT_SECRET, props.clientSecret()))
                 .retrieve()
                 .bodyToMono(GoogleTokenDto.class)
                 .block();

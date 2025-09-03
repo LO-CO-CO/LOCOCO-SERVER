@@ -201,12 +201,12 @@ public class AuthService {
 
     public String generateGoogleLoginUrl() {
         String state = stateService.generateState();
-        String redirectUri = URLEncoder.encode(googleProps.getRedirectUri(), StandardCharsets.UTF_8);
-        String scopes = googleProps.getScope().replace(" ", "+");
+        String redirectUri = URLEncoder.encode(googleProps.redirectUri(), StandardCharsets.UTF_8);
+        String scopes = googleProps.scope().replace(" ", "+");
 
         String url = GoogleConstants.AUTHORIZE_BASE_URL +
                 GoogleConstants.PARAM_RESPONSE_TYPE +
-                GoogleConstants.PARAM_CLIENT_ID + googleProps.getClientId() +
+                GoogleConstants.PARAM_CLIENT_ID + googleProps.clientId() +
                 GoogleConstants.PARAM_REDIRECT_URI + redirectUri +
                 GoogleConstants.PARAM_SCOPE + scopes +
                 GoogleConstants.PARAM_STATE + state;
