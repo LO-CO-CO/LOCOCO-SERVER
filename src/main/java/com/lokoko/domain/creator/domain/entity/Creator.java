@@ -3,30 +3,40 @@ package com.lokoko.domain.creator.domain.entity;
 import com.lokoko.domain.creator.domain.entity.enums.CreatorLevel;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.entity.enums.PersonalColor;
-import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.domain.user.domain.entity.enums.SkinTone;
 import com.lokoko.domain.user.domain.entity.enums.SkinType;
 import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapsId;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 @Getter
 @Entity
 @Table(name = "creators")
-@DiscriminatorValue("CREATOR")
-@PrimaryKeyJoinColumn(name = "user_id")
-@SuperBuilder
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Creator extends User {
+@AllArgsConstructor
+public class Creator {
+
+    @Id
+    private Long id;
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "user_id")
+    private User user;
+
 
     @NotBlank
     @Column(nullable = false)
@@ -87,33 +97,5 @@ public class Creator extends User {
         return countryCode + phoneNumber;
     }
 
-    public static Creator createCreator(
-            String email,
-            String name,
-            String creatorName,
-            String countryCode,
-            String phoneNumber,
-            String country,
-            String stateOrProvince,
-            String city,
-            String postalCode,
-            String addressLine1,
-            String addressLine2
-    ) {
-        return Creator.builder()
-                .role(Role.CREATOR)
-                .email(email)
-                .name(name)
-                .creatorName(creatorName)
-                .countryCode(countryCode)
-                .phoneNumber(phoneNumber)
-                .country(country)
-                .stateOrProvince(stateOrProvince)
-                .city(city)
-                .postalCode(postalCode)
-                .addressLine1(addressLine1)
-                .addressLine2(addressLine2)
-                .creatorLevel(CreatorLevel.LEVEL_1)
-                .build();
-    }
+
 }
