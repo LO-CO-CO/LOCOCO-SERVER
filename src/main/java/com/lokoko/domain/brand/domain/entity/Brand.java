@@ -31,6 +31,8 @@ public class Brand {
 
     private String brandName;
 
+    private String profileImageUrl;
+
     private String managerName;
 
     private String managerPosition;

@@ -5,8 +5,15 @@ import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
 import com.lokoko.domain.product.domain.entity.enums.Tag;
 import com.lokoko.global.common.entity.BaseEntity;
-import jakarta.persistence.*;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -16,7 +23,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Entity
 @Table(name = "product", indexes = {
-    @Index(name = "idx_product_middle_category_created", columnList = "middle_category, created_at DESC")
+        @Index(name = "idx_product_middle_category_created", columnList = "middle_category, created_at DESC")
 })
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -77,7 +84,6 @@ public class Product extends BaseEntity {
 
     private String searchToken;
 
-
     public void updateYoutubeUrls(List<String> urls) {
         this.youtubeUrl = String.join(",", urls);
     }
@@ -85,6 +91,4 @@ public class Product extends BaseEntity {
     public void updateSearchToken(String join) {
         this.searchToken = join;
     }
-
-
 }
