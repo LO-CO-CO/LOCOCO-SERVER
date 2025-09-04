@@ -5,10 +5,11 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum SocialClipContent {
+public enum Content {
 
-    Reels("릴스"),
-    Shorts("쇼츠");
+    REELS("릴스"),
+    VIDEO("비디오"),
+    POST("게시물");
 
     private final String displayName;
 }
