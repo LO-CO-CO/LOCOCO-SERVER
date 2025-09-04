@@ -1,6 +1,7 @@
 package com.lokoko.domain.socialclip.domain;
 
 import com.lokoko.domain.socialclip.domain.entity.enums.Content;
+import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SocialClip {
+public class SocialClip extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
