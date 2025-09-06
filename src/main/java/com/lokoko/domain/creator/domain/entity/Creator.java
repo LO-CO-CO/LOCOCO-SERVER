@@ -1,9 +1,11 @@
 package com.lokoko.domain.creator.domain.entity;
 
+import com.lokoko.domain.creator.domain.entity.enums.CreatorStatus;
+import com.lokoko.domain.creator.domain.entity.enums.CreatorType;
 import com.lokoko.domain.creator.domain.entity.enums.Gender;
-import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.creator.domain.entity.enums.SkinTone;
 import com.lokoko.domain.creator.domain.entity.enums.SkinType;
+import com.lokoko.domain.user.domain.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,8 +20,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Getter
 @Entity
@@ -89,6 +89,15 @@ public class Creator {
 
     @Column
     private String tiktokLink;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private CreatorStatus creatorStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private CreatorType creatorType;
+
 
     //최종 전화번호
     public String getCreatorPhoneNumber() {
