@@ -92,11 +92,11 @@ public class Creator {
 
     @Enumerated(EnumType.STRING)
     @Column
-    private CreatorStatus creatorStatus;
+    private CreatorStatus creatorStatus = CreatorStatus.NOT_APPROVED;
 
     @Enumerated(EnumType.STRING)
     @Column
-    private CreatorType creatorType;
+    private CreatorType creatorType = CreatorType.NORMAL;
 
 
     //최종 전화번호
