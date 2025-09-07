@@ -8,7 +8,11 @@ import lombok.Getter;
 public enum ErrorMessage {
 
     CAMPAIGN_NOT_FOUND("존재하지 않는 캠페인입니다."),
-    INVALID_CAMPAIGN_STATUS("해당 캠페인은 조회 가능한 상태가 아닙니다. (미승인 / 작성 상태)");
+    INVALID_CAMPAIGN_STATUS("해당 캠페인은 조회 가능한 상태가 아닙니다. (미승인 / 작성 상태)"),
+    NOT_CAMPAIGN_OWNER("캠페인을 등록한 브랜드가 아닙니다"),
+    DRAFT_NOT_FILLED("캠페인 등록을 위한 정보가 모두 입력되지 않았습니다"),
+    NOT_EDITABLE_CAMPAIGN("발행된 캠페인은 수정할 수 없습니다.");
+
 
     private final String message;
 }
