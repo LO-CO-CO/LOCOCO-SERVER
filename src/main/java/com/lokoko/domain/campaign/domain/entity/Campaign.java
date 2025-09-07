@@ -1,6 +1,7 @@
 package com.lokoko.domain.campaign.domain.entity;
 
 import com.lokoko.domain.brand.domain.entity.Brand;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
 import com.lokoko.global.common.entity.BaseEntity;
@@ -10,10 +11,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.BatchSize;
 
 import java.time.Instant;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static jakarta.persistence.FetchType.LAZY;
@@ -59,6 +59,14 @@ public class Campaign extends BaseEntity {
     @Column(nullable = false)
     private CampaignStatus campaignStatus;
 
+    /**
+     * 캠페인을 진행할 상품의 카테고리
+     */
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
+    private CampaignProductType campaignProductType;
+
+
     @Column(nullable = false)
     private Instant applyStartDate;
 
@@ -72,7 +80,11 @@ public class Campaign extends BaseEntity {
     private Instant reviewSubmissionDeadline;
 
     @Column(nullable = false)
-    private int recruitmentNumber;
+    private int recruitmentNumber; // 모집 인원
+
+    private int applicantNumber; // 지원 인원
+
+    private int approvedNumber; // 승인 인원
 
     /**
      * 크리에이터 참여 보상 목록
@@ -82,8 +94,7 @@ public class Campaign extends BaseEntity {
             name = "campaign_participation_rewards",
             joinColumns = @JoinColumn(name = "campaign_id")
     )
-    @BatchSize(size = 5)
-    private Set<String> participationRewards;
+    private List<String> participationRewards;
 
     /**
      * 크리에이터 제출 콘텐츠 목록
@@ -93,8 +104,7 @@ public class Campaign extends BaseEntity {
             name = "campaign_deliverable_requirements",
             joinColumns = @JoinColumn(name = "campaign_id")
     )
-    @BatchSize(size = 5)
-    private Set<String> deliverableRequirements;
+    private List<String> deliverableRequirements;
 
     /**
      * 크리에이터 참여 조건 목록
@@ -104,8 +114,28 @@ public class Campaign extends BaseEntity {
             name = "campaign_eligibility_requirements",
             joinColumns = @JoinColumn(name = "campaign_id")
     )
-    @BatchSize(size = 5)
-    private Set<String> eligibilityRequirements;
+    private List<String> eligibilityRequirements;
+
+
+    @Column(nullable = false)
+    private boolean isPublished = false;
+
+    @Column
+    private Instant publishedAt;
+
+    /**
+     * 캠페인 지원자 수 증가 메소드
+     */
+    public void increaseApplicant() {
+        this.applicantNumber += 1;
+    }
+
+    /**
+     * 승인 인원 수 증가 메소드
+     */
+    public void increaseApprovedNumber(int toUpdateCount){
+        this.approvedNumber += toUpdateCount;
+    }
 
     /**
      * 캠페인 상태 변경
@@ -135,4 +165,7 @@ public class Campaign extends BaseEntity {
                 this.eligibilityRequirements == null || this.eligibilityRequirements.isEmpty()
         ).anyMatch(condition -> condition);
     }
+
+
+
 }
