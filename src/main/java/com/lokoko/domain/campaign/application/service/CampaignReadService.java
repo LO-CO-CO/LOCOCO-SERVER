@@ -1,9 +1,19 @@
 package com.lokoko.domain.campaign.application.service;
 
+import com.lokoko.domain.campaign.api.dto.response.CampaignDetailResponse;
+import com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse;
+import com.lokoko.domain.campaign.domain.entity.Campaign;
+import com.lokoko.domain.campaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
+import com.lokoko.domain.campaign.domain.repository.CreatorCampaignRepository;
+import com.lokoko.domain.campaign.exception.CampaignNotFoundException;
+import com.lokoko.domain.image.domain.repository.CampaignImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -11,5 +21,24 @@ import org.springframework.transaction.annotation.Transactional;
 public class CampaignReadService {
 
     private final CampaignRepository campaignRepository;
+    private final CampaignImageRepository campaignImageRepository;
+    private final CreatorCampaignRepository creatorCampaignRepository;
+
+    private final CampaignStatusManager campaignStatusManager;
+
+    public CampaignDetailResponse getCampaignDetail(Long creatorId, Long campaignId) {
+
+        Campaign campaign = campaignRepository.findCampaignWithBrandById(campaignId)
+                .orElseThrow(CampaignNotFoundException::new);
+
+        List<CampaignImageResponse> topImages = campaignImageRepository.findTopImagesByCampaignId(campaignId);
+        List<CampaignImageResponse> bottomImages = campaignImageRepository.findBottomImagesByCampaignId(campaignId);
+
+        //캠페인 상세페이지를 조회하는 크리에이터가 캠페인에 참여하지 않았을 수도 있으므로 Optional 을 반환
+        Optional<CreatorCampaign> creatorCampaign = creatorCampaignRepository.findByCreatorIdAndCampaignId(creatorId, campaignId);
+        String campaignStatus =  campaignStatusManager.determineStatusInDetailPage(campaign , creatorCampaign);
+
+        return CampaignDetailResponse.of(campaign, topImages, bottomImages, campaignStatus);
+    }
 
 }
