@@ -9,6 +9,7 @@ import com.lokoko.domain.campaign.domain.repository.CreatorCampaignRepository;
 import com.lokoko.domain.campaign.exception.CampaignNotFoundException;
 import com.lokoko.domain.image.domain.repository.CampaignImageRepository;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,8 @@ public class CampaignReadService {
         Campaign campaign = campaignRepository.findCampaignWithBrandById(campaignId)
                 .orElseThrow(CampaignNotFoundException::new);
 
+        initializeElementCollections(campaign);
+
         List<CampaignImageResponse> topImages = campaignImageRepository.findTopImagesByCampaignId(campaignId);
         List<CampaignImageResponse> bottomImages = campaignImageRepository.findBottomImagesByCampaignId(campaignId);
 
@@ -39,6 +42,12 @@ public class CampaignReadService {
         String campaignStatus =  campaignStatusManager.determineStatusInDetailPage(campaign , creatorCampaign);
 
         return CampaignDetailResponse.of(campaign, topImages, bottomImages, campaignStatus);
+    }
+
+    private static void initializeElementCollections(Campaign campaign) {
+        Hibernate.initialize(campaign.getParticipationRewards());
+        Hibernate.initialize(campaign.getDeliverableRequirements());
+        Hibernate.initialize(campaign.getEligibilityRequirements());
     }
 
 }
