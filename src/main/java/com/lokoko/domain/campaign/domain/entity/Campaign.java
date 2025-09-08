@@ -5,6 +5,7 @@ import com.lokoko.domain.campaign.api.dto.request.CampaignCreateRequest;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
+import com.lokoko.domain.campaign.exception.DraftNotFilledException;
 import com.lokoko.global.common.entity.BaseEntity;
 import com.lokoko.global.common.enums.Language;
 import jakarta.persistence.*;
@@ -156,6 +157,9 @@ public class Campaign extends BaseEntity {
         if (request.campaignType() != null) {
             this.campaignType = request.campaignType();
         }
+        if (request.campaignProductType() != null) {
+            this.campaignProductType = request.campaignProductType();
+        }
         if (request.applyStartDate() != null) {
             this.applyStartDate = request.applyStartDate();
         }
@@ -194,6 +198,10 @@ public class Campaign extends BaseEntity {
         this.isPublished = true;
         this.publishedAt = Instant.now();
         this.campaignStatus = CampaignStatus.WAITING_APPROVAL;
+    }
+
+    public void validatePublishable() {
+        if (isDraft()) throw new DraftNotFilledException();
     }
 
     /**
