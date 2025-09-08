@@ -4,13 +4,11 @@ import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.ParticipationStatus;
-import com.lokoko.domain.campaign.exception.CampaignNotAccessibleException;
+import com.lokoko.domain.campaign.exception.CampaignNotViewableException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
 @Component
@@ -21,9 +19,9 @@ import java.util.Optional;
 public class CampaignStatusManager {
 
     /**
-     * 브랜드 관점에서 보는 Campaign 의 상태(피그마 뷰 - [브랜드] 마이페이지의 상태표 참고)
-     * 날짜 기반으로 실제 상태를 계산
-     * @param campaign
+     * 브랜드 관점에서 보는 Campaign 의 상태(피그마 뷰 - [브랜드] 마이페이지의 상태표 참고) <br>
+     * 날짜 기반으로 캠페인의 실시간  상태를 계산한다.
+     * @param campaign 캠페인 엔티티
      * @return 캠페인 자체 상태
      */
     public CampaignStatus determineCampaignStatus(Campaign campaign) {
@@ -64,42 +62,19 @@ public class CampaignStatusManager {
     }
 
     /**
-     * DB 업데이트 없이 실시간 상태만 계산
-     * 비즈니스 로직에서 상태 검증이 필요할 때 사용
-     * @param campaign
-     * @return 현재 시점의 실제 캠페인 상태
+     * 캠페인 상세조회 페이지에서, 캠페인의 상태 판단 <br>
+     * 캠페인의 상태를 실시간으로 계산합니다.
+     * @param campaign 캠페인 엔티티
+     * @param creatorCampaign 크리에이터의 캠페인 참여정보
+     * @return 캠페인 상세페이지에서 캠페인 및 크리에이터 지원 관련 상태
      */
-    public CampaignStatus calculateRealTimeStatus(Campaign campaign) {
-        // determineCampaignStatus와 동일한 로직이지만 DB 업데이트 없음
-        return determineCampaignStatus(campaign);
-    }
-
-    /**
-     * @param campaign 상태를 동기화할 캠페인
-     * @return 업데이트된 상태
-     */
-    @Transactional
-    public CampaignStatus syncCampaignStatus(Campaign campaign) {
-        CampaignStatus calculatedStatus = determineCampaignStatus(campaign);
-
-        if (campaign.getCampaignStatus() != calculatedStatus) {
-            campaign.changeStatus(calculatedStatus);
-        }
-        return calculatedStatus;
-    }
-
-    /**
-     * 캠페인 상세조회 페이지에서, 캠페인의 상태 판단
-     * db 와 상태 대조후, 동기화.
-     */
-    @Transactional
     public String determineStatusInDetailPage(Campaign campaign, Optional<CreatorCampaign> creatorCampaign) {
 
-        // 상태 동기화 먼저
-        CampaignStatus campaignStatus = syncCampaignStatus(campaign);
+        // 실시간 상태 계산
+        CampaignStatus campaignStatus = determineCampaignStatus(campaign);
 
         if (campaignStatus == CampaignStatus.DRAFT || campaignStatus == CampaignStatus.WAITING_APPROVAL) {
-            throw new CampaignNotAccessibleException(); // DRAFT 상태와, WAITING_APPROVAL 상태인 캠페인은 보여지면 안 된다.
+            throw new CampaignNotViewableException(); // DRAFT 상태와, WAITING_APPROVAL 상태인 캠페인은 보여지면 안 된다.
         }
 
         String returnStatus = null;
