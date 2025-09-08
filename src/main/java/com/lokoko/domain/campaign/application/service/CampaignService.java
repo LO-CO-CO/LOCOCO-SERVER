@@ -28,9 +28,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
@@ -66,16 +68,37 @@ public class CampaignService {
     }
 
     @Transactional
+    public CampaignCreateResponse createCampaignDraft(Long brandId, CampaignDraftRequest draftRequest) {
+        CampaignCreateRequest createRequest = CampaignCreateRequest.convertDraftToCreateRequest(draftRequest);
+        return createCampaignWithAction(brandId, ActionType.SAVE_DRAFT, createRequest);
+    }
+
+    @Transactional
+    public CampaignCreateResponse createAndPublishCampaign(Long brandId, CampaignPublishRequest publishRequest) {
+        CampaignCreateRequest createRequest = CampaignCreateRequest.convertPublishToCreateRequest(publishRequest);
+        return createCampaignWithAction(brandId, ActionType.PUBLISH, createRequest);
+    }
+
+    @Transactional
+    public CampaignCreateResponse updateCampaignToDraft(Long brandId, Long campaignId, CampaignDraftRequest draftRequest) {
+        CampaignCreateRequest updateRequest = CampaignCreateRequest.convertDraftToCreateRequest(draftRequest);
+        return updateCampaign(brandId, campaignId, ActionType.SAVE_DRAFT, updateRequest);
+    }
+
+    @Transactional
+    public CampaignCreateResponse updateAndPublishCampaign(Long brandId, Long campaignId, CampaignPublishRequest publishRequest) {
+        CampaignCreateRequest updateRequest = CampaignCreateRequest.convertPublishToCreateRequest(publishRequest);
+        return updateCampaign(brandId, campaignId, ActionType.PUBLISH, updateRequest);
+    }
+
+    @Transactional
     public CampaignCreateResponse createCampaignWithAction(Long brandId, ActionType actionType, CampaignCreateRequest createRequest) {
         Brand brand = brandRepository.findById(brandId)
                 .orElseThrow(BrandNotFoundException::new);
 
         Campaign campaign = Campaign.createCampaign(createRequest, brand);
 
-        if (actionType == ActionType.PUBLISH) {
-            if(campaign.isDraft()) throw new DraftNotFilledException();
-            campaign.publish();
-        }
+        validatePublishableCampaign(actionType, campaign);
 
         Campaign savedCampaign = campaignRepository.save(campaign);
         List<CampaignImage> savedImages = saveImages(createRequest, savedCampaign);
@@ -83,17 +106,20 @@ public class CampaignService {
         return buildCampaignCreateResponse(savedCampaign, savedImages);
     }
 
+
     private List<CampaignImage> saveImages(CampaignCreateRequest createRequest, Campaign campaign) {
 
-        List<CampaignImage> toSaveImages = new ArrayList<>();
-
-        createRequest.topImages()
-                .forEach(img -> toSaveImages.add(CampaignImage.createCampaignImage(
-                        img.url(), img.displayOrder(), img.imageType(), campaign)));
-
-        createRequest.bottomImages()
-                .forEach(img -> toSaveImages.add(CampaignImage.createCampaignImage(
-                        img.url(), img.displayOrder(), img.imageType(), campaign)));
+        List<CampaignImage> toSaveImages = Stream.of(
+                        createRequest.topImages(),
+                        createRequest.bottomImages()
+                )
+                .flatMap(Collection::stream)
+                .map(img -> CampaignImage.createCampaignImage(
+                        img.url(),
+                        img.displayOrder(),
+                        img.imageType(),
+                        campaign))
+                .collect(Collectors.toList());
 
         return campaignImageRepository.saveAll(toSaveImages);
     }
@@ -132,10 +158,7 @@ public class CampaignService {
 
         campaign.updateCampaign(updateRequest);
 
-        if (actionType == ActionType.PUBLISH) {
-            if (campaign.isDraft()) throw new DraftNotFilledException();
-            campaign.publish();
-        }
+        validatePublishableCampaign(actionType, campaign);
 
         // 기존에 존재하는 이미지 삭제후 갈아끼우기
         campaignImageRepository.deleteByCampaignId(campaignId);
@@ -144,40 +167,46 @@ public class CampaignService {
         return buildCampaignCreateResponse(campaign, savedImages);
     }
 
+    /**
+     * 캠페인이 발행가능한 캠페인인지 검증한다 <br>
+     * 즉, 캠페인이 초안 상태인지 검증한다. <br>
+     * actionType 이 PUBLISH 인 경우에만 검증을 수행한다.(발행 시점에 초안 상태이면 안 되므로) <br>
+     * actionType 이 SAVE_DRAFT 인 경우에는 검증을 수행하지 않는다. (임시저장은 필드가 다 채워지지 않아도 상관 없으므로)
+     * @param actionType 임시저장 / 발행 여부
+     * @param campaign 캠페인 엔티티
+     */
+    private static void validatePublishableCampaign(ActionType actionType, Campaign campaign) {
+        if (actionType == ActionType.PUBLISH) {
+            campaign.validatePublishable();
+            campaign.publish();
+        }
+    }
+
+    /**
+     * 캠페인이 수정 가능한지 검증한다. <br>
+     * 캠페인이 이미 발행되었으면 예외를 발생시킨다.
+     * @param campaign 캠페인 엔티티
+     * @throws CampaignNotEditableException 캠페인이 수정 불가할 때 발생하는 예외
+     */
     private void validateEditableCampaign(Campaign campaign) {
         if (campaign.isPublished()) {
             throw new CampaignNotEditableException();
         }
     }
 
+    /**
+     * 캠페인이 브랜드 소유인지 검증한다. <br>
+     * 캠페인이 브랜드 소유가 아니라면 예외를 발생시킨다.
+     * @param campaign 캠페인 엔티티
+     * @param brand 브랜드 엔티티
+     * @throws NotCampaignOwnershipException 캠페인 작성자가 브랜드가 아닌 경우 발생하는 예외
+     */
     private static void validateBrandOwnsCampaign(Campaign campaign, Brand brand) {
         if (!campaign.getBrand().getId().equals(brand.getId())) {
             throw new NotCampaignOwnershipException();
         }
     }
 
-    @Transactional
-    public CampaignCreateResponse createCampaignDraft(Long brandId, CampaignDraftRequest draftRequest) {
-        CampaignCreateRequest createRequest = CampaignCreateRequest.convertDraftToCreateRequest(draftRequest);
-        return createCampaignWithAction(brandId, ActionType.SAVE_DRAFT, createRequest);
-    }
 
-    @Transactional
-    public CampaignCreateResponse createAndPublishCampaign(Long brandId, CampaignPublishRequest publishRequest) {
-        CampaignCreateRequest createRequest = CampaignCreateRequest.convertPublishToCreateRequest(publishRequest);
-        return createCampaignWithAction(brandId, ActionType.PUBLISH, createRequest);
-    }
-
-    @Transactional
-    public CampaignCreateResponse updateCampaignToDraft(Long brandId, Long campaignId, CampaignDraftRequest draftRequest) {
-        CampaignCreateRequest updateRequest = CampaignCreateRequest.convertDraftToCreateRequest(draftRequest);
-        return updateCampaign(brandId, campaignId, ActionType.SAVE_DRAFT, updateRequest);
-    }
-
-    @Transactional
-    public CampaignCreateResponse updateAndPublishCampaign(Long brandId, Long campaignId, CampaignPublishRequest publishRequest) {
-        CampaignCreateRequest updateRequest = CampaignCreateRequest.convertPublishToCreateRequest(publishRequest);
-        return updateCampaign(brandId, campaignId, ActionType.PUBLISH, updateRequest);
-    }
 
 }
