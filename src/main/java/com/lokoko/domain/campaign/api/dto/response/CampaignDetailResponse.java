@@ -3,6 +3,7 @@ package com.lokoko.domain.campaign.api.dto.response;
 import com.lokoko.domain.brand.domain.entity.Brand;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
+import com.lokoko.global.common.enums.Language;
 
 import java.time.Instant;
 import java.util.List;
@@ -14,7 +15,7 @@ public record CampaignDetailResponse(
         String title,
         String brandImageUrl,
         String brandName,
-        String language,
+        Language language,
         Instant applyStartDate,
         Instant applyDeadline,
         Instant creatorAnnouncementDate,
@@ -38,7 +39,7 @@ public record CampaignDetailResponse(
                 campaign.getTitle(),
                 brand.getProfileImageUrl(),
                 brand.getBrandName(),
-                campaign.getLanguage().name(),
+                campaign.getLanguage(),
                 campaign.getApplyStartDate(),
                 campaign.getApplyDeadline(),
                 campaign.getCreatorAnnouncementDate(),

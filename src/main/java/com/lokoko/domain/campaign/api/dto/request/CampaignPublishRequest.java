@@ -49,10 +49,10 @@ public record CampaignPublishRequest(
         Integer recruitmentNumber,
         
         @NotEmpty(message = "참여 혜택은 최소 1개 이상 필요합니다")
-        List<String> participationRewards,
+        List<@NotBlank(message = "참여 혜택 항목은 공백일 수 없습니다") String> participationRewards,
         
-        @NotEmpty(message = "전달 요구사항은 최소 1개 이상 필요합니다")
-        List<String> deliverableRequirements,
+        @NotEmpty(message = "컨텐츠 요구사항은 최소 1개 이상 필요합니다")
+        List<@NotBlank(message = "컨텐츠 요구사항 항목은 공백일 수 없습니다") String> deliverableRequirements,
         
         // 선택사항
         List<String> eligibilityRequirements

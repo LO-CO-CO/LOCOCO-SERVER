@@ -6,6 +6,7 @@ import com.lokoko.global.common.enums.Language;
 import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 public record CampaignCreateRequest(
@@ -33,16 +34,16 @@ public record CampaignCreateRequest(
                 publishRequest.language(),
                 publishRequest.campaignType(),
                 publishRequest.campaignProductType(),
-                publishRequest.topImages(),
-                publishRequest.bottomImages(),
+                safeList(publishRequest.topImages()),
+                safeList(publishRequest.bottomImages()),
                 publishRequest.applyStartDate(),
                 publishRequest.applyDeadline(),
                 publishRequest.creatorAnnouncementDate(),
                 publishRequest.reviewSubmissionDeadline(),
                 publishRequest.recruitmentNumber(),
-                publishRequest.participationRewards(),
-                publishRequest.deliverableRequirements(),
-                publishRequest.eligibilityRequirements()
+                safeList(publishRequest.participationRewards()),
+                safeList(publishRequest.deliverableRequirements()),
+                safeList(publishRequest.eligibilityRequirements())
         );
     }
 
@@ -52,16 +53,22 @@ public record CampaignCreateRequest(
                 draftRequest.language(),
                 draftRequest.campaignType(),
                 draftRequest.campaignProductType(),
-                draftRequest.topImages(),
-                draftRequest.bottomImages(),
+                safeList(draftRequest.topImages()),
+                safeList(draftRequest.bottomImages()),
                 draftRequest.applyStartDate(),
                 draftRequest.applyDeadline(),
                 draftRequest.creatorAnnouncementDate(),
                 draftRequest.reviewSubmissionDeadline(),
                 draftRequest.recruitmentNumber(),
-                draftRequest.participationRewards(),
-                draftRequest.deliverableRequirements(),
-                draftRequest.eligibilityRequirements()
+                safeList(draftRequest.participationRewards()),
+                safeList(draftRequest.deliverableRequirements()),
+                safeList(draftRequest.eligibilityRequirements())
+
+
         );
+    }
+
+    private static <T> List<T> safeList(List<T> original){
+        return original != null ? new ArrayList<>(original) : new ArrayList<>();
     }
 }
