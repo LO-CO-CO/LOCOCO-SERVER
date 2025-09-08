@@ -30,6 +30,8 @@ public class CampaignImage extends BaseEntity {
 
     private int displayOrder;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private ImageType imageType;
 
     public static CampaignImage createCampaignImage(String imageUrl, int displayOrder, ImageType imageType, Campaign campaign) {
