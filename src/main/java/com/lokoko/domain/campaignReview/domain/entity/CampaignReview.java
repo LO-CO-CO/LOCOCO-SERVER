@@ -1,10 +1,10 @@
-package com.lokoko.domain.productReview.domain.entity;
+package com.lokoko.domain.campaignReview.domain.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 
 import com.lokoko.domain.campaign.domain.entity.CreatorCampaign;
-import com.lokoko.domain.productReview.domain.entity.enums.ReviewRound;
-import com.lokoko.domain.productReview.domain.entity.enums.ReviewStatus;
+import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
+import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

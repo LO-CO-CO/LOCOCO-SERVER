@@ -97,7 +97,7 @@ public interface ReviewMapper {
     @Mapping(target = "author", source = "user")
     @Mapping(target = "product", source = "product")
     @Mapping(target = "productOption", source = "option")
-    @Mapping(target = "rating", expression = "java(com.lokoko.domain.review.domain.entity.enums.Rating.fromValue(request.rating()))")
+    @Mapping(target = "rating", expression = "java(com.lokoko.domain.productReview.domain.entity.enums.Rating.fromValue(request.rating()))")
     @Mapping(target = "positiveContent", source = "request.positiveComment")
     @Mapping(target = "negativeContent", source = "request.negativeComment")
     @Mapping(target = "createdAt", ignore = true)
