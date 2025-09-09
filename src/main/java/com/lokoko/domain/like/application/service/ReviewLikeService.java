@@ -2,10 +2,10 @@ package com.lokoko.domain.like.application.service;
 
 import com.lokoko.domain.like.domain.entity.ReviewLike;
 import com.lokoko.domain.like.domain.repository.ReviewLikeRepository;
-import com.lokoko.domain.review.application.event.PopularReviewsCacheEvictEvent;
-import com.lokoko.domain.review.domain.entity.Review;
-import com.lokoko.domain.review.domain.repository.ReviewRepository;
-import com.lokoko.domain.review.exception.ReviewNotFoundException;
+import com.lokoko.domain.productReview.application.event.PopularReviewsCacheEvictEvent;
+import com.lokoko.domain.productReview.domain.entity.Review;
+import com.lokoko.domain.productReview.domain.repository.ReviewRepository;
+import com.lokoko.domain.productReview.exception.ReviewNotFoundException;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.domain.user.exception.UserNotFoundException;

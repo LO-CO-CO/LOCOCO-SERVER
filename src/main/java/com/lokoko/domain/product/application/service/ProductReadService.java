@@ -29,8 +29,8 @@ import com.lokoko.domain.product.domain.repository.ProductOptionRepository;
 import com.lokoko.domain.product.domain.repository.ProductRepository;
 import com.lokoko.domain.product.exception.ProductNotFoundException;
 import com.lokoko.domain.product.mapper.ProductMapper;
-import com.lokoko.domain.review.api.dto.request.RatingCount;
-import com.lokoko.domain.review.domain.repository.ReviewRepository;
+import com.lokoko.domain.productReview.api.dto.request.RatingCount;
+import com.lokoko.domain.productReview.domain.repository.ReviewRepository;
 import com.lokoko.global.common.response.PageableResponse;
 import com.lokoko.global.kuromoji.service.KuromojiService;
 import java.util.Arrays;
@@ -96,7 +96,8 @@ public class ProductReadService {
 
     public NewProductsByCategoryResponse searchNewProductsByCategory(MiddleCategory middleCategory, Long userId) {
 
-        CachedNewProductListResponse newProductsCachedData = productCacheService.getNewProductsFromCache(middleCategory);
+        CachedNewProductListResponse newProductsCachedData = productCacheService.getNewProductsFromCache(
+                middleCategory);
 
         productCacheService.preloadNewProductsForMorePage(middleCategory);
         return addUserLikeData(newProductsCachedData, userId);
@@ -115,7 +116,8 @@ public class ProductReadService {
 
     }
 
-    private PopularProductsByCategoryResponse addUserLikeData(CachedPopularProductListResponse cachedData, Long userId) {
+    private PopularProductsByCategoryResponse addUserLikeData(CachedPopularProductListResponse cachedData,
+                                                              Long userId) {
         List<ProductBasicResponse> productsWithLikeStatus = addLikeStatusToPopularProducts(cachedData.products(),
                 userId);
 
@@ -138,19 +140,19 @@ public class ProductReadService {
 
     public PopularProductsByCategoryResponse getPopularProductsForMorePage(
             MiddleCategory middleCategory, int page, int size, Long userId) {
-        
-        CachedPopularProductListResponse cachedData = 
-            productCacheService.getPopularProductsForMorePage(middleCategory, page, size);
-        
+
+        CachedPopularProductListResponse cachedData =
+                productCacheService.getPopularProductsForMorePage(middleCategory, page, size);
+
         return addUserLikeData(cachedData, userId);
     }
 
     public NewProductsByCategoryResponse getNewProductsForMorePage(
             MiddleCategory middleCategory, int page, int size, Long userId) {
-        
-        CachedNewProductListResponse cachedData = 
-            productCacheService.getNewProductsForMorePage(middleCategory, page, size);
-        
+
+        CachedNewProductListResponse cachedData =
+                productCacheService.getNewProductsForMorePage(middleCategory, page, size);
+
         return addUserLikeData(cachedData, userId);
     }
 
