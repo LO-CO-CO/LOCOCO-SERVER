@@ -3,6 +3,7 @@ package com.lokoko.domain.campaignReview.api;
 import com.lokoko.domain.campaignReview.api.dto.request.FirstReviewUploadRequest;
 import com.lokoko.domain.campaignReview.api.dto.request.SecondReviewUploadRequest;
 import com.lokoko.domain.campaignReview.api.dto.response.ReviewUploadResponse;
+import com.lokoko.domain.campaignReview.api.message.ResponseMessage;
 import com.lokoko.domain.campaignReview.application.usecase.CampaignReviewUsecase;
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.common.response.ApiResponse;
@@ -31,7 +32,7 @@ public class CampaignReviewController {
     public ApiResponse<ReviewUploadResponse> uploadFirst(@PathVariable Long campaignId,
                                                          @Parameter(hidden = true) @CurrentUser Long userId,
                                                          @Valid @RequestBody FirstReviewUploadRequest request) {
-        return ApiResponse.success(HttpStatus.CREATED, "1차 리뷰 업로드",
+        return ApiResponse.success(HttpStatus.CREATED, ResponseMessage.FIRST_REVIEW_SUCCESS.getMessage(),
                 campaignReviewUsecase.uploadFirst(userId, campaignId, request));
     }
 
@@ -40,7 +41,7 @@ public class CampaignReviewController {
     public ApiResponse<ReviewUploadResponse> uploadSecond(@PathVariable Long campaignId,
                                                           @Parameter(hidden = true) @CurrentUser Long userId,
                                                           @Valid @RequestBody SecondReviewUploadRequest request) {
-        return ApiResponse.success(HttpStatus.CREATED, "2차 리뷰 업로드",
+        return ApiResponse.success(HttpStatus.CREATED, ResponseMessage.SECOND_REVIEW_SUCCESS.getMessage(),
                 campaignReviewUsecase.uploadSecond(userId, campaignId, request));
     }
 }
