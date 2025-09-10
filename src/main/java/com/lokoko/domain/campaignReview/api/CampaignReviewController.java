@@ -27,22 +27,20 @@ public class CampaignReviewController {
     private final CampaignReviewUsecase campaignReviewUsecase;
 
     @Operation(summary = "1차 리뷰 업로드")
-    @PostMapping("{campaignId}/first")
+    @PostMapping("/{campaignId}/first")
     public ApiResponse<ReviewUploadResponse> uploadFirst(@PathVariable Long campaignId,
                                                          @Parameter(hidden = true) @CurrentUser Long userId,
                                                          @Valid @RequestBody FirstReviewUploadRequest request) {
-        ReviewUploadResponse response = campaignReviewUsecase.uploadFirst(userId, campaignId, request);
-
-        return ApiResponse.success(HttpStatus.CREATED, "1차 리뷰 업로드", response);
+        return ApiResponse.success(HttpStatus.CREATED, "1차 리뷰 업로드",
+                campaignReviewUsecase.uploadFirst(userId, campaignId, request));
     }
 
     @Operation(summary = "2차 리뷰 업로드")
-    @PostMapping("{campaignId}/second")
+    @PostMapping("/{campaignId}/second")
     public ApiResponse<ReviewUploadResponse> uploadSecond(@PathVariable Long campaignId,
                                                           @Parameter(hidden = true) @CurrentUser Long userId,
                                                           @Valid @RequestBody SecondReviewUploadRequest request) {
-        ReviewUploadResponse response = campaignReviewUsecase.uploadSecond(userId, campaignId, request);
-
-        return ApiResponse.success(HttpStatus.CREATED, "2차 리뷰 업로드", response);
+        return ApiResponse.success(HttpStatus.CREATED, "2차 리뷰 업로드",
+                campaignReviewUsecase.uploadSecond(userId, campaignId, request));
     }
 }
