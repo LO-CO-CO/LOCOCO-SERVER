@@ -10,16 +10,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign, Long>, CreatorCampaignQRepository {
+public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign, Long> {
 
-    @Query("""
-                select creatorCampaign
-                from CreatorCampaign creatorCampaign
-                where creatorCampaign.creator.id  = :creatorId
-                  and creatorCampaign.campaign.id = :campaignId
-            """)
-    Optional<CreatorCampaign> findByCreatorIdAndCampaignId(@Param("creatorId") Long creatorId,
-                                                           @Param("campaignId") Long campaignId);
+    Optional<CreatorCampaign> findByCampaign_IdAndCreator_Id(Long campaignId, Long creatorId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select c from CreatorCampaign c where c.id = :id")
