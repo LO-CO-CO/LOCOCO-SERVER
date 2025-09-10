@@ -32,7 +32,9 @@ public class CreatorCampaignUpdateService {
             nextStatus = ParticipationStatus.APPROVED_ADDRESS_CONFIRMED;
         }
 
-        creatorCampaign.changeStatus(nextStatus);
+        if (creatorCampaign.getStatus() != nextStatus) {
+            creatorCampaign.changeStatus(nextStatus);
+        }
     }
 
 }
