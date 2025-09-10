@@ -17,17 +17,27 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "campaign_reviews")
+@Table(
+        name = "campaign_reviews",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uq_campaign_review_campaign_round",
+                        columnNames = {"creator_campaign_id", "review_round"}
+                )
+        }
+)
 @NoArgsConstructor
 public class CampaignReview extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "campaign_review_id")
     private Long id;
 
     @Column(length = 2200)
@@ -40,7 +50,7 @@ public class CampaignReview extends BaseEntity {
     private String brandNote;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, name = "review_round")
     private ReviewRound reviewRound;
 
     @Enumerated(EnumType.STRING)

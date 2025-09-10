@@ -90,10 +90,12 @@ public class Creator {
     @Column
     private String tiktokLink;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column
     private CreatorStatus creatorStatus = CreatorStatus.NOT_APPROVED;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column
     private CreatorType creatorType = CreatorType.NORMAL;

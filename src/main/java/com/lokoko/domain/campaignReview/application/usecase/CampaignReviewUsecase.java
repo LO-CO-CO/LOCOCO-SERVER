@@ -11,6 +11,7 @@ import com.lokoko.domain.campaignReview.application.service.CampaignReviewSaveSe
 import com.lokoko.domain.campaignReview.application.service.CreatorCampaignUpdateService;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
+import com.lokoko.domain.campaignReview.exception.FirstReviewNotFoundException;
 import com.lokoko.domain.campaignReview.exception.MismatchedContentTypeException;
 import com.lokoko.domain.creator.application.service.CreatorGetService;
 import com.lokoko.domain.creator.domain.entity.Creator;
@@ -52,6 +53,11 @@ public class CampaignReviewUsecase {
         CreatorCampaign participation = creatorGetService.findParticipation(campaignId, creator.getId());
 
         campaignReviewGetService.assertRoundNotExists(participation.getId(), ReviewRound.SECOND);
+
+        // 2차는 1차 리뷰가 선행되어야 함
+        if (!campaignReviewGetService.existsFirst(participation.getId())) {
+            throw new FirstReviewNotFoundException();
+        }
 
         // 1차와 동일 포맷만 허용
         campaignReviewGetService.findFirstContent(participation.getId())
