@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum Content {
 
     INSTA_REELS("인스타 릴스"),
-    TICKTOK_VIDEO("틱톡 비디오"),
+    TIKTOK_VIDEO("틱톡 비디오"),
     INSTA_POST("인스타 게시물");
 
     private final String displayName;

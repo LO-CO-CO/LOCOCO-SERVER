@@ -4,6 +4,7 @@ import com.lokoko.domain.creator.domain.entity.enums.SkinTone;
 import com.lokoko.domain.creator.domain.entity.enums.SkinType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 
 @Builder
@@ -15,6 +16,7 @@ public record CreatorMyPageUpdateRequest(
 
         @Schema(description = "크리에이터 이름 (최대 30자, 영문/숫자/마침표/언더바만)", example = "hun_cozyboy.01")
         @Pattern(regexp = "^[A-Za-z0-9._]+$")
+        @Size(max = 30)
         String creatorName,
 
         @Schema(description = "이름", example = "Jessica")
@@ -24,27 +26,34 @@ public record CreatorMyPageUpdateRequest(
         String lastName,
 
         @Schema(description = "국가번호 (선택, 최대 5자)", example = "+1")
+        @Size(max = 5)
         String countryCode,
 
         @Schema(description = "전화번호 (선택, 최대 20자)", example = "01012345678")
+        @Size(max = 20)
         String phoneNumber,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "국가", example = "US")
+        @Schema(description = "국가", example = "US")
         String country,
 
         @Schema(description = "State (미국은 드롭다운, 그 외 텍스트 최대 20자)", example = "CA")
+        @Size(max = 20)
         String stateOrProvince,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "City/Town (텍스트, 최대 20자)", example = "San Francisco")
+        @Schema(description = "City/Town (텍스트, 최대 20자)", example = "San Francisco")
+        @Size(max = 20)
         String cityOrTown,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Address Line 1 (최대 30자)", example = "1234 Market St")
+        @Schema(description = "Address Line 1 (최대 30자)", example = "1234 Market St")
+        @Size(max = 30)
         String addressLine1,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Address Line 2 (최대 30자)", example = "Apt 5B")
+        @Schema(description = "Address Line 2 (최대 30자)", example = "Apt 5B")
+        @Size(max = 30)
         String addressLine2,
 
         @Schema(description = "ZIP Code (최대 10자)", example = "94103")
+        @Size(max = 10)
         String postalCode,
 
         @Schema(description = "피부 타입 (드롭다운 6개)", example = "COMBINATION")

@@ -14,7 +14,7 @@ public record CreatorAddressInfo(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "국가(드롭다운 선택)", example = "US")
         String country,
 
-        @Schema(description = "주/도/광역시 최대 20자)", example = "CA")
+        @Schema(description = "주/도/광역시 (최대 20자)", example = "CA")
         String stateOrProvince,
 
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "City / Town (최대 20자)", example = "San Francisco")
