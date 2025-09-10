@@ -5,6 +5,8 @@ import static jakarta.persistence.FetchType.LAZY;
 import com.lokoko.domain.campaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewStatus;
+import com.lokoko.domain.socialclip.domain.entity.enums.Content;
+import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,25 +17,21 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
 @Table(name = "campaign_reviews")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CampaignReview {
+@NoArgsConstructor
+public class CampaignReview extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 1000)
-    private String caption;
-
     @Column(length = 2200)
-    private String hashtags;
+    private String captionWithHashtags;
 
     @Column(length = 1024)
     private String postUrl;
@@ -49,24 +47,56 @@ public class CampaignReview {
     @Column(nullable = false)
     private ReviewStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Content content;
+
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "creator_campaign_id", nullable = false)
     private CreatorCampaign creatorCampaign;
 
     /**
-     * 1차 리뷰 작성 후 브랜드가 수정 요청시 호출할 메서드
+     * 리뷰 생성시, 캠페인에 할당 메서드
      */
-    public void requestRevision(String note) {
-        this.brandNote = note;
+    public void bindToCreatorCampaign(CreatorCampaign creatorCampaign) {
+        this.creatorCampaign = creatorCampaign;
+    }
+
+    /**
+     * 리뷰 라운드 지정 (1차, 2차)
+     */
+    public void designateRound(ReviewRound reviewRound) {
+        this.reviewRound = reviewRound;
+    }
+
+    /**
+     * SNS 콘텐츠 유형 선택시 호출 메서드 (인스타 게시물, 인스타 릴스, 틱톡 비디오)
+     */
+    public void chooseContentType(Content content) {
+        this.content = content;
+    }
+
+    /**
+     * 1차 리뷰 작성 후 호출 메서드
+     */
+    public void requestFirstReview(String captionWithHashtags) {
+        this.captionWithHashtags = captionWithHashtags;
         this.status = ReviewStatus.REVISION_REQUESTED;
     }
 
     /**
-     * 브랜드의 수정 요청에 대해 크리에이터가 재제출할 때 호출할 메서드
+     * 브랜드가 1차 리뷰 작성 후 수정 요청시 호출 메서드
      */
-    public void resubmit(String caption, String hashtags, String postUrl) {
-        this.caption = caption;
-        this.hashtags = hashtags;
+    public void requestModification(String brandNote) {
+        this.brandNote = brandNote;
+        this.status = ReviewStatus.REVISION_REQUESTED;
+    }
+
+    /**
+     * 브랜드의 수정 요청에 대해 크리에이터가 최종 제출시 호출 메서드
+     */
+    public void requestSecondReview(String captionWithHashtags, String postUrl) {
+        this.captionWithHashtags = captionWithHashtags;
         this.postUrl = postUrl;
         this.status = ReviewStatus.RESUBMITTED;
     }
