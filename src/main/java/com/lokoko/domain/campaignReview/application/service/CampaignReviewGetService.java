@@ -7,9 +7,11 @@ import com.lokoko.domain.socialclip.domain.entity.enums.Content;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CampaignReviewGetService {
 
     private final CampaignReviewRepository campaignReviewRepository;

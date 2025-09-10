@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CampaignReviewImageRepository extends JpaRepository<CampaignReviewImage, Long> {
 
-    List<CampaignReviewImage> findByCampaignReviewIdOrderByIdAsc(Long campaignReviewId);
-    
+    List<CampaignReviewImage> findAllByCampaignReviewIdOrderByIdAsc(Long campaignReviewId);
+
     long countByCampaignReviewId(Long campaignReviewId);
 }
