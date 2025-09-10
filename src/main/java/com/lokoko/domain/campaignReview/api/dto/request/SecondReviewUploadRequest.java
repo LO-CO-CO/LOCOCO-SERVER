@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lokoko.domain.socialclip.domain.entity.enums.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
@@ -25,7 +26,8 @@ public record SecondReviewUploadRequest(
         Content content,
 
         @Schema(description = "캠페인 리뷰 이미지 URL 리스트", example = "[\"https://s3.example.com/review/img1.jpg\", \"https://s3.example.com/review/img2.jpg\"]")
-        @NotBlank
+        @NotEmpty
+        @Size(min = 1)
         List<String> imageUrls,
 
         @Schema(description = "캡션+해시태그 (최대 2200자)", example = "Hydrating mask review 💧 #hydration #mask #skincare")

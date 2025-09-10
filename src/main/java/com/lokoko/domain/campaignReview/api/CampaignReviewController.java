@@ -32,7 +32,7 @@ public class CampaignReviewController {
     public ApiResponse<ReviewUploadResponse> uploadFirst(@PathVariable Long campaignId,
                                                          @Parameter(hidden = true) @CurrentUser Long userId,
                                                          @Valid @RequestBody FirstReviewUploadRequest request) {
-        return ApiResponse.success(HttpStatus.CREATED, ResponseMessage.FIRST_REVIEW_SUCCESS.getMessage(),
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.FIRST_REVIEW_SUCCESS.getMessage(),
                 campaignReviewUsecase.uploadFirst(userId, campaignId, request));
     }
 
@@ -41,7 +41,7 @@ public class CampaignReviewController {
     public ApiResponse<ReviewUploadResponse> uploadSecond(@PathVariable Long campaignId,
                                                           @Parameter(hidden = true) @CurrentUser Long userId,
                                                           @Valid @RequestBody SecondReviewUploadRequest request) {
-        return ApiResponse.success(HttpStatus.CREATED, ResponseMessage.SECOND_REVIEW_SUCCESS.getMessage(),
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.SECOND_REVIEW_SUCCESS.getMessage(),
                 campaignReviewUsecase.uploadSecond(userId, campaignId, request));
     }
 }

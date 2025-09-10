@@ -13,7 +13,7 @@ public record CreatorMyPageUpdateRequest(
          * 크리에이터 마이페이지 수정이 필요한 필드들만 입력받기 (입력받지 않은 필드들은 유지)
          */
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "크리에이터 이름 (최대 30자, 영문/숫자/마침표/언더바만)", example = "hun_cozyboy.01")
+        @Schema(description = "크리에이터 이름 (최대 30자, 영문/숫자/마침표/언더바만)", example = "hun_cozyboy.01")
         @Pattern(regexp = "^[A-Za-z0-9._]+$")
         String creatorName,
 
