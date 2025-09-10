@@ -1,17 +1,25 @@
 package com.lokoko.domain.campaign.domain.entity;
 
+import static jakarta.persistence.FetchType.LAZY;
+
 import com.lokoko.domain.campaign.domain.entity.enums.ParticipationStatus;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.global.common.entity.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import java.time.Instant;
-
-import static jakarta.persistence.FetchType.*;
 
 @Getter
 @Entity
@@ -34,8 +42,7 @@ public class CreatorCampaign extends BaseEntity {
     private Campaign campaign;
 
     /**
-     * 크리에이터가 캠페인을 지원했을 때의 세부 상태 현황
-     * APPROVED(승인됨) , REJECTED(거절됨) , PENDING(대기중) 등....
+     * 크리에이터가 캠페인을 지원했을 때의 세부 상태 현황 APPROVED(승인됨) , REJECTED(거절됨) , PENDING(대기중) 등....
      */
     @Enumerated(value = EnumType.STRING)
     private ParticipationStatus status;
@@ -48,42 +55,12 @@ public class CreatorCampaign extends BaseEntity {
     private Boolean addressConfirmed;
     private Instant addressConfirmedAt;
 
-    // 1차 리뷰 업로드 여부 및 시간
-    private Boolean firstReviewSubmitted;
-    private Instant firstReviewSubmittedAt;
-
-    // 수정 요청 여부 및 시간
-    private Boolean revisionRequested;
-    private Instant revisionRequestedAt;
-
-    // 2차 리뷰 업로드 여부 및 시간
-    private Boolean secondReviewSubmitted;
-    private Instant secondReviewSubmittedAt;
-
     public void changeAddressConfirmed(boolean addressConfirmed) {
         this.addressConfirmed = addressConfirmed;
         this.addressConfirmedAt = Instant.now();
     }
 
-    public void changeFirstReviewSubmitted(boolean firstReviewSubmitted) {
-        this.firstReviewSubmitted = firstReviewSubmitted;
-        this.firstReviewSubmittedAt = Instant.now();
-    }
-
-    public void changeRevisionRequested(boolean revisionRequested) {
-        this.revisionRequested = revisionRequested;
-        this.revisionRequestedAt = Instant.now();
-    }
-
-    public void changeSecondReviewSubmitted(boolean secondReviewSubmitted) {
-        this.secondReviewSubmitted = secondReviewSubmitted;
-        this.secondReviewSubmittedAt = Instant.now();
-    }
-
     public void changeStatus(ParticipationStatus newStatus) {
         this.status = newStatus;
     }
-
-
-
 }
