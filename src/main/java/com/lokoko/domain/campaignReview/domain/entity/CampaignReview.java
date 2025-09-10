@@ -91,7 +91,7 @@ public class CampaignReview extends BaseEntity {
      */
     public void requestFirstReview(String captionWithHashtags) {
         this.captionWithHashtags = captionWithHashtags;
-        this.status = ReviewStatus.REVISION_REQUESTED;
+        this.status = ReviewStatus.SUBMITTED;
     }
 
     /**

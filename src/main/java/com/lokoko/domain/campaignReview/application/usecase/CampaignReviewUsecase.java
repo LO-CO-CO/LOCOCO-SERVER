@@ -50,7 +50,7 @@ public class CampaignReviewUsecase {
     @Transactional
     public ReviewUploadResponse uploadSecond(Long userId, Long campaignId, SecondReviewUploadRequest request) {
         Creator creator = creatorGetService.findByUserId(userId);
-        CreatorCampaign participation = creatorGetService.findParticipation(campaignId, creator.getId());
+        CreatorCampaign participation = creatorGetService.findParticipation(creator.getId(), campaignId);
 
         campaignReviewGetService.assertRoundNotExists(participation.getId(), ReviewRound.SECOND);
 
