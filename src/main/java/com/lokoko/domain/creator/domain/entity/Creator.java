@@ -62,11 +62,6 @@ public class Creator {
     @Column
     private String phoneNumber;
 
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    @Column
-    private ContentLanguage contentLanguage = ContentLanguage.ENGLISH;
-
     @Column
     private String country;
 
@@ -104,13 +99,11 @@ public class Creator {
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Builder.Default
     @Column
     private CreatorStatus creatorStatus = CreatorStatus.NOT_APPROVED;
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Builder.Default
     @Column
     private CreatorType creatorType = CreatorType.NORMAL;
 
