@@ -2,7 +2,7 @@ package com.lokoko.domain.like.domain.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 
-import com.lokoko.domain.review.domain.entity.Review;
+import com.lokoko.domain.productReview.domain.entity.Review;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;

@@ -1,6 +1,6 @@
 package com.lokoko.global.utils;
 
-import com.lokoko.domain.review.domain.entity.enums.Rating;
+import com.lokoko.domain.productReview.domain.entity.enums.Rating;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 

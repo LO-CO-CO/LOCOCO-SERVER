@@ -1,5 +1,6 @@
 package com.lokoko.domain.creator.domain.entity;
 
+import com.lokoko.domain.creator.domain.entity.enums.ContentLanguage;
 import com.lokoko.domain.creator.domain.entity.enums.CreatorStatus;
 import com.lokoko.domain.creator.domain.entity.enums.CreatorType;
 import com.lokoko.domain.creator.domain.entity.enums.Gender;
@@ -84,16 +85,22 @@ public class Creator {
     @Enumerated(EnumType.STRING)
     private SkinTone skinTone;
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    private ContentLanguage contentLanguage = ContentLanguage.ENGLISH;
+
     @Column
     private String instaLink;
 
     @Column
     private String tiktokLink;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column
     private CreatorStatus creatorStatus = CreatorStatus.NOT_APPROVED;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column
     private CreatorType creatorType = CreatorType.NORMAL;
@@ -104,4 +111,59 @@ public class Creator {
         return countryCode + phoneNumber;
     }
 
+    public void changeCreatorName(String creatorName) {
+        this.creatorName = creatorName;
+    }
+
+    public void changeFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void changeLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void changeCountryCode(String countryCode) {
+        this.countryCode = countryCode;
+    }
+
+    public void changePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void changeCountry(String country) {
+        this.country = country;
+    }
+
+    public void changeStateOrProvince(String stateOrProvince) {
+        this.stateOrProvince = stateOrProvince;
+    }
+
+    public void changeCityOrTown(String cityOrTown) {
+        this.cityOrTown = cityOrTown;
+    }
+
+    public void changeAddressLine1(String addressLine1) {
+        this.addressLine1 = addressLine1;
+    }
+
+    public void changeAddressLine2(String addressLine2) {
+        this.addressLine2 = addressLine2;
+    }
+
+    public void changePostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    public void changeSkinType(SkinType skinType) {
+        this.skinType = skinType;
+    }
+
+    public void changeSkinTone(SkinTone skinTone) {
+        this.skinTone = skinTone;
+    }
+
+    public void changeContentLanguage(ContentLanguage contentLanguage) {
+        this.contentLanguage = contentLanguage;
+    }
 }

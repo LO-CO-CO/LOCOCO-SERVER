@@ -1,6 +1,6 @@
 package com.lokoko.domain.socialclip.domain;
 
-import com.lokoko.domain.socialclip.domain.entity.enums.Content;
+import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -43,5 +43,5 @@ public class SocialClip extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Content content;
+    private ContentType contentType;
 }
