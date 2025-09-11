@@ -1,6 +1,7 @@
 package com.lokoko.domain.image.domain.entity;
 
 import com.lokoko.domain.campaign.domain.entity.Campaign;
+import com.lokoko.domain.image.domain.entity.enums.ImageType;
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -27,6 +28,18 @@ public class CampaignImage extends BaseEntity {
     @JoinColumn(name = "campaign_id")
     private Campaign campaign;
 
-    @Column(name = "is_main")
-    private boolean isMain;
+    private int displayOrder;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ImageType imageType;
+
+    public static CampaignImage createCampaignImage(String imageUrl, int displayOrder, ImageType imageType, Campaign campaign) {
+        return CampaignImage.builder()
+                .url(imageUrl)
+                .campaign(campaign)
+                .displayOrder(displayOrder)
+                .imageType(imageType)
+                .build();
+    }
 }

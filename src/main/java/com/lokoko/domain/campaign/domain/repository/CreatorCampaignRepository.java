@@ -17,4 +17,6 @@ public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select c from CreatorCampaign c where c.id = :id")
     CreatorCampaign getByIdForUpdate(@Param("id") Long id);
+
+    Optional<CreatorCampaign> findByCreatorIdAndCampaignId(Long creatorId, Long campaignId);
 }
