@@ -59,7 +59,7 @@ public record CreatorMyPageUpdateRequest(
         @Schema(description = "피부 타입 (드롭다운 6개)", example = "COMBINATION")
         SkinType skinType,
 
-        @Schema(description = "피부 톤 (드롭다운 20개)", example = "LIGHT")
+        @Schema(description = "피부 톤 (드롭다운 20개)", example = "SHADE_12")
         SkinTone skinTone
 ) {
 }
