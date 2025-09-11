@@ -44,9 +44,4 @@ public class CampaignController {
         CampaignMediaResponse response = campaignService.createMediaPresignedUrl(brandId, mediaRequest);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.CAMPAIGN_MEDIA_PRESIGNED_URL_SUCCESS.getMessage(), response);
     }
-
-
-
-
-
 }

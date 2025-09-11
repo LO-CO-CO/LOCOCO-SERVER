@@ -213,7 +213,9 @@ public class Campaign extends BaseEntity {
         return Stream.of(
                 this.brand == null,
                 this.title == null || this.title.isBlank(),
+                this.language == null,
                 this.campaignType == null,
+                this.campaignProductType == null,
                 this.applyStartDate == null,
                 this.applyDeadline == null,
                 this.creatorAnnouncementDate == null,
@@ -243,7 +245,4 @@ public class Campaign extends BaseEntity {
                 .eligibilityRequirements(request.eligibilityRequirements())
                 .build();
     }
-
-
-
 }
