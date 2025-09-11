@@ -23,7 +23,7 @@ public class CreatorGetService {
                 .orElseThrow(CreatorNotFoundException::new);
     }
 
-    public CreatorCampaign findParticipation(Long creatorId, Long campaignId) {
+    public CreatorCampaign findParticipation(Long campaignId, Long creatorId) {
 
         return creatorCampaignRepository
                 .findByCampaign_IdAndCreator_Id(campaignId, creatorId)

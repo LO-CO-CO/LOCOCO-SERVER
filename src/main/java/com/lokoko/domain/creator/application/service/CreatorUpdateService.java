@@ -71,9 +71,8 @@ public class CreatorUpdateService {
     /**
      * 배송지 확정 - 참여 레코드 조회 → 주소 확정 플래그/시간 변경 - 참여 상태는 공통 로직으로 재계산(주소만 확정이면 APPROVED_ADDRESS_CONFIRMED)
      */
-    public void confirmAddress(Long creatorId, Long campaignId) {
-        CreatorCampaign participation = creatorGetService
-                .findParticipation(campaignId, creatorId);
+    public void confirmAddress(Long campaignId, Long creatorId) {
+        CreatorCampaign participation = creatorGetService.findParticipation(campaignId, creatorId);
 
         participation.changeAddressConfirmed(true);
 

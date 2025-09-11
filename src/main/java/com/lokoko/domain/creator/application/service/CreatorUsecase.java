@@ -36,6 +36,6 @@ public class CreatorUsecase {
     public void confirmAddress(Long userId, Long campaignId) {
         Creator creator = creatorGetService.findByUserId(userId);
 
-        creatorUpdateService.confirmAddress(creator.getId(), campaignId);
+        creatorUpdateService.confirmAddress(campaignId, creator.getId());
     }
 }

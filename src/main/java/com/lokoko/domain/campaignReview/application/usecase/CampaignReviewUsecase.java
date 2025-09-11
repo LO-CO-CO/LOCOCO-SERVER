@@ -34,7 +34,7 @@ public class CampaignReviewUsecase {
     @Transactional
     public ReviewUploadResponse uploadFirst(Long userId, Long campaignId, FirstReviewUploadRequest request) {
         Creator creator = creatorGetService.findByUserId(userId);
-        CreatorCampaign participation = creatorGetService.findParticipation(campaignId, creator.getId());
+        CreatorCampaign participation = creatorGetService.findParticipation(creator.getId(), campaignId);
 
         campaignReviewGetService.assertRoundNotExists(participation.getId(), ReviewRound.FIRST);
 
@@ -50,7 +50,7 @@ public class CampaignReviewUsecase {
     @Transactional
     public ReviewUploadResponse uploadSecond(Long userId, Long campaignId, SecondReviewUploadRequest request) {
         Creator creator = creatorGetService.findByUserId(userId);
-        CreatorCampaign participation = creatorGetService.findParticipation(creator.getId(), campaignId);
+        CreatorCampaign participation = creatorGetService.findParticipation(campaignId, creator.getId());
 
         campaignReviewGetService.assertRoundNotExists(participation.getId(), ReviewRound.SECOND);
 
