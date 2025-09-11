@@ -1,0 +1,34 @@
+package com.lokoko.domain.campaign.domain.entity.enums;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public enum CampaignDetailPageStatus {
+    // 지원 없는 상태
+    OPEN_RESERVED("OPEN_RESERVED"),
+    RECRUITING("RECRUITING"),
+    NOT_APPLIED_ENDED("NOT_APPLIED_ENDED"),
+
+    // 지원 있는 상태 - 대기/거절
+    PENDING("PENDING"),
+    REJECTED("REJECTED"),
+
+    // 승인됨 - 진행 상태들
+    APPROVED_PENDING_ACTION("APPROVED_PENDING_ACTION"),
+    APPROVED_ADDRESS_CONFIRMED("APPROVED_ADDRESS_CONFIRMED"),
+    APPROVED_FIRST_REVIEW_DONE("APPROVED_FIRST_REVIEW_DONE"),
+    APPROVED_REVISION_REQUESTED("APPROVED_REVISION_REQUESTED"),
+    APPROVED_REVISION_CONFIRMED("APPROVED_REVISION_CONFIRMED"),
+    APPROVED_SECOND_REVIEW_DONE("APPROVED_SECOND_REVIEW_DONE"),
+
+    // 만료 상태들
+    APPROVED_ADDRESS_NOT_CONFIRMED("APPROVED_ADDRESS_NOT_CONFIRMED"),
+    APPROVED_REVIEW_NOT_CONFIRMED("APPROVED_REVIEW_NOT_CONFIRMED"),
+
+    // 기본값
+    UNKNOWN("UNKNOWN");
+
+    private final String code;
+}
