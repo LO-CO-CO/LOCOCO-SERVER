@@ -62,7 +62,7 @@ public class CampaignReviewUsecase {
         // 1차와 동일 포맷만 허용
         campaignReviewGetService.findFirstContent(participation.getId())
                 .ifPresent(first -> {
-                    if (!first.equals(request.content())) {
+                    if (!first.equals(request.contentType())) {
                         throw new MismatchedContentTypeException();
                     }
                 });

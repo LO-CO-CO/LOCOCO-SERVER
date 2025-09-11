@@ -38,11 +38,6 @@ public record SecondReviewUploadRequest(
         @Schema(requiredMode = REQUIRED, description = "게시물 URL", example = "https://www.instagram.com/p/XXXXXXXX/")
         @NotBlank
         @Size(max = 1024)
-        String postUrl,
-
-        @Schema(description = "브랜드 수정 요청 사항", example = "Please mention the brand's formula more in the video and add the hashtag #glassskin.")
-        @NotBlank
-        @Size(max = 1000)
-        String brandNote
+        String postUrl
 ) {
 }

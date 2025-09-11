@@ -27,7 +27,6 @@ public class CampaignReviewMapper {
         campaignReview.bindToCreatorCampaign(creatorCampaign);
         campaignReview.designateRound(ReviewRound.SECOND);
         campaignReview.chooseContentType(secondReviewUploadRequest.contentType());
-        campaignReview.requestModification(secondReviewUploadRequest.brandNote());
         campaignReview.requestSecondReview(secondReviewUploadRequest.captionWithHashtags(),
                 secondReviewUploadRequest.postUrl());
         return campaignReview;
