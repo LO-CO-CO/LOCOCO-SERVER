@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CreatorType {
     NORMAL("일반 회원"),
-    VIP("VIP");
+    PRO("Pro");
 
     private final String displayName;
 }
