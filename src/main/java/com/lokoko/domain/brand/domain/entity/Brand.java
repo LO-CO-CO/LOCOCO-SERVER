@@ -45,4 +45,33 @@ public class Brand {
     // 상세주소
     private String addressDetail;
 
+
+    public void assignBrandName(String brandName) {
+        this.brandName = brandName;
+    }
+
+    public void assignProfileNImage(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public void assignManagerName(String managerName) {
+        this.managerName = managerName;
+    }
+
+    public void assignManagerPosition(String managerPosition) {
+        this.managerPosition = managerPosition;
+    }
+
+    public void assignPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void assignRoadAddress(String roadAddress) {
+        this.roadAddress = roadAddress;
+    }
+
+    public void assignAddressDetail(String addressDetail) {
+        this.addressDetail = addressDetail;
+    }
+
 }
