@@ -25,7 +25,7 @@ public record CreatorMyPageResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "주소 정보")
         CreatorAddressInfo creatorAddressInfo,
 
-        @Schema(description = "피부 정보")
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "피부 정보")
         CreatorFaceInfo creatorFaceInfo,
 
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "크리에이터 타입", example = "VIP")

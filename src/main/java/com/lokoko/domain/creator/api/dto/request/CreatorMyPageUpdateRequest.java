@@ -15,8 +15,8 @@ public record CreatorMyPageUpdateRequest(
          */
 
         @Schema(description = "크리에이터 이름 (최대 30자, 영문/숫자/마침표/언더바만)", example = "hun_cozyboy.01")
-        @Pattern(regexp = "^[A-Za-z0-9._]+$")
-        @Size(max = 30)
+        @Pattern(regexp = "^[a-z0-9._]+$")
+        @Size(max = 15)
         String creatorName,
 
         @Schema(description = "이름", example = "Jessica")
@@ -36,7 +36,7 @@ public record CreatorMyPageUpdateRequest(
         @Schema(description = "국가", example = "US")
         String country,
 
-        @Schema(description = "State (미국은 드롭다운, 그 외 텍스트 최대 20자)", example = "CA")
+        @Schema(description = "State (텍스트 최대 20자)", example = "CA")
         @Size(max = 20)
         String stateOrProvince,
 

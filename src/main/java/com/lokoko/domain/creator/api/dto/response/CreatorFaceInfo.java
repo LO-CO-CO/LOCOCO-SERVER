@@ -14,10 +14,10 @@ public record CreatorFaceInfo(
          * 크리에이터 피부 정보 (피부타입, 피부톤)
          */
 
-        @Schema(description = "피부 타입 (드롭다운 6개)", example = "COMBINATION")
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "피부 타입 (드롭다운 6개)", example = "COMBINATION")
         SkinType skinType,
 
-        @Schema(description = "피부톤 (드롭다운 20개)", example = "LIGHT")
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "피부톤 (드롭다운 20개)", example = "LIGHT")
         SkinTone skinTone
 ) {
 }

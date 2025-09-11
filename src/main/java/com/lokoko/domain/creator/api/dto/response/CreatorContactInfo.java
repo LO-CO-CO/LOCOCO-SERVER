@@ -15,7 +15,7 @@ public record CreatorContactInfo(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Email", example = "huncozyboy@example.com")
         String email,
 
-        @Schema(description = "국가번호", example = "+82")
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "국가번호", example = "+82")
         String countryCode,
 
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "전화번호 (최대 15자)", example = "010123456789")

@@ -1,5 +1,6 @@
 package com.lokoko.domain.creator.domain.entity;
 
+import com.lokoko.domain.creator.domain.entity.enums.ContentLanguage;
 import com.lokoko.domain.creator.domain.entity.enums.CreatorStatus;
 import com.lokoko.domain.creator.domain.entity.enums.CreatorType;
 import com.lokoko.domain.creator.domain.entity.enums.Gender;
@@ -83,6 +84,10 @@ public class Creator {
 
     @Enumerated(EnumType.STRING)
     private SkinTone skinTone;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private ContentLanguage contentLanguage = ContentLanguage.ENGLISH;
 
     @Column
     private String instaLink;
