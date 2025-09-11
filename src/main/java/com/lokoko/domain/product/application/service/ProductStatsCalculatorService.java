@@ -2,8 +2,8 @@ package com.lokoko.domain.product.application.service;
 
 import com.lokoko.domain.product.api.dto.ReviewStats;
 import com.lokoko.domain.product.api.dto.response.RatingPercentResponse;
-import com.lokoko.domain.review.api.dto.request.RatingCount;
-import com.lokoko.domain.review.domain.entity.enums.Rating;
+import com.lokoko.domain.productReview.api.dto.request.RatingCount;
+import com.lokoko.domain.productReview.domain.entity.enums.Rating;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;

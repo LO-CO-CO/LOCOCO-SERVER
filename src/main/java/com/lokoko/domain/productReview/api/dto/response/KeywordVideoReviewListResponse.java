@@ -1,0 +1,27 @@
+package com.lokoko.domain.productReview.api.dto.response;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
+import com.lokoko.global.common.response.PageableResponse;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
+import lombok.Builder;
+import org.springframework.data.domain.Slice;
+
+@Builder
+public record KeywordVideoReviewListResponse(
+        @Schema(requiredMode = REQUIRED)
+        String searchQuery,
+        @Schema(requiredMode = REQUIRED)
+        List<VideoReviewResponse> reviews,
+        @Schema(requiredMode = REQUIRED)
+        PageableResponse pageInfo
+) {
+    public static KeywordVideoReviewListResponse from(String keyword, Slice<VideoReviewResponse> reviews) {
+        return new KeywordVideoReviewListResponse(
+                keyword,
+                reviews.getContent(),
+                PageableResponse.of(reviews)
+        );
+    }
+}
