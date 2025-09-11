@@ -1,5 +1,6 @@
 package com.lokoko.domain.creator.domain.entity;
 
+import com.lokoko.domain.creator.domain.entity.enums.ContentLanguage;
 import com.lokoko.domain.creator.domain.entity.enums.CreatorStatus;
 import com.lokoko.domain.creator.domain.entity.enums.CreatorType;
 import com.lokoko.domain.creator.domain.entity.enums.Gender;
@@ -20,11 +21,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Entity
 @Table(name = "creators")
 @Builder
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Creator {
@@ -59,6 +62,11 @@ public class Creator {
     @Column
     private String phoneNumber;
 
+    @Enumerated(EnumType.STRING)
+    @Builder.Default
+    @Column
+    private ContentLanguage contentLanguage = ContentLanguage.ENGLISH;
+
     @Column
     private String country;
 
@@ -91,10 +99,12 @@ public class Creator {
     private String tiktokLink;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     @Column
     private CreatorStatus creatorStatus = CreatorStatus.NOT_APPROVED;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     @Column
     private CreatorType creatorType = CreatorType.NORMAL;
 
