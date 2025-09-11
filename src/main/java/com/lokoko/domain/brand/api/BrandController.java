@@ -34,7 +34,6 @@ public class BrandController {
 
     @PatchMapping("/register/info")
     @Operation(summary = "회원가입시 브랜드 추가 정보를 입력하는 API 입니다.")
-
     public ApiResponse<Void> updateBrandInfo(
             @Parameter(hidden = true) @CurrentUser Long userId,
             @RequestBody @Valid BrandInfoUpdateRequest request) {

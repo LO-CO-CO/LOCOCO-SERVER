@@ -1,7 +1,12 @@
 package com.lokoko.domain.creator.api;
 
+import com.lokoko.domain.creator.api.dto.request.CreatorIdCheckRequest;
+import com.lokoko.domain.creator.api.dto.request.CreatorInfoUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorMyPageUpdateRequest;
+import com.lokoko.domain.creator.api.dto.response.CreatorInfoResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorMyPageResponse;
+import com.lokoko.domain.creator.api.dto.response.CreatorRegisterCompleteResponse;
+import com.lokoko.domain.creator.api.dto.response.CreatorSnsConnectedResponse;
 import com.lokoko.domain.creator.api.message.ResponseMessage;
 import com.lokoko.domain.creator.application.service.CreatorUsecase;
 import com.lokoko.global.auth.annotation.CurrentUser;
@@ -52,5 +57,53 @@ public class CreatorController {
         creatorUsecase.confirmAddress(userId, campaignId);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADDRESS_CONFIRM_SUCCESS.getMessage(), null);
+    }
+
+    // 회원 가입
+    @PostMapping("/register/check-id")
+    @Operation(summary = "크리에이터 ID 사용 가능 여부를 체크하는 API입니다")
+    public ApiResponse<Void> checkCreatorId(
+            @RequestBody @Valid CreatorIdCheckRequest request,
+            @Parameter(hidden = true) @CurrentUser Long userId) {
+
+        creatorUsecase.checkCreatorIdAvailable(request.creatorName(), userId);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_ID_CHECK_SUCCESS.getMessage());
+    }
+
+    @PatchMapping("/register/info")
+    @Operation(summary = "회원가입시 크리에이터의 추가 정보를 입력/수정하는 API입니다")
+    public ApiResponse<Void> updateCreatorRegisterInfo(
+            @Parameter(hidden = true) @CurrentUser Long userId,
+            @RequestBody @Valid CreatorInfoUpdateRequest request) {
+
+        creatorUsecase.updateCreatorRegisterInfo(userId, request);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_INFO_UPDATE_SUCCESS.getMessage());
+    }
+
+    @GetMapping("/sns")
+    @Operation(summary = "크리에이터 SNS 연동 여부를 체크하는 API입니다")
+    public ApiResponse<CreatorSnsConnectedResponse> getCreatorSnsConnected(
+            @Parameter(hidden = true) @CurrentUser Long userId) {
+
+        CreatorSnsConnectedResponse response = creatorUsecase.getCreatorSnsStatus(userId);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_GET_SNS_STATUS_SUCCESS.getMessage(), response);
+    }
+
+    @GetMapping("/register/info")
+    @Operation(summary = "회원가입시 입력했던 추가 정보를 확인하는 API입니다")
+    public ApiResponse<CreatorInfoResponse> getRegisterInfo(
+            @Parameter(hidden = true) @CurrentUser Long userId) {
+
+        CreatorInfoResponse response = creatorUsecase.getRegisterInfo(userId);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_GET_INFO_REGISTER_SUCCESS.getMessage(), response);
+    }
+
+    @PostMapping("/register/complete")
+    @Operation(summary = "크리에이터 최종 가입 완료")
+    public ApiResponse<CreatorRegisterCompleteResponse> completeCreatorSignup(
+            @Parameter(hidden = true) @CurrentUser Long userId) {
+
+        CreatorRegisterCompleteResponse result = creatorUsecase.completeCreatorSignup(userId);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_LOGIN_SUCCESS.getMessage(), result);
     }
 }
