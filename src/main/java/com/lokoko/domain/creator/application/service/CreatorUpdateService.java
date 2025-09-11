@@ -3,8 +3,10 @@ package com.lokoko.domain.creator.application.service;
 
 import com.lokoko.domain.campaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.campaignReview.application.service.CreatorCampaignUpdateService;
+import com.lokoko.domain.creator.api.dto.request.CreatorInfoUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorMyPageUpdateRequest;
 import com.lokoko.domain.creator.domain.entity.Creator;
+import com.lokoko.domain.creator.exception.CreatorIdAlreadyExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,4 +83,34 @@ public class CreatorUpdateService {
 
         creatorCampaignUpdateService.refreshParticipationStatus(participation.getId());
     }
+
+    /**
+     * 회원가입 시 초기 정보 입력 / 수정
+     */
+
+    public void updateRegisterCreatorInfo(Creator creator, CreatorInfoUpdateRequest request) {
+
+        if (!creatorGetService.isCreatorNameAvailable(request.creatorName(), creator.getId())) {
+            throw new CreatorIdAlreadyExistsException();
+        }
+
+        creator.changeCreatorName(request.creatorName());
+        creator.changeBirthDate(request.birthDate());
+        creator.changeGender(request.gender());
+        creator.changeFirstName(request.firstName());
+        creator.changeLastName(request.lastName());
+        creator.changeCountryCode(request.countryCode());
+        creator.changePhoneNumber(request.phoneNumber());
+        creator.changeContentLanguage(request.contentLanguage());
+        creator.changeCountry(request.country());
+        creator.changeStateOrProvince(request.stateOrProvince());
+        creator.changeCityOrTown(request.cityOrTown());
+        creator.changeAddressLine1(request.addressLine1());
+        creator.changeAddressLine2(request.addressLine2());
+        creator.changePostalCode(request.postalCode());
+        creator.changeSkinType(request.skinType());
+        creator.changeSkinTone(request.skinTone());
+    }
+
+
 }
