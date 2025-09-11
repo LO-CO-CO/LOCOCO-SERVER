@@ -125,6 +125,14 @@ public class Creator {
         this.lastName = lastName;
     }
 
+    public void changeBirthDate(String birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public void changeGender(Gender gender) {
+        this.gender = gender;
+    }
+
     public void changeCountryCode(String countryCode) {
         this.countryCode = countryCode;
     }
