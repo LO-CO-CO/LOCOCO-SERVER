@@ -3,7 +3,7 @@ package com.lokoko.domain.campaignReview.application.service;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.campaignReview.domain.repository.CampaignReviewRepository;
 import com.lokoko.domain.campaignReview.exception.ReviewAlreadySubmittedException;
-import com.lokoko.domain.socialclip.domain.entity.enums.Content;
+import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ public class CampaignReviewGetService {
         }
     }
 
-    public Optional<Content> findFirstContent(Long creatorCampaignId) {
+    public Optional<ContentType> findFirstContent(Long creatorCampaignId) {
         return campaignReviewRepository.findContentOnly(creatorCampaignId, ReviewRound.FIRST);
     }
 

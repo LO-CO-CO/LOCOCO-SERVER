@@ -1,7 +1,7 @@
 package com.lokoko.domain.campaignReview.api.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.lokoko.domain.socialclip.domain.entity.enums.Content;
+import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -20,7 +20,7 @@ public record FirstReviewUploadRequest(
 
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "콘텐츠 포맷", example = "INSTA_REELS")
         @NotNull
-        Content content,
+        ContentType contentType,
 
         @Schema(description = "캠페인 리뷰 이미지 URL 리스트 (최소 1장)", example = "[\"https://s3.example.com/review/img1.jpg\", \"https://s3.example.com/review/img2.jpg\"]")
         @NotEmpty

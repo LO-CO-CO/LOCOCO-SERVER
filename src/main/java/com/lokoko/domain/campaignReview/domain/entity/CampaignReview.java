@@ -5,7 +5,7 @@ import static jakarta.persistence.FetchType.LAZY;
 import com.lokoko.domain.campaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewStatus;
-import com.lokoko.domain.socialclip.domain.entity.enums.Content;
+import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -59,7 +59,7 @@ public class CampaignReview extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Content content;
+    private ContentType contentType;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "creator_campaign_id", nullable = false)
@@ -82,8 +82,8 @@ public class CampaignReview extends BaseEntity {
     /**
      * SNS 콘텐츠 유형 선택시 호출 메서드 (인스타 게시물, 인스타 릴스, 틱톡 비디오)
      */
-    public void chooseContentType(Content content) {
-        this.content = content;
+    public void chooseContentType(ContentType contentType) {
+        this.contentType = contentType;
     }
 
     /**

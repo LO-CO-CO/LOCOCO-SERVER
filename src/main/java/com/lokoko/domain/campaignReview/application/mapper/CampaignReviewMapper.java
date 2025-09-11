@@ -16,7 +16,7 @@ public class CampaignReviewMapper {
         CampaignReview campaignReview = new CampaignReview();
         campaignReview.bindToCreatorCampaign(creatorCampaign);
         campaignReview.designateRound(ReviewRound.FIRST);
-        campaignReview.chooseContentType(request.content());
+        campaignReview.chooseContentType(request.contentType());
         campaignReview.requestFirstReview(request.captionWithHashtags());
         return campaignReview;
     }
@@ -26,7 +26,7 @@ public class CampaignReviewMapper {
         CampaignReview campaignReview = new CampaignReview();
         campaignReview.bindToCreatorCampaign(creatorCampaign);
         campaignReview.designateRound(ReviewRound.SECOND);
-        campaignReview.chooseContentType(secondReviewUploadRequest.content());
+        campaignReview.chooseContentType(secondReviewUploadRequest.contentType());
         campaignReview.requestModification(secondReviewUploadRequest.brandNote());
         campaignReview.requestSecondReview(secondReviewUploadRequest.captionWithHashtags(),
                 secondReviewUploadRequest.postUrl());

@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum Content {
+public enum ContentType {
 
     INSTA_REELS("인스타 릴스"),
     TIKTOK_VIDEO("틱톡 비디오"),
