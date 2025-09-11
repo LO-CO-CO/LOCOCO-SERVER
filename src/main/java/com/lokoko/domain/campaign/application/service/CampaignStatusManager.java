@@ -2,6 +2,7 @@ package com.lokoko.domain.campaign.application.service;
 
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.CreatorCampaign;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignDetailPageStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.ParticipationStatus;
 import com.lokoko.domain.campaign.exception.CampaignNotViewableException;
@@ -68,7 +69,7 @@ public class CampaignStatusManager {
      * @param creatorCampaign 크리에이터의 캠페인 참여정보
      * @return 캠페인 상세페이지에서 캠페인 및 크리에이터 지원 관련 상태
      */
-    public String determineStatusInDetailPage(Campaign campaign, Optional<CreatorCampaign> creatorCampaign) {
+    public CampaignDetailPageStatus determineStatusInDetailPage(Campaign campaign, Optional<CreatorCampaign> creatorCampaign) {
 
         // 실시간 상태 계산
         CampaignStatus campaignStatus = determineCampaignStatus(campaign);
@@ -77,68 +78,29 @@ public class CampaignStatusManager {
             throw new CampaignNotViewableException(); // DRAFT 상태와, WAITING_APPROVAL 상태인 캠페인은 보여지면 안 된다.
         }
 
-        String returnStatus = null;
-
         // 크리에이터의 지원 없는 상태
         if (creatorCampaign.isEmpty()) {
-            if (campaignStatus == CampaignStatus.OPEN_RESERVED){ // 캠페인 승인 받고, 오픈 예정인 상태
-                returnStatus = "OPEN_RESERVED";
-            }
-            if (campaignStatus == CampaignStatus.RECRUITING){  // 캠페인 모집 중인데, 크리에이터 지원 아직 안한 경우
-                returnStatus = "RECRUITING";
-            }
-            if (campaignStatus == CampaignStatus.RECRUITMENT_CLOSED
-                    || campaignStatus == CampaignStatus.IN_REVIEW
-                    || campaignStatus == CampaignStatus.COMPLETED) {
-                returnStatus = "NOT_APPLIED_ENDED";
-            }
+            return switch (campaignStatus) {
+                case OPEN_RESERVED -> CampaignDetailPageStatus.OPEN_RESERVED;
+                case RECRUITING -> CampaignDetailPageStatus.RECRUITING;
+                case RECRUITMENT_CLOSED, IN_REVIEW, COMPLETED -> CampaignDetailPageStatus.NOT_APPLIED_ENDED;
+                default -> CampaignDetailPageStatus.UNKNOWN;
+            };
         } else { // 크리에이터 지원 있는 상태
-            CreatorCampaign participation = creatorCampaign.get(); // 크리에이터의 참여 정보
-            ParticipationStatus participationStatus = participation.getStatus(); // 참여 상태
-
-            // 결과 나오기 전
-            // 대기 상태
-            if (participationStatus == ParticipationStatus.PENDING) {
-                returnStatus = "PENDING";
-            }
-            // 거절됨
-            else if (participationStatus == ParticipationStatus.REJECTED) {
-                returnStatus = "REJECTED";
-            }
-            // 승인됨 - 초기 상태
-            else if (participationStatus == ParticipationStatus.APPROVED) {
-                returnStatus = "APPROVED_PENDING_ACTION";
-            }
-            // 승인됨 - 진행 상태들
-            else if (participationStatus == ParticipationStatus.APPROVED_ADDRESS_CONFIRMED) {
-                returnStatus = "APPROVED_ADDRESS_CONFIRMED";
-            }
-            else if (participationStatus == ParticipationStatus.APPROVED_FIRST_REVIEW_DONE) {
-                returnStatus = "APPROVED_FIRST_REVIEW_DONE";
-            }
-            else if (participationStatus == ParticipationStatus.APPROVED_REVISION_REQUESTED) {
-                returnStatus = "APPROVED_REVISION_REQUESTED";
-            }
-            else if (participationStatus == ParticipationStatus.APPROVED_REVISION_CONFIRMED) {
-                returnStatus = "APPROVED_REVISION_CONFIRMED";
-            }
-            // 완료 상태
-            else if (participationStatus == ParticipationStatus.APPROVED_SECOND_REVIEW_DONE) {
-                returnStatus = "APPROVED_SECOND_REVIEW_DONE";
-            }
-            // 만료 상태들
-            else if (participationStatus == ParticipationStatus.APPROVED_ADDRESS_NOT_CONFIRMED) {
-                returnStatus = "APPROVED_ADDRESS_NOT_CONFIRMED";
-            }
-            else if (participationStatus == ParticipationStatus.APPROVED_REVIEW_NOT_CONFIRMED) {
-                returnStatus = "APPROVED_REVIEW_NOT_CONFIRMED";
-            }
+            ParticipationStatus participationStatus = creatorCampaign.get().getStatus();
+            
+            return switch (participationStatus) {
+                case PENDING -> CampaignDetailPageStatus.PENDING;
+                case REJECTED -> CampaignDetailPageStatus.REJECTED;
+                case APPROVED -> CampaignDetailPageStatus.APPROVED_PENDING_ACTION;
+                case APPROVED_ADDRESS_CONFIRMED -> CampaignDetailPageStatus.APPROVED_ADDRESS_CONFIRMED;
+                case APPROVED_FIRST_REVIEW_DONE -> CampaignDetailPageStatus.APPROVED_FIRST_REVIEW_DONE;
+                case APPROVED_REVISION_REQUESTED -> CampaignDetailPageStatus.APPROVED_REVISION_REQUESTED;
+                case APPROVED_REVISION_CONFIRMED -> CampaignDetailPageStatus.APPROVED_REVISION_CONFIRMED;
+                case APPROVED_SECOND_REVIEW_DONE -> CampaignDetailPageStatus.APPROVED_SECOND_REVIEW_DONE;
+                case APPROVED_ADDRESS_NOT_CONFIRMED -> CampaignDetailPageStatus.APPROVED_ADDRESS_NOT_CONFIRMED;
+                case APPROVED_REVIEW_NOT_CONFIRMED -> CampaignDetailPageStatus.APPROVED_REVIEW_NOT_CONFIRMED;
+            };
         }
-
-        if (returnStatus == null) {
-            returnStatus = "UNKNOWN";
-        }
-
-        return returnStatus;
     }
 }

@@ -4,6 +4,7 @@ import com.lokoko.domain.campaign.api.dto.response.CampaignDetailResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.CreatorCampaign;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignDetailPageStatus;
 import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
 import com.lokoko.domain.campaign.domain.repository.CreatorCampaignRepository;
 import com.lokoko.domain.campaign.exception.CampaignNotFoundException;
@@ -39,7 +40,7 @@ public class CampaignReadService {
 
         //캠페인 상세페이지를 조회하는 크리에이터가 캠페인에 참여하지 않았을 수도 있으므로 Optional 을 반환
         Optional<CreatorCampaign> creatorCampaign = creatorCampaignRepository.findByCreatorIdAndCampaignId(creatorId, campaignId);
-        String campaignStatus =  campaignStatusManager.determineStatusInDetailPage(campaign , creatorCampaign);
+        CampaignDetailPageStatus campaignStatus =  campaignStatusManager.determineStatusInDetailPage(campaign , creatorCampaign);
 
         return CampaignDetailResponse.of(campaign, topImages, bottomImages, campaignStatus);
     }

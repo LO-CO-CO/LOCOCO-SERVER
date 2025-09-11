@@ -2,6 +2,7 @@ package com.lokoko.domain.campaign.api.dto.response;
 
 import com.lokoko.domain.brand.domain.entity.Brand;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignDetailPageStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
 import com.lokoko.global.common.enums.Language;
 
@@ -30,7 +31,7 @@ public record CampaignDetailResponse(
 
     public static CampaignDetailResponse of(Campaign campaign, List<CampaignImageResponse> topImages,
                                             List<CampaignImageResponse> bottomImages,
-                                            String campaignStatusCode) {
+                                            CampaignDetailPageStatus campaignStatusCode) {
 
         Brand brand = campaign.getBrand();
         return new CampaignDetailResponse(
@@ -49,7 +50,7 @@ public record CampaignDetailResponse(
                 campaign.getEligibilityRequirements(),
                 topImages,
                 bottomImages,
-                campaignStatusCode
+                campaignStatusCode.getCode()
         );
     }
 }
