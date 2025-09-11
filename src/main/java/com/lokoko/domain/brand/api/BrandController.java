@@ -31,7 +31,7 @@ public class BrandController {
             @Valid @RequestBody CampaignDraftRequest draftRequest) {
 
         CampaignCreateResponse response = campaignService.createCampaignDraft(brandId, draftRequest);
-        return ApiResponse.success(HttpStatus.CREATED,
+        return ApiResponse.success(HttpStatus.OK,
                 ResponseMessage.CAMPAIGN_DRAFT_SUCCESS.getMessage(), response);
     }
 
@@ -43,7 +43,7 @@ public class BrandController {
             @Valid @RequestBody CampaignPublishRequest publishRequest) {
 
         CampaignCreateResponse response = campaignService.createAndPublishCampaign(brandId, publishRequest);
-        return ApiResponse.success(HttpStatus.CREATED,
+        return ApiResponse.success(HttpStatus.OK,
                 ResponseMessage.CAMPAIGN_PUBLISH_SUCCESS.getMessage(), response);
     }
 
