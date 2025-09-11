@@ -175,7 +175,7 @@ public class AuthService {
                 } else if (user.getRole() == Role.BRAND && !isBrandInfoCompleted(user)) {
                     loginStatus = OauthLoginStatus.INFO_REQUIRED;
                 } else if (user.getRole() == Role.CREATOR && !isCreatorInfoCompleted(user)) {
-                    loginStatus = OauthLoginStatus.INFO_REQUIRED;
+                    loginStatus = getCreatorStatus(user);
                 } else {
                     loginStatus = OauthLoginStatus.LOGIN;
                 }
@@ -186,9 +186,9 @@ public class AuthService {
 
             user = userRepository.save(user);
 
-            String accessToken = jwtProvider.generateAccessToken(user.getId(), user.getRole().name(), googleUserId);
+            String accessToken = jwtProvider.generateGoogleAccessToken(user.getId(), user.getRole().name(), googleUserId);
             String tokenId = UUID.randomUUID().toString();
-            String refreshToken = jwtProvider.generateRefreshToken(user.getId(), user.getRole().name(), tokenId, googleUserId);
+            String refreshToken = jwtProvider.generateGoogleRefreshToken(user.getId(), user.getRole().name(), tokenId, googleUserId);
 
             String redisKey = REFRESH_TOKEN_KEY_PREFIX + user.getId();
             redisUtil.setRefreshToken(redisKey, refreshToken, refreshTokenExpiration);
@@ -247,8 +247,14 @@ public class AuthService {
             }
             // 동일한 역할이든 다른 역할이든 INFO_REQUIRED 유지
             // 단, Customer는 제외
-            resultStatus = (newRole == Role.CUSTOMER) ? OauthLoginStatus.LOGIN : OauthLoginStatus.INFO_REQUIRED;
-
+            if (newRole == Role.CUSTOMER) {
+                resultStatus = OauthLoginStatus.LOGIN;
+            } else if (newRole == Role.CREATOR) {
+                // 기존 Creator의 진행 상태 확인
+                resultStatus = getCreatorStatus(user);
+            } else {
+                resultStatus = OauthLoginStatus.INFO_REQUIRED;
+            }
         } else {
             //  LOGIN : 이미 모든 정보 입력 완료
             // 새로운 역할 요청 무시, 기존 상태 유지
@@ -259,8 +265,8 @@ public class AuthService {
         userRepository.save(user);
 
         String tokenId = UUID.randomUUID().toString();
-        String accessToken = jwtProvider.generateAccessToken(userId, newRole.name(), user.getGoogleId());
-        String refreshToken = jwtProvider.generateRefreshToken(userId, newRole.name(), tokenId, user.getGoogleId());
+        String accessToken = jwtProvider.generateGoogleAccessToken(userId, newRole.name(), user.getGoogleId());
+        String refreshToken = jwtProvider.generateGoogleRefreshToken(userId, newRole.name(), tokenId, user.getGoogleId());
 
         String redisKey = REFRESH_TOKEN_KEY_PREFIX + userId;
         redisUtil.setRefreshToken(redisKey, refreshToken, refreshTokenExpiration);
@@ -278,8 +284,39 @@ public class AuthService {
     // Creator 추가 정보 완성 여부 확인
     private boolean isCreatorInfoCompleted(User user) {
         Creator creator = user.getCreator();
-        return creator != null &&
-                creator.getCreatorName() != null;
+        if (creator == null) {
+            return false;
+        }
+
+        // 1단계: 기본 정보 확인 (creatorName만 체크)
+        boolean hasBasicInfo = creator.getCreatorName() != null;
+
+        // 2단계: SNS 연동 확인 (최소 하나 이상)
+        boolean hasSnsConnected = (creator.getInstaLink() != null) ||
+                (creator.getTiktokLink() != null);
+
+        // 둘 다 충족해야 완료
+        return hasBasicInfo && hasSnsConnected;
+    }
+
+    // 크리에이터 상태 확인
+    public OauthLoginStatus getCreatorStatus(User user) {
+        Creator creator = user.getCreator();
+        if (creator == null) {
+            return OauthLoginStatus.INFO_REQUIRED;
+        }
+
+        boolean hasBasicInfo = creator.getCreatorName() != null;
+        boolean hasSnsConnected = (creator.getInstaLink() != null) ||
+                (creator.getTiktokLink() != null);
+
+        if (!hasBasicInfo) {
+            return OauthLoginStatus.INFO_REQUIRED;
+        } else if (!hasSnsConnected) {
+            return OauthLoginStatus.SNS_REQUIRED;
+        } else {
+            return OauthLoginStatus.LOGIN;
+        }
     }
 
     // INFO_REQUIRED 상태 확인

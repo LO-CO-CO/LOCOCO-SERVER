@@ -26,6 +26,7 @@ public class JwtProvider {
     private static final String ROLE_CLAIM = "role";
     private static final String ROLE_PREFIX = "ROLE_";
     public static final String LINE_ID_CLAIM = "lineId";
+    public static final String GOOGLE_ID_CLAIM = "googleId";
 
     private final Key key;
     private final long accessTokenExpiration;
@@ -54,6 +55,19 @@ public class JwtProvider {
                 .compact();
     }
 
+    public String generateGoogleAccessToken(Long userId, String role, String googleId) {
+        return Jwts.builder()
+                .setSubject(userId.toString())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis()
+                        + accessTokenExpiration))
+                .claim(ID_CLAIM, userId)
+                .claim(ROLE_CLAIM, ROLE_PREFIX + role)
+                .claim(GOOGLE_ID_CLAIM, googleId)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     public String generateRefreshToken(Long userId, String role, String tokenId, String lineId) {
         return Jwts.builder()
                 .setId(tokenId)
@@ -64,6 +78,20 @@ public class JwtProvider {
                 .claim(ID_CLAIM, userId)
                 .claim(ROLE_CLAIM, ROLE_PREFIX + role)
                 .claim(LINE_ID_CLAIM, lineId)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateGoogleRefreshToken(Long userId, String role, String tokenId, String googleId) {
+        return Jwts.builder()
+                .setId(tokenId)
+                .setSubject(userId.toString())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis()
+                        + refreshTokenExpiration))
+                .claim(ID_CLAIM, userId)
+                .claim(ROLE_CLAIM, ROLE_PREFIX + role)
+                .claim(GOOGLE_ID_CLAIM, googleId)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
