@@ -162,4 +162,8 @@ public class Creator {
     public void changeSkinTone(SkinTone skinTone) {
         this.skinTone = skinTone;
     }
+
+    public void changeContentLanguage(ContentLanguage contentLanguage) {
+        this.contentLanguage = contentLanguage;
+    }
 }

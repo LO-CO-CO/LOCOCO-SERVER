@@ -39,6 +39,7 @@ public class CreatorMapper {
                         .build())
                 .creatorType(creator.getCreatorType())
                 .creatorStatus(creator.getCreatorStatus())
+                .contentLanguage(creator.getContentLanguage())
                 .build();
     }
 }

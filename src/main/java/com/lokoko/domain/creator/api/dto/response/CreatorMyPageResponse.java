@@ -1,6 +1,7 @@
 package com.lokoko.domain.creator.api.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.lokoko.domain.creator.domain.entity.enums.ContentLanguage;
 import com.lokoko.domain.creator.domain.entity.enums.CreatorStatus;
 import com.lokoko.domain.creator.domain.entity.enums.CreatorType;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -32,6 +33,9 @@ public record CreatorMyPageResponse(
         CreatorType creatorType,
 
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "크리에이터 승인 상태", example = "NOT_APPROVED")
-        CreatorStatus creatorStatus
+        CreatorStatus creatorStatus,
+
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "콘텐츠 언어", example = "ENGLISH")
+        ContentLanguage contentLanguage
 ) {
 }

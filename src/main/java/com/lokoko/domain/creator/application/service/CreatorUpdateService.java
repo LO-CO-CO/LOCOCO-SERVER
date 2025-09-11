@@ -64,6 +64,9 @@ public class CreatorUpdateService {
         if (request.skinTone() != null) {
             creator.changeSkinTone(request.skinTone());
         }
+        if (request.contentLanguage() != null) {
+            creator.changeContentLanguage(request.contentLanguage());
+        }
 
         return creator;
     }

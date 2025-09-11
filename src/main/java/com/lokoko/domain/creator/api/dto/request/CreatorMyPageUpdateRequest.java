@@ -1,5 +1,6 @@
 package com.lokoko.domain.creator.api.dto.request;
 
+import com.lokoko.domain.creator.domain.entity.enums.ContentLanguage;
 import com.lokoko.domain.creator.domain.entity.enums.SkinTone;
 import com.lokoko.domain.creator.domain.entity.enums.SkinType;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -60,6 +61,9 @@ public record CreatorMyPageUpdateRequest(
         SkinType skinType,
 
         @Schema(description = "피부 톤 (드롭다운 20개)", example = "SHADE_12")
-        SkinTone skinTone
+        SkinTone skinTone,
+
+        @Schema(description = "콘텐츠 언어", example = "ENGLISH")
+        ContentLanguage contentLanguage
 ) {
 }
