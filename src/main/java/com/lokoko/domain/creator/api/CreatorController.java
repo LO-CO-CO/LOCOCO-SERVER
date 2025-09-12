@@ -80,7 +80,7 @@ public class CreatorController {
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_INFO_UPDATE_SUCCESS.getMessage());
     }
 
-    @GetMapping("/sns")
+    @GetMapping("/register/sns-status")
     @Operation(summary = "크리에이터 SNS 연동 여부를 체크하는 API입니다")
     public ApiResponse<CreatorSnsConnectedResponse> getCreatorSnsConnected(
             @Parameter(hidden = true) @CurrentUser Long userId) {
