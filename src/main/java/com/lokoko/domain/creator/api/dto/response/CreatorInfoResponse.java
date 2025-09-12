@@ -10,7 +10,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 
 public record CreatorInfoResponse(
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "크리에이터 이름", example = "huncozyboy")
+        @Schema(requiredMode = REQUIRED, description = "크리에이터 이름", example = "huncozyboy")
         String creatorName,
 
         @Schema(description = "생년월일", example = "1995-03-15")
@@ -19,43 +19,43 @@ public record CreatorInfoResponse(
         @Schema(description = "성별", example = "FEMALE")
         Gender gender,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "이름", example = "Jessica")
+        @Schema(requiredMode = REQUIRED, description = "이름", example = "Jessica")
         String firstName,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "성", example = "Anderson")
+        @Schema(requiredMode = REQUIRED, description = "성", example = "Anderson")
         String lastName,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "국가번호", example = "+82")
+        @Schema(requiredMode = REQUIRED, description = "국가번호", example = "+82")
         String countryCode,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "전화번호 (최대 15자)", example = "010123456789")
+        @Schema(requiredMode = REQUIRED, description = "전화번호 (최대 15자)", example = "010123456789")
         String phoneNumber,
 
         @Schema(requiredMode = REQUIRED, description = "콘텐츠 언어", example = "ENGLISH")
         ContentLanguage contentLanguage,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "국가(드롭다운 선택)", example = "US")
+        @Schema(requiredMode = REQUIRED, description = "국가(드롭다운 선택)", example = "US")
         String country,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "주/도/광역시 (최대 20자)", example = "CA")
+        @Schema(requiredMode = REQUIRED, description = "주/도/광역시 (최대 20자)", example = "CA")
         String stateOrProvince,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "City / Town (최대 20자)", example = "San Francisco")
+        @Schema(requiredMode = REQUIRED, description = "City / Town (최대 20자)", example = "San Francisco")
         String cityOrTown,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Address Line 1 (텍스트, 최대 30자)", example = "1234 Market St")
+        @Schema(requiredMode = REQUIRED, description = "Address Line 1 (텍스트, 최대 30자)", example = "1234 Market St")
         String addressLine1,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "Address Line 2 (텍스트, 최대 30자)", example = "Apt 5B")
+        @Schema(requiredMode = REQUIRED, description = "Address Line 2 (텍스트, 최대 30자)", example = "Apt 5B")
         String addressLine2,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "ZIP Code (최대 10자, 미국은 필수)", example = "94103")
+        @Schema(requiredMode = REQUIRED, description = "ZIP Code (최대 10자, 미국은 필수)", example = "94103")
         String postalCode,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "피부 타입 (드롭다운 6개)", example = "COMBINATION")
+        @Schema(requiredMode = REQUIRED, description = "피부 타입 (드롭다운 6개)", example = "COMBINATION")
         SkinType skinType,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "피부톤 (드롭다운 20개)", example = "SHADE_1")
+        @Schema(requiredMode = REQUIRED, description = "피부톤 (드롭다운 20개)", example = "SHADE_1")
         SkinTone skinTone
 ) {
 }

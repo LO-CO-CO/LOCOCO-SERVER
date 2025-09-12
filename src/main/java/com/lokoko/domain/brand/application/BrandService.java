@@ -4,9 +4,7 @@ import com.lokoko.domain.brand.api.dto.request.BrandInfoUpdateRequest;
 import com.lokoko.domain.brand.domain.entity.Brand;
 import com.lokoko.domain.brand.domain.repository.BrandRepository;
 import com.lokoko.domain.brand.exception.BrandNotFoundException;
-import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.repository.UserRepository;
-import com.lokoko.domain.user.exception.UserNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,13 +18,8 @@ public class BrandService {
     private final BrandRepository brandRepository;
 
     public void updateBrandInfo(Long userId, BrandInfoUpdateRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        Brand brand = user.getBrand();
-        if (brand == null) {
-            throw new BrandNotFoundException();
-        }
+        Brand brand = brandRepository.findById(userId)
+                .orElseThrow(BrandNotFoundException::new);
 
         brand.assignBrandName(request.brandName());
         brand.assignManagerName(request.managerName());

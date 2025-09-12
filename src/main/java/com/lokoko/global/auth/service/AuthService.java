@@ -302,9 +302,6 @@ public class AuthService {
     // 크리에이터 상태 확인
     public OauthLoginStatus getCreatorStatus(User user) {
         Creator creator = user.getCreator();
-        if (creator == null) {
-            return OauthLoginStatus.INFO_REQUIRED;
-        }
 
         boolean hasBasicInfo = creator.getCreatorName() != null;
         boolean hasSnsConnected = (creator.getInstaLink() != null) ||
