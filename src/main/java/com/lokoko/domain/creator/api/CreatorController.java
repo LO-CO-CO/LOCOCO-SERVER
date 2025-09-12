@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -60,10 +61,9 @@ public class CreatorController {
     }
 
     // 회원 가입
-    @PostMapping("/register/check-id")
-    @Operation(summary = "크리에이터 ID 사용 가능 여부를 체크하는 API입니다")
+    @GetMapping("/register/check-id")
     public ApiResponse<Void> checkCreatorId(
-            @RequestBody @Valid CreatorIdCheckRequest request,
+            @Validated CreatorIdCheckRequest request,
             @Parameter(hidden = true) @CurrentUser Long userId) {
 
         creatorUsecase.checkCreatorIdAvailable(request.creatorName(), userId);
