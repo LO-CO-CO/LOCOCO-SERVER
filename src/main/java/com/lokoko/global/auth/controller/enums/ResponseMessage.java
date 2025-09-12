@@ -11,8 +11,7 @@ public enum ResponseMessage {
     URL_GET_SUCCESS("리다이렉트 URL 조회에 성공했습니다."),
     REFRESH_TOKEN_REISSUE("리프레시 토큰 재발급에 성공했습니다."),
     ROLE_ASSIGNED_SUCCESS("역할 설정이 완료되었습니다."),
-
-    ;
+    TIKTOK_CONNECT_SUCCESS("틱톡 계정 연결에 성공했습니다.");
 
     private final String message;
 }
