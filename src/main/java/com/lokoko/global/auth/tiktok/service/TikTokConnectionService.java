@@ -2,7 +2,6 @@ package com.lokoko.global.auth.tiktok.service;
 
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creator.domain.repository.CreatorRepository;
-import com.lokoko.domain.creator.exception.CreatorNotFoundException;
 import com.lokoko.global.auth.exception.ErrorMessage;
 import com.lokoko.global.auth.exception.OauthException;
 import com.lokoko.global.auth.tiktok.TikTokOAuthClient;
