@@ -8,6 +8,7 @@ import com.lokoko.global.auth.tiktok.dto.TikTokProfileDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * TikTok API 호출 서비스
@@ -42,6 +43,7 @@ public class TikTokApiService {
     /**
      * Creator의 TikTok 연결 해제
      */
+    @Transactional
     public void disconnectTikTok(Long creatorId) {
         Creator creator = creatorRepository.findByIdOrThrow(creatorId);
 
