@@ -106,15 +106,11 @@ public class Creator {
     @Column
     private CreatorType creatorType = CreatorType.NORMAL;
 
-    // TikTok OAuth 관련 필드
     @Column
     private String tikTokUserId;
 
     @Column
     private Instant tikTokConnectedAt;
-
-    @Column(length = 1000)
-    private String tikTokAccessToken;
 
     //최종 전화번호
     public String getCreatorPhoneNumber() {
@@ -176,10 +172,15 @@ public class Creator {
     public void changeContentLanguage(ContentLanguage contentLanguage) {
         this.contentLanguage = contentLanguage;
     }
-    public void connectTikTok(String tikTokUserId,  String accessToken) {
+    
+    public void connectTikTok(String tikTokUserId) {
         this.tikTokUserId = tikTokUserId;
         this.tikTokConnectedAt = Instant.now();
-        this.tikTokAccessToken = accessToken;
+    }
+    
+    public void disconnectTikTok() {
+        this.tikTokUserId = null;
+        this.tikTokConnectedAt = null;
     }
 
 
