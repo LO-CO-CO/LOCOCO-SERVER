@@ -87,4 +87,25 @@ public class TikTokOAuthClient {
 
         throw new TikTokProfileFetchFailedException();
     }
+    
+    public TikTokTokenDto refreshToken(String refreshToken) {
+        log.info("Refreshing TikTok access token");
+        
+        TikTokTokenDto tokenDto = tikTokWebClient.post()
+                .uri(TikTokConstants.TOKEN_PATH)
+                .body(BodyInserters.fromFormData("grant_type", "refresh_token")
+                        .with("refresh_token", refreshToken)
+                        .with(TikTokConstants.CLIENT_KEY, props.clientKey())
+                        .with(TikTokConstants.PARAM_CLIENT_SECRET, props.clientSecret()))
+                .retrieve()
+                .bodyToMono(TikTokTokenDto.class)
+                .block();
+        
+        if (tokenDto == null || tokenDto.accessToken() == null) {
+            throw new TikTokTokenRequestFailedException();
+        }
+        
+        log.info("틱톡 access token refresh 에 성공했습니다.");
+        return tokenDto;
+    }
 }

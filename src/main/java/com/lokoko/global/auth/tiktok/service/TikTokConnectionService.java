@@ -21,6 +21,7 @@ public class TikTokConnectionService {
     
     private final TikTokOAuthClient tikTokOAuthClient;
     private final CreatorRepository creatorRepository;
+    private final TikTokRedisTokenService tikTokRedisTokenService;
 
     public String generateConnectionUrl(Long creatorId) {
         creatorRepository.findById(creatorId)
@@ -47,12 +48,16 @@ public class TikTokConnectionService {
                 throw new OauthException(ErrorMessage.TIKTOK_PROFILE_FETCH_FAILED);
             }
 
-            creator.connectTikTok(profileDto.openId(), tokenDto.accessToken());
-            
-            log.info("TikTok 통계 정보 - 팔로워 수: {}, 팔로잉 수: {}, 좋아요 수 : {}, 영상 개수: {}",
-                    profileDto.followerCount(), profileDto.followingCount(), 
-                    profileDto.likesCount(), profileDto.videoCount());
+            // 토큰을 Redis에 저장
+            tikTokRedisTokenService.saveTokens(
+                creatorId,
+                tokenDto.accessToken(),
+                tokenDto.refreshToken(),
+                tokenDto.expiresIn(),
+                Long.parseLong(tokenDto.refreshExpiresIn())
+            );
 
+            creator.connectTikTok(profileDto.openId());
             creatorRepository.save(creator);
 
             log.info("크리에이터 틱톡 연결 성공: {}, 틱톡 유저 id: {}", creatorId, profileDto.openId());
