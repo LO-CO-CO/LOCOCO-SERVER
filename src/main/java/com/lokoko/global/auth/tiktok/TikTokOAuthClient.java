@@ -2,6 +2,7 @@ package com.lokoko.global.auth.tiktok;
 
 import com.lokoko.global.auth.exception.TikTokProfileFetchFailedException;
 import com.lokoko.global.auth.exception.TikTokTokenRequestFailedException;
+import com.lokoko.global.auth.service.OAuthStateManager;
 import com.lokoko.global.auth.tiktok.dto.TikTokProfileDto;
 import com.lokoko.global.auth.tiktok.dto.TikTokTokenDto;
 import com.lokoko.global.auth.tiktok.dto.TikTokUserInfoResponse;
@@ -19,14 +20,16 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor
 public class TikTokOAuthClient {
 
+    private final OAuthStateManager oAuthStateManager;
     private final WebClient tikTokWebClient;
     private final TikTokProperties props;
+
 
     public String buildAuthorizationUrl(Long creatorId) {
 
         String encodedRedirectUri = URLEncoder.encode(props.redirectUri(), StandardCharsets.UTF_8);
         String encodedScope = URLEncoder.encode(props.scope(), StandardCharsets.UTF_8);
-        String state = String.valueOf(creatorId);
+        String state = oAuthStateManager.generateState(creatorId);
 
         String authUrl = TikTokConstants.AUTHORIZE_BASE_URL +
                 TikTokConstants.PARAM_RESPONSE_TYPE +

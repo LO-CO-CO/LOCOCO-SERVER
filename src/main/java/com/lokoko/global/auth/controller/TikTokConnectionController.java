@@ -2,6 +2,7 @@ package com.lokoko.global.auth.controller;
 
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.auth.controller.enums.ResponseMessage;
+import com.lokoko.global.auth.service.OAuthStateManager;
 import com.lokoko.global.auth.tiktok.dto.TikTokConnectionResponse;
 import com.lokoko.global.auth.tiktok.service.TikTokConnectionService;
 import com.lokoko.global.common.response.ApiResponse;
@@ -24,6 +25,7 @@ import java.io.IOException;
 public class TikTokConnectionController {
     
     private final TikTokConnectionService tikTokConnectionService;
+    private final OAuthStateManager oAuthStateManager;
 
     @Operation(summary = "TikTok 계정 연결", description = "Creator가 TikTok 계정 연결 / TikTok OAuth 인증 페이지로 리다이렉트")
     @GetMapping("/connect")
@@ -40,7 +42,8 @@ public class TikTokConnectionController {
     public ApiResponse<TikTokConnectionResponse> handleTikTokCallback(
             @RequestParam("code") String code, @RequestParam("state") String state) {
 
-            Long creatorId = Long.valueOf(state);
+            Long creatorId = oAuthStateManager.validateAndGetCreatorId(state);
+
             TikTokConnectionResponse response = tikTokConnectionService.connectTikTok(creatorId, code);
 
             return ApiResponse.success(HttpStatus.OK, ResponseMessage.TIKTOK_CONNECT_SUCCESS.getMessage(), response);
