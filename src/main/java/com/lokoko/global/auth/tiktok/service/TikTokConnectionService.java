@@ -24,17 +24,15 @@ public class TikTokConnectionService {
     private final TikTokRedisTokenService tikTokRedisTokenService;
 
     public String generateConnectionUrl(Long creatorId) {
-        creatorRepository.findById(creatorId)
-                .orElseThrow(CreatorNotFoundException::new);
 
+        creatorRepository.findByIdOrThrow(creatorId);
         return tikTokOAuthClient.buildAuthorizationUrl(creatorId);
     }
 
     @Transactional
     public TikTokConnectionResponse connectTikTok(Long creatorId, String code) {
         try {
-            Creator creator = creatorRepository.findById(creatorId)
-                    .orElseThrow(CreatorNotFoundException::new);
+            Creator creator = creatorRepository.findByIdOrThrow(creatorId);
 
             // 토큰 발급
             TikTokTokenDto tokenDto = tikTokOAuthClient.issueToken(code);
