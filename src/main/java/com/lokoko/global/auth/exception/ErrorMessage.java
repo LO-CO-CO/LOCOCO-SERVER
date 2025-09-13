@@ -25,6 +25,7 @@ public enum ErrorMessage {
     TIKTOK_TOKEN_REQUEST_FAILED("TikTok 토큰 요청에 실패했습니다.", HttpStatus.BAD_GATEWAY.value()),
     TIKTOK_PROFILE_FETCH_FAILED("TikTok 프로필 조회에 실패했습니다.", HttpStatus.BAD_GATEWAY.value()),
     TIKTOK_CONNECTION_FAILED("TikTok 계정 연결에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR.value()),
+    TIKTOK_RECONNECTION_REQUIRED("TikTok 계정 재연결이 필요합니다.", HttpStatus.BAD_GATEWAY.value()),
 
     // 역할 관련
     ROLE_INVALID_TYPE("선택할 수 없는 역할입니다", HttpStatus.BAD_REQUEST.value()),
