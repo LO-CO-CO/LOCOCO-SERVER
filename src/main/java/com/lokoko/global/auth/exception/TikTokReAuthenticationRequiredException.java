@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 
 public class TikTokReAuthenticationRequiredException extends BaseException {
     public TikTokReAuthenticationRequiredException() {
-        super(HttpStatus.BAD_GATEWAY, ErrorMessage.TIKTOK_PROFILE_FETCH_FAILED.getMessage());
+        super(HttpStatus.UNAUTHORIZED, ErrorMessage.TIKTOK_RECONNECTION_REQUIRED.getMessage());
     }
-    
+
 }
