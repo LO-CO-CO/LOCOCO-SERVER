@@ -7,9 +7,9 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 public record CreatorSnsConnectedResponse(
 
         @Schema(requiredMode = REQUIRED)
-        Boolean isInstaConnected,
+        boolean isInstaConnected,
 
         @Schema(requiredMode = REQUIRED)
-        Boolean isTiktokConnected
+        boolean isTiktokConnected
 ) {
 }
