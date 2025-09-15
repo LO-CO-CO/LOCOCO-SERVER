@@ -8,7 +8,7 @@ import lombok.Builder;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record ParticipatingCampaignResponse(
+public record CampaignParticipatedResponse(
 
         @Schema(description = "참여한 캠페인 ID", example = "11")
         Long campaignId,

@@ -9,18 +9,17 @@ import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
 import com.lokoko.domain.campaign.domain.repository.CreatorCampaignRepository;
 import com.lokoko.domain.campaign.exception.CampaignNotFoundException;
 import com.lokoko.domain.image.domain.repository.CampaignImageRepository;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class CampaignReadService {
+public class CampaignGetService {
 
     private final CampaignRepository campaignRepository;
     private final CampaignImageRepository campaignImageRepository;
@@ -39,8 +38,10 @@ public class CampaignReadService {
         List<CampaignImageResponse> bottomImages = campaignImageRepository.findBottomImagesByCampaignId(campaignId);
 
         //캠페인 상세페이지를 조회하는 크리에이터가 캠페인에 참여하지 않았을 수도 있으므로 Optional 을 반환
-        Optional<CreatorCampaign> creatorCampaign = creatorCampaignRepository.findByCreatorIdAndCampaignId(creatorId, campaignId);
-        CampaignDetailPageStatus campaignStatus =  campaignStatusManager.determineStatusInDetailPage(campaign , creatorCampaign);
+        Optional<CreatorCampaign> creatorCampaign = creatorCampaignRepository.findByCreatorIdAndCampaignId(creatorId,
+                campaignId);
+        CampaignDetailPageStatus campaignStatus = campaignStatusManager.determineStatusInDetailPage(campaign,
+                creatorCampaign);
 
         return CampaignDetailResponse.of(campaign, topImages, bottomImages, campaignStatus);
     }
