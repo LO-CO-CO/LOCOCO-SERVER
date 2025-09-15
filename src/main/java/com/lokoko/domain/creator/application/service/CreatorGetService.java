@@ -23,7 +23,7 @@ public class CreatorGetService {
     private final UserRepository userRepository;
 
     public Creator findByUserId(Long userId) {
-        return creatorRepository.findById(userId)
+        return creatorRepository.findByUserId(userId)
                 .orElseThrow(CreatorNotFoundException::new);
     }
 
