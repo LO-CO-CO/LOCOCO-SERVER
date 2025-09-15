@@ -23,7 +23,7 @@ public class CreatorGetService {
     private final UserRepository userRepository;
 
     public Creator findByUserId(Long userId) {
-        return creatorRepository.findByUserId(userId)
+        return creatorRepository.findById(userId)
                 .orElseThrow(CreatorNotFoundException::new);
     }
 
@@ -35,7 +35,7 @@ public class CreatorGetService {
     public CreatorCampaign findParticipation(Long campaignId, Long creatorId) {
 
         return creatorCampaignRepository
-                .findByCampaign_IdAndCreator_Id(campaignId, creatorId)
+                .findByCampaignIdAndCreatorId(campaignId, creatorId)
                 .orElseThrow(CreatorCampaignNotFoundException::new);
     }
 

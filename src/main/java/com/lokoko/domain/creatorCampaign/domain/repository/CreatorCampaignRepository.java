@@ -16,7 +16,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign, Long> {
 
-    Optional<CreatorCampaign> findByCampaign_IdAndCreator_Id(Long campaignId, Long creatorId);
+    Optional<CreatorCampaign> findByCampaignIdAndCreatorId(Long campaignId, Long creatorId);
+
+    boolean existsByCampaignIdAndCreatorId(Long campaignId, Long creatorId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select c from CreatorCampaign c where c.id = :id")

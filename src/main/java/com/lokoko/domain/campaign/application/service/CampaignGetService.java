@@ -27,6 +27,11 @@ public class CampaignGetService {
 
     private final CampaignStatusManager campaignStatusManager;
 
+    public Campaign findByCampaignId(Long campaignId) {
+        return campaignRepository.findById(campaignId)
+                .orElseThrow(CampaignNotFoundException::new);
+    }
+
     public CampaignDetailResponse getCampaignDetail(Long creatorId, Long campaignId) {
 
         Campaign campaign = campaignRepository.findCampaignWithBrandById(campaignId)
