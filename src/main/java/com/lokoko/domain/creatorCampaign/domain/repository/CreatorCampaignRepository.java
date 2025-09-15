@@ -1,7 +1,11 @@
-package com.lokoko.domain.campaign.domain.repository;
+package com.lokoko.domain.creatorCampaign.domain.repository;
 
-import com.lokoko.domain.campaign.domain.entity.CreatorCampaign;
+
+import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
+import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
 import jakarta.persistence.LockModeType;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -19,4 +23,14 @@ public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign
     CreatorCampaign getByIdForUpdate(@Param("id") Long id);
 
     Optional<CreatorCampaign> findByCreatorIdAndCampaignId(Long creatorId, Long campaignId);
+
+    @Query("""
+            select cc
+            from CreatorCampaign cc
+            join fetch cc.campaign c
+            where cc.creator.id = :creatorId
+              and cc.status in :statuses
+            order by cc.appliedAt desc
+            """)
+    List<CreatorCampaign> findAllByCreatorAndStatuses(Long creatorId, Collection<ParticipationStatus> statuses);
 }
