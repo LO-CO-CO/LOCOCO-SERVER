@@ -34,7 +34,7 @@ public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign
             join fetch cc.campaign c
             where cc.creator.id = :creatorId
               and cc.status in :statuses
-            order by cc.appliedAt desc
+            order by cc.appliedAt desc, cc.id desc
             """)
     List<CreatorCampaign> findAllByCreatorAndStatuses(Long creatorId, Collection<ParticipationStatus> statuses);
 
@@ -43,7 +43,7 @@ public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign
                 from CreatorCampaign cc
                   join fetch cc.campaign c
                 where cc.creator.id = :creatorId
-                order by cc.appliedAt desc
+                order by cc.appliedAt desc, cc.id desc
             """)
     Slice<CreatorCampaign> findSliceWithCampaignByCreator(Long creatorId, Pageable pageable);
 }

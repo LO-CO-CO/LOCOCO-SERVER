@@ -56,7 +56,7 @@ public class CreatorCampaignGetService {
      * @param creatorId 조회할 크리에이터의 고유 ID
      * @return 리뷰 작성 자격이 있는 {@link CreatorCampaign} 리스트 (최신순으로 정렬)
      */
-    public List<CreatorCampaign> findReviewAble(Long creatorId) {
+    public List<CreatorCampaign> findReviewable(Long creatorId) {
         return creatorCampaignRepository.findAllByCreatorAndStatuses(
                 creatorId,
                 of(ParticipationStatus.APPROVED_ADDRESS_CONFIRMED, ParticipationStatus.APPROVED_FIRST_REVIEW_DONE)

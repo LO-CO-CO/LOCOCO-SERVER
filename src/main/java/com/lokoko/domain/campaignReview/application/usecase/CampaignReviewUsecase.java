@@ -85,7 +85,7 @@ public class CampaignReviewUsecase {
     @Transactional(readOnly = true)
     public List<CampaignParticipatedResponse> getMyReviewableCampaigns(Long userId) {
         Creator creator = creatorGetService.findByUserId(userId);
-        List<CreatorCampaign> eligible = creatorCampaignGetService.findReviewAble(creator.getId());
+        List<CreatorCampaign> eligible = creatorCampaignGetService.findReviewable(creator.getId());
         return eligible.stream()
                 .map(campaignMapper::toCampaignParticipationResponse)
                 .toList();
