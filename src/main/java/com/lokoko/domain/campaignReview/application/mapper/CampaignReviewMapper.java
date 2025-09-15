@@ -1,11 +1,11 @@
 package com.lokoko.domain.campaignReview.application.mapper;
 
-import com.lokoko.domain.campaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.campaignReview.api.dto.request.FirstReviewUploadRequest;
 import com.lokoko.domain.campaignReview.api.dto.request.SecondReviewUploadRequest;
 import com.lokoko.domain.campaignReview.api.dto.response.ReviewUploadResponse;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
+import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import org.springframework.stereotype.Component;
 
 @Component

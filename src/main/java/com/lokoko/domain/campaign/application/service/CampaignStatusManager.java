@@ -1,16 +1,15 @@
 package com.lokoko.domain.campaign.application.service;
 
 import com.lokoko.domain.campaign.domain.entity.Campaign;
-import com.lokoko.domain.campaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignDetailPageStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
-import com.lokoko.domain.campaign.domain.entity.enums.ParticipationStatus;
 import com.lokoko.domain.campaign.exception.CampaignNotViewableException;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
+import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
+import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
 import java.time.Instant;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -20,8 +19,8 @@ import java.util.Optional;
 public class CampaignStatusManager {
 
     /**
-     * 브랜드 관점에서 보는 Campaign 의 상태(피그마 뷰 - [브랜드] 마이페이지의 상태표 참고) <br>
-     * 날짜 기반으로 캠페인의 실시간  상태를 계산한다.
+     * 브랜드 관점에서 보는 Campaign 의 상태(피그마 뷰 - [브랜드] 마이페이지의 상태표 참고) <br> 날짜 기반으로 캠페인의 실시간  상태를 계산한다.
+     *
      * @param campaign 캠페인 엔티티
      * @return 캠페인 자체 상태
      */
@@ -63,13 +62,14 @@ public class CampaignStatusManager {
     }
 
     /**
-     * 캠페인 상세조회 페이지에서, 캠페인의 상태 판단 <br>
-     * 캠페인의 상태를 실시간으로 계산합니다.
-     * @param campaign 캠페인 엔티티
+     * 캠페인 상세조회 페이지에서, 캠페인의 상태 판단 <br> 캠페인의 상태를 실시간으로 계산합니다.
+     *
+     * @param campaign        캠페인 엔티티
      * @param creatorCampaign 크리에이터의 캠페인 참여정보
      * @return 캠페인 상세페이지에서 캠페인 및 크리에이터 지원 관련 상태
      */
-    public CampaignDetailPageStatus determineStatusInDetailPage(Campaign campaign, Optional<CreatorCampaign> creatorCampaign) {
+    public CampaignDetailPageStatus determineStatusInDetailPage(Campaign campaign,
+                                                                Optional<CreatorCampaign> creatorCampaign) {
 
         // 실시간 상태 계산
         CampaignStatus campaignStatus = determineCampaignStatus(campaign);
@@ -88,7 +88,7 @@ public class CampaignStatusManager {
             };
         } else { // 크리에이터 지원 있는 상태
             ParticipationStatus participationStatus = creatorCampaign.get().getStatus();
-            
+
             return switch (participationStatus) {
                 case PENDING -> CampaignDetailPageStatus.PENDING;
                 case REJECTED -> CampaignDetailPageStatus.REJECTED;

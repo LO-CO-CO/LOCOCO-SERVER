@@ -1,8 +1,8 @@
 package com.lokoko.domain.campaignReview.application.service;
 
-import com.lokoko.domain.campaign.domain.entity.CreatorCampaign;
-import com.lokoko.domain.campaign.domain.entity.enums.ParticipationStatus;
-import com.lokoko.domain.campaign.domain.repository.CreatorCampaignRepository;
+import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
+import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
+import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
