@@ -2,6 +2,11 @@ package com.lokoko.global.auth.tiktok.service;
 
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creator.domain.repository.CreatorRepository;
+import com.lokoko.domain.customer.domain.entity.Customer;
+import com.lokoko.domain.customer.domain.repository.CustomerRepository;
+import com.lokoko.domain.user.domain.entity.User;
+import com.lokoko.domain.user.domain.entity.enums.Role;
+import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.global.auth.exception.ErrorMessage;
 import com.lokoko.global.auth.exception.OauthException;
 import com.lokoko.global.auth.tiktok.TikTokOAuthClient;
@@ -19,19 +24,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class TikTokConnectionService {
     
     private final TikTokOAuthClient tikTokOAuthClient;
+    private final UserRepository userRepository;
     private final CreatorRepository creatorRepository;
+    private final CustomerRepository customerRepository;
     private final TikTokRedisTokenService tikTokRedisTokenService;
 
-    public String generateConnectionUrl(Long creatorId) {
+    public String generateConnectionUrl(Long userId) {
 
-        creatorRepository.findByIdOrThrow(creatorId);
-        return tikTokOAuthClient.buildAuthorizationUrl(creatorId);
+        userRepository.findByIdOrThrow(userId);
+        return tikTokOAuthClient.buildAuthorizationUrl(userId);
     }
 
     @Transactional
-    public TikTokConnectionResponse connectTikTok(Long creatorId, String code) {
+    public TikTokConnectionResponse connectTikTok(Long userId, String code) {
         try {
-            Creator creator = creatorRepository.findByIdOrThrow(creatorId);
+            User user  = userRepository.findByIdOrThrow(userId);
 
             // 토큰 발급
             TikTokTokenDto tokenDto = tikTokOAuthClient.issueToken(code);
@@ -46,20 +53,22 @@ public class TikTokConnectionService {
             }
 
             // 토큰을 Redis에 저장
-            tikTokRedisTokenService.saveTokens(
-                creatorId,
-                tokenDto.accessToken(),
-                tokenDto.refreshToken(),
-                tokenDto.expiresIn(),
-                Long.parseLong(tokenDto.refreshExpiresIn())
-            );
+            saveTokensInRedis(userId, tokenDto);
 
-            creator.connectTikTok(profileDto.openId());
-            creatorRepository.save(creator);
+            if (user.getRole() == Role.CREATOR){
+                Creator creator = user.getCreator();
+                creator.connectTikTok(profileDto.openId());
+                creatorRepository.save(creator);
+                log.info("크리에이터 틱톡 연결 성공: {}, 틱톡 유저 id: {}", userId, profileDto.openId());
 
-            log.info("크리에이터 틱톡 연결 성공: {}, 틱톡 유저 id: {}", creatorId, profileDto.openId());
+            } else if (user.getRole() == Role.CUSTOMER) {
+                Customer customer = user.getCustomer();
+                customer.connectTikTok(profileDto.openId());
+                customerRepository.save(customer);
+                log.info("일반 유저 틱톡 연결 성공: {}, 틱톡 유저 id: {}", userId , profileDto.openId());
+            }
 
-            return TikTokConnectionResponse.connected(profileDto.openId(), creator.getTikTokConnectedAt());
+            return TikTokConnectionResponse.connected(profileDto.openId());
 
         } catch (OauthException e) {
             throw e;
@@ -67,6 +76,15 @@ public class TikTokConnectionService {
             log.error("틱톡 계정 연결에 실패하였습니다.", e);
             throw new OauthException(ErrorMessage.TIKTOK_CONNECTION_FAILED);
         }
+    }
+
+    private void saveTokensInRedis(Long userId, TikTokTokenDto tokenDto) {
+        tikTokRedisTokenService.saveTokens(userId,
+            tokenDto.accessToken(),
+            tokenDto.refreshToken(),
+            tokenDto.expiresIn(),
+            Long.parseLong(tokenDto.refreshExpiresIn())
+        );
     }
 
 }

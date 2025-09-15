@@ -30,10 +30,10 @@ public class TikTokConnectionController {
     @Operation(summary = "TikTok 계정 연결", description = "Creator가 TikTok 계정 연결 / TikTok OAuth 인증 페이지로 리다이렉트")
     @GetMapping("/connect")
     public void connectTikTok(
-            @Parameter(hidden = true) @CurrentUser Long creatorId,
+            @Parameter(hidden = true) @CurrentUser Long userId,
             HttpServletResponse response) throws IOException{
 
-        String authUrl = tikTokConnectionService.generateConnectionUrl(creatorId);
+        String authUrl = tikTokConnectionService.generateConnectionUrl(userId);
         response.sendRedirect(authUrl);
     }
 
@@ -42,9 +42,9 @@ public class TikTokConnectionController {
     public ApiResponse<TikTokConnectionResponse> handleTikTokCallback(
             @RequestParam("code") String code, @RequestParam("state") String state) {
 
-            Long creatorId = oAuthStateManager.validateAndGetCreatorId(state);
+            Long userId = oAuthStateManager.validateAndGetCreatorId(state);
 
-            TikTokConnectionResponse response = tikTokConnectionService.connectTikTok(creatorId, code);
+            TikTokConnectionResponse response = tikTokConnectionService.connectTikTok(userId, code);
 
             return ApiResponse.success(HttpStatus.OK, ResponseMessage.TIKTOK_CONNECT_SUCCESS.getMessage(), response);
     }

@@ -21,7 +21,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import java.time.Instant;
 
 @Getter
 @Entity
@@ -109,9 +108,6 @@ public class Creator {
     @Column
     private String tikTokUserId;
 
-    @Column
-    private Instant tikTokConnectedAt;
-
     //최종 전화번호
     public String getCreatorPhoneNumber() {
         return countryCode + phoneNumber;
@@ -175,12 +171,10 @@ public class Creator {
     
     public void connectTikTok(String tikTokUserId) {
         this.tikTokUserId = tikTokUserId;
-        this.tikTokConnectedAt = Instant.now();
     }
     
     public void disconnectTikTok() {
         this.tikTokUserId = null;
-        this.tikTokConnectedAt = null;
     }
 
 
