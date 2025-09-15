@@ -42,7 +42,7 @@ public class CampaignReviewUsecase {
         Creator creator = creatorGetService.findByUserId(userId);
         CreatorCampaign participation = creatorGetService.findParticipation(campaignId, creator.getId());
 
-        campaignReviewGetService.assertRoundNotExists(participation.getId(), ReviewRound.FIRST);
+        campaignReviewGetService.findExistingReviewRound(participation.getId(), ReviewRound.FIRST);
 
         CampaignReview toSave = campaignReviewMapper.toFirstReview(participation, request);
         CampaignReview saved = campaignReviewSaveService.saveReview(toSave);
@@ -58,7 +58,7 @@ public class CampaignReviewUsecase {
         Creator creator = creatorGetService.findByUserId(userId);
         CreatorCampaign participation = creatorGetService.findParticipation(campaignId, creator.getId());
 
-        campaignReviewGetService.assertRoundNotExists(participation.getId(), ReviewRound.SECOND);
+        campaignReviewGetService.findExistingReviewRound(participation.getId(), ReviewRound.SECOND);
 
         // 2차는 1차 리뷰가 선행되어야 함
         if (!campaignReviewGetService.existsFirst(participation.getId())) {
