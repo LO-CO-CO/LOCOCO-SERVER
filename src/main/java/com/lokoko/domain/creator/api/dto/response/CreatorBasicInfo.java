@@ -1,5 +1,7 @@
 package com.lokoko.domain.creator.api.dto.response;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -11,16 +13,16 @@ public record CreatorBasicInfo(
         /**
          * 크리에이터 기본 정보 (프로필 이미지 URL, 크리에이터명, 이름, 성)
          */
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "프로필 이미지 URL", example = "https://s3.example.com/profile/us-user-1001.jpg")
+        @Schema(requiredMode = REQUIRED, description = "프로필 이미지 URL", example = "https://s3.example.com/profile/us-user-1001.jpg")
         String profileImageUrl,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "크리에이터 이름", example = "huncozyboy")
+        @Schema(requiredMode = REQUIRED, description = "크리에이터 이름", example = "huncozyboy")
         String creatorName,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "이름", example = "Jessica")
+        @Schema(requiredMode = REQUIRED, description = "이름", example = "Jessica")
         String firstName,
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "성", example = "Anderson")
+        @Schema(requiredMode = REQUIRED, description = "성", example = "Anderson")
         String lastName
 ) {
 }
