@@ -4,7 +4,9 @@ import com.lokoko.domain.creator.api.dto.response.CreatorAddressInfo;
 import com.lokoko.domain.creator.api.dto.response.CreatorBasicInfo;
 import com.lokoko.domain.creator.api.dto.response.CreatorContactInfo;
 import com.lokoko.domain.creator.api.dto.response.CreatorFaceInfo;
+import com.lokoko.domain.creator.api.dto.response.CreatorInfoResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorMyPageResponse;
+import com.lokoko.domain.creator.api.dto.response.CreatorSnsConnectedResponse;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import org.springframework.stereotype.Component;
 
@@ -41,5 +43,34 @@ public class CreatorMapper {
                 .creatorStatus(creator.getCreatorStatus())
                 .contentLanguage(creator.getContentLanguage())
                 .build();
+    }
+
+
+    public CreatorInfoResponse toRegisterInfoResponse(Creator creator) {
+        return new CreatorInfoResponse(
+                creator.getCreatorName(),
+                creator.getBirthDate(),
+                creator.getGender(),
+                creator.getFirstName(),
+                creator.getLastName(),
+                creator.getCountryCode(),
+                creator.getPhoneNumber(),
+                creator.getContentLanguage(),
+                creator.getCountry(),
+                creator.getStateOrProvince(),
+                creator.getCityOrTown(),
+                creator.getAddressLine1(),
+                creator.getAddressLine2(),
+                creator.getPostalCode(),
+                creator.getSkinType(),
+                creator.getSkinTone()
+        );
+    }
+
+    public CreatorSnsConnectedResponse toSnsStateResponse(Creator creator) {
+        return new CreatorSnsConnectedResponse(
+                creator.getInstaLink() != null,
+                creator.getTiktokLink() != null
+        );
     }
 }

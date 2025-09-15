@@ -1,9 +1,11 @@
 package com.lokoko.domain.brand.api;
+
+import com.lokoko.domain.brand.api.dto.request.BrandInfoUpdateRequest;
 import com.lokoko.domain.brand.api.message.ResponseMessage;
+import com.lokoko.domain.brand.application.BrandService;
 import com.lokoko.domain.campaign.api.dto.request.CampaignDraftRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignPublishRequest;
 import com.lokoko.domain.campaign.api.dto.response.CampaignCreateResponse;
-
 import com.lokoko.domain.campaign.application.service.CampaignService;
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.common.response.ApiResponse;
@@ -13,7 +15,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "BRAND")
 @RestController
@@ -21,7 +29,18 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BrandController {
 
+    private final BrandService brandService;
     private final CampaignService campaignService;
+
+    @PatchMapping("/register/info")
+    @Operation(summary = "회원가입시 브랜드 추가 정보를 입력하는 API 입니다.")
+    public ApiResponse<Void> updateBrandInfo(
+            @Parameter(hidden = true) @CurrentUser Long userId,
+            @RequestBody @Valid BrandInfoUpdateRequest request) {
+
+        brandService.updateBrandInfo(userId, request);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_INFO_UPDATE_SUCCESS.getMessage());
+    }
 
     @Operation(summary = "캠페인 생성 - 임시저장",
             description = "브랜드 마이페이지에서 브랜드가 캠패인을 임시저장 상태로 생성하는 API 입니다.")

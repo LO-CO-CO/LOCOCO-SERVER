@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CreatorRepository extends JpaRepository<Creator, Long> {
-
+    boolean existsByCreatorName(String creatorName);
     Optional<Creator> findByUserId(Long userId);
 }
