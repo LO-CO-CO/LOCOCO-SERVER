@@ -52,7 +52,7 @@ public class CreatorCampaignUsecase {
         }
         creatorCampaignGetService.findExistingParticipation(campaignId, creator.getId());
 
-        CreatorCampaign creatorCampaign = creatorCampaignMapper.toCampaignParticipation(creator, campaign, now);
+        CreatorCampaign creatorCampaign = creatorCampaignMapper.toCampaignParticipationResponse(creator, campaign, now);
 
         creatorCampaignSaveService.save(creatorCampaign);
     }

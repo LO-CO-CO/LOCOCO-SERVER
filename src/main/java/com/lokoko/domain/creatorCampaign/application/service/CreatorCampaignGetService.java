@@ -8,6 +8,9 @@ import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignReposi
 import com.lokoko.domain.creatorCampaign.exception.AlreadyParticipatedCampaignException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +25,12 @@ public class CreatorCampaignGetService {
         if (creatorCampaignRepository.existsByCampaignIdAndCreatorId(campaignId, creatorId)) {
             throw new AlreadyParticipatedCampaignException();
         }
+    }
+
+    public Slice<CreatorCampaign> findMyCampaigns(Long creatorId, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return creatorCampaignRepository.findSliceWithCampaignByCreator(creatorId, pageable);
     }
 
     /**

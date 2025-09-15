@@ -7,6 +7,8 @@ import jakarta.persistence.LockModeType;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -35,4 +37,13 @@ public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign
             order by cc.appliedAt desc
             """)
     List<CreatorCampaign> findAllByCreatorAndStatuses(Long creatorId, Collection<ParticipationStatus> statuses);
+
+    @Query("""
+                select cc
+                from CreatorCampaign cc
+                  join fetch cc.campaign c
+                where cc.creator.id = :creatorId
+                order by cc.appliedAt desc
+            """)
+    Slice<CreatorCampaign> findSliceWithCampaignByCreator(Long creatorId, Pageable pageable);
 }
