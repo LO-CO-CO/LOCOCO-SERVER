@@ -1,9 +1,10 @@
-package com.lokoko.domain.campaign.domain.entity;
+package com.lokoko.domain.creatorCampaign.domain.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 
-import com.lokoko.domain.campaign.domain.entity.enums.ParticipationStatus;
+import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.creator.domain.entity.Creator;
+import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

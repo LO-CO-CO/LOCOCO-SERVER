@@ -1,11 +1,11 @@
 package com.lokoko.domain.creator.application.service;
 
-import com.lokoko.domain.campaign.domain.entity.CreatorCampaign;
-import com.lokoko.domain.campaign.domain.repository.CreatorCampaignRepository;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creator.domain.repository.CreatorRepository;
 import com.lokoko.domain.creator.exception.CreatorCampaignNotFoundException;
 import com.lokoko.domain.creator.exception.CreatorNotFoundException;
+import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
+import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.domain.user.exception.UserNotFoundException;
@@ -35,7 +35,7 @@ public class CreatorGetService {
     public CreatorCampaign findParticipation(Long campaignId, Long creatorId) {
 
         return creatorCampaignRepository
-                .findByCampaign_IdAndCreator_Id(campaignId, creatorId)
+                .findByCampaignIdAndCreatorId(campaignId, creatorId)
                 .orElseThrow(CreatorCampaignNotFoundException::new);
     }
 
