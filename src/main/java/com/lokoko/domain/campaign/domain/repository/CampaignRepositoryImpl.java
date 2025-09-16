@@ -2,6 +2,8 @@ package com.lokoko.domain.campaign.domain.repository;
 
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignListResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignResponse;
+import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignListResponse;
+import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignResponse;
 import com.lokoko.domain.campaign.domain.entity.QCampaign;
 import com.lokoko.domain.campaign.domain.entity.enums.*;
 import com.lokoko.domain.image.domain.entity.QCampaignImage;
@@ -10,9 +12,12 @@ import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.global.common.response.PageableResponse;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -34,32 +39,59 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
     private final UserRepository userRepository;
 
 
-    /**
-     * 실시간 상태 계산 메서드
-     */
-    private CampaignStatus calculateRealTimeStatus(CampaignStatus dbStatus, Instant applyStartDate,
-                                                   Instant applyDeadline, Instant creatorAnnouncementDate,
-                                                   Instant reviewSubmissionDeadline, Instant now) {
-        if (dbStatus == CampaignStatus.DRAFT) {
-            return CampaignStatus.DRAFT;
-        }
-        if (dbStatus == CampaignStatus.WAITING_APPROVAL) {
-            return CampaignStatus.WAITING_APPROVAL;
-        }
-        if (now.isBefore(applyStartDate)) {
-            return CampaignStatus.OPEN_RESERVED;
-        }
-        if (now.isBefore(applyDeadline)) {
-            return CampaignStatus.RECRUITING;
-        }
-        if (now.isBefore(creatorAnnouncementDate)) {
-            return CampaignStatus.RECRUITMENT_CLOSED;
-        }
-        if (now.isBefore(reviewSubmissionDeadline)) {
-            return CampaignStatus.IN_REVIEW;
-        }
+    @Override
+    public MainPageUpcomingCampaignListResponse findUpcomingCampaignsInMainPage(LanguageFilter lang, CampaignProductTypeFilter category, PageRequest pageable) {
 
-        return CampaignStatus.COMPLETED;
+        BooleanExpression langCondition = buildLanguageCondition(lang);
+        BooleanExpression categoryCondition = buildCategoryCondition(category);
+
+        BooleanExpression languageAndCategoryCondition = combineConditions(
+                langCondition,
+                categoryCondition
+        );
+
+        // OPEN_RESERVED 상태인 캠페인만 조회하면 된다.
+        List<MainPageUpcomingCampaignResponse> upcomingCampaigns = queryFactory
+                .select(Projections.constructor(MainPageUpcomingCampaignResponse.class,
+                        campaign.id,
+                        campaign.campaignType,
+                        campaign.language,
+                        campaign.brand.brandName,
+                        campaignImage.mediaFile.fileUrl,
+                        campaign.title,
+                        campaign.applicantNumber,
+                        campaign.recruitmentNumber,
+                        campaign.applyStartDate,
+                        Expressions.constant(CampaignChipStatus.DISABLED)
+                ))
+                .from(campaign)
+                .innerJoin(campaignImage).on(campaignImage.campaign.eq(campaign)
+                        .and(campaignImage.displayOrder.eq(1))
+                        .and(campaignImage.imageType.eq((TOP))))
+                .where(campaign.campaignStatus.eq(CampaignStatus.OPEN_RESERVED).and(languageAndCategoryCondition))
+                .orderBy(campaign.applyStartDate.asc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+
+        Long totalCount = queryFactory
+                .select(campaign.count())
+                .from(campaign)
+                .where(campaign.campaignStatus.eq(CampaignStatus.OPEN_RESERVED).and(languageAndCategoryCondition))
+                .fetchOne();
+
+        boolean isLast = (pageable.getOffset() + pageable.getPageSize()) >= totalCount;
+
+        PageableResponse pageInfo = new PageableResponse(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                upcomingCampaigns.size(),
+                isLast);
+
+
+        return new MainPageUpcomingCampaignListResponse(upcomingCampaigns, pageInfo);
+
     }
 
     @Override
@@ -97,7 +129,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                         campaign.campaignStatus
                 )
                 .from(campaign)
-                .leftJoin(campaignImage).on(campaignImage.campaign.eq(campaign)
+                .innerJoin(campaignImage).on(campaignImage.campaign.eq(campaign)
                         .and(campaignImage.displayOrder.eq(1))
                         .and(campaignImage.imageType.eq((TOP))))
                 .where(condition)
@@ -122,13 +154,19 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
 
                     return new AbstractMap.SimpleEntry<>(tuple, calculatedStatus);
                 })
-                // DRAFT와 WAITING_APPROVAL 는 제외한다.
+                // DRAFT ,  WAITING_APPROVAL , OPEN_RESERVED 는 제외한다.
                 .filter(entry -> {
                     CampaignStatus status = entry.getValue();
-                    return status != CampaignStatus.DRAFT && status != CampaignStatus.WAITING_APPROVAL;
+                    return status != CampaignStatus.DRAFT && status != CampaignStatus.WAITING_APPROVAL &&
+                            status != CampaignStatus.OPEN_RESERVED;
                 })
                 .map(entry -> {
                     Tuple tuple = entry.getKey();
+                    CampaignChipStatus chipStatus = determineChipStatus(
+                            tuple.get(campaign.applyStartDate),
+                            tuple.get(campaign.applyDeadline)
+                    );
+
                     return new MainPageCampaignResponse(
                             tuple.get(campaign.id),
                             tuple.get(campaign.campaignType),
@@ -138,8 +176,8 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                             tuple.get(campaign.title),
                             tuple.get(campaign.applicantNumber),
                             tuple.get(campaign.recruitmentNumber),
-                            tuple.get(campaign.applyStartDate),
-                            tuple.get(campaign.reviewSubmissionDeadline)
+                            tuple.get(campaign.reviewSubmissionDeadline),
+                            chipStatus
                     );
                 })
                 .toList();
@@ -159,6 +197,46 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 isLast);
 
         return new MainPageCampaignListResponse(campaignList, pageInfo);
+    }
+
+    private CampaignChipStatus determineChipStatus(Instant applyStartDate, Instant applyDeadline) {
+        Instant now = Instant.now();
+
+        if (now.isAfter(applyStartDate) && now.isBefore(applyDeadline)) {
+            return CampaignChipStatus.DEFAULT;
+        } else if (now.isAfter(applyDeadline)) {
+            return CampaignChipStatus.DISABLED;
+        }
+
+        return null;
+    }
+
+    /**
+     * 실시간 상태 계산 메서드
+     */
+    private CampaignStatus calculateRealTimeStatus(CampaignStatus dbStatus, Instant applyStartDate,
+                                                   Instant applyDeadline, Instant creatorAnnouncementDate,
+                                                   Instant reviewSubmissionDeadline, Instant now) {
+        if (dbStatus == CampaignStatus.DRAFT) {
+            return CampaignStatus.DRAFT;
+        }
+        if (dbStatus == CampaignStatus.WAITING_APPROVAL) {
+            return CampaignStatus.WAITING_APPROVAL;
+        }
+        if (now.isBefore(applyStartDate)) {
+            return CampaignStatus.OPEN_RESERVED;
+        }
+        if (now.isBefore(applyDeadline)) {
+            return CampaignStatus.RECRUITING;
+        }
+        if (now.isBefore(creatorAnnouncementDate)) {
+            return CampaignStatus.RECRUITMENT_CLOSED;
+        }
+        if (now.isBefore(reviewSubmissionDeadline)) {
+            return CampaignStatus.IN_REVIEW;
+        }
+
+        return CampaignStatus.COMPLETED;
     }
 
     private BooleanExpression buildLanguageCondition(LanguageFilter lang) {
