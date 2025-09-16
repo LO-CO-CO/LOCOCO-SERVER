@@ -2,12 +2,12 @@ package com.lokoko.domain.campaign.domain.entity;
 
 import com.lokoko.domain.brand.domain.entity.Brand;
 import com.lokoko.domain.campaign.api.dto.request.CampaignCreateRequest;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
 import com.lokoko.domain.campaign.exception.DraftNotFilledException;
 import com.lokoko.global.common.entity.BaseEntity;
-import com.lokoko.global.common.enums.Language;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -43,7 +43,7 @@ public class Campaign extends BaseEntity {
      */
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
-    private Language language;
+    private CampaignLanguage language;
 
     /**
      * 캠페인 종류
