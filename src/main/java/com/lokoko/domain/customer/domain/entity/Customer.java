@@ -148,4 +148,8 @@ public class Customer {
     public void assignContentLanguage(ContentLanguage contentLanguage) {
         this.contentLanguage = contentLanguage;
     }
+
+    public void connectTikTok(String tikTokUserId) {
+        this.tikTokUserId = tikTokUserId;
+    }
 }

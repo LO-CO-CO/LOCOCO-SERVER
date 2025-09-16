@@ -17,6 +17,9 @@ public class WebClientConfig {
     @Value("${google.base-url}")
     private String googleBaseUrl;
 
+    @Value("${tiktok.base-url}")
+    private String tikTokBaseUrl;
+
     @Bean
     public WebClient lineWebClient(WebClient.Builder builder) {
         return builder
@@ -37,6 +40,14 @@ public class WebClientConfig {
     public WebClient googleUserInfoWebClient(WebClient.Builder builder) {
         return builder
                 .baseUrl(GoogleConstants.USERINFO_BASE_URL)
+                .build();
+    }
+
+    @Bean
+    public WebClient tikTokWebClient(WebClient.Builder builder) {
+        return builder
+                .baseUrl(tikTokBaseUrl)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .build();
     }
 }

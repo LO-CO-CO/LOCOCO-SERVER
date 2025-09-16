@@ -105,6 +105,8 @@ public class Creator {
     @Column
     private CreatorType creatorType = CreatorType.NORMAL;
 
+    @Column
+    private String tikTokUserId;
 
     //최종 전화번호
     public String getCreatorPhoneNumber() {
@@ -174,4 +176,9 @@ public class Creator {
     public void changeContentLanguage(ContentLanguage contentLanguage) {
         this.contentLanguage = contentLanguage;
     }
+    
+    public void connectTikTok(String tikTokUserId) {
+        this.tikTokUserId = tikTokUserId;
+    }
+
 }
