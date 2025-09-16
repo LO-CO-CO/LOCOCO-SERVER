@@ -2,8 +2,11 @@ package com.lokoko.domain.campaign.application.service;
 
 import com.lokoko.domain.campaign.api.dto.response.CampaignDetailResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse;
+import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignListResponse;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignDetailPageStatus;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductTypeFilter;
+import com.lokoko.domain.campaign.domain.entity.enums.LanguageFilter;
 import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
 import com.lokoko.domain.campaign.exception.CampaignNotFoundException;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
@@ -13,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,5 +60,10 @@ public class CampaignGetService {
         Hibernate.initialize(campaign.getDeliverableRequirements());
         Hibernate.initialize(campaign.getEligibilityRequirements());
     }
+
+    public MainPageCampaignListResponse getCampaignsInMainPage(Long userId, LanguageFilter lang, CampaignProductTypeFilter category, int page, int size) {
+        return campaignRepository.findCampaignsInMainPage(userId, lang, category, PageRequest.of(page, size));
+    }
+
 
 }
