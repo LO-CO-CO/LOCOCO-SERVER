@@ -4,6 +4,7 @@ import com.lokoko.domain.campaign.api.dto.request.CampaignMediaRequest;
 import com.lokoko.domain.campaign.api.dto.response.CampaignDetailResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignMediaResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignListResponse;
+import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignListResponse;
 import com.lokoko.domain.campaign.api.message.ResponseMessage;
 import com.lokoko.domain.campaign.application.service.CampaignGetService;
 import com.lokoko.domain.campaign.application.service.CampaignService;
@@ -56,10 +57,24 @@ public class CampaignController {
             @RequestParam LanguageFilter lang,
             @RequestParam CampaignProductTypeFilter category,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "8") int size) {
+            @RequestParam(defaultValue = "6") int size) {
 
         MainPageCampaignListResponse response = campaignReadService.getCampaignsInMainPage(userId, lang, category, page, size);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.MAIN_PAGE_CAMPAIGNS_GET_SUCCESS.getMessage(), response);
 
     }
+
+    @Operation(summary = "메인페이지 Opening Soon 캠페인 리스트 조회")
+    @GetMapping("/upcoming")
+    public ApiResponse<MainPageUpcomingCampaignListResponse> getUpcomingCampaignsInMainPage(
+            @RequestParam LanguageFilter lang,
+            @RequestParam CampaignProductTypeFilter category,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size){
+
+        MainPageUpcomingCampaignListResponse response = campaignReadService.getUpcomingCampaignsInMainPage(lang, category, page, size);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.MAIN_PAGE_UPCOMING_CAMPAIGNS_GET_SUCCESS.getMessage(), response);
+    }
+
+
 }
