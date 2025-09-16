@@ -12,7 +12,7 @@ public enum ResponseMessage {
     REFRESH_TOKEN_REISSUE("리프레시 토큰 재발급에 성공했습니다."),
     ROLE_ASSIGNED_SUCCESS("역할 설정이 완료되었습니다."),
 
-    ;
+    GET_LOGIN_USER_NAME_SUCCESS("로그인한 유저의 ID를 성공적으로 불러왔습니다.");
 
     private final String message;
 }
