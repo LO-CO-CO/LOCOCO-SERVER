@@ -97,9 +97,13 @@ public class CampaignReview extends BaseEntity {
     /**
      * 브랜드가 1차 리뷰 작성 후 수정 요청시 호출 메서드
      */
-    public void requestModification(String brandNote) {
+    public void submitRequestRevision(String brandNote) {
         this.brandNote = brandNote;
         this.status = ReviewStatus.REVISION_REQUESTED;
+    }
+
+    public void saveRequestRevision(String brandNote){
+        this.brandNote = brandNote;
     }
 
     /**
