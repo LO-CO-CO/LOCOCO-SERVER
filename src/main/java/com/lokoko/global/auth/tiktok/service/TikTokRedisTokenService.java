@@ -115,7 +115,7 @@ public class TikTokRedisTokenService {
             newTokens.accessToken(),
             newTokens.refreshToken(),
             newTokens.expiresIn(),
-            Long.parseLong(newTokens.refreshExpiresIn())
+            newTokens.refreshExpiresIn()
         );
     }
 

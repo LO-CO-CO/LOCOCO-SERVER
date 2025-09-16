@@ -8,7 +8,7 @@ public record TikTokTokenDto(
         String accessToken,
         String refreshToken,
         Long expiresIn,
-        String refreshExpiresIn,
+        Long refreshExpiresIn,
         String tokenType,
         String scope,
         String openId

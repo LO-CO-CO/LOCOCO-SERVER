@@ -38,11 +38,6 @@ public class TikTokOAuthClient {
                 TikTokConstants.PARAM_SCOPE + encodedScope +
                 "&state=" + state;
 
-        log.info("TikTok Authorization URL generated: {}", authUrl);
-        log.info("Redirect URI (encoded): {}", encodedRedirectUri);
-        log.info("Redirect URI (original): {}", props.redirectUri());
-        log.info("State parameter (creatorId): {}", state);
-
         return authUrl;
     }
 
@@ -68,8 +63,6 @@ public class TikTokOAuthClient {
 
     public TikTokProfileDto fetchProfile(String accessToken) {
 
-        log.info("Request URL: {}", props.baseUrl() + TikTokConstants.USER_INFO_PATH + "?fields=" + TikTokConstants.DEFAULT_FIELDS);
-
         TikTokUserInfoResponse response = tikTokWebClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path(TikTokConstants.USER_INFO_PATH)
@@ -81,7 +74,6 @@ public class TikTokOAuthClient {
                 .block();
 
         if (response != null && response.data() != null && response.data().user() != null) {
-            log.info("틱톡 유저 프로필 조회에 성공했습니다 . 틱톡 ID : {}", response.data().user().openId());
             return response.data().user();
         }
 
@@ -89,8 +81,7 @@ public class TikTokOAuthClient {
     }
     
     public TikTokTokenDto refreshToken(String refreshToken) {
-        log.info("Refreshing TikTok access token");
-        
+
         TikTokTokenDto tokenDto = tikTokWebClient.post()
                 .uri(TikTokConstants.TOKEN_PATH)
                 .body(BodyInserters.fromFormData("grant_type", "refresh_token")
@@ -104,8 +95,6 @@ public class TikTokOAuthClient {
         if (tokenDto == null || tokenDto.accessToken() == null) {
             throw new TikTokTokenRequestFailedException();
         }
-        
-        log.info("틱톡 access token refresh 에 성공했습니다.");
         return tokenDto;
     }
 }
