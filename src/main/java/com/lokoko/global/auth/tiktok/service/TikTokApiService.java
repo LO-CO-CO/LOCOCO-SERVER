@@ -1,5 +1,6 @@
 package com.lokoko.global.auth.tiktok.service;
 
+import com.lokoko.domain.creator.application.service.CreatorGetService;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creator.domain.repository.CreatorRepository;
 import com.lokoko.domain.creator.exception.CreatorNotFoundException;
@@ -20,7 +21,7 @@ public class TikTokApiService {
 
     private final TikTokRedisTokenService tikTokRedisTokenService;
     private final TikTokOAuthClient tikTokOAuthClient;
-    private final CreatorRepository creatorRepository;
+    private final CreatorGetService creatorGetService;
 
     /**
      * Creator의 TikTok 프로필 정보 조회
@@ -34,23 +35,9 @@ public class TikTokApiService {
      * Creator의 TikTok 연결 상태 확인
      */
     public boolean isConnected(Long creatorId) {
-        Creator creator = creatorRepository.findByIdOrThrow(creatorId);
+        Creator creator = creatorGetService.findByUserId(creatorId);
 
         return creator.getTikTokUserId() != null &&
                tikTokRedisTokenService.hasTokens(creatorId);
-    }
-
-    /**
-     * Creator의 TikTok 연결 해제
-     */
-    @Transactional
-    public void disconnectTikTok(Long creatorId) {
-        Creator creator = creatorRepository.findByIdOrThrow(creatorId);
-
-        creator.disconnectTikTok();
-        creatorRepository.save(creator);
-
-        // Redis에서 토큰 삭제
-        tikTokRedisTokenService.deleteTokens(creatorId);
     }
 }
