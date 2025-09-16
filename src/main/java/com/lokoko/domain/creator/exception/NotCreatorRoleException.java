@@ -5,6 +5,6 @@ import org.springframework.http.HttpStatus;
 
 public class NotCreatorRoleException extends BaseException {
     public NotCreatorRoleException() {
-        super(HttpStatus.BAD_REQUEST, ErrorMessage.ONLY_CREATOR_ROLE_SIGN_UP.getMessage());
+        super(HttpStatus.FORBIDDEN, ErrorMessage.ONLY_CREATOR_ROLE_SIGN_UP.getMessage());
     }
 }

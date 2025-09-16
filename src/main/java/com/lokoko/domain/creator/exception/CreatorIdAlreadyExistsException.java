@@ -6,6 +6,6 @@ import org.springframework.http.HttpStatus;
 
 public class CreatorIdAlreadyExistsException extends BaseException {
     public CreatorIdAlreadyExistsException() {
-        super(HttpStatus.BAD_REQUEST, ErrorMessage.CREATOR_ID_ALREADY_EXIST.getMessage());
+        super(HttpStatus.CONFLICT, ErrorMessage.CREATOR_ID_ALREADY_EXIST.getMessage());
     }
 }
