@@ -172,10 +172,5 @@ public class Creator {
     public void connectTikTok(String tikTokUserId) {
         this.tikTokUserId = tikTokUserId;
     }
-    
-    public void disconnectTikTok() {
-        this.tikTokUserId = null;
-    }
-
 
 }

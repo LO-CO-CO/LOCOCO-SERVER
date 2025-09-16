@@ -31,8 +31,4 @@ public class Customer {
         this.tikTokUserId = tikTokUserId;
     }
 
-    public void disconnectTikTok() {
-        this.tikTokUserId = null;
-    }
-
 }
