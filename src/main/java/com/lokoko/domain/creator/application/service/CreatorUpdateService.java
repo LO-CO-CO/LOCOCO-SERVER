@@ -6,7 +6,7 @@ import com.lokoko.domain.campaignReview.application.service.CreatorCampaignUpdat
 import com.lokoko.domain.creator.api.dto.request.CreatorInfoUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorMyPageUpdateRequest;
 import com.lokoko.domain.creator.domain.entity.Creator;
-import com.lokoko.domain.creator.exception.CreatorIdAlreadyExistsException;
+import com.lokoko.domain.user.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +18,7 @@ public class CreatorUpdateService {
 
     private final CreatorGetService creatorGetService;
     private final CreatorCampaignUpdateService creatorCampaignUpdateService;
+    private final UserService userService;
 
     /**
      * 마이페이지 수정 - null 필드는 무시(부분 업데이트) - 유효성은 Request DTO(@NotBlank/@Size 등)에서 선검증
@@ -90,9 +91,7 @@ public class CreatorUpdateService {
 
     public void updateRegisterCreatorInfo(Creator creator, CreatorInfoUpdateRequest request) {
 
-        if (!creatorGetService.isCreatorNameAvailable(request.creatorName(), creator.getId())) {
-            throw new CreatorIdAlreadyExistsException();
-        }
+        userService.checkUserIdAvailable(request.creatorName(), creator.getId());
 
         creator.changeCreatorName(request.creatorName());
         creator.changeBirthDate(request.birthDate());

@@ -39,17 +39,5 @@ public class CreatorGetService {
                 .orElseThrow(CreatorCampaignNotFoundException::new);
     }
 
-    public boolean isCreatorNameAvailable(String creatorName, Long currentCreatorId) {
-        Creator currentCreator = creatorRepository.findById(currentCreatorId).orElse(null);
-
-        // 자신의 현재 이름과 같으면 사용 가능
-        if (currentCreator != null &&
-                currentCreator.getCreatorName() != null &&
-                currentCreator.getCreatorName().equalsIgnoreCase(creatorName)) {
-            return true;
-        }
-
-        return !creatorRepository.existsByCreatorName(creatorName);
-    }
 }
 
