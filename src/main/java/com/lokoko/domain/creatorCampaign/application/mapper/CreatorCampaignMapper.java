@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CreatorCampaignMapper {
 
-    public CreatorCampaign toCampaignParticipationResponse(Creator creator, Campaign campaign, Instant now) {
+    public CreatorCampaign toCampaignParticipation(Creator creator, Campaign campaign, Instant now) {
         return CreatorCampaign.builder()
                 .creator(creator)
                 .campaign(campaign)
