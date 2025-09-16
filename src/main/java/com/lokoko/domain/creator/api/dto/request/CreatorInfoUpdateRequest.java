@@ -18,8 +18,12 @@ public record CreatorInfoUpdateRequest(
                 message = "크리에이터 ID는 영문(소문자), 숫자, 점(.), 언더바(_)만 사용 가능합니다")
         String creatorName,
 
+        @NotBlank(message = "생년월일은 필수입니다")
+        @Schema(description = "생년월일", example = "2002-08-21")
         String birthDate,
 
+        @NotNull(message = "성별은 필수입니다")
+        @Schema(description = "성별", example = "MALE")
         Gender gender,
 
         @NotBlank(message = "이름은 필수입니다")
