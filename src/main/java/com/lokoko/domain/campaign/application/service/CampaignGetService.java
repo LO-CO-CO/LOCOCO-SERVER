@@ -3,6 +3,7 @@ package com.lokoko.domain.campaign.application.service;
 import com.lokoko.domain.campaign.api.dto.response.CampaignDetailResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignListResponse;
+import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignListResponse;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignDetailPageStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductTypeFilter;
@@ -63,6 +64,10 @@ public class CampaignGetService {
 
     public MainPageCampaignListResponse getCampaignsInMainPage(Long userId, LanguageFilter lang, CampaignProductTypeFilter category, int page, int size) {
         return campaignRepository.findCampaignsInMainPage(userId, lang, category, PageRequest.of(page, size));
+    }
+
+    public MainPageUpcomingCampaignListResponse getUpcomingCampaignsInMainPage(LanguageFilter lang, CampaignProductTypeFilter category, int page, int size) {
+        return campaignRepository.findUpcomingCampaignsInMainPage(lang, category, PageRequest.of(page, size));
     }
 
 
