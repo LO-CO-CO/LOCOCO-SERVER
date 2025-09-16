@@ -26,6 +26,7 @@ public class CreatorUpdateService {
     public Creator updateProfile(Creator creator, CreatorMyPageUpdateRequest request) {
 
         if (request.creatorName() != null) {
+            userService.checkUserIdAvailable(request.creatorName(), creator.getId());
             creator.changeCreatorName(request.creatorName());
         }
         if (request.firstName() != null) {

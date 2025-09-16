@@ -20,8 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -35,7 +33,7 @@ public class CustomerService {
         customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
 
         String mediaType = request.mediaType();
-        if (!ALLOWED_MEDIA_TYPES.contains(mediaType)) {
+        if (!mediaType.startsWith("image/")) {
             throw new InvalidMediaTypeException(ErrorMessage.UNSUPPORTED_MEDIA_TYPE);
         }
 

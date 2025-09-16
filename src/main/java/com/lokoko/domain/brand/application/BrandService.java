@@ -48,7 +48,7 @@ public class BrandService {
         brandRepository.findById(brandId).orElseThrow(BrandNotFoundException::new);
 
         String mediaType = request.mediaType();
-        if (!ALLOWED_MEDIA_TYPES.contains(mediaType)) {
+        if (!mediaType.startsWith("image/")) {
             throw new InvalidMediaTypeException(ErrorMessage.UNSUPPORTED_MEDIA_TYPE);
         }
 
@@ -72,6 +72,9 @@ public class BrandService {
         if (request.profileImageUrl() != null) {
             MediaFile mediaFile = S3UrlParser.parsePresignedUrl(request.profileImageUrl());
             brand.getUser().updateProfileImage(mediaFile.toString());
+        }
+        if (request.brandName() != null) {
+            brand.assignBrandName(request.brandName());
         }
         if (request.managerName() != null) {
             brand.assignManagerName(request.managerName());

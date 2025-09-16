@@ -20,7 +20,7 @@ import com.lokoko.global.auth.exception.InvalidRoleException;
 import com.lokoko.global.auth.exception.OauthException;
 import com.lokoko.global.auth.exception.RoleChangeNotAllowedException;
 import com.lokoko.global.auth.exception.StateValidationException;
-import com.lokoko.global.auth.exception.UserNotCompletedSingUpException;
+import com.lokoko.global.auth.exception.UserNotCompletedSignUpException;
 import com.lokoko.global.auth.google.GoogleOAuthClient;
 import com.lokoko.global.auth.google.GoogleProperties;
 import com.lokoko.global.auth.google.dto.GoogleProfileDto;
@@ -408,12 +408,12 @@ public class AuthService {
 
                 // Creator 필수 필드가 채워지지 않은 경우 (INFO_REQUIRED)
                 if (creator.getCreatorName() == null) {
-                    throw new UserNotCompletedSingUpException();
+                    throw new UserNotCompletedSignUpException();
                 }
 
                 // 1개 이상의 SNS가 연동되지 않은 상태 (SNS_REQUIRED)
                 if (creator.getInstaLink() == null && creator.getTiktokLink() == null) {
-                    throw new UserNotCompletedSingUpException();
+                    throw new UserNotCompletedSignUpException();
                 }
 
                 // LOGIN 상태 검증 완료
@@ -425,13 +425,13 @@ public class AuthService {
                         .orElseThrow(BrandNotFoundException::new);
 
                 if (brand.getBrandName() == null) {
-                    throw new UserNotCompletedSingUpException();
+                    throw new UserNotCompletedSignUpException();
                 }
                 displayName = brand.getBrandName();
                 break;
 
             case PENDING:
-                throw new UserNotCompletedSingUpException();
+                throw new UserNotCompletedSignUpException();
 
             default:
                 throw new InvalidRoleException();
