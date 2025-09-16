@@ -1,8 +1,8 @@
 package com.lokoko.domain.campaign.api.dto.request;
 
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
-import com.lokoko.global.common.enums.Language;
 import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
@@ -11,7 +11,7 @@ import java.util.List;
 
 public record CampaignCreateRequest(
         String campaignTitle,
-        Language language,
+        CampaignLanguage language,
         CampaignType campaignType,
         CampaignProductType campaignProductType,
         @Size(max = 5, message = "상단 이미지는 최대 5개까지 가능합니다")

@@ -1,8 +1,8 @@
 package com.lokoko.domain.campaign.api.dto.request;
 
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
-import com.lokoko.global.common.enums.Language;
 import jakarta.validation.constraints.*;
 
 import java.time.Instant;
@@ -13,7 +13,7 @@ public record CampaignPublishRequest(
         String campaignTitle,
         
         @NotNull(message = "언어 설정은 필수입니다")
-        Language language,
+        CampaignLanguage language,
         
         @NotNull(message = "캠페인 타입은 필수입니다")
         CampaignType campaignType,
