@@ -55,5 +55,7 @@ public class CreatorCampaignUsecase {
         CreatorCampaign creatorCampaign = creatorCampaignMapper.toCampaignParticipation(creator, campaign, now);
 
         creatorCampaignSaveService.save(creatorCampaign);
+
+        campaign.increaseApplicant();
     }
 }
