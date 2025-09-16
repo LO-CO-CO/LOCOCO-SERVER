@@ -95,11 +95,12 @@ public class BrandController {
             description = "브랜드 마이페이지에서 브랜드가 크리에이터가 올린 1차 리뷰에 대해 수정사항을 남기는 API 입니다.")
     @PostMapping("/my/reviews/{campaignReviewId}/revision-request")
     public ApiResponse<BrandNoteRevisionResponse> requestReviewRevision(
+            @Parameter(hidden = true) @CurrentUser Long brandId,
             @PathVariable Long campaignReviewId,
             @RequestParam RevisionAction action,
             @Valid @RequestBody BrandNoteRevisionRequest revisionRequest) {
 
-        String brandNote = campaignReviewUpdateService.requestReviewRevision(action, campaignReviewId, revisionRequest);
+        String brandNote = campaignReviewUpdateService.requestReviewRevision(action, brandId, campaignReviewId, revisionRequest);
         BrandNoteRevisionResponse response = new BrandNoteRevisionResponse(brandNote);
 
         String message = action == RevisionAction.SAVE_DRAFT ? ResponseMessage.REVISION_SAVE_SUCCESS.getMessage() :
