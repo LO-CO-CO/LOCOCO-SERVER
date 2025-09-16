@@ -13,7 +13,7 @@ public enum ResponseMessage {
     ROLE_ASSIGNED_SUCCESS("역할 설정이 완료되었습니다."),
     TIKTOK_CONNECT_SUCCESS("틱톡 계정 연결에 성공했습니다."),
 
-    GET_LOGIN_USER_NAME_SUCCESS("로그인한 유저의 ID를 성공적으로 불러왔습니다.");
+    GET_LOGIN_USER_ID_SUCCESS("로그인한 유저의 ID를 성공적으로 불러왔습니다.");
 
     private final String message;
 }

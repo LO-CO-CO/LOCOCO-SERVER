@@ -33,7 +33,7 @@ public class CustomerService {
         customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
 
         String mediaType = request.mediaType();
-        if (!mediaType.startsWith("image/")) {
+        if (mediaType == null || mediaType.isBlank() || !mediaType.startsWith("image/")) {
             throw new InvalidMediaTypeException(ErrorMessage.UNSUPPORTED_MEDIA_TYPE);
         }
 
@@ -59,7 +59,7 @@ public class CustomerService {
 
         if (request.profileImageUrl() != null) {
             MediaFile mediaFile = S3UrlParser.parsePresignedUrl(request.profileImageUrl());
-            user.updateProfileImage(mediaFile.toString());
+            user.updateProfileImage(mediaFile.getFileUrl());
         }
 
         if (request.customerName() != null) {

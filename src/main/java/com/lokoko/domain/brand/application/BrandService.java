@@ -18,8 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -48,7 +46,7 @@ public class BrandService {
         brandRepository.findById(brandId).orElseThrow(BrandNotFoundException::new);
 
         String mediaType = request.mediaType();
-        if (!mediaType.startsWith("image/")) {
+        if (mediaType == null || mediaType.isBlank() || !mediaType.startsWith("image/")) {
             throw new InvalidMediaTypeException(ErrorMessage.UNSUPPORTED_MEDIA_TYPE);
         }
 
@@ -71,7 +69,7 @@ public class BrandService {
 
         if (request.profileImageUrl() != null) {
             MediaFile mediaFile = S3UrlParser.parsePresignedUrl(request.profileImageUrl());
-            brand.getUser().updateProfileImage(mediaFile.toString());
+            brand.getUser().updateProfileImage(mediaFile.getFileUrl());
         }
         if (request.brandName() != null) {
             brand.assignBrandName(request.brandName());

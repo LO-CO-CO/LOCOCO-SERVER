@@ -89,7 +89,7 @@ public class Customer {
     @Column
     private String tikTokUserId;
 
-    public String getCreatorPhoneNumber() {
+    public String getCustomerPhoneNumber() {
         return countryCode + phoneNumber;
     }
 

@@ -106,7 +106,7 @@ public class AuthController {
             @Parameter(hidden = true) @CurrentUser Long userId) {
 
         AfterLoginUserNameResponse response = authService.getUserName(userId);
-        return ApiResponse.success(HttpStatus.OK, GET_LOGIN_USER_NAME_SUCCESS.getMessage(), response);
+        return ApiResponse.success(HttpStatus.OK, GET_LOGIN_USER_ID_SUCCESS.getMessage(), response);
     }
 
     /**
