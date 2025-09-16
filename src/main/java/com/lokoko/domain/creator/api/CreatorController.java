@@ -3,6 +3,7 @@ package com.lokoko.domain.creator.api;
 import com.lokoko.domain.creator.api.dto.request.CreatorInfoUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorMyPageUpdateRequest;
 import com.lokoko.domain.creator.api.dto.response.CreatorInfoResponse;
+import com.lokoko.domain.creator.api.dto.response.CreatorMyCampaignListResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorMyPageResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorRegisterCompleteResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorSnsConnectedResponse;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "CREATOR")
@@ -40,6 +42,16 @@ public class CreatorController {
                 creatorUsecase.getMyProfile(userId));
     }
 
+    @Operation(summary = "크리에이터 마이페이지 내가 참여중/참여한 캠페인 목록 조회 [무한 스크롤]")
+    @GetMapping("/profile/campaigns")
+    public ApiResponse<CreatorMyCampaignListResponse> getMyCampaigns(@Parameter(hidden = true) @CurrentUser Long userId,
+                                                                     @RequestParam(defaultValue = "0") int page,
+                                                                     @RequestParam(defaultValue = "20") int size
+    ) {
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.MY_CAMPAIGN_FETCH_SUCCESS.getMessage(),
+                creatorUsecase.getMyCampaigns(userId, page, size));
+    }
+
     @Operation(summary = "크리에이터 마이페이지 수정")
     @PatchMapping("/profile")
     public ApiResponse<CreatorMyPageResponse> updateProfile(@Parameter(hidden = true) @CurrentUser Long userId,
@@ -50,7 +62,7 @@ public class CreatorController {
     }
 
     @Operation(summary = "크리에이터 배송지 확정(배송받기)")
-    @PostMapping("/{campaignId}/address")
+    @PostMapping("/profile/{campaignId}/address")
     public ApiResponse<Void> confirmAddress(@PathVariable Long campaignId,
                                             @Parameter(hidden = true) @CurrentUser Long userId) {
         creatorUsecase.confirmAddress(userId, campaignId);
@@ -75,7 +87,8 @@ public class CreatorController {
             @Parameter(hidden = true) @CurrentUser Long userId) {
 
         CreatorSnsConnectedResponse response = creatorUsecase.getCreatorSnsStatus(userId);
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_GET_SNS_STATUS_SUCCESS.getMessage(), response);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_GET_SNS_STATUS_SUCCESS.getMessage(),
+                response);
     }
 
     @GetMapping("/register/info")
@@ -84,7 +97,8 @@ public class CreatorController {
             @Parameter(hidden = true) @CurrentUser Long userId) {
 
         CreatorInfoResponse response = creatorUsecase.getRegisterInfo(userId);
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_GET_INFO_REGISTER_SUCCESS.getMessage(), response);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_GET_INFO_REGISTER_SUCCESS.getMessage(),
+                response);
     }
 
     @PostMapping("/register/complete")

@@ -1,5 +1,7 @@
 package com.lokoko.domain.campaignReview.api.dto.request;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,7 +20,7 @@ public record FirstReviewUploadRequest(
          * 첫번째 리뷰 업로드시 입력받을 필드들
          */
 
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "콘텐츠 포맷", example = "INSTA_REELS")
+        @Schema(requiredMode = REQUIRED, description = "콘텐츠 포맷", example = "INSTA_REELS")
         @NotNull
         ContentType contentType,
 

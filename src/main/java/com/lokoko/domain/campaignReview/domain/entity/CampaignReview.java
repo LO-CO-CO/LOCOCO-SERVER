@@ -2,9 +2,9 @@ package com.lokoko.domain.campaignReview.domain.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 
-import com.lokoko.domain.campaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewStatus;
+import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
