@@ -1,12 +1,7 @@
 package com.lokoko.domain.customer.domain.entity;
 
 import com.lokoko.domain.user.domain.entity.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,5 +23,12 @@ public class Customer {
     @MapsId
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column
+    private String tikTokUserId;
+
+    public void connectTikTok(String tikTokUserId) {
+        this.tikTokUserId = tikTokUserId;
+    }
 
 }

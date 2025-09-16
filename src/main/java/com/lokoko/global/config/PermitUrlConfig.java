@@ -53,7 +53,20 @@ public class PermitUrlConfig {
     }
 
     /**
-     * 4) 관리자 전용 (Admin) - ROLE_ADMIN
+     * 4) Creator 전용 - Creator 권한 필요
+     */
+    public String[] getCreatorUrl() {
+        return new String[]{
+                "/api/auth/tiktok/connect",
+                "/api/auth/tiktok/callback",
+                "/api/auth/tiktok/status",
+                "/api/auth/tiktok/sync",
+                "/api/auth/tiktok/disconnect"
+        };
+    }
+
+    /**
+     * 5) 관리자 전용 (Admin) - ROLE_ADMIN
      */
     public String[] getAdminUrl() {
         return new String[]{

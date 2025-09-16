@@ -10,7 +10,7 @@ public record CampaignImageResponse(
     public static CampaignImageResponse from(CampaignImage image) {
         return new CampaignImageResponse(
                 image.getId(),
-                image.getUrl(),
+                image.getMediaFile().getFileUrl(),
                 image.getDisplayOrder()
         );
     }

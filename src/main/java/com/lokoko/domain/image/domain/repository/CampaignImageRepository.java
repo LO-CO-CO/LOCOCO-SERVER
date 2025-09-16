@@ -11,14 +11,14 @@ import java.util.List;
 
 public interface CampaignImageRepository extends JpaRepository<CampaignImage, Long> {
 
-    @Query("SELECT new com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse(ci.id, ci.url, ci.displayOrder) " +
+    @Query("SELECT new com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse(ci.id, ci.mediaFile.fileUrl, ci.displayOrder) " +
             "FROM CampaignImage ci " +
             "WHERE ci.campaign.id = :campaignId " +
             "AND ci.imageType = com.lokoko.domain.image.domain.entity.enums.ImageType.TOP " +
             "ORDER BY ci.displayOrder")
     List<CampaignImageResponse> findTopImagesByCampaignId(@Param("campaignId") Long campaignId);
 
-    @Query("SELECT new com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse(ci.id, ci.url, ci.displayOrder) " +
+    @Query("SELECT new com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse(ci.id, ci.mediaFile.fileUrl, ci.displayOrder) " +
             "FROM CampaignImage ci " +
             "WHERE ci.campaign.id = :campaignId " +
             "AND ci.imageType = com.lokoko.domain.image.domain.entity.enums.ImageType.BOTTOM " +

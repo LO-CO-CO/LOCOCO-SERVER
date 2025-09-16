@@ -3,6 +3,8 @@ package com.lokoko.domain.image.domain.entity;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.image.domain.entity.enums.ImageType;
 import com.lokoko.global.common.entity.BaseEntity;
+import com.lokoko.global.common.entity.MediaFile;
+import com.lokoko.global.utils.S3UrlParser;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -22,7 +24,8 @@ public class CampaignImage extends BaseEntity {
     @Column(name = "campaign_image_id")
     private Long id;
 
-    private String url;
+    @Embedded
+    private MediaFile mediaFile;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "campaign_id")
@@ -35,8 +38,9 @@ public class CampaignImage extends BaseEntity {
     private ImageType imageType;
 
     public static CampaignImage createCampaignImage(String imageUrl, int displayOrder, ImageType imageType, Campaign campaign) {
+        MediaFile mediaFile = S3UrlParser.parsePresignedUrl(imageUrl);
         return CampaignImage.builder()
-                .url(imageUrl)
+                .mediaFile(mediaFile)
                 .campaign(campaign)
                 .displayOrder(displayOrder)
                 .imageType(imageType)
