@@ -11,41 +11,47 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
-@Slf4j
-@Tag(name = "TIKTOK_CONNECTION", description = "TikTok 계정 연결 API")
+@Tag(name = "SNS_CONNECTION", description = "SNS(틱톡 및 인스타그램) 계정 연결 API")
 @RestController
-@RequestMapping("/api/auth/tiktok")
+@RequestMapping("/api/auth/sns")
 @RequiredArgsConstructor
-public class TikTokConnectionController {
-    
+public class SnsConnectionController {
+
     private final TikTokConnectionService tikTokConnectionService;
     private final OAuthStateManager oAuthStateManager;
 
     @Operation(summary = "TikTok 계정 연결", description = "Creator가 TikTok 계정 연결 / TikTok OAuth 인증 페이지로 리다이렉트")
-    @GetMapping("/connect")
+    @GetMapping("/tiktok/connect")
     public void connectTikTok(
             @Parameter(hidden = true) @CurrentUser Long userId,
-            HttpServletResponse response) throws IOException{
+            HttpServletResponse response) throws IOException {
 
         String authUrl = tikTokConnectionService.generateConnectionUrl(userId);
         response.sendRedirect(authUrl);
     }
 
     @Operation(summary = "TikTok OAuth 콜백", description = "TikTok OAuth 인증 후 콜백을 처리 및 계정 연결 완료")
-    @GetMapping("/callback")
+    @GetMapping("/tiktok/callback")
     public ApiResponse<TikTokConnectionResponse> handleTikTokCallback(
             @RequestParam("code") String code, @RequestParam("state") String state) {
 
-            Long userId = oAuthStateManager.validateAndGetCreatorId(state);
+        Long userId = oAuthStateManager.validateAndGetCreatorId(state);
 
-            TikTokConnectionResponse response = tikTokConnectionService.connectTikTok(userId, code);
+        TikTokConnectionResponse response = tikTokConnectionService.connectTikTok(userId, code);
 
-            return ApiResponse.success(HttpStatus.OK, ResponseMessage.TIKTOK_CONNECT_SUCCESS.getMessage(), response);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.TIKTOK_CONNECT_SUCCESS.getMessage(), response);
     }
+
+    /**
+     * 인스타그램 로직 추가 예정
+     */
 }
