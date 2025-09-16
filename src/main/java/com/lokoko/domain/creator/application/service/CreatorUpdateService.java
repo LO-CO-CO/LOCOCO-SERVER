@@ -5,7 +5,6 @@ import com.lokoko.domain.campaignReview.application.service.CreatorCampaignUpdat
 import com.lokoko.domain.creator.api.dto.request.CreatorInfoUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorMyPageUpdateRequest;
 import com.lokoko.domain.creator.domain.entity.Creator;
-import com.lokoko.domain.creator.exception.CreatorIdAlreadyExistsException;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.user.application.service.UserService;
 import lombok.RequiredArgsConstructor;
