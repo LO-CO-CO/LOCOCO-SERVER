@@ -23,7 +23,6 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.AbstractMap;
 import java.util.List;
 
 import static com.lokoko.domain.image.domain.entity.enums.ImageType.TOP;
@@ -62,7 +61,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                         campaign.applicantNumber,
                         campaign.recruitmentNumber,
                         campaign.applyStartDate,
-                        Expressions.constant(CampaignChipStatus.DISABLED)
+                        Expressions.constant(CampaignChipStatus.DISABLED.getDisplayName())
                 ))
                 .from(campaign)
                 .innerJoin(campaignImage).on(campaignImage.campaign.eq(campaign)
@@ -106,10 +105,18 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
         BooleanExpression categoryCondition = buildCategoryCondition(category);
         BooleanExpression visibilityCondition = buildVisibilityCondition(user);
 
+        // DRAFT, WAITING_APPROVAL, OPEN_RESERVED 상태 제외
+        BooleanExpression statusCondition = campaign.campaignStatus.notIn(
+                CampaignStatus.DRAFT,
+                CampaignStatus.WAITING_APPROVAL,
+                CampaignStatus.OPEN_RESERVED
+        );
+
         BooleanExpression condition = combineConditions(
                 langCondition,
                 categoryCondition,
-                visibilityCondition
+                visibilityCondition,
+                statusCondition
         );
 
         List<Tuple> results = queryFactory
@@ -138,31 +145,9 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        Instant now = Instant.now();
-
         List<MainPageCampaignResponse> campaignList = results.stream()
                 .map(tuple -> {
-                    CampaignStatus dbStatus = tuple.get(campaign.campaignStatus);
-                    CampaignStatus calculatedStatus = calculateRealTimeStatus(
-                            dbStatus,
-                            tuple.get(campaign.applyStartDate),
-                            tuple.get(campaign.applyDeadline),
-                            tuple.get(campaign.creatorAnnouncementDate),
-                            tuple.get(campaign.reviewSubmissionDeadline),
-                            now
-                    );
-
-                    return new AbstractMap.SimpleEntry<>(tuple, calculatedStatus);
-                })
-                // DRAFT ,  WAITING_APPROVAL , OPEN_RESERVED 는 제외한다.
-                .filter(entry -> {
-                    CampaignStatus status = entry.getValue();
-                    return status != CampaignStatus.DRAFT && status != CampaignStatus.WAITING_APPROVAL &&
-                            status != CampaignStatus.OPEN_RESERVED;
-                })
-                .map(entry -> {
-                    Tuple tuple = entry.getKey();
-                    CampaignChipStatus chipStatus = determineChipStatus(
+                    String chipStatus = determineChipStatus(
                             tuple.get(campaign.applyStartDate),
                             tuple.get(campaign.applyDeadline)
                     );
@@ -199,13 +184,13 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
         return new MainPageCampaignListResponse(campaignList, pageInfo);
     }
 
-    private CampaignChipStatus determineChipStatus(Instant applyStartDate, Instant applyDeadline) {
+    private String determineChipStatus(Instant applyStartDate, Instant applyDeadline) {
         Instant now = Instant.now();
 
         if (now.isAfter(applyStartDate) && now.isBefore(applyDeadline)) {
-            return CampaignChipStatus.DEFAULT;
+            return CampaignChipStatus.DEFAULT.getDisplayName();
         } else if (now.isAfter(applyDeadline)) {
-            return CampaignChipStatus.DISABLED;
+            return CampaignChipStatus.DISABLED.getDisplayName();
         }
 
         return null;
