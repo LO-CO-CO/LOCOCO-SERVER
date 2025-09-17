@@ -3,6 +3,7 @@ package com.lokoko.domain.campaign.api.dto.request;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
+import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
 import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
@@ -25,7 +26,9 @@ public record CampaignCreateRequest(
         Integer recruitmentNumber,
         List<String> participationRewards,
         List<String> deliverableRequirements,
-        List<String> eligibilityRequirements
+        List<String> eligibilityRequirements,
+        ContentType firstContentType,
+        ContentType secondContentType
 ) {
 
     public static CampaignCreateRequest convertPublishToCreateRequest(CampaignPublishRequest publishRequest) {
@@ -43,7 +46,9 @@ public record CampaignCreateRequest(
                 publishRequest.recruitmentNumber(),
                 safeList(publishRequest.participationRewards()),
                 safeList(publishRequest.deliverableRequirements()),
-                safeList(publishRequest.eligibilityRequirements())
+                safeList(publishRequest.eligibilityRequirements()),
+                publishRequest.firstContentType(),
+                publishRequest.secondContentType()
         );
     }
 
@@ -62,9 +67,9 @@ public record CampaignCreateRequest(
                 draftRequest.recruitmentNumber(),
                 safeList(draftRequest.participationRewards()),
                 safeList(draftRequest.deliverableRequirements()),
-                safeList(draftRequest.eligibilityRequirements())
-
-
+                safeList(draftRequest.eligibilityRequirements()),
+                draftRequest.firstContentType(),
+                draftRequest.secondContentType()
         );
     }
 
