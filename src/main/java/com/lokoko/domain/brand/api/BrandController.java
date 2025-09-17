@@ -100,8 +100,7 @@ public class BrandController {
             @RequestParam RevisionAction action,
             @Valid @RequestBody BrandNoteRevisionRequest revisionRequest) {
 
-        String brandNote = campaignReviewUpdateService.requestReviewRevision(action, brandId, campaignReviewId, revisionRequest);
-        BrandNoteRevisionResponse response = new BrandNoteRevisionResponse(brandNote);
+        BrandNoteRevisionResponse response = campaignReviewUpdateService.requestReviewRevision(action, brandId, campaignReviewId, revisionRequest);
 
         String message = action == RevisionAction.SAVE_DRAFT ? ResponseMessage.REVISION_SAVE_SUCCESS.getMessage() :
                 ResponseMessage.REVISION_REQUEST_SUCCESS.getMessage();
