@@ -73,23 +73,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-
-        Long totalCount = queryFactory
-                .select(campaign.count())
-                .from(campaign)
-                .where(campaign.campaignStatus.eq(CampaignStatus.OPEN_RESERVED).and(languageAndCategoryCondition))
-                .fetchOne();
-
-        boolean isLast = (pageable.getOffset() + pageable.getPageSize()) >= totalCount;
-
-        PageableResponse pageInfo = new PageableResponse(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                upcomingCampaigns.size(),
-                isLast);
-
-
-        return new MainPageUpcomingCampaignListResponse(upcomingCampaigns, pageInfo);
+        return new MainPageUpcomingCampaignListResponse(upcomingCampaigns);
 
     }
 
