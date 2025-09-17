@@ -41,7 +41,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
 
 
     @Override
-    public MainPageUpcomingCampaignListResponse findUpcomingCampaignsInMainPage(LanguageFilter lang, CampaignProductTypeFilter category, PageRequest pageable) {
+    public MainPageUpcomingCampaignListResponse findUpcomingCampaignsInMainPage(LanguageFilter lang, CampaignProductTypeFilter category) {
 
         BooleanExpression langCondition = buildLanguageCondition(lang);
         BooleanExpression categoryCondition = buildCategoryCondition(category);
@@ -71,8 +71,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                         .and(campaignImage.imageType.eq((TOP))))
                 .where(campaign.campaignStatus.eq(CampaignStatus.OPEN_RESERVED).and(languageAndCategoryCondition))
                 .orderBy(campaign.applyStartDate.asc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(6)
                 .fetch();
 
         return new MainPageUpcomingCampaignListResponse(upcomingCampaigns);

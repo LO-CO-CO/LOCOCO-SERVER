@@ -68,11 +68,9 @@ public class CampaignController {
     @GetMapping("/upcoming")
     public ApiResponse<MainPageUpcomingCampaignListResponse> getUpcomingCampaignsInMainPage(
             @RequestParam LanguageFilter lang,
-            @RequestParam CampaignProductTypeFilter category,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "6") int size){
+            @RequestParam CampaignProductTypeFilter category){
 
-        MainPageUpcomingCampaignListResponse response = campaignReadService.getUpcomingCampaignsInMainPage(lang, category, page, size);
+        MainPageUpcomingCampaignListResponse response = campaignReadService.getUpcomingCampaignsInMainPage(lang, category);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.MAIN_PAGE_UPCOMING_CAMPAIGNS_GET_SUCCESS.getMessage(), response);
     }
 
