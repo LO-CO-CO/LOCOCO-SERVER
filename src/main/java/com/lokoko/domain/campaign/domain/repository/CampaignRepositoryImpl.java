@@ -11,10 +11,12 @@ import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.global.common.response.PageableResponse;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.DateTimeExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -103,8 +105,10 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 statusCondition
         );
 
-        List<Tuple> results = queryFactory
-                .select(
+        StringExpression chipStatusExpression = createChipStatusExpression();
+
+        List<MainPageCampaignResponse> campaignList = queryFactory
+                .select(Projections.constructor(MainPageCampaignResponse.class,
                         campaign.id,
                         campaign.campaignType,
                         campaign.language,
@@ -113,12 +117,9 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                         campaign.title,
                         campaign.applicantNumber,
                         campaign.recruitmentNumber,
-                        campaign.applyStartDate,
-                        campaign.applyDeadline,
-                        campaign.creatorAnnouncementDate,
                         campaign.reviewSubmissionDeadline,
-                        campaign.campaignStatus
-                )
+                        chipStatusExpression
+                ))
                 .from(campaign)
                 .innerJoin(campaignImage).on(campaignImage.campaign.eq(campaign)
                         .and(campaignImage.displayOrder.eq(1))
@@ -129,35 +130,17 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        List<MainPageCampaignResponse> campaignList = results.stream()
-                .map(tuple -> {
-                    String chipStatus = determineChipStatus(
-                            tuple.get(campaign.applyStartDate),
-                            tuple.get(campaign.applyDeadline)
-                    );
-
-                    return new MainPageCampaignResponse(
-                            tuple.get(campaign.id),
-                            tuple.get(campaign.campaignType),
-                            tuple.get(campaign.language),
-                            tuple.get(campaign.brand.brandName),
-                            tuple.get(campaignImage.mediaFile.fileUrl),
-                            tuple.get(campaign.title),
-                            tuple.get(campaign.applicantNumber),
-                            tuple.get(campaign.recruitmentNumber),
-                            tuple.get(campaign.reviewSubmissionDeadline),
-                            chipStatus
-                    );
-                })
-                .toList();
-
         Long totalCount = queryFactory
                 .select(campaign.count())
                 .from(campaign)
+                .innerJoin(campaignImage).on(campaignImage.campaign.eq(campaign)
+                        .and(campaignImage.displayOrder.eq(1))
+                        .and(campaignImage.imageType.eq((TOP))))
                 .where(condition)
                 .fetchOne();
 
-        boolean isLast = (pageable.getOffset() + pageable.getPageSize()) >= totalCount;
+        long total = totalCount != null ? totalCount : 0L;
+        boolean isLast = (pageable.getOffset() + pageable.getPageSize()) >= total;
 
         PageableResponse pageInfo = new PageableResponse(
                 pageable.getPageNumber(),
@@ -168,45 +151,6 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
         return new MainPageCampaignListResponse(campaignList, pageInfo);
     }
 
-    private String determineChipStatus(Instant applyStartDate, Instant applyDeadline) {
-        Instant now = Instant.now();
-
-        if (now.isAfter(applyStartDate) && now.isBefore(applyDeadline)) {
-            return CampaignChipStatus.DEFAULT.getDisplayName();
-        } else if (now.isAfter(applyDeadline)) {
-            return CampaignChipStatus.DISABLED.getDisplayName();
-        }
-
-        return null;
-    }
-
-    /**
-     * 실시간 상태 계산 메서드
-     */
-    private CampaignStatus calculateRealTimeStatus(CampaignStatus dbStatus, Instant applyStartDate,
-                                                   Instant applyDeadline, Instant creatorAnnouncementDate,
-                                                   Instant reviewSubmissionDeadline, Instant now) {
-        if (dbStatus == CampaignStatus.DRAFT) {
-            return CampaignStatus.DRAFT;
-        }
-        if (dbStatus == CampaignStatus.WAITING_APPROVAL) {
-            return CampaignStatus.WAITING_APPROVAL;
-        }
-        if (now.isBefore(applyStartDate)) {
-            return CampaignStatus.OPEN_RESERVED;
-        }
-        if (now.isBefore(applyDeadline)) {
-            return CampaignStatus.RECRUITING;
-        }
-        if (now.isBefore(creatorAnnouncementDate)) {
-            return CampaignStatus.RECRUITMENT_CLOSED;
-        }
-        if (now.isBefore(reviewSubmissionDeadline)) {
-            return CampaignStatus.IN_REVIEW;
-        }
-
-        return CampaignStatus.COMPLETED;
-    }
 
     private BooleanExpression buildLanguageCondition(LanguageFilter lang) {
         if (lang == null || lang == LanguageFilter.ALL) {
@@ -246,6 +190,18 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
             }
         }
         return result;
+    }
+
+    private StringExpression createChipStatusExpression() {
+        DateTimeExpression<Instant> now = DateTimeExpression.currentTimestamp(Instant.class);
+
+        return new CaseBuilder()
+                .when(now.after(campaign.applyStartDate)
+                        .and(now.before(campaign.applyDeadline)))
+                .then(CampaignChipStatus.DEFAULT.getDisplayName())
+                .when(now.after(campaign.applyDeadline))
+                .then(CampaignChipStatus.DISABLED.getDisplayName())
+                .otherwise(Expressions.nullExpression(String.class));
     }
 
 }
