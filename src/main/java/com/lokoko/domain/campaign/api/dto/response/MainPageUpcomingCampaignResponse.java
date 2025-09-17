@@ -1,6 +1,5 @@
 package com.lokoko.domain.campaign.api.dto.response;
 
-import com.lokoko.domain.campaign.domain.entity.enums.CampaignChipStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
 
@@ -16,6 +15,6 @@ public record MainPageUpcomingCampaignResponse(
         Integer applicantNumber,
         Integer recruitmentNumber,
         Instant startTime,
-        CampaignChipStatus chipStatus
+        String chipStatus
 ) {
 }
