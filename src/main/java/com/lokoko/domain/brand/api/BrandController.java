@@ -1,6 +1,10 @@
 package com.lokoko.domain.brand.api;
 
 import com.lokoko.domain.brand.api.dto.request.BrandInfoUpdateRequest;
+import com.lokoko.domain.brand.api.dto.request.BrandMyPageUpdateRequest;
+import com.lokoko.domain.brand.api.dto.request.BrandProfileImageRequest;
+import com.lokoko.domain.brand.api.dto.response.BrandMyPageResponse;
+import com.lokoko.domain.brand.api.dto.response.BrandProfileImageResponse;
 import com.lokoko.domain.brand.api.message.ResponseMessage;
 import com.lokoko.domain.brand.application.BrandService;
 import com.lokoko.domain.campaign.api.dto.request.CampaignDraftRequest;
@@ -15,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -90,5 +95,34 @@ public class BrandController {
         CampaignCreateResponse response = campaignService.updateAndPublishCampaign(brandId, campaignId, publishRequest);
         return ApiResponse.success(HttpStatus.OK,
                 ResponseMessage.CAMPAIGN_PUBLISH_SUCCESS.getMessage(), response);
+    }
+
+    @Operation(summary = "브랜드 profile image presignedUrl 발급")
+    @PostMapping("/profile/image")
+    public ApiResponse<BrandProfileImageResponse> createBrandImagePresignedUrl(
+            @Parameter(hidden = true) @CurrentUser Long brandId,
+            @RequestBody @Valid BrandProfileImageRequest brandProfileImageRequest) {
+
+        BrandProfileImageResponse response = brandService.createBrandProfilePresignedUrl(brandId, brandProfileImageRequest);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_PROFILE_IMAGE_PRESIGNED_URL_SUCCESS.getMessage(), response);
+    }
+
+    @Operation(summary = "브랜드 마이페이지(프로필) 정보 조회")
+    @GetMapping("/profile")
+    public ApiResponse<BrandMyPageResponse> getBrandMyPageInfo(
+            @Parameter(hidden = true) @CurrentUser Long brandId) {
+
+        BrandMyPageResponse response = brandService.getBrandMyPage(brandId);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_MYPAGE_INFO_SUCCESS.getMessage(), response);
+    }
+
+    @Operation(summary = "브랜드 마이페이지(프로필) 정보 수정")
+    @PatchMapping("/profile")
+    public ApiResponse<Void> updateBrandMyPageProfile(
+            @Parameter(hidden = true) @CurrentUser Long brandId,
+            @RequestBody @Valid BrandMyPageUpdateRequest request) {
+
+        brandService.updateBrandMyPage(brandId, request);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_UPDATE_MYPAGE_INFO_SUCCESS.getMessage());
     }
 }

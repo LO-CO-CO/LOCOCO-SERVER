@@ -31,8 +31,6 @@ public class Brand {
 
     private String brandName;
 
-    private String profileImageUrl;
-
     private String managerName;
 
     private String managerPosition;
@@ -48,10 +46,6 @@ public class Brand {
 
     public void assignBrandName(String brandName) {
         this.brandName = brandName;
-    }
-
-    public void assignProfileNImage(String profileImageUrl) {
-        this.profileImageUrl = profileImageUrl;
     }
 
     public void assignManagerName(String managerName) {

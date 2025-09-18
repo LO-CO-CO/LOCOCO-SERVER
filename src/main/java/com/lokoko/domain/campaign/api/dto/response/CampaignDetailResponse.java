@@ -38,7 +38,7 @@ public record CampaignDetailResponse(
                 campaign.getId(),
                 campaign.getCampaignType(),
                 campaign.getTitle(),
-                brand.getProfileImageUrl(),
+                brand.getUser().getProfileImageUrl(),
                 brand.getBrandName(),
                 campaign.getLanguage(),
                 campaign.getApplyStartDate(),

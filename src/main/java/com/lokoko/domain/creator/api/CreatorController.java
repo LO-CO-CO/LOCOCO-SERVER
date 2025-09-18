@@ -1,6 +1,5 @@
 package com.lokoko.domain.creator.api;
 
-import com.lokoko.domain.creator.api.dto.request.CreatorIdCheckRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorInfoUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorMyPageUpdateRequest;
 import com.lokoko.domain.creator.api.dto.response.CreatorInfoResponse;
@@ -18,7 +17,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -73,15 +71,6 @@ public class CreatorController {
     }
 
     // 회원 가입
-    @GetMapping("/register/check-id")
-    public ApiResponse<Void> checkCreatorId(
-            @Validated CreatorIdCheckRequest request,
-            @Parameter(hidden = true) @CurrentUser Long userId) {
-
-        creatorUsecase.checkCreatorIdAvailable(request.creatorName(), userId);
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_ID_CHECK_SUCCESS.getMessage());
-    }
-
     @PatchMapping("/register/info")
     @Operation(summary = "회원가입시 크리에이터의 추가 정보를 입력/수정하는 API입니다")
     public ApiResponse<Void> updateCreatorRegisterInfo(

@@ -4,6 +4,7 @@ import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.auth.google.dto.GoogleLoginResponse;
 import com.lokoko.global.auth.google.dto.RoleUpdateRequest;
 import com.lokoko.global.auth.google.dto.RoleUpdateResponse;
+import com.lokoko.global.auth.google.dto.response.AfterLoginUserNameResponse;
 import com.lokoko.global.auth.jwt.dto.JwtTokenResponse;
 import com.lokoko.global.auth.jwt.dto.LoginResponse;
 import com.lokoko.global.auth.jwt.service.JwtService;
@@ -97,6 +98,15 @@ public class AuthController {
         cookieUtil.setCookie(REFRESH_TOKEN_HEADER, roleResponse.refreshToken(), response);
 
         return ApiResponse.success(HttpStatus.OK, ROLE_ASSIGNED_SUCCESS.getMessage(), roleResponse);
+    }
+
+    @GetMapping("/name")
+    @Operation(summary = "로그인한 사용자의 이름을 표시하는 API입니다.")
+    public ApiResponse<AfterLoginUserNameResponse> getUserDisplayName(
+            @Parameter(hidden = true) @CurrentUser Long userId) {
+
+        AfterLoginUserNameResponse response = authService.getUserName(userId);
+        return ApiResponse.success(HttpStatus.OK, GET_LOGIN_USER_ID_SUCCESS.getMessage(), response);
     }
 
     /**

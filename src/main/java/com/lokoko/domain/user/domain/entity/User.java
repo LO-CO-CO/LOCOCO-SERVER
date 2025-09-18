@@ -59,6 +59,12 @@ public class User extends BaseEntity {
     private String name;
 
     @Column
+    private String firstName;
+
+    @Column
+    private String lastName;
+
+    @Column
     private String profileImageUrl;
 
     @Column
@@ -87,6 +93,17 @@ public class User extends BaseEntity {
         this.email = email;
     }
 
+    public void updateProfileImage(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public void updateFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void updateLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
     public static User createLineUser(String lineUserId, String email, String displayName) {
         return User.builder()
@@ -98,12 +115,15 @@ public class User extends BaseEntity {
                 .build();
     }
 
-    public static User createGoogleUser(String googleUserId, String email, String displayName) {
+    public static User createGoogleUser(String googleUserId, String email, String displayName, String firstName, String lastName, String profileImageUrl) {
         return User.builder()
                 .googleId(googleUserId)
                 .email(email)
+                .firstName(firstName)
+                .lastName(lastName)
                 .name(displayName)
                 .role(Role.PENDING)
+                .profileImageUrl(profileImageUrl)
                 .lastLoginAt(Instant.now())
                 .build();
     }
