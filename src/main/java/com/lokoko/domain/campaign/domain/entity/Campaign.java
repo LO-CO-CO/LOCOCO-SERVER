@@ -36,14 +36,12 @@ public class Campaign extends BaseEntity {
     @JoinColumn(name = "brand_id")
     private Brand brand;
 
-    @Column(nullable = false)
     private String title;
 
     /**
      * 캠페인 진행언어
      */
     @Enumerated(value = EnumType.STRING)
-    @Column(nullable = false)
     private CampaignLanguage language;
 
     /**
@@ -51,7 +49,6 @@ public class Campaign extends BaseEntity {
      * ex. GIVEAWAY / CONTENTS / EXCLUSIVE
      */
     @Enumerated(value = EnumType.STRING)
-    @Column(nullable = false)
     private CampaignType campaignType;
 
     /**
@@ -66,29 +63,21 @@ public class Campaign extends BaseEntity {
      * 캠페인을 진행할 상품의 카테고리
      */
     @Enumerated(value = EnumType.STRING)
-    @Column(nullable = false)
     private CampaignProductType campaignProductType;
 
-
-    @Column(nullable = false)
     private Instant applyStartDate;
 
-    @Column(nullable = false)
     private Instant applyDeadline;
 
-    @Column(nullable = false)
     private Instant creatorAnnouncementDate;
 
-    @Column(nullable = false)
     private Instant reviewSubmissionDeadline;
 
     private Integer recruitmentNumber; // 모집 인원
 
-    private int applicantNumber; // 지원 인원
+    private Integer applicantNumber; // 지원 인원
 
-    private int approvedNumber; // 승인 인원
-
-
+    private Integer approvedNumber; // 승인 인원
 
     /**
      * 크리에이터 참여 보상 목록
@@ -127,13 +116,10 @@ public class Campaign extends BaseEntity {
     @Column
     private Instant publishedAt;
 
-
     @Enumerated(value = EnumType.STRING)
-    @Column(nullable = false)
     private ContentType firstContentPlatform;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(nullable = false)
     private ContentType secondContentPlatform;
 
     /**
