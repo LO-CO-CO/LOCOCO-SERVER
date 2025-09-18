@@ -186,6 +186,12 @@ public class Campaign extends BaseEntity {
             this.eligibilityRequirements.clear();
             this.eligibilityRequirements.addAll(request.eligibilityRequirements());
         }
+        if (request.firstContentType() != null) {
+            this.firstContentPlatform = request.firstContentType();
+        }
+        if (request.secondContentType() != null) {
+            this.secondContentPlatform = request.secondContentType();
+        }
     }
 
 
