@@ -2,6 +2,7 @@ package com.lokoko.domain.creator.api;
 
 import com.lokoko.domain.creator.api.dto.request.CreatorInfoUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorMyPageUpdateRequest;
+import com.lokoko.domain.creator.api.dto.response.CreatorAddressInfo;
 import com.lokoko.domain.creator.api.dto.response.CreatorInfoResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorMyCampaignListResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorMyPageResponse;
@@ -61,6 +62,15 @@ public class CreatorController {
                 creatorUsecase.updateMyProfile(userId, request));
     }
 
+    @Operation(summary = "크리에이터 주소 정보 조회")
+    @GetMapping("/profile/address")
+    public ApiResponse<CreatorAddressInfo> getCreatorAddress(
+            @Parameter(hidden = true) @CurrentUser Long userId
+    ) {
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.PROFILE_FETCH_ADDRESS_SUCCESS.getMessage(), creatorUsecase.getMyAddress(userId)
+        );
+    }
+
     @Operation(summary = "크리에이터 배송지 확정(배송받기)")
     @PostMapping("/profile/{campaignId}/address")
     public ApiResponse<Void> confirmAddress(@PathVariable Long campaignId,
@@ -80,6 +90,7 @@ public class CreatorController {
         creatorUsecase.updateCreatorRegisterInfo(userId, request);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_INFO_UPDATE_SUCCESS.getMessage());
     }
+
 
     @GetMapping("/register/sns-status")
     @Operation(summary = "크리에이터 SNS 연동 여부를 체크하는 API입니다")
