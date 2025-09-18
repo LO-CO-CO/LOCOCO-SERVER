@@ -41,7 +41,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
     private final UserRepository userRepository;
 
     @Override
-    public BrandMyCampaignListResponse findBrandMyCampaigns(Long brandId, CampaignStatus filterStatus, Pageable pageable) {
+    public BrandMyCampaignListResponse findBrandMyCampaigns(Long brandId, CampaignStatusFilter filterStatus, Pageable pageable) {
         Instant now = Instant.now();
 
         StringExpression statusCase = new CaseBuilder()
@@ -61,10 +61,19 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
 
         BooleanExpression condition = campaign.brand.id.eq(brandId);
 
-        if (filterStatus != null) {
-            condition = condition.and(statusCase.eq(filterStatus.name()));
+        if (filterStatus != null && !"ALL".equals(filterStatus.name())) {
+            // ACTIVE 이면 RECRUITING, RECRUITMENT_CLOSED, IN_REVIEW를 모두 포함시켜야겠지.
+            if ("ACTIVE".equals(filterStatus.name())) {
+                condition = condition.and(
+                    statusCase.eq(CampaignStatus.RECRUITING.name())
+                    .or(statusCase.eq(CampaignStatus.RECRUITMENT_CLOSED.name()))
+                    .or(statusCase.eq(CampaignStatus.IN_REVIEW.name()))
+                );
+            } else {
+                condition = condition.and(statusCase.eq(filterStatus.name()));
+            }
         }
-
+        
         List<BrandMyCampaignResponse> campaigns = queryFactory
                 .select(
                         campaign.id,

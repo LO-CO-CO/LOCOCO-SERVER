@@ -4,7 +4,7 @@ import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignListResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignListResponse;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductTypeFilter;
-import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatusFilter;
 import com.lokoko.domain.campaign.domain.entity.enums.LanguageFilter;
 import org.springframework.data.domain.Pageable;
 
@@ -15,5 +15,5 @@ public interface CampaignRepositoryCustom {
 
     MainPageUpcomingCampaignListResponse findUpcomingCampaignsInMainPage(LanguageFilter lang, CampaignProductTypeFilter category);
 
-    BrandMyCampaignListResponse findBrandMyCampaigns(Long brandId, CampaignStatus status, Pageable pageable);
+    BrandMyCampaignListResponse findBrandMyCampaigns(Long brandId, CampaignStatusFilter status, Pageable pageable);
 }
