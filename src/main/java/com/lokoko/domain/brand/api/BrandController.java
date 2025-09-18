@@ -3,6 +3,7 @@ package com.lokoko.domain.brand.api;
 import com.lokoko.domain.brand.api.dto.request.BrandInfoUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandMyPageUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandProfileImageRequest;
+import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyPageResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandProfileImageResponse;
 import com.lokoko.domain.brand.api.message.ResponseMessage;
@@ -10,7 +11,9 @@ import com.lokoko.domain.brand.application.BrandService;
 import com.lokoko.domain.campaign.api.dto.request.CampaignDraftRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignPublishRequest;
 import com.lokoko.domain.campaign.api.dto.response.CampaignCreateResponse;
+import com.lokoko.domain.campaign.application.service.CampaignGetService;
 import com.lokoko.domain.campaign.application.service.CampaignService;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,14 +22,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "BRAND")
 @RestController
@@ -36,6 +32,7 @@ public class BrandController {
 
     private final BrandService brandService;
     private final CampaignService campaignService;
+    private final CampaignGetService campaignGetService;
 
     @PatchMapping("/register/info")
     @Operation(summary = "회원가입시 브랜드 추가 정보를 입력하는 API 입니다.")
@@ -125,4 +122,21 @@ public class BrandController {
         brandService.updateBrandMyPage(brandId, request);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_UPDATE_MYPAGE_INFO_SUCCESS.getMessage());
     }
+
+    @Operation(summary = "브랜드 마이페이지에서 캠페인 리스트 조회.")
+    @GetMapping("/my/campaigns")
+    public ApiResponse<BrandMyCampaignListResponse> getBrandMyCampaigns(
+            @Parameter(hidden = true) @CurrentUser Long brandId,
+            @RequestParam(required = false) CampaignStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size
+    ) {
+
+        BrandMyCampaignListResponse response = campaignGetService.getBrandMyCampaigns(brandId, status, page, size);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_MY_PAGE_CAMPAIGNS_GET_SUCCESS.getMessage(), response);
+    }
+
+
+
+
 }
