@@ -7,7 +7,7 @@ import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
 import java.time.Instant;
 import java.util.List;
 
-public record CampaignCreateResponse(
+public record CampaignBasicResponse(
         Long campaignId,
         String campaignTitle,
         CampaignLanguage language,
@@ -23,9 +23,9 @@ public record CampaignCreateResponse(
         List<String> deliverableRequirements,
         List<String> eligibilityRequirements
 ) {
-    public static CampaignCreateResponse of(Campaign campaign, List<CampaignImageResponse> topImages,
-                                            List<CampaignImageResponse> bottomImages) {
-        return new CampaignCreateResponse(
+    public static CampaignBasicResponse of(Campaign campaign, List<CampaignImageResponse> topImages,
+                                           List<CampaignImageResponse> bottomImages) {
+        return new CampaignBasicResponse(
                 campaign.getId(),
                 campaign.getTitle(),
                 campaign.getLanguage(),
