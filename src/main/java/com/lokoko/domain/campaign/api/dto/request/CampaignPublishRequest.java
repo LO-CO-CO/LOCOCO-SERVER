@@ -1,8 +1,9 @@
 package com.lokoko.domain.campaign.api.dto.request;
 
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
-import com.lokoko.global.common.enums.Language;
+import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
 import jakarta.validation.constraints.*;
 
 import java.time.Instant;
@@ -13,7 +14,7 @@ public record CampaignPublishRequest(
         String campaignTitle,
         
         @NotNull(message = "언어 설정은 필수입니다")
-        Language language,
+        CampaignLanguage language,
         
         @NotNull(message = "캠페인 타입은 필수입니다")
         CampaignType campaignType,
@@ -55,6 +56,12 @@ public record CampaignPublishRequest(
         List<@NotBlank(message = "컨텐츠 요구사항 항목은 공백일 수 없습니다") String> deliverableRequirements,
         
         // 선택사항
-        List<String> eligibilityRequirements
+        List<String> eligibilityRequirements,
+
+        @NotNull(message = "컨텐츠 플랫폼 선택은 필수입니다")
+        ContentType firstContentType,
+
+        @NotNull(message = "컨텐츠 플랫폼 선택은 필수입니다")
+        ContentType secondContentType
 ) {
 }

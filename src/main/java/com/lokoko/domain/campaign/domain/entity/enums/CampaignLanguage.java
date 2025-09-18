@@ -5,11 +5,10 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CampaignProductType {
+public enum CampaignLanguage {
 
-    SKINCARE("Skincare"),
-    SUNCARE("Suncare"),
-    MAKEUP("Makeup");
+    ENG("Eng"),
+    ESN("Esn");
 
     private final String displayName;
 }

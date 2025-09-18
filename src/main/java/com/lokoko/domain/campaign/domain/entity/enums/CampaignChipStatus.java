@@ -5,11 +5,13 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum CampaignProductType {
+public enum CampaignChipStatus {
 
-    SKINCARE("Skincare"),
-    SUNCARE("Suncare"),
-    MAKEUP("Makeup");
+    DEFAULT("default"),
+    DISABLED("disabled"),
+    APPROVED("approved"),
+    DECLINED("declined"),
+    PROGRESS("progress");
 
     private final String displayName;
 }
