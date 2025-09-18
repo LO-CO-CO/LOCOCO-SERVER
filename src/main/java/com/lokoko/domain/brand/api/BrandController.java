@@ -2,8 +2,10 @@ package com.lokoko.domain.brand.api;
 
 import com.lokoko.domain.brand.api.dto.request.BrandInfoUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandMyPageUpdateRequest;
+import com.lokoko.domain.brand.api.dto.request.BrandNoteRevisionRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandProfileImageRequest;
 import com.lokoko.domain.brand.api.dto.response.BrandMyPageResponse;
+import com.lokoko.domain.brand.api.dto.response.BrandNoteRevisionResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandProfileImageResponse;
 import com.lokoko.domain.brand.api.message.ResponseMessage;
 import com.lokoko.domain.brand.application.BrandService;
