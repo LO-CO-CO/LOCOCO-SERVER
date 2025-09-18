@@ -5,6 +5,7 @@ import com.lokoko.domain.brand.api.dto.request.BrandMyPageUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandProfileImageRequest;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyPageResponse;
+import com.lokoko.domain.brand.api.dto.response.BrandProfileAndStatisticsResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandProfileImageResponse;
 import com.lokoko.domain.brand.api.message.ResponseMessage;
 import com.lokoko.domain.brand.application.BrandService;
@@ -135,6 +136,15 @@ public class BrandController {
         BrandMyCampaignListResponse response = campaignGetService.getBrandMyCampaigns(brandId, status, page, size);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_MY_PAGE_CAMPAIGNS_GET_SUCCESS.getMessage(), response);
     }
+
+    @Operation(summary = "브랜드 마이페이지에서 프로필(브랜드 이미지, 이름, 이메일) 및 통계 정보(진행 중인 캠페인, 종료 캠페인)조회")
+    @GetMapping("/my/profile/stats")
+    public ApiResponse<BrandProfileAndStatisticsResponse> getBrandProfileAndStatistics(@Parameter(hidden = true) @CurrentUser Long brandId) {
+
+        BrandProfileAndStatisticsResponse response = brandService.getBrandProfileAndStatistics(brandId);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_PROFILE_AND_STATISTICS_GET_SUCCESS.getMessage(), response);
+    }
+
 
 
 
