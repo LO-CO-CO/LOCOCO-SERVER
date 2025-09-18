@@ -9,6 +9,8 @@ public record GoogleProfileDto(
         @JsonProperty("sub")
         String userId,        // 구글 사용자 ID
         String name,
+        String givenName,
+        String familyName,
         String picture,
         String email
 ) {

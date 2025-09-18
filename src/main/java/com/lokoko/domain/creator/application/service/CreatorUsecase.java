@@ -11,7 +11,6 @@ import com.lokoko.domain.creator.api.dto.response.CreatorRegisterCompleteRespons
 import com.lokoko.domain.creator.api.dto.response.CreatorSnsConnectedResponse;
 import com.lokoko.domain.creator.application.mapper.CreatorMapper;
 import com.lokoko.domain.creator.domain.entity.Creator;
-import com.lokoko.domain.creator.exception.CreatorIdAlreadyExistsException;
 import com.lokoko.domain.creator.exception.CreatorInfoNotCompletedException;
 import com.lokoko.domain.creator.exception.NotCreatorRoleException;
 import com.lokoko.domain.creator.exception.SnsNotConnectedException;
@@ -85,23 +84,9 @@ public class CreatorUsecase {
     }
 
     // 회원 가입
-    @Transactional(readOnly = true)
-    public void checkCreatorIdAvailable(String creatorName, Long userId) {
-        Creator creator = creatorGetService.findByUserId(userId);
-
-        if (!creatorGetService.isCreatorNameAvailable(creatorName, creator.getId())) {
-            throw new CreatorIdAlreadyExistsException();
-        }
-    }
-
     @Transactional
     public void updateCreatorRegisterInfo(Long userId, CreatorInfoUpdateRequest request) {
         Creator creator = creatorGetService.findByUserId(userId);
-
-        if (!creatorGetService.isCreatorNameAvailable(request.creatorName(), creator.getId())) {
-            throw new CreatorIdAlreadyExistsException();
-        }
-
         creatorUpdateService.updateRegisterCreatorInfo(creator, request);
     }
 

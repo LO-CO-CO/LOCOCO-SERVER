@@ -4,8 +4,10 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.lokoko.domain.brand.domain.entity.Brand;
 import com.lokoko.domain.brand.domain.repository.BrandRepository;
+import com.lokoko.domain.brand.exception.BrandNotFoundException;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creator.domain.repository.CreatorRepository;
+import com.lokoko.domain.creator.exception.CreatorNotFoundException;
 import com.lokoko.domain.customer.domain.entity.Customer;
 import com.lokoko.domain.customer.domain.repository.CustomerRepository;
 import com.lokoko.domain.user.domain.entity.User;
@@ -18,11 +20,13 @@ import com.lokoko.global.auth.exception.InvalidRoleException;
 import com.lokoko.global.auth.exception.OauthException;
 import com.lokoko.global.auth.exception.RoleChangeNotAllowedException;
 import com.lokoko.global.auth.exception.StateValidationException;
+import com.lokoko.global.auth.exception.UserNotCompletedSignUpException;
 import com.lokoko.global.auth.google.GoogleOAuthClient;
 import com.lokoko.global.auth.google.GoogleProperties;
 import com.lokoko.global.auth.google.dto.GoogleProfileDto;
 import com.lokoko.global.auth.google.dto.GoogleTokenDto;
 import com.lokoko.global.auth.google.dto.RoleUpdateResponse;
+import com.lokoko.global.auth.google.dto.response.AfterLoginUserNameResponse;
 import com.lokoko.global.auth.jwt.dto.LoginResponse;
 import com.lokoko.global.auth.jwt.exception.TokenInvalidException;
 import com.lokoko.global.auth.jwt.utils.CookieUtil;
@@ -156,6 +160,10 @@ public class AuthService {
             String googleUserId = profile.userId();
             String email = profile.email();
             String displayName = profile.name();
+            String firstName = profile.givenName();
+            String lastName = profile.familyName();
+            String profileImageUrl = profile.picture();
+
 
             Optional<User> userOpt = userRepository.findByGoogleId(googleUserId);
             User user;
@@ -166,6 +174,9 @@ public class AuthService {
                 user.updateLastLoginAt();
                 user.updateEmail(email);
                 user.updateDisplayName(displayName);
+                user.updateFirstName(firstName);
+                user.updateLastName(lastName);
+                user.updateProfileImage(profileImageUrl);
 
                 if (user.getRole() == Role.PENDING) {
                     loginStatus = OauthLoginStatus.REGISTER;
@@ -180,7 +191,7 @@ public class AuthService {
                     loginStatus = OauthLoginStatus.LOGIN;
                 }
             } else {
-                user = User.createGoogleUser(googleUserId, email, displayName);
+                user = User.createGoogleUser(googleUserId, email, displayName,firstName,lastName,profileImageUrl);
                 loginStatus = OauthLoginStatus.REGISTER;
             }
 
@@ -373,5 +384,59 @@ public class AuthService {
                 user.assignBrand(brand);
             }
         }
+    }
+    @Transactional(readOnly = true)
+    public AfterLoginUserNameResponse getUserName(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        String displayName;
+
+        switch (user.getRole()) {
+            case CUSTOMER:
+                Customer customer = customerRepository.findById(userId).orElse(null);
+                if (customer != null && customer.getCustomerName() != null) {
+                    displayName = customer.getCustomerName();
+                } else {
+                    displayName = user.getFirstName() + " " + user.getLastName();
+                }
+                break;
+
+            case CREATOR:
+                Creator creator = creatorRepository.findById(userId)
+                        .orElseThrow(CreatorNotFoundException::new);
+
+                // Creator 필수 필드가 채워지지 않은 경우 (INFO_REQUIRED)
+                if (creator.getCreatorName() == null) {
+                    throw new UserNotCompletedSignUpException();
+                }
+
+                // 1개 이상의 SNS가 연동되지 않은 상태 (SNS_REQUIRED)
+                if (creator.getInstaLink() == null && creator.getTiktokLink() == null) {
+                    throw new UserNotCompletedSignUpException();
+                }
+
+                // LOGIN 상태 검증 완료
+                displayName = creator.getCreatorName();
+                break;
+
+            case BRAND:
+                Brand brand = brandRepository.findById(userId)
+                        .orElseThrow(BrandNotFoundException::new);
+
+                if (brand.getBrandName() == null) {
+                    throw new UserNotCompletedSignUpException();
+                }
+                displayName = brand.getBrandName();
+                break;
+
+            case PENDING:
+                throw new UserNotCompletedSignUpException();
+
+            default:
+                throw new InvalidRoleException();
+        }
+
+        return new AfterLoginUserNameResponse(displayName);
     }
 }

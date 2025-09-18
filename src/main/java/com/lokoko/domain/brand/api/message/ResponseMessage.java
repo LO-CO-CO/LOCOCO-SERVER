@@ -13,7 +13,11 @@ public enum ResponseMessage {
     CAMPAIGN_DRAFT_SUCCESS("캠페인 임시저장이 완료되었습니다."),
     CAMPAIGN_UPDATE_SUCCESS("캠페인 수정이 완료되었습니다."),
     REVISION_REQUEST_SUCCESS("브랜드 수정사항 전달이 완료되었습니다"),
-    REVISION_SAVE_SUCCESS("브랜드 수정 사항 임시 저장에 성공했습니다");
+    REVISION_SAVE_SUCCESS("브랜드 수정 사항 임시 저장에 성공했습니다"),
+
+    BRAND_PROFILE_IMAGE_PRESIGNED_URL_SUCCESS("브랜드 프로필 이미지 presigend url이 성공적으로 발급되었습니다."),
+    BRAND_MYPAGE_INFO_SUCCESS("브랜드 마이페이지 정보를 성공적으로 불러왔습니다."),
+    BRAND_UPDATE_MYPAGE_INFO_SUCCESS("브랜드 마이페이지 정보를 성공적으로 수정했습니다.");
 
     private final String message;
 }
