@@ -1,10 +1,8 @@
 package com.lokoko.domain.campaign.application.service;
 
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
-import com.lokoko.domain.campaign.api.dto.response.CampaignDetailResponse;
-import com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse;
-import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignListResponse;
-import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignListResponse;
+import com.lokoko.domain.brand.domain.repository.BrandRepository;
+import com.lokoko.domain.campaign.api.dto.response.*;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignDetailPageStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
@@ -12,6 +10,7 @@ import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductTypeFilter;
 import com.lokoko.domain.campaign.domain.entity.enums.LanguageFilter;
 import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
 import com.lokoko.domain.campaign.exception.CampaignNotFoundException;
+import com.lokoko.domain.campaign.exception.NotCampaignOwnershipException;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
 import com.lokoko.domain.image.domain.repository.CampaignImageRepository;
@@ -79,5 +78,22 @@ public class CampaignGetService {
         return campaignRepository.findBrandMyCampaigns(brandId, status, PageRequest.of(page, size));
     }
 
+    /**
+     * 브랜드 마이페이지 임시저장 캠페인 조회
+     */
+    public CampaignBasicResponse getDraftCampaign(Long brandId, Long campaignId) {
 
+        Campaign draftCampaign = campaignRepository.findDraftCampaignById(campaignId, CampaignStatus.DRAFT)
+                .orElseThrow(CampaignNotFoundException::new);
+
+        if (!draftCampaign.getBrand().getId().equals(brandId)){
+            throw new NotCampaignOwnershipException();
+        }
+        initializeElementCollections(draftCampaign);
+
+        List<CampaignImageResponse> topImages = campaignImageRepository.findTopImagesByCampaignId(campaignId);
+        List<CampaignImageResponse> bottomImages = campaignImageRepository.findBottomImagesByCampaignId(campaignId);
+
+        return CampaignBasicResponse.of(draftCampaign, topImages, bottomImages);
+    }
 }
