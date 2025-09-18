@@ -6,7 +6,6 @@ import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignListR
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductTypeFilter;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.LanguageFilter;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 public interface CampaignRepositoryCustom {

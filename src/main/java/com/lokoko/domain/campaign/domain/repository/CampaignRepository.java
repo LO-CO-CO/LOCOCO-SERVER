@@ -4,6 +4,8 @@ import com.lokoko.domain.campaign.domain.entity.Campaign;
 
 import java.time.Instant;
 import java.util.Optional;
+
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,6 +21,10 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> , Camp
     @EntityGraph(attributePaths = {"brand"})
     @Query("SELECT c FROM Campaign c WHERE c.id = :id")
     Optional<Campaign> findCampaignWithBrandById(Long id);
+
+    @EntityGraph(attributePaths = {"brand"})
+    @Query("SELECT c FROM Campaign c WHERE c.id = :id AND c.campaignStatus = :status")
+    Optional<Campaign> findDraftCampaignById(Long id, @Param("status") CampaignStatus status);
 
     @Query("SELECT count(c) FROM Campaign c " +
             "WHERE c.brand.id = :brandId " +
