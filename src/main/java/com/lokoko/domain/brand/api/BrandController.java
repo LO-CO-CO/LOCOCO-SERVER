@@ -14,7 +14,7 @@ import com.lokoko.domain.campaign.api.dto.request.CampaignPublishRequest;
 import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.campaign.application.service.CampaignGetService;
 import com.lokoko.domain.campaign.application.service.CampaignService;
-import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatusFilter;
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -128,7 +128,7 @@ public class BrandController {
     @GetMapping("/my/campaigns")
     public ApiResponse<BrandMyCampaignListResponse> getBrandMyCampaigns(
             @Parameter(hidden = true) @CurrentUser Long brandId,
-            @RequestParam(required = false) CampaignStatus status,
+            @RequestParam CampaignStatusFilter status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size
     ) {
