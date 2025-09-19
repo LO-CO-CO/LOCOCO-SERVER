@@ -4,6 +4,7 @@ import com.lokoko.domain.brand.api.dto.request.BrandInfoUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandMyPageUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandNoteRevisionRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandProfileImageRequest;
+import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyPageResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandNoteRevisionResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandProfileImageResponse;
@@ -12,6 +13,7 @@ import com.lokoko.domain.brand.application.BrandService;
 import com.lokoko.domain.campaign.api.dto.request.CampaignDraftRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignPublishRequest;
 import com.lokoko.domain.campaign.api.dto.response.CampaignCreateResponse;
+import com.lokoko.domain.campaign.application.service.CampaignGetService;
 import com.lokoko.domain.campaign.application.service.CampaignService;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewUpdateService;
 import com.lokoko.domain.campaignReview.domain.entity.enums.RevisionAction;
@@ -42,6 +44,7 @@ public class BrandController {
     private final BrandService brandService;
     private final CampaignService campaignService;
     private final CampaignReviewUpdateService campaignReviewUpdateService;
+    private final CampaignGetService campaignGetService;
 
     @PatchMapping("/register/info")
     @Operation(summary = "회원가입시 브랜드 추가 정보를 입력하는 API 입니다.")
@@ -147,5 +150,14 @@ public class BrandController {
 
         brandService.updateBrandMyPage(brandId, request);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_UPDATE_MYPAGE_INFO_SUCCESS.getMessage());
+    }
+
+    @Operation(summary = "캠페인 지원자 확인 뷰 - 브랜드 캠페인 목록 간단 조회")
+    @GetMapping("/my/campaigns/infos")
+    public ApiResponse<BrandMyCampaignInfoListResponse> getSimpleCampaignInfos(
+            @Parameter(hidden = true) @CurrentUser Long brandId) {
+
+        BrandMyCampaignInfoListResponse response = campaignGetService.getSimpleCampaignInfos(brandId);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CAMPAIGN_SIMPLE_INFO_GET_SUCCESS.getMessage(), response);
     }
 }
