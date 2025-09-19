@@ -2,10 +2,12 @@ package com.lokoko.domain.brand.api;
 
 import com.lokoko.domain.brand.api.dto.request.BrandInfoUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandMyPageUpdateRequest;
+import com.lokoko.domain.brand.api.dto.request.BrandNoteRevisionRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandProfileImageRequest;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyPageResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandProfileAndStatisticsResponse;
+import com.lokoko.domain.brand.api.dto.response.BrandNoteRevisionResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandProfileImageResponse;
 import com.lokoko.domain.brand.api.message.ResponseMessage;
 import com.lokoko.domain.brand.application.BrandService;
@@ -15,6 +17,8 @@ import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.campaign.application.service.CampaignGetService;
 import com.lokoko.domain.campaign.application.service.CampaignService;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatusFilter;
+import com.lokoko.domain.campaignReview.application.service.CampaignReviewUpdateService;
+import com.lokoko.domain.campaignReview.domain.entity.enums.RevisionAction;
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +28,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "BRAND")
 @RestController
@@ -34,6 +47,7 @@ public class BrandController {
     private final BrandService brandService;
     private final CampaignService campaignService;
     private final CampaignGetService campaignGetService;
+    private final CampaignReviewUpdateService campaignReviewUpdateService;
 
     @PatchMapping("/register/info")
     @Operation(summary = "회원가입시 브랜드 추가 정보를 입력하는 API 입니다.")
@@ -93,6 +107,23 @@ public class BrandController {
         CampaignBasicResponse response = campaignService.updateAndPublishCampaign(brandId, campaignId, publishRequest);
         return ApiResponse.success(HttpStatus.OK,
                 ResponseMessage.CAMPAIGN_PUBLISH_SUCCESS.getMessage(), response);
+    }
+
+    @Operation(summary = "브랜드 수정사항 임시저장 / 전달",
+            description = "브랜드 마이페이지에서 브랜드가 크리에이터가 올린 1차 리뷰에 대해 수정사항을 남기는 API 입니다.")
+    @PostMapping("/my/reviews/{campaignReviewId}/revision-request")
+    public ApiResponse<BrandNoteRevisionResponse> requestReviewRevision(
+            @Parameter(hidden = true) @CurrentUser Long brandId,
+            @PathVariable Long campaignReviewId,
+            @RequestParam RevisionAction action,
+            @Valid @RequestBody BrandNoteRevisionRequest revisionRequest) {
+
+        BrandNoteRevisionResponse response = campaignReviewUpdateService.requestReviewRevision(action, brandId, campaignReviewId, revisionRequest);
+
+        String message = action == RevisionAction.SAVE_DRAFT ? ResponseMessage.REVISION_SAVE_SUCCESS.getMessage() :
+                ResponseMessage.REVISION_REQUEST_SUCCESS.getMessage();
+
+        return ApiResponse.success(HttpStatus.OK, message, response);
     }
 
     @Operation(summary = "브랜드 profile image presignedUrl 발급")
