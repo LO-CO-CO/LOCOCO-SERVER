@@ -1,13 +1,7 @@
 package com.lokoko.domain.brand.api;
 
-import com.lokoko.domain.brand.api.dto.request.BrandInfoUpdateRequest;
-import com.lokoko.domain.brand.api.dto.request.BrandMyPageUpdateRequest;
-import com.lokoko.domain.brand.api.dto.request.BrandNoteRevisionRequest;
-import com.lokoko.domain.brand.api.dto.request.BrandProfileImageRequest;
-import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
-import com.lokoko.domain.brand.api.dto.response.BrandMyPageResponse;
-import com.lokoko.domain.brand.api.dto.response.BrandNoteRevisionResponse;
-import com.lokoko.domain.brand.api.dto.response.BrandProfileImageResponse;
+import com.lokoko.domain.brand.api.dto.request.*;
+import com.lokoko.domain.brand.api.dto.response.*;
 import com.lokoko.domain.brand.api.message.ResponseMessage;
 import com.lokoko.domain.brand.application.BrandService;
 import com.lokoko.domain.campaign.api.dto.request.CampaignDraftRequest;
@@ -159,5 +153,15 @@ public class BrandController {
 
         BrandMyCampaignInfoListResponse response = campaignGetService.getSimpleCampaignInfos(brandId);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.CAMPAIGN_SIMPLE_INFO_GET_SUCCESS.getMessage(), response);
+    }
+
+    @Operation(summary = "캠페인 지원자 확인 뷰 - 특정 캠페인에 조회한 크리에이터 승인 ")
+    @PatchMapping("/my/campaigns/{campaignId}/applicants/approve")
+    public ApiResponse<CreatorApprovedResponse> approveCreatorApplicants(
+            @Parameter(hidden = true) @CurrentUser Long brandId,
+            @PathVariable Long campaignId,
+            @RequestBody CreatorApproveRequest creatorApproveRequest) {
+        CreatorApprovedResponse response = campaignService.approveCreatorApplicants(campaignId, brandId, creatorApproveRequest);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_APPROVE_SUCCESS.getMessage(), response);
     }
 }
