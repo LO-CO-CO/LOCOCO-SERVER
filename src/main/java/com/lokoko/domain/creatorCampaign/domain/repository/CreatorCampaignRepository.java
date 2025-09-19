@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -46,4 +47,13 @@ public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign
                 order by cc.appliedAt desc, cc.id desc
             """)
     Slice<CreatorCampaign> findSliceWithCampaignByCreator(Long creatorId, Pageable pageable);
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE CreatorCampaign cc SET cc.status = 'APPROVED' WHERE cc.id IN :applicationIds")
+    int bulkApproveApplicationStatus(List<Long> applicationIds);
+
+
+    @Query("SELECT cc.id FROM CreatorCampaign cc WHERE cc.id IN :applicationIds AND cc.status = 'PENDING'")
+    List<Long> findPendingApplicationIds(List<Long> applicationIds);
+
 }
