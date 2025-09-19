@@ -1,8 +1,8 @@
 package com.lokoko.domain.campaign.api.dto.response;
 
 import com.lokoko.domain.campaign.domain.entity.Campaign;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
-import com.lokoko.global.common.enums.Language;
 
 import java.time.Instant;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
 public record CampaignCreateResponse(
         Long campaignId,
         String campaignTitle,
-        Language language,
+        CampaignLanguage language,
         CampaignType campaignType,
         List<CampaignImageResponse> topImages,
         List<CampaignImageResponse> bottomImages,

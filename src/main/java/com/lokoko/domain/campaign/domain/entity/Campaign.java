@@ -2,12 +2,13 @@ package com.lokoko.domain.campaign.domain.entity;
 
 import com.lokoko.domain.brand.domain.entity.Brand;
 import com.lokoko.domain.campaign.api.dto.request.CampaignCreateRequest;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
 import com.lokoko.domain.campaign.exception.DraftNotFilledException;
+import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.common.entity.BaseEntity;
-import com.lokoko.global.common.enums.Language;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -43,7 +44,7 @@ public class Campaign extends BaseEntity {
      */
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
-    private Language language;
+    private CampaignLanguage language;
 
     /**
      * 캠페인 종류
@@ -87,6 +88,8 @@ public class Campaign extends BaseEntity {
 
     private int approvedNumber; // 승인 인원
 
+
+
     /**
      * 크리에이터 참여 보상 목록
      */
@@ -123,6 +126,15 @@ public class Campaign extends BaseEntity {
 
     @Column
     private Instant publishedAt;
+
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
+    private ContentType firstContentPlatform;
+
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
+    private ContentType secondContentPlatform;
 
     /**
      * 캠페인 지원자 수 증가 메소드
@@ -222,7 +234,9 @@ public class Campaign extends BaseEntity {
                 this.reviewSubmissionDeadline == null,
                 this.recruitmentNumber == null,
                 this.participationRewards == null || this.participationRewards.isEmpty(),
-                this.deliverableRequirements == null || this.deliverableRequirements.isEmpty()
+                this.deliverableRequirements == null || this.deliverableRequirements.isEmpty(),
+                this.firstContentPlatform == null,
+                this.secondContentPlatform == null
         ).anyMatch(condition -> condition);
     }
 
@@ -243,6 +257,8 @@ public class Campaign extends BaseEntity {
                 .participationRewards(request.participationRewards())
                 .deliverableRequirements(request.deliverableRequirements())
                 .eligibilityRequirements(request.eligibilityRequirements())
+                .firstContentPlatform(request.firstContentType())
+                .secondContentPlatform(request.secondContentType())
                 .build();
     }
 }
