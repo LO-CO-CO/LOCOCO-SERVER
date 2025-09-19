@@ -1,7 +1,9 @@
 package com.lokoko.domain.campaignReview.application.service;
 
+import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.campaignReview.domain.repository.CampaignReviewRepository;
+import com.lokoko.domain.campaignReview.exception.CampaignReviewNotFoundException;
 import com.lokoko.domain.campaignReview.exception.ReviewAlreadySubmittedException;
 import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
 import java.util.Optional;
@@ -15,6 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class CampaignReviewGetService {
 
     private final CampaignReviewRepository campaignReviewRepository;
+
+    public CampaignReview findById(Long campaignReviewId){
+        return campaignReviewRepository.findById(campaignReviewId)
+                .orElseThrow(CampaignReviewNotFoundException::new);
+    }
 
     /**
      * 특정 캠페인에 대해 지정된 리뷰 라운드가 이미 존재하는지 조회하는 메서드 - 만약 해당 라운드의 리뷰가 이미 제출된 상태면 예외 발생
