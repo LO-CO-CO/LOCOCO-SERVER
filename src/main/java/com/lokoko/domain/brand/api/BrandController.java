@@ -164,4 +164,17 @@ public class BrandController {
         CreatorApprovedResponse response = campaignService.approveCreatorApplicants(campaignId, brandId, creatorApproveRequest);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_APPROVE_SUCCESS.getMessage(), response);
     }
+
+    @Operation(summary = "캠페인 지원자 확인 뷰 - 캠페인 지원자 리스트 조회")
+    @GetMapping("/my/campaigns/{campaignId}/applicants")
+    public ApiResponse<CampaignApplicantListResponse> getCampaignApplicants(
+            @Parameter(hidden = true) @CurrentUser Long brandId,
+            @PathVariable Long campaignId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        CampaignApplicantListResponse response = campaignGetService.getCampaignApplicants(brandId, campaignId, page, size);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CAMPAIGN_APPLICANTS_GET_SUCCESS.getMessage(), response);
+    }
+
 }
