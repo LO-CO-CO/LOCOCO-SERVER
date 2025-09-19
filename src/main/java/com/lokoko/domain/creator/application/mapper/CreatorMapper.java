@@ -73,4 +73,16 @@ public class CreatorMapper {
                 creator.getTiktokLink() != null
         );
     }
+
+    public CreatorAddressInfo toAddressInfo(Creator creator) {
+        return CreatorAddressInfo.builder()
+                .country(creator.getCountry())
+                .stateOrProvince(creator.getStateOrProvince())
+                .cityOrTown(creator.getCityOrTown())
+                .addressLine1(creator.getAddressLine1())
+                // null 가능
+                .addressLine2(creator.getAddressLine2())
+                .postalCode(creator.getPostalCode())
+                .build();
+    }
 }

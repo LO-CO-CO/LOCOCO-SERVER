@@ -282,7 +282,7 @@ public class AuthService {
         String redisKey = REFRESH_TOKEN_KEY_PREFIX + userId;
         redisUtil.setRefreshToken(redisKey, refreshToken, refreshTokenExpiration);
 
-        return new RoleUpdateResponse(accessToken, refreshToken, newRole, userId, tokenId, resultStatus);
+        return new RoleUpdateResponse(accessToken, refreshToken, newRole, userId, resultStatus);
     }
 
     // Brand 추가 정보 완성 여부 확인
