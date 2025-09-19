@@ -2,6 +2,8 @@ package com.lokoko.domain.campaign.application.service;
 
 import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
+import com.lokoko.domain.brand.api.dto.request.CreatorApproveRequest;
+import com.lokoko.domain.brand.api.dto.response.CreatorApprovedResponse;
 import com.lokoko.domain.brand.domain.entity.Brand;
 import com.lokoko.domain.brand.domain.repository.BrandRepository;
 import com.lokoko.domain.brand.exception.BrandNotFoundException;
@@ -15,9 +17,8 @@ import com.lokoko.domain.campaign.api.dto.response.CampaignMediaResponse;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.enums.ActionType;
 import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
-import com.lokoko.domain.campaign.exception.CampaignNotEditableException;
-import com.lokoko.domain.campaign.exception.CampaignNotFoundException;
-import com.lokoko.domain.campaign.exception.NotCampaignOwnershipException;
+import com.lokoko.domain.campaign.exception.*;
+import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
 import com.lokoko.domain.image.domain.entity.CampaignImage;
 import com.lokoko.domain.image.domain.entity.enums.ImageType;
 import com.lokoko.domain.image.domain.repository.CampaignImageRepository;
@@ -30,6 +31,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +45,10 @@ public class CampaignService {
     private final CampaignRepository campaignRepository;
     private final CampaignImageRepository campaignImageRepository;
     private final BrandRepository brandRepository;
+    private final CreatorCampaignRepository creatorCampaignRepository;
+
     private final S3Service s3Service;
+    private final EntityManager entityManager;
 
     public CampaignMediaResponse createMediaPresignedUrl(Long brandId, CampaignMediaRequest request) {
 
@@ -93,8 +99,7 @@ public class CampaignService {
     @Transactional
     public CampaignCreateResponse createCampaignWithAction(Long brandId, ActionType actionType,
                                                            CampaignCreateRequest createRequest) {
-        Brand brand = brandRepository.findById(brandId)
-                .orElseThrow(BrandNotFoundException::new);
+        Brand brand = getBrandOrThrow(brandId);
 
         Campaign campaign = Campaign.createCampaign(createRequest, brand);
 
@@ -104,6 +109,11 @@ public class CampaignService {
         List<CampaignImage> savedImages = saveImages(createRequest, savedCampaign);
 
         return buildCampaignCreateResponse(savedCampaign, savedImages);
+    }
+
+    private Brand getBrandOrThrow(Long brandId) {
+        return brandRepository.findById(brandId)
+                .orElseThrow(BrandNotFoundException::new);
     }
 
 
@@ -147,14 +157,10 @@ public class CampaignService {
     public CampaignCreateResponse updateCampaign(Long brandId, Long campaignId, ActionType actionType,
                                                  CampaignCreateRequest updateRequest) {
 
-        Brand brand = brandRepository.findById(brandId)
-                .orElseThrow(BrandNotFoundException::new);
-
-        Campaign campaign = campaignRepository.findById(campaignId)
-                .orElseThrow(CampaignNotFoundException::new);
+        Brand brand = getBrandOrThrow(brandId);
+        Campaign campaign = getCampaignOrThrow(campaignId);
 
         validateBrandOwnsCampaign(campaign, brand);
-
         validateEditableCampaign(campaign);
 
         campaign.updateCampaign(updateRequest);
@@ -166,6 +172,11 @@ public class CampaignService {
         List<CampaignImage> savedImages = saveImages(updateRequest, campaign);
 
         return buildCampaignCreateResponse(campaign, savedImages);
+    }
+
+    private Campaign getCampaignOrThrow(Long campaignId) {
+        return campaignRepository.findById(campaignId)
+                .orElseThrow(CampaignNotFoundException::new);
     }
 
     /**
@@ -205,6 +216,58 @@ public class CampaignService {
     private static void validateBrandOwnsCampaign(Campaign campaign, Brand brand) {
         if (!campaign.getBrand().getId().equals(brand.getId())) {
             throw new NotCampaignOwnershipException();
+        }
+    }
+
+    @Transactional
+    public CreatorApprovedResponse approveCreatorApplicants(Long campaignId, Long brandId, CreatorApproveRequest creatorApproveRequest) {
+
+        Brand brand = getBrandOrThrow(brandId);
+        Campaign campaign = campaignRepository.findCampaignWithLockById(campaignId)
+                .orElseThrow(CampaignNotFoundException::new);
+
+        validateBrandOwnsCampaign(campaign, brand);
+
+        List<Long> applicationIds = creatorApproveRequest.applicationIds();
+        List<Long> pendingApplicationIds = creatorCampaignRepository.findPendingApplicationIds(applicationIds);
+
+        validateApplicableCreators(pendingApplicationIds);
+        validateOverCampaignCapacity(campaign, pendingApplicationIds);
+
+        campaign.increaseApprovedNumber(pendingApplicationIds.size());
+
+        campaignRepository.save(campaign);
+        entityManager.flush();
+        // campaign 의 변경사항을 db 에 바로 반영
+        // bulk update 는 영속성 컨텍스트 무시하고 바로 db 업데이트 하므로, 영속성 컨텍스트와 db 불일치 발생.
+        // flush 없이 increaseApprovedNumber 하면, jpa 가 변경감지를 못해서 숫자가 증가하지 않는다.
+
+        int updatedCount = creatorCampaignRepository.bulkApproveApplicationStatus(pendingApplicationIds);
+
+        // 벌크 업데이트가 모두 성공한다는 보장이 없다. 일부만 성공할 수도 있기 때문에, 실패시 예외 던져야한다.
+        if (updatedCount != pendingApplicationIds.size()){
+            throw new CampaignApplicantBulkUpdateException();
+        }
+        return new CreatorApprovedResponse(campaign.getApprovedNumber(), campaign.getRecruitmentNumber());
+    }
+
+    /**
+     * "대기중" 상태인 지원자의 수가 없다면, 승인할 수 있는 지원자가 없는 상태이므로 예외 발생.
+     */
+    private static void validateApplicableCreators(List<Long> pendingApplicationIds) {
+        if (pendingApplicationIds.isEmpty()) {
+            throw new NoApplicableCreatorsException();
+        }
+    }
+
+    /**
+     * 현재 승인된 지원자 수 + 지원 요청 수 > 모집인원 수이면 예외를 발생
+     * @param campaign
+     * @param applicationIds
+     */
+    private static void validateOverCampaignCapacity(Campaign campaign, List<Long> applicationIds) {
+        if (campaign.getApprovedNumber() + applicationIds.size() > campaign.getRecruitmentNumber()) {
+            throw new CampaignCapacityExceedException();
         }
     }
 }
