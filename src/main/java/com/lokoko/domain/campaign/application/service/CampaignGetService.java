@@ -1,6 +1,7 @@
 package com.lokoko.domain.campaign.application.service;
 
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
+import com.lokoko.domain.brand.api.dto.response.CampaignApplicantListResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignDetailResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignListResponse;
@@ -74,5 +75,9 @@ public class CampaignGetService {
 
     public BrandMyCampaignInfoListResponse getSimpleCampaignInfos(Long brandId) {
         return campaignRepository.findSimpleCampaignInfoByBrandId(brandId);
+    }
+
+    public CampaignApplicantListResponse getCampaignApplicants(Long brandId, Long campaignId, int page, int size) {
+        return creatorCampaignRepository.findCampaignApplicants(brandId, campaignId, PageRequest.of(page, size));
     }
 }
