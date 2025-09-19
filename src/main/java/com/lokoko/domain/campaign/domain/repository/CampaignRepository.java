@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CampaignRepository extends JpaRepository<Campaign, Long> {
+public interface CampaignRepository extends JpaRepository<Campaign, Long> , CampaignRepositoryCustom {
 
     /**
      * Campaign 과 brand 를 fetch join
