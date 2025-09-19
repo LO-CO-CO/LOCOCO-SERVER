@@ -3,6 +3,7 @@ package com.lokoko.domain.creator.application.service;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewGetService;
 import com.lokoko.domain.creator.api.dto.request.CreatorInfoUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorMyPageUpdateRequest;
+import com.lokoko.domain.creator.api.dto.response.CreatorAddressInfo;
 import com.lokoko.domain.creator.api.dto.response.CreatorInfoResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorMyCampaignListResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorMyCampaignResponse;
@@ -74,6 +75,12 @@ public class CreatorUsecase {
         Creator updated = creatorUpdateService.updateProfile(creator, request);
 
         return creatorMapper.toMyPageResponse(updated);
+    }
+
+    @Transactional(readOnly = true)
+    public CreatorAddressInfo getMyAddress(Long userId) {
+        Creator creator = creatorGetService.findByUserId(userId);
+        return creatorMapper.toAddressInfo(creator);
     }
 
     @Transactional

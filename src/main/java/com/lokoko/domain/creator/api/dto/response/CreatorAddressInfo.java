@@ -1,10 +1,10 @@
 package com.lokoko.domain.creator.api.dto.response;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -25,10 +25,10 @@ public record CreatorAddressInfo(
         @Schema(requiredMode = REQUIRED, description = "Address Line 1 (텍스트, 최대 30자)", example = "1234 Market St")
         String addressLine1,
 
-        @Schema(requiredMode = REQUIRED, description = "Address Line 2 (텍스트, 최대 30자)", example = "Apt 5B")
+        @Schema(description = "Address Line 2 (텍스트, 최대 30자)", example = "Apt 5B")
         String addressLine2,
 
-        @Schema(requiredMode = REQUIRED, description = "ZIP Code (최대 10자, 미국은 필수)", example = "94103")
+        @Schema(description = "ZIP Code (최대 10자, 미국은 필수)", example = "94103")
         String postalCode
 ) {
 }

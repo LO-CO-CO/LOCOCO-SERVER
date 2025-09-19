@@ -8,7 +8,6 @@ public record RoleUpdateResponse(
         String refreshToken,
         Role role,
         Long userId,
-        String tokenId,
         OauthLoginStatus loginStatus
 ) {
 }

@@ -18,7 +18,8 @@ public enum ResponseMessage {
     PROFILE_FETCH_SUCCESS("크리에이터 마이페이지 조회 성공"),
     PROFILE_UPDATE_SUCCESS("크리에이터 마이페이지 수정 성공"),
     ADDRESS_CONFIRM_SUCCESS("배송지 확정 성공"),
-    MY_CAMPAIGN_FETCH_SUCCESS("참여 캠페인 조회 성공");
+    MY_CAMPAIGN_FETCH_SUCCESS("참여 캠페인 조회 성공"),
+    PROFILE_FETCH_ADDRESS_SUCCESS("크리에이터 배송지 조회 성공");
 
     private final String message;
 }
