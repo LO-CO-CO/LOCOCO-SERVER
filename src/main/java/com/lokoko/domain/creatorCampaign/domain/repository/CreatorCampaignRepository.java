@@ -53,7 +53,8 @@ public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign
     int bulkApproveApplicationStatus(List<Long> applicationIds);
 
 
-    @Query("SELECT cc.id FROM CreatorCampaign cc WHERE cc.id IN :applicationIds AND cc.status = 'PENDING'")
-    List<Long> findPendingApplicationIds(List<Long> applicationIds);
+    @Query("SELECT cc.id FROM CreatorCampaign cc WHERE cc.id IN :applicationIds AND cc.status = 'PENDING' " +
+            "AND cc.campaign.id = :campaignId")
+    List<Long> findPendingApplicationIds(Long campaignId, List<Long> applicationIds);
 
 }

@@ -229,7 +229,7 @@ public class CampaignService {
         validateBrandOwnsCampaign(campaign, brand);
 
         List<Long> participationIds = creatorApproveRequest.creatorCampaignIds();
-        List<Long> pendingParticipationIds = creatorCampaignRepository.findPendingApplicationIds(participationIds);
+        List<Long> pendingParticipationIds = creatorCampaignRepository.findPendingApplicationIds(campaignId, participationIds);
 
         validateApplicableCreators(pendingParticipationIds);
         validateOverCampaignCapacity(campaign, pendingParticipationIds);
