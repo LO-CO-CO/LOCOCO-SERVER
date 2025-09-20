@@ -62,7 +62,6 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
         BooleanExpression condition = campaign.brand.id.eq(brandId);
 
         if (filterStatus != null && !"ALL".equals(filterStatus.name())) {
-            // ACTIVE 이면 RECRUITING, RECRUITMENT_CLOSED, IN_REVIEW를 모두 포함시켜야겠지.
             if ("ACTIVE".equals(filterStatus.name())) {
                 condition = condition.and(
                     statusCase.eq(CampaignStatus.RECRUITING.name())
