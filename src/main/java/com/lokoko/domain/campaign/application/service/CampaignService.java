@@ -228,24 +228,19 @@ public class CampaignService {
 
         validateBrandOwnsCampaign(campaign, brand);
 
-        List<Long> applicationIds = creatorApproveRequest.applicationIds();
-        List<Long> pendingApplicationIds = creatorCampaignRepository.findPendingApplicationIds(applicationIds);
+        List<Long> participationIds = creatorApproveRequest.creatorCampaignIds();
+        List<Long> pendingParticipationIds = creatorCampaignRepository.findPendingApplicationIds(participationIds);
 
-        validateApplicableCreators(pendingApplicationIds);
-        validateOverCampaignCapacity(campaign, pendingApplicationIds);
+        validateApplicableCreators(pendingParticipationIds);
+        validateOverCampaignCapacity(campaign, pendingParticipationIds);
 
-        campaign.increaseApprovedNumber(pendingApplicationIds.size());
-
-        campaignRepository.save(campaign);
+        campaign.increaseApprovedNumber(pendingParticipationIds.size());
         entityManager.flush();
-        // campaign 의 변경사항을 db 에 바로 반영
-        // bulk update 는 영속성 컨텍스트 무시하고 바로 db 업데이트 하므로, 영속성 컨텍스트와 db 불일치 발생.
-        // flush 없이 increaseApprovedNumber 하면, jpa 가 변경감지를 못해서 숫자가 증가하지 않는다.
 
-        int updatedCount = creatorCampaignRepository.bulkApproveApplicationStatus(pendingApplicationIds);
+        int updatedCount = creatorCampaignRepository.bulkApproveApplicationStatus(pendingParticipationIds);
 
         // 벌크 업데이트가 모두 성공한다는 보장이 없다. 일부만 성공할 수도 있기 때문에, 실패시 예외 던져야한다.
-        if (updatedCount != pendingApplicationIds.size()){
+        if (updatedCount != pendingParticipationIds.size()){
             throw new CampaignApplicantBulkUpdateException();
         }
         return new CreatorApprovedResponse(campaign.getApprovedNumber(), campaign.getRecruitmentNumber());
@@ -262,11 +257,9 @@ public class CampaignService {
 
     /**
      * 현재 승인된 지원자 수 + 지원 요청 수 > 모집인원 수이면 예외를 발생
-     * @param campaign
-     * @param applicationIds
      */
-    private static void validateOverCampaignCapacity(Campaign campaign, List<Long> applicationIds) {
-        if (campaign.getApprovedNumber() + applicationIds.size() > campaign.getRecruitmentNumber()) {
+    private static void validateOverCampaignCapacity(Campaign campaign, List<Long> pendingParticipationIds) {
+        if (campaign.getApprovedNumber() + pendingParticipationIds.size() > campaign.getRecruitmentNumber()) {
             throw new CampaignCapacityExceedException();
         }
     }

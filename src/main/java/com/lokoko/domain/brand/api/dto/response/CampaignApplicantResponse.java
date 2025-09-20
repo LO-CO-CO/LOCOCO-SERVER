@@ -8,7 +8,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 public record CampaignApplicantResponse(
         @Schema(requiredMode = REQUIRED, description = "크리에이터 참여 정보 id", example = "1")
-        Long applicantId,
+        Long creatorCampaignId,
         @Schema(requiredMode = REQUIRED, description = "크리에이터 id", example = "1")
         Long creatorId,
         @Schema(requiredMode = REQUIRED, description = "크리에이터 프로필 이미지")
