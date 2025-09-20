@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CampaignLanguage {
 
-    ENG("Eng"),
-    ESN("Esn");
+    EN("EN"),
+    ES("ESN");
 
     private final String displayName;
 }
