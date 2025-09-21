@@ -1,5 +1,6 @@
 package com.lokoko.domain.campaign.domain.repository;
 
+import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignListResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignListResponse;
@@ -14,6 +15,8 @@ public interface CampaignRepositoryCustom {
     MainPageCampaignListResponse findCampaignsInMainPage(Long userId, LanguageFilter lang, CampaignProductTypeFilter category, Pageable pageable);
 
     MainPageUpcomingCampaignListResponse findUpcomingCampaignsInMainPage(LanguageFilter lang, CampaignProductTypeFilter category);
+
+    BrandMyCampaignInfoListResponse findSimpleCampaignInfoByBrandId(Long brandId);
 
     BrandMyCampaignListResponse findBrandMyCampaigns(Long brandId, CampaignStatusFilter status, Pageable pageable);
 }

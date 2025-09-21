@@ -18,6 +18,9 @@ public enum ResponseMessage {
     BRAND_PROFILE_IMAGE_PRESIGNED_URL_SUCCESS("브랜드 프로필 이미지 presigend url이 성공적으로 발급되었습니다."),
     BRAND_MYPAGE_INFO_SUCCESS("브랜드 마이페이지 정보를 성공적으로 불러왔습니다."),
     BRAND_UPDATE_MYPAGE_INFO_SUCCESS("브랜드 마이페이지 정보를 성공적으로 수정했습니다."),
+    CAMPAIGN_SIMPLE_INFO_GET_SUCCESS("브랜드 마이페이지에 필요한 캠페인 정보 조회에 성공하였습니다."),
+    CREATOR_APPROVE_SUCCESS("크리에이터 승인에 성공하였습니다"),
+    CAMPAIGN_APPLICANTS_GET_SUCCESS("캠페인 지원자 목록 조회에 성공했습니다"),
 
     BRAND_MY_PAGE_CAMPAIGNS_GET_SUCCESS("브랜드 마이페이지 캠페인 리스트 조회에 성공했습니다"),
     BRAND_PROFILE_AND_STATISTICS_GET_SUCCESS("브랜드 마이페이지 프로필 및 통계 정보 조회에 성공했습니다"),

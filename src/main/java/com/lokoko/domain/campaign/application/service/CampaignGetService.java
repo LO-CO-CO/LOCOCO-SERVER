@@ -1,5 +1,11 @@
 package com.lokoko.domain.campaign.application.service;
 
+import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
+import com.lokoko.domain.brand.api.dto.response.CampaignApplicantListResponse;
+import com.lokoko.domain.campaign.api.dto.response.CampaignDetailResponse;
+import com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse;
+import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignListResponse;
+import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.campaign.api.dto.response.*;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
@@ -91,5 +97,15 @@ public class CampaignGetService {
         List<CampaignImageResponse> bottomImages = campaignImageRepository.findBottomImagesByCampaignId(campaignId);
 
         return CampaignBasicResponse.of(draftCampaign, topImages, bottomImages);
+    }
+
+
+
+    public BrandMyCampaignInfoListResponse getSimpleCampaignInfos(Long brandId) {
+        return campaignRepository.findSimpleCampaignInfoByBrandId(brandId);
+    }
+
+    public CampaignApplicantListResponse getCampaignApplicants(Long brandId, Long campaignId, int page, int size) {
+        return creatorCampaignRepository.findCampaignApplicants(brandId, campaignId, PageRequest.of(page, size));
     }
 }

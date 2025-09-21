@@ -1,5 +1,7 @@
 package com.lokoko.domain.brand.api;
 
+import com.lokoko.domain.brand.api.dto.request.*;
+import com.lokoko.domain.brand.api.dto.response.*;
 import com.lokoko.domain.brand.api.dto.request.BrandInfoUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandMyPageUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandNoteRevisionRequest;
@@ -13,8 +15,8 @@ import com.lokoko.domain.brand.api.message.ResponseMessage;
 import com.lokoko.domain.brand.application.BrandService;
 import com.lokoko.domain.campaign.api.dto.request.CampaignDraftRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignPublishRequest;
-import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.campaign.application.service.CampaignGetService;
+import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.campaign.application.service.CampaignService;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatusFilter;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewUpdateService;
@@ -185,4 +187,36 @@ public class BrandController {
         CampaignBasicResponse response = campaignGetService.getDraftCampaign(brandId, campaignId);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.DRAFT_CAMPAIGN_GET_SUCCESS.getMessage(), response);
     }
+
+    @Operation(summary = "캠페인 지원자 확인 뷰 - 브랜드 캠페인 목록 간단 조회")
+    @GetMapping("/my/campaigns/infos")
+    public ApiResponse<BrandMyCampaignInfoListResponse> getSimpleCampaignInfos(
+            @Parameter(hidden = true) @CurrentUser Long brandId) {
+
+        BrandMyCampaignInfoListResponse response = campaignGetService.getSimpleCampaignInfos(brandId);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CAMPAIGN_SIMPLE_INFO_GET_SUCCESS.getMessage(), response);
+    }
+
+    @Operation(summary = "캠페인 지원자 확인 뷰 - 특정 캠페인에 조회한 크리에이터 승인 ")
+    @PatchMapping("/my/campaigns/{campaignId}/applicants/approve")
+    public ApiResponse<CreatorApprovedResponse> approveCreatorApplicants(
+            @Parameter(hidden = true) @CurrentUser Long brandId,
+            @PathVariable Long campaignId,
+            @RequestBody CreatorApproveRequest creatorApproveRequest) {
+        CreatorApprovedResponse response = campaignService.approveCreatorApplicants(campaignId, brandId, creatorApproveRequest);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_APPROVE_SUCCESS.getMessage(), response);
+    }
+
+    @Operation(summary = "캠페인 지원자 확인 뷰 - 캠페인 지원자 리스트 조회")
+    @GetMapping("/my/campaigns/{campaignId}/applicants")
+    public ApiResponse<CampaignApplicantListResponse> getCampaignApplicants(
+            @Parameter(hidden = true) @CurrentUser Long brandId,
+            @PathVariable Long campaignId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        CampaignApplicantListResponse response = campaignGetService.getCampaignApplicants(brandId, campaignId, page, size);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CAMPAIGN_APPLICANTS_GET_SUCCESS.getMessage(), response);
+    }
+
 }

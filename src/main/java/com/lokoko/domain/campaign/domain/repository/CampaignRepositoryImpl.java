@@ -1,5 +1,7 @@
 package com.lokoko.domain.campaign.domain.repository;
 
+import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
+import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignListResponse;
@@ -40,6 +42,27 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
 
     private final UserRepository userRepository;
 
+    /**
+     * 현재시간이 applyStartDate(캠페인 시작시간) 와 reviewSubmissionDeadline(캠페인 종료시간) 사이에 있어야한다
+     */
+    @Override
+    public BrandMyCampaignInfoListResponse findSimpleCampaignInfoByBrandId(Long brandId) {
+        Instant now = Instant.now();
+
+        List<BrandMyCampaignInfoResponse> simpleResponses = queryFactory
+                .select(Projections.constructor(BrandMyCampaignInfoResponse.class,
+                        campaign.id,
+                        campaign.title,
+                        campaign.applyStartDate,
+                        campaign.reviewSubmissionDeadline))
+                .from(campaign)
+                .where(campaign.brand.id.eq(brandId)
+                        .and(campaign.applyStartDate.loe(now))
+                        .and(campaign.reviewSubmissionDeadline.goe(now)))
+                .fetch();
+
+        return new BrandMyCampaignInfoListResponse(simpleResponses);
+    }
     @Override
     public BrandMyCampaignListResponse findBrandMyCampaigns(Long brandId, CampaignStatusFilter filterStatus, Pageable pageable) {
         Instant now = Instant.now();
@@ -72,7 +95,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 condition = condition.and(statusCase.eq(filterStatus.name()));
             }
         }
-        
+
         List<BrandMyCampaignResponse> campaigns = queryFactory
                 .select(
                         campaign.id,

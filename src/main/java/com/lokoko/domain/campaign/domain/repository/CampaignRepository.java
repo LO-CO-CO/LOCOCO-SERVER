@@ -5,9 +5,12 @@ import com.lokoko.domain.campaign.domain.entity.Campaign;
 import java.time.Instant;
 import java.util.Optional;
 
+import jakarta.persistence.LockModeType;
+
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -21,6 +24,10 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> , Camp
     @EntityGraph(attributePaths = {"brand"})
     @Query("SELECT c FROM Campaign c WHERE c.id = :id")
     Optional<Campaign> findCampaignWithBrandById(Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT c FROM Campaign c WHERE c.id = :id")
+    Optional<Campaign> findCampaignWithLockById(Long id);
 
     @EntityGraph(attributePaths = {"brand"})
     @Query("SELECT c FROM Campaign c WHERE c.id = :id AND c.campaignStatus = :status")
