@@ -88,19 +88,64 @@ public class CampaignStatusManager {
             };
         } else { // 크리에이터 지원 있는 상태
             ParticipationStatus participationStatus = creatorCampaign.get().getStatus();
-
             return switch (participationStatus) {
-                case PENDING -> CampaignDetailPageStatus.PENDING;
                 case REJECTED -> CampaignDetailPageStatus.REJECTED;
-                case APPROVED -> CampaignDetailPageStatus.APPROVED_PENDING_ACTION;
-                case APPROVED_ADDRESS_CONFIRMED -> CampaignDetailPageStatus.APPROVED_ADDRESS_CONFIRMED;
-                case APPROVED_FIRST_REVIEW_DONE -> CampaignDetailPageStatus.APPROVED_FIRST_REVIEW_DONE;
-                case APPROVED_REVISION_REQUESTED -> CampaignDetailPageStatus.APPROVED_REVISION_REQUESTED;
-                case APPROVED_REVISION_CONFIRMED -> CampaignDetailPageStatus.APPROVED_REVISION_CONFIRMED;
                 case APPROVED_SECOND_REVIEW_DONE -> CampaignDetailPageStatus.APPROVED_SECOND_REVIEW_DONE;
                 case APPROVED_ADDRESS_NOT_CONFIRMED -> CampaignDetailPageStatus.APPROVED_ADDRESS_NOT_CONFIRMED;
                 case APPROVED_REVIEW_NOT_CONFIRMED -> CampaignDetailPageStatus.APPROVED_REVIEW_NOT_CONFIRMED;
+                default -> CampaignDetailPageStatus.PENDING;
             };
         }
+    }
+
+    /**
+     * 비로그인 사용자와 Customer 를 고려한 캠페인 상세 페이지 상태 결정
+     *
+     * @param campaign 캠페인 엔티티
+     * @return 캠페인 상세페이지 상태
+     */
+    public CampaignDetailPageStatus determineStatusForNonLoggedInAndCustomer(Campaign campaign) {
+        CampaignStatus campaignStatus = determineCampaignStatus(campaign);
+
+        if (campaignStatus == CampaignStatus.DRAFT || campaignStatus == CampaignStatus.WAITING_APPROVAL) {
+            throw new CampaignNotViewableException();
+        }
+
+        return switch (campaignStatus) {
+            case OPEN_RESERVED -> CampaignDetailPageStatus.OPEN_RESERVED;
+            case RECRUITING -> CampaignDetailPageStatus.RECRUITING;
+            case COMPLETED -> CampaignDetailPageStatus.CLOSED;
+            default -> CampaignDetailPageStatus.UNKNOWN;
+        };
+    }
+
+    /**
+     * 브랜드 사용자를 위한 캠페인 상세 페이지 상태 결정
+     *
+     * @param campaign 캠페인 엔티티
+     * @return 캠페인 상세페이지 상태
+     */
+    public CampaignDetailPageStatus determineStatusForBrandAndAdmin(Campaign campaign) {
+
+        CampaignStatus campaignStatus = determineCampaignStatus(campaign);
+        Instant now = Instant.now();
+
+        if (campaignStatus == CampaignStatus.DRAFT || campaignStatus == CampaignStatus.WAITING_APPROVAL) {
+            throw new CampaignNotViewableException();
+        }
+
+        if (campaignStatus == CampaignStatus.OPEN_RESERVED) {
+            return CampaignDetailPageStatus.OPEN_RESERVED;
+        }
+
+        if (now.isAfter(campaign.getApplyStartDate()) && now.isBefore(campaign.getReviewSubmissionDeadline())) {
+            return CampaignDetailPageStatus.ACTIVE;
+        }
+
+        if (campaignStatus == CampaignStatus.COMPLETED) {
+            return CampaignDetailPageStatus.CLOSED;
+        }
+
+        return CampaignDetailPageStatus.UNKNOWN;
     }
 }
