@@ -7,28 +7,28 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum CampaignDetailPageStatus {
     // 지원 없는 상태
-    OPEN_RESERVED("OPEN_RESERVED"),
-    RECRUITING("RECRUITING"),
-    NOT_APPLIED_ENDED("NOT_APPLIED_ENDED"),
+    OPEN_RESERVED("Coming Soon"),
+    RECRUITING("Apply Now!"),
+    NOT_APPLIED_ENDED("Closed"),
 
     // 지원 있는 상태 - 대기/거절
-    PENDING("PENDING"),
-    REJECTED("REJECTED"),
+    PENDING("Successfully Applied"),
+    REJECTED("Campaign not Selected"),
 
     // 승인됨 - 진행 상태들
-    APPROVED_PENDING_ACTION("APPROVED_PENDING_ACTION"),
-    APPROVED_ADDRESS_CONFIRMED("APPROVED_ADDRESS_CONFIRMED"),
-    APPROVED_FIRST_REVIEW_DONE("APPROVED_FIRST_REVIEW_DONE"),
-    APPROVED_REVISION_REQUESTED("APPROVED_REVISION_REQUESTED"),
-    APPROVED_REVISION_CONFIRMED("APPROVED_REVISION_CONFIRMED"),
-    APPROVED_SECOND_REVIEW_DONE("APPROVED_SECOND_REVIEW_DONE"),
+    APPROVED_SECOND_REVIEW_DONE("Completed"),
 
     // 만료 상태들
-    APPROVED_ADDRESS_NOT_CONFIRMED("APPROVED_ADDRESS_NOT_CONFIRMED"),
-    APPROVED_REVIEW_NOT_CONFIRMED("APPROVED_REVIEW_NOT_CONFIRMED"),
+    APPROVED_ADDRESS_NOT_CONFIRMED("Expired"),
+    APPROVED_REVIEW_NOT_CONFIRMED("Expired"),
 
     // 기본값
-    UNKNOWN("UNKNOWN");
+    UNKNOWN("UNKNOWN"),
+
+    // 비로그인 유저 , customer , brand 가 확인할 수 있는 상태
+    ACTIVE("Active"),
+    CLOSED("Closed");
+
 
     private final String code;
 }
