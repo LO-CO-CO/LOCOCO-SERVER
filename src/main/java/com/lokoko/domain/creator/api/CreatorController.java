@@ -10,7 +10,10 @@ import com.lokoko.domain.creator.api.dto.response.CreatorRegisterCompleteRespons
 import com.lokoko.domain.creator.api.dto.response.CreatorSnsConnectedResponse;
 import com.lokoko.domain.creator.api.message.ResponseMessage;
 import com.lokoko.domain.creator.application.service.CreatorUsecase;
+import com.lokoko.domain.creator.application.service.TikTokApiService;
 import com.lokoko.global.auth.annotation.CurrentUser;
+import com.lokoko.global.auth.tiktok.dto.TikTokProfileDto;
+import com.lokoko.global.auth.tiktok.dto.TikTokVideoListResponse;
 import com.lokoko.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,6 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CreatorController {
 
     private final CreatorUsecase creatorUsecase;
+    private final TikTokApiService tikTokApiService;
 
     @Operation(summary = "크리에이터 마이페이지 조회")
     @GetMapping("/profile")
@@ -120,4 +124,28 @@ public class CreatorController {
         CreatorRegisterCompleteResponse result = creatorUsecase.completeCreatorSignup(userId);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_LOGIN_SUCCESS.getMessage(), result);
     }
+
+    @Operation(summary = "크리에이터 TikTok 프로필 조회",
+            description = "프로필 조회 용도로 만들어 놓은 테스트용 API 입니다.")
+    @GetMapping("/tiktok/profile")
+    public ApiResponse<TikTokProfileDto> getTikTokProfile(
+            @Parameter(hidden = true) @CurrentUser Long creatorId) {
+
+        TikTokProfileDto response = tikTokApiService.getCreatorProfile(creatorId);
+        return ApiResponse.success(HttpStatus.OK, "TikTok 프로필 조회 성공", response);
+        // 임시 API 이므로 ResponseMessage 는 일단 문자열로 설정하였습니다.
+    }
+
+    @Operation(summary = "크리에이터 TikTok 특정 영상들 조회 (video ID 기반)",
+            description = "영상 조회 용도로 만들어 놓은 테스트용 API 입니다.")
+    @GetMapping("/tiktok/videos/query")
+    public ApiResponse<TikTokVideoListResponse> getTikTokVideosByIds(
+            @Parameter(hidden = true) @CurrentUser Long creatorId,
+            @RequestParam Long videoId) {
+
+        TikTokVideoListResponse response = tikTokApiService.getCreatorVideosByIds(creatorId, videoId);
+        return ApiResponse.success(HttpStatus.OK, "TikTok 특정 영상 조회 성공", response);
+        // 임시 API 이므로 ResponseMessage 는 일단 문자열로 설정하였습니다.
+    }
+
 }
