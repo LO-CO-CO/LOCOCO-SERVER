@@ -36,6 +36,7 @@ public class PermitUrlConfig {
                 "/api/products/categories/new",
                 "/api/products/categories/popular",
                 "/api/products/details/{productId}",
+                "/api/campaigns/{campaignId}"
         };
     }
 
