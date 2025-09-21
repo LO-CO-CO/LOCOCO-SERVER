@@ -5,7 +5,9 @@ public final class TikTokConstants {
     public static final String AUTHORIZE_BASE_URL = "https://www.tiktok.com/v2/auth/authorize/";
     public static final String TOKEN_PATH = "/v2/oauth/token/";
     public static final String USER_INFO_PATH = "/v2/user/info/";
-    
+    public static final String VIDEO_LIST_PATH = "/v2/video/list/";
+    public static final String VIDEO_QUERY_PATH = "/v2/video/query/";
+
     // OAuth 인증관련 parameter
     public static final String PARAM_RESPONSE_TYPE = "?response_type=code";
     public static final String PARAM_CLIENT_KEY = "&client_key=";
@@ -25,10 +27,10 @@ public final class TikTokConstants {
     public static final String PARAM_FIELDS = "fields";
     public static final String DEFAULT_FIELDS = "open_id,union_id,follower_count,following_count,likes_count,video_count";
     
-    // 추후, 비디오 관련 정보 가져오기 위한 parameter
+    // 비디오 관련 정보 가져오기 위한 parameter
     public static final String PARAM_MAX_COUNT = "max_count";
     public static final String PARAM_CURSOR = "cursor";
-    public static final String VIDEO_FIELDS = "id,create_time,view_count,like_count,comment_count,share_count";
+    public static final String VIDEO_FIELDS = "id,create_time,view_count,like_count,comment_count,share_count,cover_image_url,video_description,duration,height,width,title,embed_link,share_url";
     private TikTokConstants() {
     }
 }
