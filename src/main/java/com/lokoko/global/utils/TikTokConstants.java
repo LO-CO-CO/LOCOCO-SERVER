@@ -30,7 +30,7 @@ public final class TikTokConstants {
     // 비디오 관련 정보 가져오기 위한 parameter
     public static final String PARAM_MAX_COUNT = "max_count";
     public static final String PARAM_CURSOR = "cursor";
-    public static final String VIDEO_FIELDS = "id,create_time,view_count,like_count,comment_count,share_count,cover_image_url,video_description,duration,height,width,title,embed_link,share_url";
+    public static final String VIDEO_FIELDS = "id,create_time,view_count,like_count,comment_count,share_count,share_url";
     private TikTokConstants() {
     }
 }

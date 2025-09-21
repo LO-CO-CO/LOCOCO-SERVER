@@ -11,13 +11,6 @@ public record TikTokVideoDto(
         Integer likeCount,
         Integer commentCount,
         Integer shareCount,
-        String coverImageUrl,
-        String videoDescription,
-        Integer duration,
-        Integer height,
-        Integer width,
-        String title,
-        String embedLink,
         String shareUrl
 ) {
 }
