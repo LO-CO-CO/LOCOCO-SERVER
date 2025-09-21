@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum LanguageFilter {
-    ENG("Eng"),
-    ESN("Esn"),
-    ALL("All");
+    EN("EN"),
+    ES("ES"),
+    ALL("ALL");
 
     private final String displayName;
 }
