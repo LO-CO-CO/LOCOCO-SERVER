@@ -4,13 +4,14 @@ import com.lokoko.domain.brand.api.dto.request.BrandInfoUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandMyPageUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandProfileImageRequest;
 import com.lokoko.domain.brand.api.dto.response.BrandMyPageResponse;
+import com.lokoko.domain.brand.api.dto.response.BrandProfileAndStatisticsResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandProfileImageResponse;
 import com.lokoko.domain.brand.domain.entity.Brand;
 import com.lokoko.domain.brand.domain.repository.BrandRepository;
 import com.lokoko.domain.brand.exception.BrandNotFoundException;
+import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
 import com.lokoko.domain.productReview.exception.ErrorMessage;
 import com.lokoko.domain.productReview.exception.InvalidMediaTypeException;
-import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.global.common.entity.MediaFile;
 import com.lokoko.global.common.service.S3Service;
 import com.lokoko.global.utils.S3UrlParser;
@@ -18,12 +19,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class BrandService {
 
-    private final UserRepository userRepository;
+    private final CampaignRepository campaignRepository;
     private final BrandRepository brandRepository;
     private final S3Service s3Service;
 
@@ -88,5 +91,15 @@ public class BrandService {
         }
     }
 
+    public BrandProfileAndStatisticsResponse getBrandProfileAndStatistics(Long brandId) {
 
+        Brand brand = brandRepository.findById(brandId)
+                .orElseThrow(BrandNotFoundException::new);
+
+        Instant now = Instant.now();
+        Integer ongoingCampaigns = campaignRepository.countOngoingCampaignsById(brandId, now);
+        Integer completedCampaigns = campaignRepository.countCompletedCampaignsById(brandId, now);
+
+        return BrandProfileAndStatisticsResponse.of(brand, ongoingCampaigns, completedCampaigns);
+    }
 }

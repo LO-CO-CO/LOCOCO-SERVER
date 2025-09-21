@@ -2,6 +2,8 @@ package com.lokoko.domain.campaign.domain.repository;
 
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoResponse;
+import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
+import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignListResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignListResponse;
@@ -60,6 +62,90 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 .fetch();
 
         return new BrandMyCampaignInfoListResponse(simpleResponses);
+    }
+    @Override
+    public BrandMyCampaignListResponse findBrandMyCampaigns(Long brandId, CampaignStatusFilter filterStatus, Pageable pageable) {
+        Instant now = Instant.now();
+
+        StringExpression statusCase = new CaseBuilder()
+                .when(campaign.campaignStatus.eq(CampaignStatus.DRAFT))
+                    .then(CampaignStatus.DRAFT.name())
+                .when(campaign.campaignStatus.eq(CampaignStatus.WAITING_APPROVAL))
+                    .then(CampaignStatus.WAITING_APPROVAL.name())
+                .when(Expressions.asDateTime(now).before(campaign.applyStartDate))
+                    .then(CampaignStatus.OPEN_RESERVED.name())
+                .when(Expressions.asDateTime(now).before(campaign.applyDeadline))
+                    .then(CampaignStatus.RECRUITING.name())
+                .when(Expressions.asDateTime(now).before(campaign.creatorAnnouncementDate))
+                    .then(CampaignStatus.RECRUITMENT_CLOSED.name())
+                .when(Expressions.asDateTime(now).before(campaign.reviewSubmissionDeadline))
+                    .then(CampaignStatus.IN_REVIEW.name())
+                .otherwise(CampaignStatus.COMPLETED.name());
+
+        BooleanExpression condition = campaign.brand.id.eq(brandId);
+
+        if (filterStatus != null && !"ALL".equals(filterStatus.name())) {
+            if ("ACTIVE".equals(filterStatus.name())) {
+                condition = condition.and(
+                    statusCase.eq(CampaignStatus.RECRUITING.name())
+                    .or(statusCase.eq(CampaignStatus.RECRUITMENT_CLOSED.name()))
+                    .or(statusCase.eq(CampaignStatus.IN_REVIEW.name()))
+                );
+            } else {
+                condition = condition.and(statusCase.eq(filterStatus.name()));
+            }
+        }
+
+        List<BrandMyCampaignResponse> campaigns = queryFactory
+                .select(
+                        campaign.id,
+                        campaignImage.mediaFile.fileUrl,
+                        campaign.title,
+                        campaign.applyDeadline,
+                        campaign.applicantNumber,
+                        campaign.recruitmentNumber,
+                        statusCase
+                )
+                .from(campaign)
+                .leftJoin(campaignImage).on(
+                        campaignImage.campaign.eq(campaign)
+                                .and(campaignImage.displayOrder.eq(1))
+                                .and(campaignImage.imageType.eq(TOP))
+                )
+                .where(condition)
+                .orderBy(campaign.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch()
+                .stream()
+                .map(tuple -> new BrandMyCampaignResponse(
+                        tuple.get(campaign.id),
+                        tuple.get(campaignImage.mediaFile.fileUrl),
+                        tuple.get(campaign.title),
+                        tuple.get(campaign.applyDeadline),
+                        tuple.get(campaign.applicantNumber),
+                        tuple.get(campaign.recruitmentNumber),
+                        tuple.get(statusCase)
+                ))
+                .toList();
+
+        Long totalCount = queryFactory
+                .select(campaign.count())
+                .from(campaign)
+                .where(condition)
+                .fetchOne();
+
+        long total = totalCount != null ? totalCount : 0L;
+        boolean isLast = (pageable.getOffset() + pageable.getPageSize()) >= total;
+
+        PageableResponse pageInfo = new PageableResponse(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                campaigns.size(),
+                isLast
+        );
+
+        return new BrandMyCampaignListResponse(campaigns, pageInfo);
     }
 
     @Override

@@ -11,7 +11,7 @@ import com.lokoko.domain.campaign.api.dto.request.CampaignCreateRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignDraftRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignMediaRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignPublishRequest;
-import com.lokoko.domain.campaign.api.dto.response.CampaignCreateResponse;
+import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignMediaResponse;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
@@ -71,35 +71,36 @@ public class CampaignService {
     }
 
     @Transactional
-    public CampaignCreateResponse createCampaignDraft(Long brandId, CampaignDraftRequest draftRequest) {
+    public CampaignBasicResponse createCampaignDraft(Long brandId, CampaignDraftRequest draftRequest) {
         CampaignCreateRequest createRequest = CampaignCreateRequest.convertDraftToCreateRequest(draftRequest);
         return createCampaignWithAction(brandId, ActionType.SAVE_DRAFT, createRequest);
     }
 
     @Transactional
-    public CampaignCreateResponse createAndPublishCampaign(Long brandId, CampaignPublishRequest publishRequest) {
+    public CampaignBasicResponse createAndPublishCampaign(Long brandId, CampaignPublishRequest publishRequest) {
         CampaignCreateRequest createRequest = CampaignCreateRequest.convertPublishToCreateRequest(publishRequest);
         return createCampaignWithAction(brandId, ActionType.PUBLISH, createRequest);
     }
 
     @Transactional
-    public CampaignCreateResponse updateCampaignToDraft(Long brandId, Long campaignId,
-                                                        CampaignDraftRequest draftRequest) {
+    public CampaignBasicResponse updateCampaignToDraft(Long brandId, Long campaignId,
+                                                       CampaignDraftRequest draftRequest) {
         CampaignCreateRequest updateRequest = CampaignCreateRequest.convertDraftToCreateRequest(draftRequest);
         return updateCampaign(brandId, campaignId, ActionType.SAVE_DRAFT, updateRequest);
     }
 
     @Transactional
-    public CampaignCreateResponse updateAndPublishCampaign(Long brandId, Long campaignId,
-                                                           CampaignPublishRequest publishRequest) {
+    public CampaignBasicResponse updateAndPublishCampaign(Long brandId, Long campaignId,
+                                                          CampaignPublishRequest publishRequest) {
         CampaignCreateRequest updateRequest = CampaignCreateRequest.convertPublishToCreateRequest(publishRequest);
         return updateCampaign(brandId, campaignId, ActionType.PUBLISH, updateRequest);
     }
 
     @Transactional
-    public CampaignCreateResponse createCampaignWithAction(Long brandId, ActionType actionType,
-                                                           CampaignCreateRequest createRequest) {
-        Brand brand = getBrandOrThrow(brandId);
+    public CampaignBasicResponse createCampaignWithAction(Long brandId, ActionType actionType,
+                                                          CampaignCreateRequest createRequest) {
+        Brand brand = brandRepository.findById(brandId)
+                .orElseThrow(BrandNotFoundException::new);
 
         Campaign campaign = Campaign.createCampaign(createRequest, brand);
 
@@ -134,7 +135,7 @@ public class CampaignService {
         return campaignImageRepository.saveAll(toSaveImages);
     }
 
-    private CampaignCreateResponse buildCampaignCreateResponse(
+    private CampaignBasicResponse buildCampaignCreateResponse(
             Campaign campaign, List<CampaignImage> savedImages) {
 
         List<CampaignImageResponse> topImages = savedImages.stream()
@@ -149,13 +150,13 @@ public class CampaignService {
                 .map(CampaignImageResponse::from)
                 .toList();
 
-        return CampaignCreateResponse.of(campaign, topImages, bottomImages);
+        return CampaignBasicResponse.of(campaign, topImages, bottomImages);
 
     }
 
     @Transactional
-    public CampaignCreateResponse updateCampaign(Long brandId, Long campaignId, ActionType actionType,
-                                                 CampaignCreateRequest updateRequest) {
+    public CampaignBasicResponse updateCampaign(Long brandId, Long campaignId, ActionType actionType,
+                                                CampaignCreateRequest updateRequest) {
 
         Brand brand = getBrandOrThrow(brandId);
         Campaign campaign = getCampaignOrThrow(campaignId);
