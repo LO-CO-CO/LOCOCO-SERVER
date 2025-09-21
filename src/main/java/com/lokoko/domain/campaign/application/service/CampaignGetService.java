@@ -13,7 +13,6 @@ import com.lokoko.domain.campaign.domain.entity.enums.*;
 import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
 import com.lokoko.domain.campaign.exception.CampaignNotFoundException;
 import com.lokoko.domain.campaign.exception.NotCampaignOwnershipException;
-import com.lokoko.domain.campaign.exception.NotCampaignOwnershipException;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
 import com.lokoko.domain.image.domain.repository.CampaignImageRepository;
