@@ -22,9 +22,6 @@ public enum CampaignDetailPageStatus {
     APPROVED_ADDRESS_NOT_CONFIRMED("Expired"),
     APPROVED_REVIEW_NOT_CONFIRMED("Expired"),
 
-    // 기본값
-    UNKNOWN("UNKNOWN"),
-
     // 비로그인 유저 , customer , brand 가 확인할 수 있는 상태
     ACTIVE("Active"),
     CLOSED("Closed");

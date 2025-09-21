@@ -84,7 +84,7 @@ public class CampaignStatusManager {
                 case OPEN_RESERVED -> CampaignDetailPageStatus.OPEN_RESERVED;
                 case RECRUITING -> CampaignDetailPageStatus.RECRUITING;
                 case RECRUITMENT_CLOSED, IN_REVIEW, COMPLETED -> CampaignDetailPageStatus.NOT_APPLIED_ENDED;
-                default -> CampaignDetailPageStatus.UNKNOWN;
+                default -> null;
             };
         } else { // 크리에이터 지원 있는 상태
             ParticipationStatus participationStatus = creatorCampaign.get().getStatus();
@@ -114,8 +114,9 @@ public class CampaignStatusManager {
         return switch (campaignStatus) {
             case OPEN_RESERVED -> CampaignDetailPageStatus.OPEN_RESERVED;
             case RECRUITING -> CampaignDetailPageStatus.RECRUITING;
+            case RECRUITMENT_CLOSED, IN_REVIEW -> CampaignDetailPageStatus.ACTIVE;
             case COMPLETED -> CampaignDetailPageStatus.CLOSED;
-            default -> CampaignDetailPageStatus.UNKNOWN;
+            default -> null;
         };
     }
 
@@ -146,6 +147,6 @@ public class CampaignStatusManager {
             return CampaignDetailPageStatus.CLOSED;
         }
 
-        return CampaignDetailPageStatus.UNKNOWN;
+        return null;
     }
 }
