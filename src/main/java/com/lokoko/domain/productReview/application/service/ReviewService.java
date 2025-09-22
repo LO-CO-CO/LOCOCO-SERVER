@@ -209,7 +209,7 @@ public class ReviewService {
         }
     }
 
-    private static void validateMediaFiles(List<String> mediaUrls) {
+    public static void validateMediaFiles(List<String> mediaUrls) {
         if (mediaUrls != null && !mediaUrls.isEmpty()) {
             long videoCount = mediaUrls.stream().filter(url -> url.contains("/video/")).count();
             long imageCount = mediaUrls.stream().filter(url -> url.contains("/image/")).count();
