@@ -31,12 +31,10 @@ public class SnsConnectionController {
 
     @Operation(summary = "TikTok 계정 연결", description = "Creator가 TikTok 계정 연결 / TikTok OAuth 인증 페이지로 리다이렉트")
     @GetMapping("/tiktok/connect")
-    public void connectTikTok(
-            @Parameter(hidden = true) @CurrentUser Long userId,
-            HttpServletResponse response) throws IOException {
-
+    public ApiResponse<String> connectTikTok(
+            @Parameter(hidden = true) @CurrentUser Long userId){
         String authUrl = tikTokConnectionService.generateConnectionUrl(userId);
-        response.sendRedirect(authUrl);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.TIKTOK_REDIRECT_URI_GET_SUCCESS.getMessage(), authUrl);
     }
 
     @Operation(summary = "TikTok OAuth 콜백", description = "TikTok OAuth 인증 후 콜백을 처리 및 계정 연결 완료")
