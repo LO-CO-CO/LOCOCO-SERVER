@@ -21,6 +21,8 @@ public class CreatorMapper {
                         .creatorName(creator.getCreatorName())
                         .firstName(creator.getFirstName())
                         .lastName(creator.getLastName())
+                        .gender(creator.getGender())
+                        .birthDate(creator.getBirthDate())
                         .build())
                 .creatorContactInfo(CreatorContactInfo.builder()
                         .email(creator.getUser().getEmail())
