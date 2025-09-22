@@ -46,7 +46,7 @@ public class CampaignReviewUsecase {
 
         CampaignReview toSave = campaignReviewMapper.toFirstReview(participation, request);
         CampaignReview saved = campaignReviewSaveService.saveReview(toSave);
-        campaignReviewSaveService.saveImages(saved, request.imageUrls());
+        campaignReviewSaveService.saveMedia(saved, request.mediaUrls());
 
         creatorCampaignUpdateService.refreshParticipationStatus(participation.getId());
 
@@ -75,7 +75,7 @@ public class CampaignReviewUsecase {
 
         CampaignReview toSave = campaignReviewMapper.toSecondReview(participation, request);
         CampaignReview saved = campaignReviewSaveService.saveReview(toSave);
-        campaignReviewSaveService.saveImages(saved, request.imageUrls());
+        campaignReviewSaveService.saveMedia(saved, request.mediaUrls());
 
         creatorCampaignUpdateService.refreshParticipationStatus(participation.getId());
 

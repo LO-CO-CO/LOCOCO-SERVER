@@ -4,8 +4,14 @@ import com.lokoko.domain.campaignReview.api.dto.request.FirstReviewUploadRequest
 import com.lokoko.domain.campaignReview.api.dto.request.SecondReviewUploadRequest;
 import com.lokoko.domain.campaignReview.api.dto.response.ReviewUploadResponse;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
+import com.lokoko.domain.campaignReview.domain.entity.CampaignReviewImage;
+import com.lokoko.domain.campaignReview.domain.entity.CampaignReviewVideo;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
+import com.lokoko.global.common.entity.MediaFile;
+import com.lokoko.global.utils.S3UrlParser;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -22,17 +28,47 @@ public class CampaignReviewMapper {
     }
 
     public CampaignReview toSecondReview(CreatorCampaign creatorCampaign,
-                                         SecondReviewUploadRequest secondReviewUploadRequest) {
+                                         SecondReviewUploadRequest request) {
         CampaignReview campaignReview = new CampaignReview();
         campaignReview.bindToCreatorCampaign(creatorCampaign);
         campaignReview.designateRound(ReviewRound.SECOND);
-        campaignReview.chooseContentType(secondReviewUploadRequest.contentType());
-        campaignReview.requestSecondReview(secondReviewUploadRequest.captionWithHashtags(),
-                secondReviewUploadRequest.postUrl());
+        campaignReview.chooseContentType(request.contentType());
+        campaignReview.requestSecondReview(request.captionWithHashtags(), request.postUrl());
         return campaignReview;
     }
 
+    public List<CampaignReviewImage> toCampaignReviewImages(List<String> mediaUrls,
+                                                            CampaignReview campaignReview) {
+        List<CampaignReviewImage> images = new ArrayList<>(mediaUrls.size());
+        for (int displayOrder = 0; displayOrder < mediaUrls.size(); displayOrder++) {
+            MediaFile mediaFile = S3UrlParser.parsePresignedUrl(mediaUrls.get(displayOrder));
+            images.add(CampaignReviewImage.builder()
+                    .mediaFile(mediaFile)
+                    .displayOrder(displayOrder)
+                    .campaignReview(campaignReview)
+                    .build());
+        }
+
+        return images;
+    }
+
+    public List<CampaignReviewVideo> toCampaignReviewVideos(List<String> mediaUrls,
+                                                            CampaignReview campaignReview) {
+        List<CampaignReviewVideo> videos = new ArrayList<>(mediaUrls.size());
+        for (int displayOrder = 0; displayOrder < mediaUrls.size(); displayOrder++) {
+            MediaFile mediaFile = S3UrlParser.parsePresignedUrl(mediaUrls.get(displayOrder));
+            videos.add(CampaignReviewVideo.builder()
+                    .mediaFile(mediaFile)
+                    .displayOrder(displayOrder)
+                    .campaignReview(campaignReview)
+                    .build());
+        }
+
+        return videos;
+    }
+
     public ReviewUploadResponse toUploadResponse(CampaignReview saved) {
+
         return ReviewUploadResponse.builder()
                 .reviewId(saved.getId())
                 .build();
