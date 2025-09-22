@@ -3,6 +3,7 @@ package com.lokoko.domain.creator.api.dto.response;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.lokoko.domain.creator.domain.entity.enums.Gender;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -23,6 +24,12 @@ public record CreatorBasicInfo(
         String firstName,
 
         @Schema(requiredMode = REQUIRED, description = "성", example = "Anderson")
-        String lastName
+        String lastName,
+
+        @Schema(requiredMode = REQUIRED, description = "성별", example = "FEMALE")
+        Gender gender,
+
+        @Schema(requiredMode = REQUIRED, description = "생년월일(YYYY-MM-DD)", example = "1999-10-19")
+        String birthDate
 ) {
 }

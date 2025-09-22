@@ -42,6 +42,13 @@ public class CreatorUpdateService {
             creator.changeLastName(request.lastName());
         }
 
+        if (request.birthDate() != null) {
+            creator.changeBirthDate(request.birthDate());
+        }
+        if (request.gender() != null) {
+            creator.changeGender(request.gender());
+        }
+
         if (request.countryCode() != null) {
             creator.changeCountryCode(request.countryCode());
         }
