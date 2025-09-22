@@ -121,8 +121,8 @@ public class CampaignService {
     private List<CampaignImage> saveImages(CampaignCreateRequest createRequest, Campaign campaign) {
 
         List<CampaignImage> toSaveImages = Stream.of(
-                        createRequest.topImages(),
-                        createRequest.bottomImages()
+                        createRequest.thumbnailImages(),
+                        createRequest.detailImages()
                 )
                 .flatMap(Collection::stream)
                 .map(img -> CampaignImage.createCampaignImage(
@@ -138,19 +138,19 @@ public class CampaignService {
     private CampaignBasicResponse buildCampaignCreateResponse(
             Campaign campaign, List<CampaignImage> savedImages) {
 
-        List<CampaignImageResponse> topImages = savedImages.stream()
-                .filter(img -> img.getImageType() == ImageType.TOP)
+        List<CampaignImageResponse> thumbnailImages = savedImages.stream()
+                .filter(img -> img.getImageType() == ImageType.THUMBNAIL)
                 .sorted(Comparator.comparing(CampaignImage::getDisplayOrder))
                 .map(CampaignImageResponse::from)
                 .toList();
 
-        List<CampaignImageResponse> bottomImages = savedImages.stream()
-                .filter(img -> img.getImageType() == ImageType.BOTTOM)
+        List<CampaignImageResponse> detailImages = savedImages.stream()
+                .filter(img -> img.getImageType() == ImageType.DETAIL)
                 .sorted(Comparator.comparing(CampaignImage::getDisplayOrder))
                 .map(CampaignImageResponse::from)
                 .toList();
 
-        return CampaignBasicResponse.of(campaign, topImages, bottomImages);
+        return CampaignBasicResponse.of(campaign, thumbnailImages, detailImages);
 
     }
 

@@ -30,7 +30,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.lokoko.domain.image.domain.entity.enums.ImageType.TOP;
+import static com.lokoko.domain.image.domain.entity.enums.ImageType.THUMBNAIL;
 
 @Repository
 @RequiredArgsConstructor
@@ -109,8 +109,8 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 .from(campaign)
                 .leftJoin(campaignImage).on(
                         campaignImage.campaign.eq(campaign)
-                                .and(campaignImage.displayOrder.eq(1))
-                                .and(campaignImage.imageType.eq(TOP))
+                                .and(campaignImage.displayOrder.eq(0))
+                                .and(campaignImage.imageType.eq(THUMBNAIL))
                 )
                 .where(condition)
                 .orderBy(campaign.createdAt.desc())
@@ -175,8 +175,8 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 ))
                 .from(campaign)
                 .innerJoin(campaignImage).on(campaignImage.campaign.eq(campaign)
-                        .and(campaignImage.displayOrder.eq(1))
-                        .and(campaignImage.imageType.eq((TOP))))
+                        .and(campaignImage.displayOrder.eq(0))
+                        .and(campaignImage.imageType.eq((THUMBNAIL))))
                 .where(campaign.campaignStatus.eq(CampaignStatus.OPEN_RESERVED).and(languageAndCategoryCondition))
                 .orderBy(campaign.applyStartDate.asc())
                 .limit(6)
@@ -229,8 +229,8 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 ))
                 .from(campaign)
                 .innerJoin(campaignImage).on(campaignImage.campaign.eq(campaign)
-                        .and(campaignImage.displayOrder.eq(1))
-                        .and(campaignImage.imageType.eq((TOP))))
+                        .and(campaignImage.displayOrder.eq(0))
+                        .and(campaignImage.imageType.eq((THUMBNAIL))))
                 .where(condition)
                 .orderBy(campaign.applyDeadline.asc()) // 마감기한 얼마 남지 않은 순
                 .offset(pageable.getOffset())
@@ -241,8 +241,8 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 .select(campaign.count())
                 .from(campaign)
                 .innerJoin(campaignImage).on(campaignImage.campaign.eq(campaign)
-                        .and(campaignImage.displayOrder.eq(1))
-                        .and(campaignImage.imageType.eq((TOP))))
+                        .and(campaignImage.displayOrder.eq(0))
+                        .and(campaignImage.imageType.eq((THUMBNAIL))))
                 .where(condition)
                 .fetchOne();
 

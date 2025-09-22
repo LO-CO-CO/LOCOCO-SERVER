@@ -29,10 +29,10 @@ public record CampaignBasicResponse(
         CampaignProductType campaignProductType,
 
         @Schema(requiredMode = REQUIRED, description = "상단 이미지 리스트")
-        List<CampaignImageResponse> topImages,
+        List<CampaignImageResponse> thumbnailImages,
 
         @Schema(requiredMode = REQUIRED, description = "하단 이미지 리스트")
-        List<CampaignImageResponse> bottomImages,
+        List<CampaignImageResponse> detailImages,
 
         @Schema(requiredMode = REQUIRED, description = "크리에이터 지원 시작 일시", example = "2025-09-17T시7:32:08.995Z")
         Instant applyStartDate,
@@ -64,16 +64,16 @@ public record CampaignBasicResponse(
         @Schema(requiredMode = REQUIRED, description = "두 번째 제출 컨텐츠", example = "TIKTOK_VIDEO")
         ContentType secondContentType
 ) {
-    public static CampaignBasicResponse of(Campaign campaign, List<CampaignImageResponse> topImages,
-                                           List<CampaignImageResponse> bottomImages) {
+    public static CampaignBasicResponse of(Campaign campaign, List<CampaignImageResponse> thumbnailImages,
+                                           List<CampaignImageResponse> detailImages) {
         return new CampaignBasicResponse(
                 campaign.getId(),
                 campaign.getTitle(),
                 campaign.getLanguage(),
                 campaign.getCampaignType(),
                 campaign.getCampaignProductType(),
-                topImages,
-                bottomImages,
+                thumbnailImages,
+                detailImages,
                 campaign.getApplyStartDate(),
                 campaign.getApplyDeadline(),
                 campaign.getCreatorAnnouncementDate(),

@@ -14,16 +14,16 @@ public interface CampaignImageRepository extends JpaRepository<CampaignImage, Lo
     @Query("SELECT new com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse(ci.id, ci.mediaFile.fileUrl, ci.displayOrder) " +
             "FROM CampaignImage ci " +
             "WHERE ci.campaign.id = :campaignId " +
-            "AND ci.imageType = com.lokoko.domain.image.domain.entity.enums.ImageType.TOP " +
+            "AND ci.imageType = com.lokoko.domain.image.domain.entity.enums.ImageType.THUMBNAIL " +
             "ORDER BY ci.displayOrder")
-    List<CampaignImageResponse> findTopImagesByCampaignId(@Param("campaignId") Long campaignId);
+    List<CampaignImageResponse> findThumbnailImagesByCampaignId(@Param("campaignId") Long campaignId);
 
     @Query("SELECT new com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse(ci.id, ci.mediaFile.fileUrl, ci.displayOrder) " +
             "FROM CampaignImage ci " +
             "WHERE ci.campaign.id = :campaignId " +
-            "AND ci.imageType = com.lokoko.domain.image.domain.entity.enums.ImageType.BOTTOM " +
+            "AND ci.imageType = com.lokoko.domain.image.domain.entity.enums.ImageType.DETAIL " +
             "ORDER BY ci.displayOrder")
-    List<CampaignImageResponse> findBottomImagesByCampaignId(@Param("campaignId") Long campaignId);
+    List<CampaignImageResponse> findDetailImagesByCampaignId(@Param("campaignId") Long campaignId);
 
     @Modifying
     @Query("DELETE FROM CampaignImage ci WHERE ci.campaign.id = :campaignId")

@@ -24,13 +24,13 @@ public record CampaignDetailResponse(
         List<String> deliverableRequirements,
         List<String> participationRewards,
         List<String> eligibilityRequirements,
-        List<CampaignImageResponse> topImages,
-        List<CampaignImageResponse> bottomImages,
+        List<CampaignImageResponse> thumbnailImages,
+        List<CampaignImageResponse> detailImages,
         String campaignStatusCode
 ) {
 
-    public static CampaignDetailResponse of(Campaign campaign, List<CampaignImageResponse> topImages,
-                                            List<CampaignImageResponse> bottomImages,
+    public static CampaignDetailResponse of(Campaign campaign, List<CampaignImageResponse> thumbnailImages,
+                                            List<CampaignImageResponse> detailImages,
                                             CampaignDetailPageStatus campaignStatusCode) {
 
         Brand brand = campaign.getBrand();
@@ -48,8 +48,8 @@ public record CampaignDetailResponse(
                 campaign.getDeliverableRequirements(),
                 campaign.getParticipationRewards(),
                 campaign.getEligibilityRequirements(),
-                topImages,
-                bottomImages,
+                thumbnailImages,
+                detailImages,
                 campaignStatusCode.getCode()
         );
     }
