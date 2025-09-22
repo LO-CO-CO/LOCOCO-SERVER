@@ -4,9 +4,14 @@ package com.lokoko.domain.creator.application.service;
 import com.lokoko.domain.campaignReview.application.service.CreatorCampaignUpdateService;
 import com.lokoko.domain.creator.api.dto.request.CreatorInfoUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorMyPageUpdateRequest;
+import com.lokoko.domain.creator.api.dto.request.CreatorProfileImageRequest;
+import com.lokoko.domain.creator.api.dto.response.CreatorProfileImageResponse;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
+import com.lokoko.domain.productReview.exception.ErrorMessage;
+import com.lokoko.domain.productReview.exception.InvalidMediaTypeException;
 import com.lokoko.domain.user.application.service.UserService;
+import com.lokoko.global.common.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +24,7 @@ public class CreatorUpdateService {
     private final CreatorGetService creatorGetService;
     private final CreatorCampaignUpdateService creatorCampaignUpdateService;
     private final UserService userService;
+    private final S3Service s3Service;
 
     /**
      * 마이페이지 수정 - null 필드는 무시(부분 업데이트) - 유효성은 Request DTO(@NotBlank/@Size 등)에서 선검증
@@ -112,5 +118,15 @@ public class CreatorUpdateService {
         creator.changeSkinTone(request.skinTone());
     }
 
+    public CreatorProfileImageResponse createPresignedUrlForProfile(Long creatorId,
+                                                                    CreatorProfileImageRequest request) {
+        String mediaType = request.mediaType();
+        if (mediaType == null || mediaType.isBlank() || !mediaType.startsWith("image/")) {
+            throw new InvalidMediaTypeException(ErrorMessage.UNSUPPORTED_MEDIA_TYPE);
+        }
 
+        String presignedUrl = s3Service.generatePresignedUrl(mediaType).presignedUrl();
+
+        return new CreatorProfileImageResponse(presignedUrl);
+    }
 }

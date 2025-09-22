@@ -3,11 +3,13 @@ package com.lokoko.domain.creator.application.service;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewGetService;
 import com.lokoko.domain.creator.api.dto.request.CreatorInfoUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorMyPageUpdateRequest;
+import com.lokoko.domain.creator.api.dto.request.CreatorProfileImageRequest;
 import com.lokoko.domain.creator.api.dto.response.CreatorAddressInfo;
 import com.lokoko.domain.creator.api.dto.response.CreatorInfoResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorMyCampaignListResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorMyCampaignResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorMyPageResponse;
+import com.lokoko.domain.creator.api.dto.response.CreatorProfileImageResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorRegisterCompleteResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorSnsConnectedResponse;
 import com.lokoko.domain.creator.application.mapper.CreatorMapper;
@@ -75,6 +77,14 @@ public class CreatorUsecase {
         Creator updated = creatorUpdateService.updateProfile(creator, request);
 
         return creatorMapper.toMyPageResponse(updated);
+    }
+
+    @Transactional
+    public CreatorProfileImageResponse createPresignedUrlForProfile(Long userId,
+                                                                    CreatorProfileImageRequest request) {
+        Creator creator = creatorGetService.findByUserId(userId);
+
+        return creatorUpdateService.createPresignedUrlForProfile(creator.getId(), request);
     }
 
     @Transactional(readOnly = true)
