@@ -24,10 +24,10 @@ public record CampaignPublishRequest(
         
         @NotEmpty(message = "상단 이미지는 최소 1개 이상 필요합니다")
         @Size(max = 5, message = "상단 이미지는 최대 5개까지 가능합니다")
-        List<CampaignImageRequest> topImages,
+        List<CampaignImageRequest> thumbnailImages,
         
         @Size(max = 15, message = "하단 이미지는 최대 15개까지 가능합니다")
-        List<CampaignImageRequest> bottomImages,
+        List<CampaignImageRequest> detailImages,
         
         @NotNull(message = "신청 시작일은 필수입니다")
         @Future(message = "신청 시작일은 미래 날짜여야 합니다")

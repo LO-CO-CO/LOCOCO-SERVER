@@ -47,8 +47,8 @@ public class CampaignGetService {
 
         initializeElementCollections(campaign);
 
-        List<CampaignImageResponse> topImages = campaignImageRepository.findTopImagesByCampaignId(campaignId);
-        List<CampaignImageResponse> bottomImages = campaignImageRepository.findBottomImagesByCampaignId(campaignId);
+        List<CampaignImageResponse> thumbnailImages = campaignImageRepository.findThumbnailImagesByCampaignId(campaignId);
+        List<CampaignImageResponse> detailImages = campaignImageRepository.findDetailImagesByCampaignId(campaignId);
 
         //캠페인 상세페이지를 조회하는 크리에이터가 캠페인에 참여하지 않았을 수도 있으므로 Optional 을 반환
         Optional<CreatorCampaign> creatorCampaign = creatorCampaignRepository.findByCreatorIdAndCampaignId(creatorId,
@@ -56,7 +56,7 @@ public class CampaignGetService {
         CampaignDetailPageStatus campaignStatus = campaignStatusManager.determineStatusInDetailPage(campaign,
                 creatorCampaign);
 
-        return CampaignDetailResponse.of(campaign, topImages, bottomImages, campaignStatus);
+        return CampaignDetailResponse.of(campaign, thumbnailImages, detailImages, campaignStatus);
     }
 
     private static void initializeElementCollections(Campaign campaign) {
@@ -93,10 +93,10 @@ public class CampaignGetService {
         }
         initializeElementCollections(draftCampaign);
 
-        List<CampaignImageResponse> topImages = campaignImageRepository.findTopImagesByCampaignId(campaignId);
-        List<CampaignImageResponse> bottomImages = campaignImageRepository.findBottomImagesByCampaignId(campaignId);
+        List<CampaignImageResponse> thumbnailImages = campaignImageRepository.findThumbnailImagesByCampaignId(campaignId);
+        List<CampaignImageResponse> detailImages = campaignImageRepository.findDetailImagesByCampaignId(campaignId);
 
-        return CampaignBasicResponse.of(draftCampaign, topImages, bottomImages);
+        return CampaignBasicResponse.of(draftCampaign, thumbnailImages, detailImages);
     }
 
 
