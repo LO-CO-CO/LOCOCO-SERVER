@@ -124,28 +124,4 @@ public class CreatorController {
         CreatorRegisterCompleteResponse result = creatorUsecase.completeCreatorSignup(userId);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_LOGIN_SUCCESS.getMessage(), result);
     }
-
-    @Operation(summary = "크리에이터 TikTok 프로필 조회",
-            description = "프로필 조회 용도로 만들어 놓은 테스트용 API 입니다.")
-    @GetMapping("/tiktok/profile")
-    public ApiResponse<TikTokProfileDto> getTikTokProfile(
-            @Parameter(hidden = true) @CurrentUser Long creatorId) {
-
-        TikTokProfileDto response = tikTokApiService.getCreatorProfile(creatorId);
-        return ApiResponse.success(HttpStatus.OK, "TikTok 프로필 조회 성공", response);
-        // 임시 API 이므로 ResponseMessage 는 일단 문자열로 설정하였습니다.
-    }
-
-    @Operation(summary = "크리에이터 TikTok 특정 영상들 조회 (video ID 기반)",
-            description = "영상 조회 용도로 만들어 놓은 테스트용 API 입니다.")
-    @GetMapping("/tiktok/videos/query")
-    public ApiResponse<TikTokVideoListResponse> getTikTokVideosByIds(
-            @Parameter(hidden = true) @CurrentUser Long creatorId,
-            @RequestParam Long videoId) {
-
-        TikTokVideoListResponse response = tikTokApiService.getCreatorVideosByIds(creatorId, videoId);
-        return ApiResponse.success(HttpStatus.OK, "TikTok 특정 영상 조회 성공", response);
-        // 임시 API 이므로 ResponseMessage 는 일단 문자열로 설정하였습니다.
-    }
-
 }
