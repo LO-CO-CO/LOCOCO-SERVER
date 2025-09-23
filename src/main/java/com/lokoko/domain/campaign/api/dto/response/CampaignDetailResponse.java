@@ -41,7 +41,7 @@ public record CampaignDetailResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "하단 이미지 목록 리스트")
         List<CampaignImageResponse> bottomImages,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인 상태" , example = "Coming Soon, Apply Now!, Completed ....")
-        CampaignDetailPageStatus campaignStatusCode
+        String campaignStatusCode
 ) {
 
     public static CampaignDetailResponse of(Campaign campaign, List<CampaignImageResponse> topImages,
@@ -64,7 +64,7 @@ public record CampaignDetailResponse(
                 campaign.getEligibilityRequirements(),
                 topImages,
                 bottomImages,
-                campaignStatusCode
+                campaignStatusCode.getCode()
         );
     }
 }
