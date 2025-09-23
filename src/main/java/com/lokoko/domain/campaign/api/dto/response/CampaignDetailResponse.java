@@ -18,8 +18,6 @@ public record CampaignDetailResponse(
         CampaignType campaignType,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인 제목"  , example = "캠페인aa")
         String title,
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "브랜드 프로필 이미지 URL" , example = "https://lococo-bucket.s3.ap-northeast-2.amazonaws.com/image/image.png")
-        String brandImageUrl,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "브랜드 이름" , example = "브랜드A")
         String brandName,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인 언어" , example = "ES, EN")
@@ -43,7 +41,7 @@ public record CampaignDetailResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "하단 이미지 목록 리스트")
         List<CampaignImageResponse> bottomImages,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인 상태" , example = "Coming Soon, Apply Now!, Completed ....")
-        String campaignStatusCode
+        CampaignDetailPageStatus campaignStatusCode
 ) {
 
     public static CampaignDetailResponse of(Campaign campaign, List<CampaignImageResponse> topImages,
@@ -55,7 +53,6 @@ public record CampaignDetailResponse(
                 campaign.getId(),
                 campaign.getCampaignType(),
                 campaign.getTitle(),
-                brand.getUser().getProfileImageUrl(),
                 brand.getBrandName(),
                 campaign.getLanguage(),
                 campaign.getApplyStartDate(),
@@ -67,7 +64,7 @@ public record CampaignDetailResponse(
                 campaign.getEligibilityRequirements(),
                 topImages,
                 bottomImages,
-                campaignStatusCode.getCode()
+                campaignStatusCode
         );
     }
 }
