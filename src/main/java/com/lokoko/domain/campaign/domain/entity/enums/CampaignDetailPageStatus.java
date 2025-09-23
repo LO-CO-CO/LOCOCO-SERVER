@@ -12,7 +12,7 @@ public enum CampaignDetailPageStatus {
     NOT_APPLIED_ENDED("Closed"),
 
     // 지원 있는 상태 - 대기/거절
-    PENDING("Successfully Applied"),
+    APPLIED("Successfully Applied"),
     REJECTED("Campaign not Selected"),
 
     // 승인됨 - 진행 상태들

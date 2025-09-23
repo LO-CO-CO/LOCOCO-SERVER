@@ -88,12 +88,26 @@ public class CampaignStatusManager {
             };
         } else { // 크리에이터 지원 있는 상태
             ParticipationStatus participationStatus = creatorCampaign.get().getStatus();
-            return switch (participationStatus) {
-                case REJECTED -> CampaignDetailPageStatus.REJECTED;
-                case APPROVED_SECOND_REVIEW_DONE -> CampaignDetailPageStatus.APPROVED_SECOND_REVIEW_DONE;
-                case APPROVED_ADDRESS_NOT_CONFIRMED -> CampaignDetailPageStatus.APPROVED_ADDRESS_NOT_CONFIRMED;
-                case APPROVED_REVIEW_NOT_CONFIRMED -> CampaignDetailPageStatus.APPROVED_REVIEW_NOT_CONFIRMED;
-                default -> CampaignDetailPageStatus.PENDING;
+
+            // 우선순위 1: 만료/거절 상태는 캠페인 상태와 관계없이 우선 표시
+            if (participationStatus == ParticipationStatus.REJECTED) {
+                return CampaignDetailPageStatus.REJECTED;
+            }
+            if (participationStatus == ParticipationStatus.APPROVED_ADDRESS_NOT_CONFIRMED ||
+                participationStatus == ParticipationStatus.APPROVED_REVIEW_NOT_CONFIRMED) {
+                return CampaignDetailPageStatus.valueOf(participationStatus.name());
+            }
+
+            // 우선순위 2: 완료 상태
+            if (participationStatus == ParticipationStatus.APPROVED_SECOND_REVIEW_DONE) {
+                return CampaignDetailPageStatus.APPROVED_SECOND_REVIEW_DONE;
+            }
+
+            // 우선순위 3: 캠페인 전체 상태 고려
+            return switch (campaignStatus) {
+                case COMPLETED -> CampaignDetailPageStatus.CLOSED;
+                case RECRUITING ,IN_REVIEW, RECRUITMENT_CLOSED -> CampaignDetailPageStatus.ACTIVE;
+                default -> CampaignDetailPageStatus.APPLIED;
             };
         }
     }
