@@ -2,6 +2,8 @@ package com.lokoko.domain.campaign.application.service;
 
 import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
+import com.lokoko.domain.brand.api.dto.request.CreatorApproveRequest;
+import com.lokoko.domain.brand.api.dto.response.CreatorApprovedResponse;
 import com.lokoko.domain.brand.domain.entity.Brand;
 import com.lokoko.domain.brand.domain.repository.BrandRepository;
 import com.lokoko.domain.brand.exception.BrandNotFoundException;
@@ -9,15 +11,14 @@ import com.lokoko.domain.campaign.api.dto.request.CampaignCreateRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignDraftRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignMediaRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignPublishRequest;
-import com.lokoko.domain.campaign.api.dto.response.CampaignCreateResponse;
+import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignMediaResponse;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.enums.ActionType;
 import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
-import com.lokoko.domain.campaign.exception.CampaignNotEditableException;
-import com.lokoko.domain.campaign.exception.CampaignNotFoundException;
-import com.lokoko.domain.campaign.exception.NotCampaignOwnershipException;
+import com.lokoko.domain.campaign.exception.*;
+import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
 import com.lokoko.domain.image.domain.entity.CampaignImage;
 import com.lokoko.domain.image.domain.entity.enums.ImageType;
 import com.lokoko.domain.image.domain.repository.CampaignImageRepository;
@@ -30,6 +31,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +45,10 @@ public class CampaignService {
     private final CampaignRepository campaignRepository;
     private final CampaignImageRepository campaignImageRepository;
     private final BrandRepository brandRepository;
+    private final CreatorCampaignRepository creatorCampaignRepository;
+
     private final S3Service s3Service;
+    private final EntityManager entityManager;
 
     public CampaignMediaResponse createMediaPresignedUrl(Long brandId, CampaignMediaRequest request) {
 
@@ -65,34 +71,34 @@ public class CampaignService {
     }
 
     @Transactional
-    public CampaignCreateResponse createCampaignDraft(Long brandId, CampaignDraftRequest draftRequest) {
+    public CampaignBasicResponse createCampaignDraft(Long brandId, CampaignDraftRequest draftRequest) {
         CampaignCreateRequest createRequest = CampaignCreateRequest.convertDraftToCreateRequest(draftRequest);
         return createCampaignWithAction(brandId, ActionType.SAVE_DRAFT, createRequest);
     }
 
     @Transactional
-    public CampaignCreateResponse createAndPublishCampaign(Long brandId, CampaignPublishRequest publishRequest) {
+    public CampaignBasicResponse createAndPublishCampaign(Long brandId, CampaignPublishRequest publishRequest) {
         CampaignCreateRequest createRequest = CampaignCreateRequest.convertPublishToCreateRequest(publishRequest);
         return createCampaignWithAction(brandId, ActionType.PUBLISH, createRequest);
     }
 
     @Transactional
-    public CampaignCreateResponse updateCampaignToDraft(Long brandId, Long campaignId,
-                                                        CampaignDraftRequest draftRequest) {
+    public CampaignBasicResponse updateCampaignToDraft(Long brandId, Long campaignId,
+                                                       CampaignDraftRequest draftRequest) {
         CampaignCreateRequest updateRequest = CampaignCreateRequest.convertDraftToCreateRequest(draftRequest);
         return updateCampaign(brandId, campaignId, ActionType.SAVE_DRAFT, updateRequest);
     }
 
     @Transactional
-    public CampaignCreateResponse updateAndPublishCampaign(Long brandId, Long campaignId,
-                                                           CampaignPublishRequest publishRequest) {
+    public CampaignBasicResponse updateAndPublishCampaign(Long brandId, Long campaignId,
+                                                          CampaignPublishRequest publishRequest) {
         CampaignCreateRequest updateRequest = CampaignCreateRequest.convertPublishToCreateRequest(publishRequest);
         return updateCampaign(brandId, campaignId, ActionType.PUBLISH, updateRequest);
     }
 
     @Transactional
-    public CampaignCreateResponse createCampaignWithAction(Long brandId, ActionType actionType,
-                                                           CampaignCreateRequest createRequest) {
+    public CampaignBasicResponse createCampaignWithAction(Long brandId, ActionType actionType,
+                                                          CampaignCreateRequest createRequest) {
         Brand brand = brandRepository.findById(brandId)
                 .orElseThrow(BrandNotFoundException::new);
 
@@ -106,12 +112,17 @@ public class CampaignService {
         return buildCampaignCreateResponse(savedCampaign, savedImages);
     }
 
+    private Brand getBrandOrThrow(Long brandId) {
+        return brandRepository.findById(brandId)
+                .orElseThrow(BrandNotFoundException::new);
+    }
+
 
     private List<CampaignImage> saveImages(CampaignCreateRequest createRequest, Campaign campaign) {
 
         List<CampaignImage> toSaveImages = Stream.of(
-                        createRequest.topImages(),
-                        createRequest.bottomImages()
+                        createRequest.thumbnailImages(),
+                        createRequest.detailImages()
                 )
                 .flatMap(Collection::stream)
                 .map(img -> CampaignImage.createCampaignImage(
@@ -124,37 +135,33 @@ public class CampaignService {
         return campaignImageRepository.saveAll(toSaveImages);
     }
 
-    private CampaignCreateResponse buildCampaignCreateResponse(
+    private CampaignBasicResponse buildCampaignCreateResponse(
             Campaign campaign, List<CampaignImage> savedImages) {
 
-        List<CampaignImageResponse> topImages = savedImages.stream()
-                .filter(img -> img.getImageType() == ImageType.TOP)
+        List<CampaignImageResponse> thumbnailImages = savedImages.stream()
+                .filter(img -> img.getImageType() == ImageType.THUMBNAIL)
                 .sorted(Comparator.comparing(CampaignImage::getDisplayOrder))
                 .map(CampaignImageResponse::from)
                 .toList();
 
-        List<CampaignImageResponse> bottomImages = savedImages.stream()
-                .filter(img -> img.getImageType() == ImageType.BOTTOM)
+        List<CampaignImageResponse> detailImages = savedImages.stream()
+                .filter(img -> img.getImageType() == ImageType.DETAIL)
                 .sorted(Comparator.comparing(CampaignImage::getDisplayOrder))
                 .map(CampaignImageResponse::from)
                 .toList();
 
-        return CampaignCreateResponse.of(campaign, topImages, bottomImages);
+        return CampaignBasicResponse.of(campaign, thumbnailImages, detailImages);
 
     }
 
     @Transactional
-    public CampaignCreateResponse updateCampaign(Long brandId, Long campaignId, ActionType actionType,
-                                                 CampaignCreateRequest updateRequest) {
+    public CampaignBasicResponse updateCampaign(Long brandId, Long campaignId, ActionType actionType,
+                                                CampaignCreateRequest updateRequest) {
 
-        Brand brand = brandRepository.findById(brandId)
-                .orElseThrow(BrandNotFoundException::new);
-
-        Campaign campaign = campaignRepository.findById(campaignId)
-                .orElseThrow(CampaignNotFoundException::new);
+        Brand brand = getBrandOrThrow(brandId);
+        Campaign campaign = getCampaignOrThrow(campaignId);
 
         validateBrandOwnsCampaign(campaign, brand);
-
         validateEditableCampaign(campaign);
 
         campaign.updateCampaign(updateRequest);
@@ -166,6 +173,11 @@ public class CampaignService {
         List<CampaignImage> savedImages = saveImages(updateRequest, campaign);
 
         return buildCampaignCreateResponse(campaign, savedImages);
+    }
+
+    private Campaign getCampaignOrThrow(Long campaignId) {
+        return campaignRepository.findById(campaignId)
+                .orElseThrow(CampaignNotFoundException::new);
     }
 
     /**
@@ -205,6 +217,51 @@ public class CampaignService {
     private static void validateBrandOwnsCampaign(Campaign campaign, Brand brand) {
         if (!campaign.getBrand().getId().equals(brand.getId())) {
             throw new NotCampaignOwnershipException();
+        }
+    }
+
+    @Transactional
+    public CreatorApprovedResponse approveCreatorApplicants(Long campaignId, Long brandId, CreatorApproveRequest creatorApproveRequest) {
+
+        Brand brand = getBrandOrThrow(brandId);
+        Campaign campaign = campaignRepository.findCampaignWithLockById(campaignId)
+                .orElseThrow(CampaignNotFoundException::new);
+
+        validateBrandOwnsCampaign(campaign, brand);
+
+        List<Long> participationIds = creatorApproveRequest.creatorCampaignIds();
+        List<Long> pendingParticipationIds = creatorCampaignRepository.findPendingApplicationIds(campaignId, participationIds);
+
+        validateApplicableCreators(pendingParticipationIds);
+        validateOverCampaignCapacity(campaign, pendingParticipationIds);
+
+        campaign.increaseApprovedNumber(pendingParticipationIds.size());
+        entityManager.flush();
+
+        int updatedCount = creatorCampaignRepository.bulkApproveApplicationStatus(pendingParticipationIds);
+
+        // 벌크 업데이트가 모두 성공한다는 보장이 없다. 일부만 성공할 수도 있기 때문에, 실패시 예외 던져야한다.
+        if (updatedCount != pendingParticipationIds.size()){
+            throw new CampaignApplicantBulkUpdateException();
+        }
+        return new CreatorApprovedResponse(campaign.getApprovedNumber(), campaign.getRecruitmentNumber());
+    }
+
+    /**
+     * "대기중" 상태인 지원자의 수가 없다면, 승인할 수 있는 지원자가 없는 상태이므로 예외 발생.
+     */
+    private static void validateApplicableCreators(List<Long> pendingApplicationIds) {
+        if (pendingApplicationIds.isEmpty()) {
+            throw new NoApplicableCreatorsException();
+        }
+    }
+
+    /**
+     * 현재 승인된 지원자 수 + 지원 요청 수 > 모집인원 수이면 예외를 발생
+     */
+    private static void validateOverCampaignCapacity(Campaign campaign, List<Long> pendingParticipationIds) {
+        if (campaign.getApprovedNumber() + pendingParticipationIds.size() > campaign.getRecruitmentNumber()) {
+            throw new CampaignCapacityExceedException();
         }
     }
 }

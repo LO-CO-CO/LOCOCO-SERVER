@@ -1,6 +1,7 @@
 package com.lokoko.domain.creator.api.dto.request;
 
 import com.lokoko.domain.creator.domain.entity.enums.ContentLanguage;
+import com.lokoko.domain.creator.domain.entity.enums.Gender;
 import com.lokoko.domain.creator.domain.entity.enums.SkinTone;
 import com.lokoko.domain.creator.domain.entity.enums.SkinType;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,6 +26,13 @@ public record CreatorMyPageUpdateRequest(
 
         @Schema(description = "성", example = "Anderson")
         String lastName,
+
+        @Schema(description = "생년월일(YYYY-MM-DD)", example = "2001-10-19")
+        @Pattern(regexp = "^\\d{4}-\\d{2}-\\d{2}$")
+        String birthDate,
+
+        @Schema(description = "성별", example = "FEMALE")
+        Gender gender,
 
         @Schema(description = "국가번호 (선택, 최대 5자)", example = "+1")
         @Size(max = 5)

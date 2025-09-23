@@ -15,9 +15,9 @@ public record CampaignDraftRequest(
         CampaignType campaignType,
         CampaignProductType campaignProductType,
         @Size(max = 5, message = "상단 이미지는 최대 5개까지 가능합니다")
-        List<CampaignImageRequest> topImages,
+        List<CampaignImageRequest> thumbnailImages,
         @Size(max = 15, message = "하단 이미지는 최대 15개까지 가능합니다")
-        List<CampaignImageRequest> bottomImages,
+        List<CampaignImageRequest> detailImages,
         Instant applyStartDate,
         Instant applyDeadline,
         Instant creatorAnnouncementDate,

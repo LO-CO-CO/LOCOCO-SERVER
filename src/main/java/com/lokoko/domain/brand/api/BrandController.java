@@ -1,18 +1,24 @@
 package com.lokoko.domain.brand.api;
 
+import com.lokoko.domain.brand.api.dto.request.*;
+import com.lokoko.domain.brand.api.dto.response.*;
 import com.lokoko.domain.brand.api.dto.request.BrandInfoUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandMyPageUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandNoteRevisionRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandProfileImageRequest;
+import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyPageResponse;
+import com.lokoko.domain.brand.api.dto.response.BrandProfileAndStatisticsResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandNoteRevisionResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandProfileImageResponse;
 import com.lokoko.domain.brand.api.message.ResponseMessage;
 import com.lokoko.domain.brand.application.BrandService;
 import com.lokoko.domain.campaign.api.dto.request.CampaignDraftRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignPublishRequest;
-import com.lokoko.domain.campaign.api.dto.response.CampaignCreateResponse;
+import com.lokoko.domain.campaign.application.service.CampaignGetService;
+import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.campaign.application.service.CampaignService;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatusFilter;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewUpdateService;
 import com.lokoko.domain.campaignReview.domain.entity.enums.RevisionAction;
 import com.lokoko.global.auth.annotation.CurrentUser;
@@ -23,6 +29,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -41,6 +48,7 @@ public class BrandController {
 
     private final BrandService brandService;
     private final CampaignService campaignService;
+    private final CampaignGetService campaignGetService;
     private final CampaignReviewUpdateService campaignReviewUpdateService;
 
     @PatchMapping("/register/info")
@@ -56,11 +64,11 @@ public class BrandController {
     @Operation(summary = "캠페인 생성 - 임시저장",
             description = "브랜드 마이페이지에서 브랜드가 캠패인을 임시저장 상태로 생성하는 API 입니다.")
     @PostMapping("/my/campaigns/drafts")
-    public ApiResponse<CampaignCreateResponse> createDraftCampaign(
+    public ApiResponse<CampaignBasicResponse> createDraftCampaign(
             @Parameter(hidden = true) @CurrentUser Long brandId,
             @Valid @RequestBody CampaignDraftRequest draftRequest) {
 
-        CampaignCreateResponse response = campaignService.createCampaignDraft(brandId, draftRequest);
+        CampaignBasicResponse response = campaignService.createCampaignDraft(brandId, draftRequest);
         return ApiResponse.success(HttpStatus.OK,
                 ResponseMessage.CAMPAIGN_DRAFT_SUCCESS.getMessage(), response);
     }
@@ -68,11 +76,11 @@ public class BrandController {
     @Operation(summary = "캠페인 생성 - 발행",
             description = "브랜드 마이페이지에서 브랜드가 캠페인을 발행 상태로 생성하는 API 입니다.")
     @PostMapping("/my/campaigns/publish")
-    public ApiResponse<CampaignCreateResponse> createAndPublishCampaign(
+    public ApiResponse<CampaignBasicResponse> createAndPublishCampaign(
             @Parameter(hidden = true) @CurrentUser Long brandId,
             @Valid @RequestBody CampaignPublishRequest publishRequest) {
 
-        CampaignCreateResponse response = campaignService.createAndPublishCampaign(brandId, publishRequest);
+        CampaignBasicResponse response = campaignService.createAndPublishCampaign(brandId, publishRequest);
         return ApiResponse.success(HttpStatus.OK,
                 ResponseMessage.CAMPAIGN_PUBLISH_SUCCESS.getMessage(), response);
     }
@@ -80,12 +88,12 @@ public class BrandController {
     @Operation(summary = "캠페인 수정 - 임시저장",
             description = "브랜드 마이페이지에서 브랜드가 기존에 존재하는 캠페인에 대한 임시저장을 수행하는 API 입니다.")
     @PutMapping("/my/campaigns/{campaignId}/draft")
-    public ApiResponse<CampaignCreateResponse> updateCampaignDraft(
+    public ApiResponse<CampaignBasicResponse> updateCampaignDraft(
             @Parameter(hidden = true) @CurrentUser Long brandId,
             @PathVariable Long campaignId,
             @Valid @RequestBody CampaignDraftRequest draftRequest) {
 
-        CampaignCreateResponse response = campaignService.updateCampaignToDraft(brandId, campaignId, draftRequest);
+        CampaignBasicResponse response = campaignService.updateCampaignToDraft(brandId, campaignId, draftRequest);
         return ApiResponse.success(HttpStatus.OK,
                 ResponseMessage.CAMPAIGN_UPDATE_SUCCESS.getMessage(), response);
     }
@@ -93,12 +101,12 @@ public class BrandController {
     @Operation(summary = "캠페인 수정 - 발행",
             description = "브랜드 마이페이지에서 브랜드가 기존에 존재하는 캠페인에 대한 발행을 수행하는 API 입니다.")
     @PatchMapping("/my/campaigns/{campaignId}/publish")
-    public ApiResponse<CampaignCreateResponse> publishCampaign(
+    public ApiResponse<CampaignBasicResponse> publishCampaign(
             @Parameter(hidden = true) @CurrentUser Long brandId,
             @PathVariable Long campaignId,
             @Valid @RequestBody CampaignPublishRequest publishRequest) {
 
-        CampaignCreateResponse response = campaignService.updateAndPublishCampaign(brandId, campaignId, publishRequest);
+        CampaignBasicResponse response = campaignService.updateAndPublishCampaign(brandId, campaignId, publishRequest);
         return ApiResponse.success(HttpStatus.OK,
                 ResponseMessage.CAMPAIGN_PUBLISH_SUCCESS.getMessage(), response);
     }
@@ -148,4 +156,67 @@ public class BrandController {
         brandService.updateBrandMyPage(brandId, request);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_UPDATE_MYPAGE_INFO_SUCCESS.getMessage());
     }
+
+    @Operation(summary = "브랜드 마이페이지에서 캠페인 리스트 조회.")
+    @GetMapping("/my/campaigns")
+    public ApiResponse<BrandMyCampaignListResponse> getBrandMyCampaigns(
+            @Parameter(hidden = true) @CurrentUser Long brandId,
+            @RequestParam CampaignStatusFilter status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size
+    ) {
+
+        BrandMyCampaignListResponse response = campaignGetService.getBrandMyCampaigns(brandId, status, page, size);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_MY_PAGE_CAMPAIGNS_GET_SUCCESS.getMessage(), response);
+    }
+
+    @Operation(summary = "브랜드 마이페이지에서 프로필(브랜드 이미지, 이름, 이메일) 및 통계 정보(진행 중인 캠페인, 종료 캠페인)조회")
+    @GetMapping("/my/profile/stats")
+    public ApiResponse<BrandProfileAndStatisticsResponse> getBrandProfileAndStatistics(@Parameter(hidden = true) @CurrentUser Long brandId) {
+
+        BrandProfileAndStatisticsResponse response = brandService.getBrandProfileAndStatistics(brandId);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_PROFILE_AND_STATISTICS_GET_SUCCESS.getMessage(), response);
+    }
+
+    @Operation(summary = "브랜드 마이페이지에서 임시저장한 캠페인 조회")
+    @GetMapping("/my/campaigns/drafts/{campaignId}")
+    public ApiResponse<CampaignBasicResponse> getDraftCampaign(
+            @Parameter(hidden = true) @CurrentUser Long brandId,
+            @PathVariable Long campaignId){
+
+        CampaignBasicResponse response = campaignGetService.getDraftCampaign(brandId, campaignId);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.DRAFT_CAMPAIGN_GET_SUCCESS.getMessage(), response);
+    }
+
+    @Operation(summary = "캠페인 지원자 확인 뷰 - 브랜드 캠페인 목록 간단 조회")
+    @GetMapping("/my/campaigns/infos")
+    public ApiResponse<BrandMyCampaignInfoListResponse> getSimpleCampaignInfos(
+            @Parameter(hidden = true) @CurrentUser Long brandId) {
+
+        BrandMyCampaignInfoListResponse response = campaignGetService.getSimpleCampaignInfos(brandId);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CAMPAIGN_SIMPLE_INFO_GET_SUCCESS.getMessage(), response);
+    }
+
+    @Operation(summary = "캠페인 지원자 확인 뷰 - 특정 캠페인에 조회한 크리에이터 승인 ")
+    @PatchMapping("/my/campaigns/{campaignId}/applicants/approve")
+    public ApiResponse<CreatorApprovedResponse> approveCreatorApplicants(
+            @Parameter(hidden = true) @CurrentUser Long brandId,
+            @PathVariable Long campaignId,
+            @RequestBody CreatorApproveRequest creatorApproveRequest) {
+        CreatorApprovedResponse response = campaignService.approveCreatorApplicants(campaignId, brandId, creatorApproveRequest);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_APPROVE_SUCCESS.getMessage(), response);
+    }
+
+    @Operation(summary = "캠페인 지원자 확인 뷰 - 캠페인 지원자 리스트 조회")
+    @GetMapping("/my/campaigns/{campaignId}/applicants")
+    public ApiResponse<CampaignApplicantListResponse> getCampaignApplicants(
+            @Parameter(hidden = true) @CurrentUser Long brandId,
+            @PathVariable Long campaignId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        CampaignApplicantListResponse response = campaignGetService.getCampaignApplicants(brandId, campaignId, page, size);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CAMPAIGN_APPLICANTS_GET_SUCCESS.getMessage(), response);
+    }
+
 }

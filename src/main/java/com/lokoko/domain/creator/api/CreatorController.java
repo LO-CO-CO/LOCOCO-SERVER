@@ -2,15 +2,20 @@ package com.lokoko.domain.creator.api;
 
 import com.lokoko.domain.creator.api.dto.request.CreatorInfoUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorMyPageUpdateRequest;
+import com.lokoko.domain.creator.api.dto.request.CreatorProfileImageRequest;
 import com.lokoko.domain.creator.api.dto.response.CreatorAddressInfo;
 import com.lokoko.domain.creator.api.dto.response.CreatorInfoResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorMyCampaignListResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorMyPageResponse;
+import com.lokoko.domain.creator.api.dto.response.CreatorProfileImageResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorRegisterCompleteResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorSnsConnectedResponse;
 import com.lokoko.domain.creator.api.message.ResponseMessage;
 import com.lokoko.domain.creator.application.service.CreatorUsecase;
+import com.lokoko.domain.creator.application.service.TikTokApiService;
 import com.lokoko.global.auth.annotation.CurrentUser;
+import com.lokoko.global.auth.tiktok.dto.TikTokProfileDto;
+import com.lokoko.global.auth.tiktok.dto.TikTokVideoListResponse;
 import com.lokoko.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CreatorController {
 
     private final CreatorUsecase creatorUsecase;
+    private final TikTokApiService tikTokApiService;
 
     @Operation(summary = "크리에이터 마이페이지 조회")
     @GetMapping("/profile")
@@ -62,12 +68,26 @@ public class CreatorController {
                 creatorUsecase.updateMyProfile(userId, request));
     }
 
+    @PostMapping("/profile/image")
+    @Operation(summary = "크리에이터 프로필 이미지 presignedUrl 발급")
+    public ApiResponse<CreatorProfileImageResponse> createProfileImagePresignedUrl(
+            @Parameter(hidden = true) @CurrentUser Long userId,
+            @Valid @RequestBody CreatorProfileImageRequest request) {
+
+        CreatorProfileImageResponse response = creatorUsecase.createPresignedUrlForProfile(userId, request);
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.PROFILE_IMAGE_PRESIGNED_URL_SUCCESS.getMessage(),
+                response);
+    }
+
+
     @Operation(summary = "크리에이터 주소 정보 조회")
     @GetMapping("/profile/address")
     public ApiResponse<CreatorAddressInfo> getCreatorAddress(
             @Parameter(hidden = true) @CurrentUser Long userId
     ) {
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.PROFILE_FETCH_ADDRESS_SUCCESS.getMessage(), creatorUsecase.getMyAddress(userId)
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.PROFILE_FETCH_ADDRESS_SUCCESS.getMessage(),
+                creatorUsecase.getMyAddress(userId)
         );
     }
 

@@ -1,5 +1,9 @@
 package com.lokoko.domain.campaign.domain.repository;
 
+import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
+import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoResponse;
+import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
+import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignListResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignListResponse;
@@ -19,7 +23,6 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -27,7 +30,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.lokoko.domain.image.domain.entity.enums.ImageType.TOP;
+import static com.lokoko.domain.image.domain.entity.enums.ImageType.THUMBNAIL;
 
 @Repository
 @RequiredArgsConstructor
@@ -39,6 +42,111 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
 
     private final UserRepository userRepository;
 
+    /**
+     * 현재시간이 applyStartDate(캠페인 시작시간) 와 reviewSubmissionDeadline(캠페인 종료시간) 사이에 있어야한다
+     */
+    @Override
+    public BrandMyCampaignInfoListResponse findSimpleCampaignInfoByBrandId(Long brandId) {
+        Instant now = Instant.now();
+
+        List<BrandMyCampaignInfoResponse> simpleResponses = queryFactory
+                .select(Projections.constructor(BrandMyCampaignInfoResponse.class,
+                        campaign.id,
+                        campaign.title,
+                        campaign.applyStartDate,
+                        campaign.reviewSubmissionDeadline))
+                .from(campaign)
+                .where(campaign.brand.id.eq(brandId)
+                        .and(campaign.applyStartDate.loe(now))
+                        .and(campaign.reviewSubmissionDeadline.goe(now)))
+                .fetch();
+
+        return new BrandMyCampaignInfoListResponse(simpleResponses);
+    }
+    @Override
+    public BrandMyCampaignListResponse findBrandMyCampaigns(Long brandId, CampaignStatusFilter filterStatus, Pageable pageable) {
+        Instant now = Instant.now();
+
+        StringExpression statusCase = new CaseBuilder()
+                .when(campaign.campaignStatus.eq(CampaignStatus.DRAFT))
+                    .then(CampaignStatus.DRAFT.name())
+                .when(campaign.campaignStatus.eq(CampaignStatus.WAITING_APPROVAL))
+                    .then(CampaignStatus.WAITING_APPROVAL.name())
+                .when(Expressions.asDateTime(now).before(campaign.applyStartDate))
+                    .then(CampaignStatus.OPEN_RESERVED.name())
+                .when(Expressions.asDateTime(now).before(campaign.applyDeadline))
+                    .then(CampaignStatus.RECRUITING.name())
+                .when(Expressions.asDateTime(now).before(campaign.creatorAnnouncementDate))
+                    .then(CampaignStatus.RECRUITMENT_CLOSED.name())
+                .when(Expressions.asDateTime(now).before(campaign.reviewSubmissionDeadline))
+                    .then(CampaignStatus.IN_REVIEW.name())
+                .otherwise(CampaignStatus.COMPLETED.name());
+
+        BooleanExpression condition = campaign.brand.id.eq(brandId);
+
+        if (filterStatus != null && !"ALL".equals(filterStatus.name())) {
+            if ("ACTIVE".equals(filterStatus.name())) {
+                condition = condition.and(
+                    statusCase.eq(CampaignStatus.RECRUITING.name())
+                    .or(statusCase.eq(CampaignStatus.RECRUITMENT_CLOSED.name()))
+                    .or(statusCase.eq(CampaignStatus.IN_REVIEW.name()))
+                );
+            } else {
+                condition = condition.and(statusCase.eq(filterStatus.name()));
+            }
+        }
+
+        List<BrandMyCampaignResponse> campaigns = queryFactory
+                .select(
+                        campaign.id,
+                        campaignImage.mediaFile.fileUrl,
+                        campaign.title,
+                        campaign.applyDeadline,
+                        campaign.applicantNumber,
+                        campaign.recruitmentNumber,
+                        statusCase
+                )
+                .from(campaign)
+                .leftJoin(campaignImage).on(
+                        campaignImage.campaign.eq(campaign)
+                                .and(campaignImage.displayOrder.eq(0))
+                                .and(campaignImage.imageType.eq(THUMBNAIL))
+                )
+                .where(condition)
+                .orderBy(campaign.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch()
+                .stream()
+                .map(tuple -> new BrandMyCampaignResponse(
+                        tuple.get(campaign.id),
+                        tuple.get(campaignImage.mediaFile.fileUrl),
+                        tuple.get(campaign.title),
+                        tuple.get(campaign.applyDeadline),
+                        tuple.get(campaign.applicantNumber),
+                        tuple.get(campaign.recruitmentNumber),
+                        tuple.get(statusCase)
+                ))
+                .toList();
+
+        Long totalCount = queryFactory
+                .select(campaign.count())
+                .from(campaign)
+                .where(condition)
+                .fetchOne();
+
+        long total = totalCount != null ? totalCount : 0L;
+        boolean isLast = (pageable.getOffset() + pageable.getPageSize()) >= total;
+
+        PageableResponse pageInfo = new PageableResponse(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                campaigns.size(),
+                isLast
+        );
+
+        return new BrandMyCampaignListResponse(campaigns, pageInfo);
+    }
 
     @Override
     public MainPageUpcomingCampaignListResponse findUpcomingCampaignsInMainPage(LanguageFilter lang, CampaignProductTypeFilter category) {
@@ -67,8 +175,8 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 ))
                 .from(campaign)
                 .innerJoin(campaignImage).on(campaignImage.campaign.eq(campaign)
-                        .and(campaignImage.displayOrder.eq(1))
-                        .and(campaignImage.imageType.eq((TOP))))
+                        .and(campaignImage.displayOrder.eq(0))
+                        .and(campaignImage.imageType.eq((THUMBNAIL))))
                 .where(campaign.campaignStatus.eq(CampaignStatus.OPEN_RESERVED).and(languageAndCategoryCondition))
                 .orderBy(campaign.applyStartDate.asc())
                 .limit(6)
@@ -121,8 +229,8 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 ))
                 .from(campaign)
                 .innerJoin(campaignImage).on(campaignImage.campaign.eq(campaign)
-                        .and(campaignImage.displayOrder.eq(1))
-                        .and(campaignImage.imageType.eq((TOP))))
+                        .and(campaignImage.displayOrder.eq(0))
+                        .and(campaignImage.imageType.eq((THUMBNAIL))))
                 .where(condition)
                 .orderBy(campaign.applyDeadline.asc()) // 마감기한 얼마 남지 않은 순
                 .offset(pageable.getOffset())
@@ -133,8 +241,8 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 .select(campaign.count())
                 .from(campaign)
                 .innerJoin(campaignImage).on(campaignImage.campaign.eq(campaign)
-                        .and(campaignImage.displayOrder.eq(1))
-                        .and(campaignImage.imageType.eq((TOP))))
+                        .and(campaignImage.displayOrder.eq(0))
+                        .and(campaignImage.imageType.eq((THUMBNAIL))))
                 .where(condition)
                 .fetchOne();
 

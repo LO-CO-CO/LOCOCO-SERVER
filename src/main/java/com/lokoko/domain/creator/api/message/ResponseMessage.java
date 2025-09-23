@@ -15,11 +15,12 @@ public enum ResponseMessage {
     CREATOR_LOGIN_SUCCESS("크리에이터 최종 회원가입이 성공했습니다"),
 
     // 마이페이지 관련
-    PROFILE_FETCH_SUCCESS("크리에이터 마이페이지 조회 성공"),
-    PROFILE_UPDATE_SUCCESS("크리에이터 마이페이지 수정 성공"),
-    ADDRESS_CONFIRM_SUCCESS("배송지 확정 성공"),
-    MY_CAMPAIGN_FETCH_SUCCESS("참여 캠페인 조회 성공"),
-    PROFILE_FETCH_ADDRESS_SUCCESS("크리에이터 배송지 조회 성공");
+    PROFILE_FETCH_SUCCESS("크리에이터 마이페이지 조회를 성공했습니다."),
+    PROFILE_UPDATE_SUCCESS("크리에이터 마이페이지 수정을 성공했습니다."),
+    PROFILE_IMAGE_PRESIGNED_URL_SUCCESS("크리에이터 프로필 이미지 presignedUrl 발급을 성공했습니다."),
+    ADDRESS_CONFIRM_SUCCESS("배송지 확정에 성공했습니다."),
+    MY_CAMPAIGN_FETCH_SUCCESS("참여 캠페인 조회에 성공했습니다."),
+    PROFILE_FETCH_ADDRESS_SUCCESS("크리에이터 배송지 조회에 성공했습니다.");
 
     private final String message;
 }

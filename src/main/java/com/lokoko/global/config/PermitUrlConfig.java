@@ -58,11 +58,8 @@ public class PermitUrlConfig {
      */
     public String[] getCreatorUrl() {
         return new String[]{
-                "/api/auth/tiktok/connect",
-                "/api/auth/tiktok/callback",
-                "/api/auth/tiktok/status",
-                "/api/auth/tiktok/sync",
-                "/api/auth/tiktok/disconnect"
+                "/api/auth/sns/tiktok/connect",
+                "/api/auth/sns/tiktok/callback",
         };
     }
 

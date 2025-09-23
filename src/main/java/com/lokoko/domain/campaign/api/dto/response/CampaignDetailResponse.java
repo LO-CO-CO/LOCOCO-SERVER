@@ -3,7 +3,6 @@ package com.lokoko.domain.campaign.api.dto.response;
 import com.lokoko.domain.brand.domain.entity.Brand;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignDetailPageStatus;
-import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -35,15 +34,15 @@ public record CampaignDetailResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "크리에이터 자격 요건 리스트")
         List<String> eligibilityRequirements,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "상단 이미지 목록 리스트")
-        List<CampaignImageResponse> topImages,
+        List<CampaignImageResponse> thumbnailImages,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "하단 이미지 목록 리스트")
-        List<CampaignImageResponse> bottomImages,
+        List<CampaignImageResponse> detailImages,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인 상태" , example = "Coming Soon, Apply Now!, Completed ....")
         String campaignStatusCode
 ) {
 
-    public static CampaignDetailResponse of(Campaign campaign, List<CampaignImageResponse> topImages,
-                                            List<CampaignImageResponse> bottomImages,
+    public static CampaignDetailResponse of(Campaign campaign, List<CampaignImageResponse> thumbnailImages,
+                                            List<CampaignImageResponse> detailImages,
                                             CampaignDetailPageStatus campaignStatusCode) {
 
         Brand brand = campaign.getBrand();
@@ -59,8 +58,8 @@ public record CampaignDetailResponse(
                 campaign.getDeliverableRequirements(),
                 campaign.getParticipationRewards(),
                 campaign.getEligibilityRequirements(),
-                topImages,
-                bottomImages,
+                thumbnailImages,
+                detailImages,
                 campaignStatusCode.getCode()
         );
     }

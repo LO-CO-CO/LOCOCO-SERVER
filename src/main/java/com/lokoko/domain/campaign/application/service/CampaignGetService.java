@@ -1,15 +1,18 @@
 package com.lokoko.domain.campaign.application.service;
 
+import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
+import com.lokoko.domain.brand.api.dto.response.CampaignApplicantListResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignDetailResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignListResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignListResponse;
+import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
+import com.lokoko.domain.campaign.api.dto.response.*;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
-import com.lokoko.domain.campaign.domain.entity.enums.CampaignDetailPageStatus;
-import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductTypeFilter;
-import com.lokoko.domain.campaign.domain.entity.enums.LanguageFilter;
+import com.lokoko.domain.campaign.domain.entity.enums.*;
 import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
 import com.lokoko.domain.campaign.exception.CampaignNotFoundException;
+import com.lokoko.domain.campaign.exception.NotCampaignOwnershipException;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
 import com.lokoko.domain.image.domain.repository.CampaignImageRepository;
@@ -18,6 +21,7 @@ import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.domain.user.exception.UserNotFoundException;
 import java.util.List;
 import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.PageRequest;
@@ -43,8 +47,8 @@ public class CampaignGetService {
 
     public CampaignDetailResponse getCampaignDetail(Long userId, Long campaignId) {
         Campaign campaign = findCampaignAndInitializeCollection(campaignId);
-        List<CampaignImageResponse> topImages = campaignImageRepository.findTopImagesByCampaignId(campaignId);
-        List<CampaignImageResponse> bottomImages = campaignImageRepository.findBottomImagesByCampaignId(campaignId);
+        List<CampaignImageResponse> topImages = campaignImageRepository.findThumbnailImagesByCampaignId(campaignId);
+        List<CampaignImageResponse> bottomImages = campaignImageRepository.findDetailImagesByCampaignId(campaignId);
 
         CampaignDetailPageStatus detailPageStatus = determineDetailPageStatus(userId, campaign);
 
@@ -95,5 +99,37 @@ public class CampaignGetService {
         return campaignRepository.findUpcomingCampaignsInMainPage(lang, category);
     }
 
+    /**
+     * 브랜드 마이페이지 캠페인 리스트 조회
+     **/
+    public BrandMyCampaignListResponse getBrandMyCampaigns(Long brandId, CampaignStatusFilter status, int page, int size) {
+        return campaignRepository.findBrandMyCampaigns(brandId, status, PageRequest.of(page, size));
+    }
 
+    /**
+     * 브랜드 마이페이지 임시저장 캠페인 조회
+     */
+    public CampaignBasicResponse getDraftCampaign(Long brandId, Long campaignId) {
+
+        Campaign draftCampaign = campaignRepository.findDraftCampaignById(campaignId, CampaignStatus.DRAFT)
+                .orElseThrow(CampaignNotFoundException::new);
+
+        if (!draftCampaign.getBrand().getId().equals(brandId)){
+            throw new NotCampaignOwnershipException();
+        }
+        initializeElementCollections(draftCampaign);
+
+        List<CampaignImageResponse> thumbnailImages = campaignImageRepository.findThumbnailImagesByCampaignId(campaignId);
+        List<CampaignImageResponse> detailImages = campaignImageRepository.findDetailImagesByCampaignId(campaignId);
+
+        return CampaignBasicResponse.of(draftCampaign, thumbnailImages, detailImages);
+    }
+
+    public BrandMyCampaignInfoListResponse getSimpleCampaignInfos(Long brandId) {
+        return campaignRepository.findSimpleCampaignInfoByBrandId(brandId);
+    }
+
+    public CampaignApplicantListResponse getCampaignApplicants(Long brandId, Long campaignId, int page, int size) {
+        return creatorCampaignRepository.findCampaignApplicants(brandId, campaignId, PageRequest.of(page, size));
+    }
 }
