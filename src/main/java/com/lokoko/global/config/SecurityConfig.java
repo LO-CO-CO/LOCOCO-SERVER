@@ -48,7 +48,9 @@ public class SecurityConfig {
                 .requestMatchers(permitUrlConfig.getPublicUrl()).permitAll()
                 .requestMatchers(permitUrlConfig.getOptionalUrl()).permitAll()
                 .requestMatchers(permitUrlConfig.getUserUrl()).hasAnyRole(CUSTOMER.name(), CREATOR.name(), BRAND.name(), ADMIN.name())
+                .requestMatchers(permitUrlConfig.getCustomerUrl()).hasAnyRole(CUSTOMER.name(), ADMIN.name())
                 .requestMatchers(permitUrlConfig.getCreatorUrl()).hasAnyRole(CREATOR.name(), ADMIN.name())
+                .requestMatchers(permitUrlConfig.getBrandUrl()).hasAnyRole(BRAND.name(), ADMIN.name())
                 .requestMatchers(permitUrlConfig.getAdminUrl()).hasRole(ADMIN.name())
                 .anyRequest().authenticated());
 
