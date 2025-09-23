@@ -24,8 +24,13 @@ import com.lokoko.domain.image.domain.entity.enums.ImageType;
 import com.lokoko.domain.image.domain.repository.CampaignImageRepository;
 import com.lokoko.domain.productReview.exception.ErrorMessage;
 import com.lokoko.domain.productReview.exception.InvalidMediaTypeException;
+import com.lokoko.domain.productReview.exception.PresignedUrlParsingException;
 import com.lokoko.global.common.dto.PresignedUrlResponse;
+import com.lokoko.global.common.entity.MediaFile;
 import com.lokoko.global.common.service.S3Service;
+import com.lokoko.global.utils.S3UrlParser;
+import java.net.URI;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -83,6 +88,12 @@ public class CampaignService {
     }
 
     @Transactional
+    public CampaignBasicResponse createAndPublishCampaignForAdmin(Long brandId, CampaignPublishRequest publishRequest) {
+        CampaignCreateRequest createRequest = CampaignCreateRequest.convertPublishToCreateRequest(publishRequest);
+        return createCampaignWithActionForAdmin(brandId, ActionType.PUBLISH, createRequest);
+    }
+
+    @Transactional
     public CampaignBasicResponse updateCampaignToDraft(Long brandId, Long campaignId,
                                                        CampaignDraftRequest draftRequest) {
         CampaignCreateRequest updateRequest = CampaignCreateRequest.convertDraftToCreateRequest(draftRequest);
@@ -112,6 +123,22 @@ public class CampaignService {
         return buildCampaignCreateResponse(savedCampaign, savedImages);
     }
 
+    @Transactional
+    public CampaignBasicResponse createCampaignWithActionForAdmin(Long brandId, ActionType actionType,
+                                                                  CampaignCreateRequest createRequest) {
+        Brand brand = brandRepository.findById(brandId)
+                .orElseThrow(BrandNotFoundException::new);
+
+        Campaign campaign = Campaign.createCampaign(createRequest, brand);
+
+        validatePublishableCampaign(actionType, campaign);
+
+        Campaign savedCampaign = campaignRepository.save(campaign);
+        List<CampaignImage> savedImages = saveImagesForAdmin(createRequest, savedCampaign);
+
+        return buildCampaignCreateResponse(savedCampaign, savedImages);
+    }
+
     private Brand getBrandOrThrow(Long brandId) {
         return brandRepository.findById(brandId)
                 .orElseThrow(BrandNotFoundException::new);
@@ -125,14 +152,49 @@ public class CampaignService {
                         createRequest.detailImages()
                 )
                 .flatMap(Collection::stream)
-                .map(img -> CampaignImage.createCampaignImage(
-                        img.url(),
-                        img.displayOrder(),
-                        img.imageType(),
-                        campaign))
+                .map(img -> {
+                    MediaFile mediaFile = S3UrlParser.parsePresignedUrl(img.url());
+                    return CampaignImage.createCampaignImage(
+                            mediaFile,
+                            img.displayOrder(),
+                            img.imageType(),
+                            campaign);
+                })
                 .collect(Collectors.toList());
 
         return campaignImageRepository.saveAll(toSaveImages);
+    }
+
+    private List<CampaignImage> saveImagesForAdmin(CampaignCreateRequest createRequest, Campaign campaign) {
+
+        List<CampaignImage> toSaveImages = Stream.of(
+                        createRequest.thumbnailImages(),
+                        createRequest.detailImages()
+                )
+                .flatMap(Collection::stream)
+                .map(img -> {
+                    MediaFile mediaFile = createMediaFileFromRegularUrl(img.url());
+                    return CampaignImage.createCampaignImage(
+                            mediaFile,
+                            img.displayOrder(),
+                            img.imageType(),
+                            campaign);
+                })
+                .collect(Collectors.toList());
+
+        return campaignImageRepository.saveAll(toSaveImages);
+    }
+
+    private MediaFile createMediaFileFromRegularUrl(String regularUrl) {
+        try {
+            URI uri = new URI(regularUrl);
+            String path = uri.getPath();
+            String fileName = Paths.get(path).getFileName().toString();
+
+            return MediaFile.of(fileName, regularUrl);
+        } catch (Exception e) {
+            throw new PresignedUrlParsingException();
+        }
     }
 
     private CampaignBasicResponse buildCampaignCreateResponse(
