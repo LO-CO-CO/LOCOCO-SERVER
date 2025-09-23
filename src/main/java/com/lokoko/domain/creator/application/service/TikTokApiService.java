@@ -1,15 +1,12 @@
-package com.lokoko.global.auth.tiktok.service;
+package com.lokoko.domain.creator.application.service;
 
-import com.lokoko.domain.creator.application.service.CreatorGetService;
-import com.lokoko.domain.creator.domain.entity.Creator;
-import com.lokoko.domain.creator.domain.repository.CreatorRepository;
-import com.lokoko.domain.creator.exception.CreatorNotFoundException;
 import com.lokoko.global.auth.tiktok.TikTokOAuthClient;
 import com.lokoko.global.auth.tiktok.dto.TikTokProfileDto;
+import com.lokoko.global.auth.tiktok.dto.TikTokVideoListResponse;
+import com.lokoko.global.auth.tiktok.service.TikTokRedisTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * TikTok API 호출 서비스
@@ -32,12 +29,10 @@ public class TikTokApiService {
     }
 
     /**
-     * Creator의 TikTok 연결 상태 확인
+     * Creator의 TikTok 특정 영상들 조회 (video ID 기반)
      */
-    public boolean isConnected(Long creatorId) {
-        Creator creator = creatorGetService.findByUserId(creatorId);
-
-        return creator.getTikTokUserId() != null &&
-               tikTokRedisTokenService.hasTokens(creatorId);
+    public TikTokVideoListResponse getCreatorVideosByIds(Long creatorId, Long videoId) {
+        String accessToken = tikTokRedisTokenService.getValidAccessToken(creatorId);
+        return tikTokOAuthClient.queryVideosByIds(accessToken, videoId);
     }
 }

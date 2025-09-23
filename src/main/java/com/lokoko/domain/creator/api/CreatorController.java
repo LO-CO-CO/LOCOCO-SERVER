@@ -12,7 +12,10 @@ import com.lokoko.domain.creator.api.dto.response.CreatorRegisterCompleteRespons
 import com.lokoko.domain.creator.api.dto.response.CreatorSnsConnectedResponse;
 import com.lokoko.domain.creator.api.message.ResponseMessage;
 import com.lokoko.domain.creator.application.service.CreatorUsecase;
+import com.lokoko.domain.creator.application.service.TikTokApiService;
 import com.lokoko.global.auth.annotation.CurrentUser;
+import com.lokoko.global.auth.tiktok.dto.TikTokProfileDto;
+import com.lokoko.global.auth.tiktok.dto.TikTokVideoListResponse;
 import com.lokoko.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -36,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CreatorController {
 
     private final CreatorUsecase creatorUsecase;
+    private final TikTokApiService tikTokApiService;
 
     @Operation(summary = "크리에이터 마이페이지 조회")
     @GetMapping("/profile")

@@ -6,14 +6,19 @@ import com.lokoko.global.auth.service.OAuthStateManager;
 import com.lokoko.global.auth.tiktok.dto.TikTokProfileDto;
 import com.lokoko.global.auth.tiktok.dto.TikTokTokenDto;
 import com.lokoko.global.auth.tiktok.dto.TikTokUserInfoResponse;
+import com.lokoko.global.auth.tiktok.dto.TikTokVideoListResponse;
 import com.lokoko.global.utils.TikTokConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -96,5 +101,41 @@ public class TikTokOAuthClient {
             throw new TikTokTokenRequestFailedException();
         }
         return tokenDto;
+    }
+    
+    /**
+     * TikTok 특정 영상들 조회 (video ID 기반)
+     */
+    public TikTokVideoListResponse queryVideosByIds(String accessToken, Long videoId) {
+
+        Map<String, Object> requestBody = createVideoQueryRequestBody(videoId);
+
+        TikTokVideoListResponse response = tikTokWebClient.post()
+                .uri(uriBuilder -> uriBuilder
+                        .path(TikTokConstants.VIDEO_QUERY_PATH)
+                        .queryParam(TikTokConstants.PARAM_FIELDS, TikTokConstants.VIDEO_FIELDS)
+                        .build())
+                .header("Authorization", "Bearer " + accessToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(requestBody))
+                .retrieve()
+                .bodyToMono(TikTokVideoListResponse.class)
+                .block();
+
+        if (response != null && response.data() != null) {
+            return response;
+        }
+
+        throw new TikTokProfileFetchFailedException();
+    }
+
+    private Map<String, Object> createVideoQueryRequestBody(Long videoId) {
+        Map<String, Object> filters = new HashMap<>();
+        filters.put("video_ids", List.of(videoId.toString()));
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("filters", filters);
+
+        return body;
     }
 }
