@@ -300,13 +300,13 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
     }
 
     private StringExpression createChipStatusExpression() {
-        DateTimeExpression<Instant> now = DateTimeExpression.currentTimestamp(Instant.class);
+        Instant now = Instant.now();
 
         return new CaseBuilder()
-                .when(now.after(campaign.applyStartDate)
-                        .and(now.before(campaign.applyDeadline)))
+                .when(campaign.applyStartDate.loe(now)
+                        .and(campaign.applyDeadline.gt(now)))
                 .then(CampaignChipStatus.DEFAULT.getDisplayName())
-                .when(now.after(campaign.applyDeadline))
+                .when(campaign.applyDeadline.loe(now))
                 .then(CampaignChipStatus.DISABLED.getDisplayName())
                 .otherwise(Expressions.nullExpression(String.class));
     }
