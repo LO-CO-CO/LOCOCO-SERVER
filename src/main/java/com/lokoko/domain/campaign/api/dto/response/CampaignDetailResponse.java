@@ -3,6 +3,7 @@ package com.lokoko.domain.campaign.api.dto.response;
 import com.lokoko.domain.brand.domain.entity.Brand;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignDetailPageStatus;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -19,6 +20,8 @@ public record CampaignDetailResponse(
         String title,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "브랜드 이름" , example = "브랜드A")
         String brandName,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인 언어" , example = "EN / ES")
+        CampaignLanguage language,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인 지원 시작 날짜" , example = "2025-09-16T07:32:08.995Z")
         Instant applyStartDate,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인 지원 마감 날짜", example = "2025-09-16T07:32:08.995Z" )
@@ -51,6 +54,7 @@ public record CampaignDetailResponse(
                 campaign.getCampaignType(),
                 campaign.getTitle(),
                 brand.getBrandName(),
+                campaign.getLanguage(),
                 campaign.getApplyStartDate(),
                 campaign.getApplyDeadline(),
                 campaign.getCreatorAnnouncementDate(),
