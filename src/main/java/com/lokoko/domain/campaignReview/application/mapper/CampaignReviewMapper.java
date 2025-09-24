@@ -1,7 +1,9 @@
 package com.lokoko.domain.campaignReview.application.mapper;
 
+import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaignReview.api.dto.request.FirstReviewUploadRequest;
 import com.lokoko.domain.campaignReview.api.dto.request.SecondReviewUploadRequest;
+import com.lokoko.domain.campaignReview.api.dto.response.CampaignReviewDetailResponse;
 import com.lokoko.domain.campaignReview.api.dto.response.ReviewUploadResponse;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReviewImage;
@@ -71,6 +73,21 @@ public class CampaignReviewMapper {
 
         return ReviewUploadResponse.builder()
                 .reviewId(saved.getId())
+                .build();
+    }
+
+    public CampaignReviewDetailResponse toCampaignReviewDetailResponse(
+            Campaign campaign,
+            CampaignReview review,
+            List<String> mediaUrls
+    ) {
+        return CampaignReviewDetailResponse.builder()
+                .campaignId(campaign.getId())
+                .title(campaign.getTitle())
+                .contentType(review.getContentType())
+                .mediaUrls(mediaUrls)
+                .captionWithHashtags(review.getCaptionWithHashtags())
+                .postUrl(review.getPostUrl())
                 .build();
     }
 }
