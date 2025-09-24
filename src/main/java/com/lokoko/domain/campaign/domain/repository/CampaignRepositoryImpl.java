@@ -1,16 +1,25 @@
 package com.lokoko.domain.campaign.domain.repository;
 
+import com.lokoko.domain.brand.api.dto.response.BrandDashboardCampaignListResponse;
+import com.lokoko.domain.brand.api.dto.response.BrandDashboardCampaignResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignResponse;
+import com.lokoko.domain.brand.api.dto.response.CampaignDashboard;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignListResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignListResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignResponse;
 import com.lokoko.domain.campaign.domain.entity.QCampaign;
 import com.lokoko.domain.campaign.domain.entity.enums.*;
+import com.lokoko.domain.campaignReview.domain.entity.QCampaignReview;
+import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
+import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewStatus;
+import com.lokoko.domain.creatorCampaign.domain.entity.QCreatorCampaign;
 import com.lokoko.domain.image.domain.entity.QCampaignImage;
+import com.lokoko.domain.image.domain.entity.enums.ImageType;
+import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.domain.user.domain.repository.UserRepository;
@@ -21,6 +30,7 @@ import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.DateTimeExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +40,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import static com.lokoko.domain.campaignReview.domain.entity.QCampaignReview.campaignReview;
+import static com.lokoko.domain.creatorCampaign.domain.entity.QCreatorCampaign.creatorCampaign;
 import static com.lokoko.domain.image.domain.entity.enums.ImageType.THUMBNAIL;
 
 @Repository
@@ -39,6 +51,8 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
     private final JPAQueryFactory queryFactory;
     private final QCampaign campaign = QCampaign.campaign;
     private final QCampaignImage campaignImage = QCampaignImage.campaignImage;
+    private final QCampaignReview campaignReview = QCampaignReview.campaignReview;
+    private final QCreatorCampaign creatorCampaign = QCreatorCampaign.creatorCampaign;
 
     private final UserRepository userRepository;
 
@@ -311,4 +325,62 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 .otherwise(Expressions.nullExpression(String.class));
     }
 
+    @Override
+    public List<CampaignDashboard> findBrandDashboardCampaigns(Long brandId, Pageable pageable) {
+
+        return queryFactory
+                .select(Projections.constructor(CampaignDashboard.class,
+                        campaign.id,
+                        campaign.title,
+                        campaignImage.mediaFile.fileUrl,
+                        campaign.applyStartDate,
+                        campaign.applyDeadline,
+                        campaign.creatorAnnouncementDate,
+                        campaign.reviewSubmissionDeadline,
+                        campaign.campaignStatus,
+                        campaign.approvedNumber,
+                        JPAExpressions.select(campaignReview.count().coalesce(0L))
+                                .from(campaignReview)
+                                .join(campaignReview.creatorCampaign, creatorCampaign)
+                                .where(creatorCampaign.campaign.eq(campaign)
+                                        .and(campaignReview.reviewRound.eq(ReviewRound.SECOND))
+                                        .and(campaignReview.status.eq(ReviewStatus.RESUBMITTED))
+                                        .and(campaignReview.contentType.eq(ContentType.INSTA_POST))),
+                        JPAExpressions.select(campaignReview.count().coalesce(0L))
+                                .from(campaignReview)
+                                .join(campaignReview.creatorCampaign, creatorCampaign)
+                                .where(creatorCampaign.campaign.eq(campaign)
+                                        .and(campaignReview.reviewRound.eq(ReviewRound.SECOND))
+                                        .and(campaignReview.status.eq(ReviewStatus.RESUBMITTED))
+                                        .and(campaignReview.contentType.eq(ContentType.INSTA_REELS))),
+                        JPAExpressions.select(campaignReview.count().coalesce(0L))
+                                .from(campaignReview)
+                                .join(campaignReview.creatorCampaign, creatorCampaign)
+                                .where(creatorCampaign.campaign.eq(campaign)
+                                        .and(campaignReview.reviewRound.eq(ReviewRound.SECOND))
+                                        .and(campaignReview.status.eq(ReviewStatus.RESUBMITTED))
+                                        .and(campaignReview.contentType.eq(ContentType.TIKTOK_VIDEO)))
+                ))
+                .from(campaign)
+                .leftJoin(campaignImage).on(
+                        campaignImage.campaign.eq(campaign)
+                                .and(campaignImage.displayOrder.eq(0))
+                                .and(campaignImage.imageType.eq(ImageType.THUMBNAIL))
+                )
+                .where(campaign.brand.id.eq(brandId))
+                .orderBy(campaign.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+    }
+
+    @Override
+    public Long countBrandDashboardCampaigns(Long brandId) {
+        Long count = queryFactory
+                .select(campaign.count())
+                .from(campaign)
+                .where(campaign.brand.id.eq(brandId))
+                .fetchOne();
+        return count != null ? count : 0L;
+    }
 }
