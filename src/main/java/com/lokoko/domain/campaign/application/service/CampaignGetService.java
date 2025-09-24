@@ -1,11 +1,9 @@
 package com.lokoko.domain.campaign.application.service;
 
 import com.lokoko.domain.brand.api.dto.response.BrandDashboardCampaignListResponse;
-import com.lokoko.domain.brand.api.dto.response.BrandDashboardCampaignResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.CampaignApplicantListResponse;
-import com.lokoko.domain.brand.api.dto.response.CampaignDashboard;
 import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignDetailResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse;
@@ -23,11 +21,9 @@ import com.lokoko.domain.campaign.exception.NotCampaignOwnershipException;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
 import com.lokoko.domain.image.domain.repository.CampaignImageRepository;
-import com.lokoko.global.common.response.PageableResponse;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -122,54 +118,6 @@ public class CampaignGetService {
      * 브랜드 대시보드 캠페인 목록 조회
      */
     public BrandDashboardCampaignListResponse getBrandDashboardCampaigns(Long brandId, int page, int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-
-        // Repository에서 데이터와 총 개수 조회
-        List<CampaignDashboard> campaignList = campaignRepository.findBrandDashboardCampaigns(brandId, pageable);
-        Long totalCampaignCount = campaignRepository.countBrandDashboardCampaigns(brandId);
-
-        // CampaignDashboard를 BrandDashboardCampaignResponse로 변환 (상태 계산 포함)
-        List<BrandDashboardCampaignResponse> updatedCampaigns = campaignList.stream()
-                .map(data -> {
-                    // 상태 계산을 위한 임시 Campaign 객체 생성
-                    Campaign tempCampaign = Campaign.builder()
-                            .id(data.campaignId())
-                            .campaignStatus(data.savedStatus())
-                            .applyStartDate(data.applyStartDate())
-                            .applyDeadline(data.applyDeadline())
-                            .creatorAnnouncementDate(data.creatorAnnouncementDate())
-                            .reviewSubmissionDeadline(data.reviewSubmissionDeadline())
-                            .build();
-
-                    // 현재 시간 기준 상태 계산
-                    CampaignStatus campaignCurrentStatus = campaignStatusManager.determineCampaignStatus(tempCampaign);
-
-                    return new BrandDashboardCampaignResponse(
-                            data.campaignId(),
-                            data.thumbnailUrl(),
-                            data.title(),
-                            data.applyStartDate(),
-                            data.reviewSubmissionDeadline(),
-                            // 현재 상태
-                            campaignCurrentStatus,
-                            data.approvedNumber(),
-                            data.instaPostCount(),
-                            data.instaReelsCount(),
-                            data.tiktokVideoCount()
-                    );
-                })
-                .toList();
-
-        // 페이지 정보 생성
-        boolean isLast = (pageable.getOffset() + campaignList.size()) >= totalCampaignCount;
-        PageableResponse pageInfo = new PageableResponse(
-                pageable.getPageNumber(),
-                pageable.getPageSize(),
-                campaignList.size(),
-                isLast
-        );
-
-        return new BrandDashboardCampaignListResponse(updatedCampaigns, pageInfo);
+        return campaignRepository.findBrandDashboardCampaigns(brandId, PageRequest.of(page, size));
     }
 }

@@ -6,13 +6,18 @@ import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignResponse;
-import com.lokoko.domain.brand.api.dto.response.CampaignDashboard;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignListResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignListResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignResponse;
 import com.lokoko.domain.campaign.domain.entity.QCampaign;
-import com.lokoko.domain.campaign.domain.entity.enums.*;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignChipStatus;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductTypeFilter;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatusFilter;
+import com.lokoko.domain.campaign.domain.entity.enums.LanguageFilter;
 import com.lokoko.domain.campaignReview.domain.entity.QCampaignReview;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewStatus;
@@ -27,7 +32,6 @@ import com.lokoko.global.common.response.PageableResponse;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.DateTimeExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.JPAExpressions;
@@ -40,8 +44,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.lokoko.domain.campaignReview.domain.entity.QCampaignReview.campaignReview;
-import static com.lokoko.domain.creatorCampaign.domain.entity.QCreatorCampaign.creatorCampaign;
 import static com.lokoko.domain.image.domain.entity.enums.ImageType.THUMBNAIL;
 
 @Repository
@@ -77,23 +79,24 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
 
         return new BrandMyCampaignInfoListResponse(simpleResponses);
     }
+
     @Override
     public BrandMyCampaignListResponse findBrandMyCampaigns(Long brandId, CampaignStatusFilter filterStatus, Pageable pageable) {
         Instant now = Instant.now();
 
         StringExpression statusCase = new CaseBuilder()
                 .when(campaign.campaignStatus.eq(CampaignStatus.DRAFT))
-                    .then(CampaignStatus.DRAFT.name())
+                .then(CampaignStatus.DRAFT.name())
                 .when(campaign.campaignStatus.eq(CampaignStatus.WAITING_APPROVAL))
-                    .then(CampaignStatus.WAITING_APPROVAL.name())
+                .then(CampaignStatus.WAITING_APPROVAL.name())
                 .when(Expressions.asDateTime(now).before(campaign.applyStartDate))
-                    .then(CampaignStatus.OPEN_RESERVED.name())
+                .then(CampaignStatus.OPEN_RESERVED.name())
                 .when(Expressions.asDateTime(now).before(campaign.applyDeadline))
-                    .then(CampaignStatus.RECRUITING.name())
+                .then(CampaignStatus.RECRUITING.name())
                 .when(Expressions.asDateTime(now).before(campaign.creatorAnnouncementDate))
-                    .then(CampaignStatus.RECRUITMENT_CLOSED.name())
+                .then(CampaignStatus.RECRUITMENT_CLOSED.name())
                 .when(Expressions.asDateTime(now).before(campaign.reviewSubmissionDeadline))
-                    .then(CampaignStatus.IN_REVIEW.name())
+                .then(CampaignStatus.IN_REVIEW.name())
                 .otherwise(CampaignStatus.COMPLETED.name());
 
         BooleanExpression condition = campaign.brand.id.eq(brandId);
@@ -101,9 +104,9 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
         if (filterStatus != null && !"ALL".equals(filterStatus.name())) {
             if ("ACTIVE".equals(filterStatus.name())) {
                 condition = condition.and(
-                    statusCase.eq(CampaignStatus.RECRUITING.name())
-                    .or(statusCase.eq(CampaignStatus.RECRUITMENT_CLOSED.name()))
-                    .or(statusCase.eq(CampaignStatus.IN_REVIEW.name()))
+                        statusCase.eq(CampaignStatus.RECRUITING.name())
+                                .or(statusCase.eq(CampaignStatus.RECRUITMENT_CLOSED.name()))
+                                .or(statusCase.eq(CampaignStatus.IN_REVIEW.name()))
                 );
             } else {
                 condition = condition.and(statusCase.eq(filterStatus.name()));
@@ -327,19 +330,19 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
     }
 
     @Override
-    public List<CampaignDashboard> findBrandDashboardCampaigns(Long brandId, Pageable pageable) {
+    public BrandDashboardCampaignListResponse findBrandDashboardCampaigns(Long brandId, Pageable pageable) {
 
-        return queryFactory
-                .select(Projections.constructor(CampaignDashboard.class,
+        List<BrandDashboardCampaignResponse> campaigns = queryFactory
+                .select(Projections.constructor(BrandDashboardCampaignResponse.class,
                         campaign.id,
-                        campaign.title,
                         campaignImage.mediaFile.fileUrl,
+                        campaign.title,
                         campaign.applyStartDate,
-                        campaign.applyDeadline,
-                        campaign.creatorAnnouncementDate,
                         campaign.reviewSubmissionDeadline,
+                        // DB에 저장된 캠페인 상태
                         campaign.campaignStatus,
                         campaign.approvedNumber,
+                        // 인스타 포스트 개수
                         JPAExpressions.select(campaignReview.count().coalesce(0L))
                                 .from(campaignReview)
                                 .join(campaignReview.creatorCampaign, creatorCampaign)
@@ -347,6 +350,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                                         .and(campaignReview.reviewRound.eq(ReviewRound.SECOND))
                                         .and(campaignReview.status.eq(ReviewStatus.RESUBMITTED))
                                         .and(campaignReview.contentType.eq(ContentType.INSTA_POST))),
+                        // 인스타 릴스 개수
                         JPAExpressions.select(campaignReview.count().coalesce(0L))
                                 .from(campaignReview)
                                 .join(campaignReview.creatorCampaign, creatorCampaign)
@@ -354,6 +358,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                                         .and(campaignReview.reviewRound.eq(ReviewRound.SECOND))
                                         .and(campaignReview.status.eq(ReviewStatus.RESUBMITTED))
                                         .and(campaignReview.contentType.eq(ContentType.INSTA_REELS))),
+                        // 틱톡 개수
                         JPAExpressions.select(campaignReview.count().coalesce(0L))
                                 .from(campaignReview)
                                 .join(campaignReview.creatorCampaign, creatorCampaign)
@@ -373,14 +378,23 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
-    }
 
-    @Override
-    public Long countBrandDashboardCampaigns(Long brandId) {
-        return queryFactory
+        Long totalCount = queryFactory
                 .select(campaign.count())
                 .from(campaign)
                 .where(campaign.brand.id.eq(brandId))
                 .fetchOne();
+
+        long total = totalCount != null ? totalCount : 0L;
+        boolean isLast = (pageable.getOffset() + pageable.getPageSize()) >= total;
+
+        PageableResponse pageInfo = new PageableResponse(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                campaigns.size(),
+                isLast
+        );
+
+        return new BrandDashboardCampaignListResponse(campaigns, pageInfo);
     }
 }
