@@ -11,7 +11,9 @@ import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.productReview.exception.ErrorMessage;
 import com.lokoko.domain.productReview.exception.InvalidMediaTypeException;
 import com.lokoko.domain.user.application.service.UserService;
+import com.lokoko.global.common.entity.MediaFile;
 import com.lokoko.global.common.service.S3Service;
+import com.lokoko.global.utils.S3UrlParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,11 @@ public class CreatorUpdateService {
      * 마이페이지 수정 - null 필드는 무시(부분 업데이트) - 유효성은 Request DTO(@NotBlank/@Size 등)에서 선검증
      */
     public Creator updateProfile(Creator creator, CreatorMyPageUpdateRequest request) {
+
+        if (request.profileImageUrl() != null) {
+            MediaFile mediaFile = S3UrlParser.parsePresignedUrl(request.profileImageUrl());
+            creator.getUser().updateProfileImage(mediaFile.getFileUrl());
+        }
 
         if (request.creatorName() != null) {
             userService.checkUserIdAvailable(request.creatorName(), creator.getId());
