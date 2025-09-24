@@ -1,15 +1,10 @@
-package com.lokoko.domain.brand.application;
+package com.lokoko.domain.brand.application.service;
 
 import com.lokoko.domain.brand.api.dto.request.BrandInfoUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandMyPageUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandProfileImageRequest;
-import com.lokoko.domain.brand.api.dto.response.BrandMyPageResponse;
-import com.lokoko.domain.brand.api.dto.response.BrandProfileAndStatisticsResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandProfileImageResponse;
 import com.lokoko.domain.brand.domain.entity.Brand;
-import com.lokoko.domain.brand.domain.repository.BrandRepository;
-import com.lokoko.domain.brand.exception.BrandNotFoundException;
-import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
 import com.lokoko.domain.productReview.exception.ErrorMessage;
 import com.lokoko.domain.productReview.exception.InvalidMediaTypeException;
 import com.lokoko.global.common.entity.MediaFile;
@@ -19,57 +14,36 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class BrandService {
+public class BrandUpdateService {
 
-    private final CampaignRepository campaignRepository;
-    private final BrandRepository brandRepository;
     private final S3Service s3Service;
 
     @Transactional
-    public void updateBrandInfo(Long userId, BrandInfoUpdateRequest request) {
-        Brand brand = brandRepository.findById(userId)
-                .orElseThrow(BrandNotFoundException::new);
-
+    public void updateBrandInfo(Brand brand, BrandInfoUpdateRequest request) {
         brand.assignBrandName(request.brandName());
         brand.assignManagerName(request.managerName());
         brand.assignManagerPosition(request.managerPosition());
         brand.assignPhoneNumber("+82" + request.phoneNumber());
         brand.assignRoadAddress(request.roadAddress());
         brand.assignAddressDetail(request.addressDetail());
-
     }
 
-    public BrandProfileImageResponse createBrandProfilePresignedUrl(Long brandId, BrandProfileImageRequest request) {
-
-        brandRepository.findById(brandId).orElseThrow(BrandNotFoundException::new);
-
+    @Transactional
+    public BrandProfileImageResponse createBrandProfilePresignedUrl(Brand brand, BrandProfileImageRequest request) {
         String mediaType = request.mediaType();
         if (mediaType == null || mediaType.isBlank() || !mediaType.startsWith("image/")) {
             throw new InvalidMediaTypeException(ErrorMessage.UNSUPPORTED_MEDIA_TYPE);
         }
-
         String presignedUrl = s3Service.generatePresignedUrl(mediaType).presignedUrl();
 
         return new BrandProfileImageResponse(presignedUrl);
     }
 
-    public BrandMyPageResponse getBrandMyPage(Long brandId) {
-        Brand brand = brandRepository.findBrandWithUserById(brandId)
-                .orElseThrow(BrandNotFoundException::new);
-
-        return BrandMyPageResponse.from(brand, brand.getUser());
-    }
-
     @Transactional
-    public void updateBrandMyPage(Long brandId, BrandMyPageUpdateRequest request) {
-        Brand brand = brandRepository.findById(brandId)
-                .orElseThrow(BrandNotFoundException::new);
-
+    public void updateBrandMyPage(Brand brand, BrandMyPageUpdateRequest request) {
         if (request.profileImageUrl() != null) {
             MediaFile mediaFile = S3UrlParser.parsePresignedUrl(request.profileImageUrl());
             brand.getUser().updateProfileImage(mediaFile.getFileUrl());
@@ -89,17 +63,5 @@ public class BrandService {
         if (request.addressDetail() != null) {
             brand.assignAddressDetail(request.addressDetail());
         }
-    }
-
-    public BrandProfileAndStatisticsResponse getBrandProfileAndStatistics(Long brandId) {
-
-        Brand brand = brandRepository.findById(brandId)
-                .orElseThrow(BrandNotFoundException::new);
-
-        Instant now = Instant.now();
-        Integer ongoingCampaigns = campaignRepository.countOngoingCampaignsById(brandId, now);
-        Integer completedCampaigns = campaignRepository.countCompletedCampaignsById(brandId, now);
-
-        return BrandProfileAndStatisticsResponse.of(brand, ongoingCampaigns, completedCampaigns);
     }
 }
