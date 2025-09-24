@@ -1,6 +1,6 @@
 package com.lokoko.domain.campaignReview.application.service;
 
-import static com.lokoko.domain.productReview.application.service.ReviewService.validateMediaFiles;
+import static com.lokoko.domain.productReview.application.service.ReviewService.validateTotalMediaCount;
 
 import com.lokoko.domain.campaignReview.application.mapper.CampaignReviewMapper;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
@@ -34,7 +34,7 @@ public class CampaignReviewSaveService {
             return;
         }
 
-        validateMediaFiles(mediaUrls);
+        validateTotalMediaCount(mediaUrls);
 
         boolean isVideo = mediaUrls.get(0).contains("/video/");
         if (isVideo) {
