@@ -95,6 +95,7 @@ public class PermitUrlConfig {
         return new String[]{
                 "/api/brands/my/campaigns/{campaignId}/applicants",
                 "/api/brands/my/campaigns/infos",
+                "/api/brands/my/campaigns/titles",
                 "/api/brands/my/campaigns/{campaignId}/applicants/approve",
                 "/api/brands/my/profile/stats",
                 "/api/brands/my/campaigns",
