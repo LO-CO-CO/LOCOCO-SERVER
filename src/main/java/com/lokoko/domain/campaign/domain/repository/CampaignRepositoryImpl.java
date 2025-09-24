@@ -208,16 +208,17 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
             user = userRepository.findById(userId).orElse(null);
         }
 
+        Instant now = Instant.now();
+
         BooleanExpression langCondition = buildLanguageCondition(lang);
         BooleanExpression categoryCondition = buildCategoryCondition(category);
         BooleanExpression visibilityCondition = buildVisibilityCondition(user);
 
-        // DRAFT, WAITING_APPROVAL, OPEN_RESERVED 상태 제외
+        // DRAFT, WAITING_APPROVAL만 제외하고, 실시간으로 아직 시작되지 않은 캠페인도 제외
         BooleanExpression statusCondition = campaign.campaignStatus.notIn(
                 CampaignStatus.DRAFT,
-                CampaignStatus.WAITING_APPROVAL,
-                CampaignStatus.OPEN_RESERVED
-        );
+                CampaignStatus.WAITING_APPROVAL
+        ).and(campaign.applyStartDate.loe(now)); // 모집 시작일이 현재 시간보다 이전이어야 함
 
         BooleanExpression condition = combineConditions(
                 langCondition,
@@ -314,13 +315,13 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
     }
 
     private StringExpression createChipStatusExpression() {
-        DateTimeExpression<Instant> now = DateTimeExpression.currentTimestamp(Instant.class);
+        Instant now = Instant.now();
 
         return new CaseBuilder()
-                .when(now.after(campaign.applyStartDate)
-                        .and(now.before(campaign.applyDeadline)))
+                .when(campaign.applyStartDate.loe(now)
+                        .and(campaign.applyDeadline.gt(now)))
                 .then(CampaignChipStatus.DEFAULT.getDisplayName())
-                .when(now.after(campaign.applyDeadline))
+                .when(campaign.applyDeadline.loe(now))
                 .then(CampaignChipStatus.DISABLED.getDisplayName())
                 .otherwise(Expressions.nullExpression(String.class));
     }
