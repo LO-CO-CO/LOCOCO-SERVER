@@ -11,6 +11,15 @@ import com.lokoko.domain.brand.application.service.BrandUpdateService;
 import com.lokoko.domain.brand.domain.entity.Brand;
 import com.lokoko.domain.campaign.api.dto.response.CampaignParticipatedResponse;
 import com.lokoko.domain.campaign.application.service.CampaignGetService;
+import com.lokoko.domain.campaign.domain.entity.Campaign;
+import com.lokoko.domain.campaignReview.api.dto.response.CampaignReviewDetailResponse;
+import com.lokoko.domain.campaignReview.application.mapper.CampaignReviewMapper;
+import com.lokoko.domain.campaignReview.application.service.CampaignReviewGetService;
+import com.lokoko.domain.campaignReview.application.service.CampaignReviewStatusManager;
+import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
+import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
+import com.lokoko.domain.creatorCampaign.application.service.CreatorCampaignGetService;
+import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +32,14 @@ public class BrandUsecase {
 
     private final BrandGetService brandGetService;
     private final CampaignGetService campaignGetService;
+    private final CreatorCampaignGetService creatorCampaignGetService;
+    private final CampaignReviewGetService campaignReviewGetService;
 
     private final BrandUpdateService brandUpdateService;
+
+    private final CampaignReviewStatusManager campaignReviewStatusManager;
+
+    private final CampaignReviewMapper campaignReviewMapper;
 
     @Transactional
     public BrandProfileImageResponse createBrandProfilePresignedUrl(Long brandId, BrandProfileImageRequest request) {
@@ -56,6 +71,22 @@ public class BrandUsecase {
         Brand brand = brandGetService.getBrandById(brandId);
 
         return campaignGetService.getInReviewCampaignTitles(brand);
+    }
+
+    @Transactional(readOnly = true)
+    public CampaignReviewDetailResponse getCreatorCampaignReview(Long brandId, Long campaignId, Long creatorId) {
+        brandGetService.getBrandById(brandId);
+        Campaign campaign = campaignGetService.findByCampaignId(campaignId);
+        CreatorCampaign creatorCampaign =
+                creatorCampaignGetService.getByCampaignAndCreatorId(campaign, creatorId);
+        ReviewRound reviewRound = campaignReviewStatusManager.determineReviewRound(campaign.getCampaignStatus(),
+                creatorCampaign.getStatus());
+        CampaignReview campaignReview = campaignReviewGetService.getByCreatorCampaignAndRound(creatorCampaign,
+                reviewRound);
+
+        List<String> mediaUrls = campaignReviewGetService.getOrderedMediaUrls(campaignReview);
+
+        return campaignReviewMapper.toCampaignReviewDetailResponse(campaign, campaignReview, mediaUrls);
     }
 
     @Transactional

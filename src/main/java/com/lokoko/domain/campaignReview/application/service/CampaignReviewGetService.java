@@ -2,10 +2,14 @@ package com.lokoko.domain.campaignReview.application.service;
 
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
+import com.lokoko.domain.campaignReview.domain.repository.CampaignReviewImageRepository;
 import com.lokoko.domain.campaignReview.domain.repository.CampaignReviewRepository;
+import com.lokoko.domain.campaignReview.domain.repository.CampaignReviewVideoRepository;
 import com.lokoko.domain.campaignReview.exception.CampaignReviewNotFoundException;
 import com.lokoko.domain.campaignReview.exception.ReviewAlreadySubmittedException;
+import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,8 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class CampaignReviewGetService {
 
     private final CampaignReviewRepository campaignReviewRepository;
+    private final CampaignReviewImageRepository campaignReviewImageRepository;
+    private final CampaignReviewVideoRepository campaignReviewVideoRepository;
 
-    public CampaignReview findById(Long campaignReviewId){
+    public CampaignReview findById(Long campaignReviewId) {
         return campaignReviewRepository.findById(campaignReviewId)
                 .orElseThrow(CampaignReviewNotFoundException::new);
     }
@@ -44,6 +50,33 @@ public class CampaignReviewGetService {
      */
     public Optional<ContentType> findFirstContent(Long creatorCampaignId) {
         return campaignReviewRepository.findContentOnly(creatorCampaignId, ReviewRound.FIRST);
+    }
+
+    /**
+     * 리뷰에 업로드된 미디어 URL 리스트를 displayOrder 오름차순으로 반환하는 메서드 - 이미지가 하나라도 있으면 이미지들만 반환하고, 그렇지 않으면 비디오들을 반환 (N+1 방지)
+     *
+     * @param campaignReview 대상 리뷰 엔티티
+     * @return 정렬된 미디어 URL 리스트 (없으면 빈 리스트)
+     */
+    public List<String> getOrderedMediaUrls(CampaignReview campaignReview) {
+        List<String> imageUrls =
+                campaignReviewImageRepository.findImageUrlsByReviewIdOrderByDisplay(campaignReview.getId());
+        if (!imageUrls.isEmpty()) {
+            return imageUrls;
+        }
+        return campaignReviewVideoRepository.findVideoUrlsByReviewIdOrderByDisplay(campaignReview.getId());
+    }
+
+    /**
+     * CreatorCampaign과 리뷰 라운드로 리뷰 단건을 조회 메서드 - 존재하지 않으면 예외 발생
+     *
+     * @param creatorCampaign 참여 엔티티
+     * @param reviewRound     리뷰 라운드(FIRST/SECOND)
+     * @return CampaignReview
+     */
+    public CampaignReview getByCreatorCampaignAndRound(CreatorCampaign creatorCampaign, ReviewRound reviewRound) {
+        return campaignReviewRepository.findByCreatorCampaignAndReviewRound(creatorCampaign, reviewRound)
+                .orElseThrow(CampaignReviewNotFoundException::new);
     }
 
     /**
