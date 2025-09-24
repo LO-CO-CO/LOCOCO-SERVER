@@ -93,6 +93,7 @@ public class PermitUrlConfig {
      */
     public String[] getBrandUrl() {
         return new String[]{
+                "/api/brands/my/campaigns/{campaignId}/creators/{creatorId}/review",
                 "/api/brands/my/campaigns/{campaignId}/applicants",
                 "/api/brands/my/campaigns/infos",
                 "/api/brands/my/campaigns/titles",
