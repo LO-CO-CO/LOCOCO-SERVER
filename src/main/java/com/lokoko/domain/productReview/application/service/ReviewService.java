@@ -68,6 +68,9 @@ public class ReviewService {
     private final ApplicationEventPublisher eventPublisher;
     private final ReviewMapper reviewMapper;
 
+    private static final int MAX_TOTAL_MEDIA = 15;
+    private static final int MAX_RECEIPT_IMAGES = 1;
+
     public ReviewReceiptResponse createReceiptPresignedUrl(Long userId,
                                                            ReviewReceiptRequest request) {
         userRepository.findById(userId)
@@ -209,7 +212,7 @@ public class ReviewService {
         }
     }
 
-    private static void validateMediaFiles(List<String> mediaUrls) {
+    public static void validateMediaFiles(List<String> mediaUrls) {
         if (mediaUrls != null && !mediaUrls.isEmpty()) {
             long videoCount = mediaUrls.stream().filter(url -> url.contains("/video/")).count();
             long imageCount = mediaUrls.stream().filter(url -> url.contains("/image/")).count();
@@ -226,8 +229,23 @@ public class ReviewService {
         }
     }
 
+    public static void validateTotalMediaCount(List<String> mediaUrls) {
+        if (mediaUrls != null && mediaUrls.size() > MAX_TOTAL_MEDIA) {
+
+            throw new InvalidMediaTypeException(ErrorMessage.TOO_MANY_MEDIA_FILES);
+        }
+    }
+
+    public static void validateTotalMediaCount(List<String> imageUrls, List<String> videoUrls) {
+        int imageCnt = (imageUrls == null) ? 0 : imageUrls.size();
+        int videoCnt = (videoUrls == null) ? 0 : videoUrls.size();
+        if (imageCnt + videoCnt > MAX_TOTAL_MEDIA) {
+            throw new InvalidMediaTypeException(ErrorMessage.TOO_MANY_MEDIA_FILES);
+        }
+    }
+
     private static void validateReceiptCount(List<String> receiptUrls) {
-        if (receiptUrls != null && receiptUrls.size() > 1) {
+        if (receiptUrls != null && receiptUrls.size() > MAX_RECEIPT_IMAGES) {
             throw new ReceiptImageCountingException(ErrorMessage.TOO_MANY_RECEIPT_IMAGES);
         }
     }

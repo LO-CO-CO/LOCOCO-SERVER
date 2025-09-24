@@ -25,10 +25,9 @@ public record SecondReviewUploadRequest(
         @NotNull
         ContentType contentType,
 
-        @Schema(description = "캠페인 리뷰 이미지 URL 리스트", example = "[\"https://s3.example.com/review/img1.jpg\", \"https://s3.example.com/review/img2.jpg\"]")
+        @Schema(description = "리뷰 미디어 URL 리스트(이미지 또는 영상)", example = "[\"https://s3.example.com/review/2025/09/.../img1.jpg\"]")
         @NotEmpty
-        @Size(min = 1)
-        List<String> imageUrls,
+        List<String> mediaUrls,
 
         @Schema(description = "캡션+해시태그 (최대 2200자)", example = "Hydrating mask review 💧 #hydration #mask #skincare")
         @NotBlank
