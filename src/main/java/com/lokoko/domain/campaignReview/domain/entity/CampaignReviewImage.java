@@ -1,11 +1,12 @@
 package com.lokoko.domain.campaignReview.domain.entity;
 
+import static jakarta.persistence.FetchType.LAZY;
+
 import com.lokoko.global.common.entity.BaseEntity;
 import com.lokoko.global.common.entity.MediaFile;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -35,7 +36,7 @@ public class CampaignReviewImage extends BaseEntity {
     @Column(nullable = false)
     private int displayOrder;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "campaign_review_id", nullable = false)
     private CampaignReview campaignReview;
 }

@@ -57,7 +57,6 @@ public class PermitUrlConfig {
 
     /**
      * 4) Customer 전용 - Customer 권한 필요
-     *
      */
     public String[] getCustomerUrl() {
         return new String[]{
@@ -91,9 +90,9 @@ public class PermitUrlConfig {
     /**
      * 6) 브랜드 전용 (Brand) - Brand 권한 필요
      */
-    public String[] getBrandUrl(){
+    public String[] getBrandUrl() {
         return new String[]{
-                "/api/brands/my/campaigns/{campaigned}/applicants",
+                "/api/brands/my/campaigns/{campaignId}/applicants",
                 "/api/brands/my/campaigns/infos",
                 "/api/brands/my/campaigns/{campaignId}/applicants/approve",
                 "/api/brands/my/profile/stats",
