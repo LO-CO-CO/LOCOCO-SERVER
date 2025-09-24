@@ -1,7 +1,7 @@
 ---
 name: Refactor request
 about: 코드 리팩토링 및 로직 개선시 사용
-title: "[REFACTOR] #이슈번호 blahblah "
+title: "LCO-00 blahblah "
 labels: 'Refactor'
 assignees: ''
 ---

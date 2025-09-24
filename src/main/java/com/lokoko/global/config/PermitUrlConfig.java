@@ -12,13 +12,15 @@ public class PermitUrlConfig {
         return new String[]{
                 "/swagger-ui/**",
                 "/v3/api-docs/**",
+                "/health-check",
                 "/api/auth/**",
                 "/api/youtube/trends",
                 "/api/reviews/image",
                 "/api/reviews/video",
                 "/api/reviews/details/video",
                 "/api/reviews/{productId}/{userId}",
-                "/api/products/details/{productId}/youtube"
+                "/api/products/details/{productId}/youtube",
+                "api/campaigns/upcoming"
         };
     }
 
@@ -35,6 +37,8 @@ public class PermitUrlConfig {
                 "/api/products/categories/new",
                 "/api/products/categories/popular",
                 "/api/products/details/{productId}",
+                "/api/campaigns/{campaignId}",
+                "/api/campaigns"
         };
     }
 
@@ -52,7 +56,62 @@ public class PermitUrlConfig {
     }
 
     /**
-     * 4) 관리자 전용 (Admin) - ROLE_ADMIN
+     * 4) Customer 전용 - Customer 권한 필요
+     *
+     */
+    public String[] getCustomerUrl() {
+        return new String[]{
+                "/api/customer/profile/image",
+                "/api/customer/profile",
+                "/api/customer/sns-status"
+        };
+    }
+
+    /**
+     * 5) Creator 전용 - Creator 권한 필요
+     */
+    public String[] getCreatorUrl() {
+        return new String[]{
+                "/api/auth/sns/tiktok/connect",
+                "/api/auth/sns/tiktok/callback",
+                "/api/campaigns/media",
+                "/api/creator/register/info",
+                "/api/creator/register/sns-status",
+                "/api/creator/register/complete",
+                "/api/creator/profile",
+                "/api/creator/profile/{campaignId}/address",
+                "/api/creator/profile/address",
+                "/api/creator-campaign/{campaignId}/participate",
+                "/api/campaignReviews/{campaignId}/first",
+                "/api/campaignReviews/{campaignId}/second",
+                "/api/campaignReviews/my/participation",
+        };
+    }
+
+    /**
+     * 6) 브랜드 전용 (Brand) - Brand 권한 필요
+     */
+    public String[] getBrandUrl(){
+        return new String[]{
+                "/api/brands/my/campaigns/{campaigned}/applicants",
+                "/api/brands/my/campaigns/infos",
+                "/api/brands/my/campaigns/{campaignId}/applicants/approve",
+                "/api/brands/my/profile/stats",
+                "/api/brands/my/campaigns",
+                "/api/brands/my/reviews/{campaignReviewId}/revision-request",
+                "/api/brands/my/campaigns/drafts/{campaignId}",
+                "/api/brands/my/campaigns/{campaignId}/publish",
+                "/api/brands/my/campaigns/{campaignId}/draft",
+                "/api/brands/my/campaigns/drafts",
+                "/api/brands/my/campaigns/publish",
+                "/api/brands/register/info",
+                "/api/brands/profile/image",
+                "/api/brands/profile",
+        };
+    }
+
+    /**
+     * 7) 관리자 전용 (Admin) - ROLE_ADMIN
      */
     public String[] getAdminUrl() {
         return new String[]{
@@ -62,7 +121,8 @@ public class PermitUrlConfig {
                 "/api/products/crawl/options",
                 "/api/products/search-fields/migrate",
                 "/api/youtube/{productId}/crawl",
-                "/api/youtube/trends/crawl"
+                "/api/youtube/trends/crawl",
+                "/api/migration/**"
         };
     }
 

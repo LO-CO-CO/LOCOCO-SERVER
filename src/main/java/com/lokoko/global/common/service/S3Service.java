@@ -1,18 +1,17 @@
 package com.lokoko.global.common.service;
 
 import com.lokoko.domain.image.exception.FileTypeNotSupportedException;
-import com.lokoko.domain.review.exception.ErrorMessage;
-import com.lokoko.domain.review.exception.InvalidMediaTypeException;
+import com.lokoko.domain.productReview.exception.ErrorMessage;
+import com.lokoko.domain.productReview.exception.InvalidMediaTypeException;
 import com.lokoko.global.common.dto.PresignedUrlResponse;
 import com.lokoko.global.config.S3Config;
+import java.time.Duration;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
-
-import java.time.Duration;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

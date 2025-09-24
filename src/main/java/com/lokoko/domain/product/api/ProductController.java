@@ -1,0 +1,279 @@
+package com.lokoko.domain.product.api;
+
+
+import static com.lokoko.domain.product.api.message.ResponseMessage.CATEGORY_NEW_LIST_SUCCESS;
+import static com.lokoko.domain.product.api.message.ResponseMessage.CATEGORY_POPULAR_LIST_SUCCESS;
+import static com.lokoko.domain.product.api.message.ResponseMessage.CATEGORY_REVIEW_SEARCH_SUCCESS;
+import static com.lokoko.domain.product.api.message.ResponseMessage.CATEGORY_SEARCH_SUCCESS;
+import static com.lokoko.domain.product.api.message.ResponseMessage.PRODUCT_DETAIL_SUCCESS;
+import static com.lokoko.domain.product.api.message.ResponseMessage.PRODUCT_YOUTUBE_DETAIL_SUCCESS;
+
+import com.lokoko.domain.product.api.dto.request.CrawlRequest;
+import com.lokoko.domain.product.api.dto.response.NewProductsByCategoryResponse;
+import com.lokoko.domain.product.api.dto.response.PopularProductsByCategoryResponse;
+import com.lokoko.domain.product.api.dto.response.ProductDetailResponse;
+import com.lokoko.domain.product.api.dto.response.ProductYoutubeResponse;
+import com.lokoko.domain.product.api.dto.response.ProductsByCategoryResponse;
+import com.lokoko.domain.product.api.dto.response.SearchProductsResponse;
+import com.lokoko.domain.product.api.message.ResponseMessage;
+import com.lokoko.domain.product.application.crawler.NewProductCrawler;
+import com.lokoko.domain.product.application.crawler.ProductCrawler;
+import com.lokoko.domain.product.application.service.ProductReadService;
+import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
+import com.lokoko.domain.product.domain.entity.enums.SubCategory;
+import com.lokoko.domain.productReview.api.dto.response.ImageReviewListResponse;
+import com.lokoko.domain.productReview.api.dto.response.KeywordImageReviewListResponse;
+import com.lokoko.domain.productReview.api.dto.response.KeywordVideoReviewListResponse;
+import com.lokoko.domain.productReview.api.dto.response.VideoReviewListResponse;
+import com.lokoko.domain.productReview.application.service.ReviewReadService;
+import com.lokoko.domain.productReview.exception.MissingMediaTypeException;
+import com.lokoko.global.auth.annotation.CurrentUser;
+import com.lokoko.global.common.entity.MediaType;
+import com.lokoko.global.common.entity.SearchType;
+import com.lokoko.global.common.response.ApiResponse;
+import com.lokoko.global.kuromoji.service.ProductMigrationService;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@Tag(name = "PRODUCT")
+@RestController
+@RequestMapping("/api/products")
+@RequiredArgsConstructor
+public class ProductController {
+    private final ProductReadService productReadService;
+    private final ProductCrawler productCrawler;
+    private final NewProductCrawler newProductCrawler;
+    private final ProductMigrationService productMigrationService;
+    private final ReviewReadService reviewReadService;
+
+    @Hidden
+    @Operation(summary = "카테고리별 상품 크롤링")
+    @PostMapping("/crawl")
+    public ApiResponse<Void> crawl(@RequestBody CrawlRequest request) {
+        productCrawler.scrapeByCategory(request.mainCategory(), request.middleCategory());
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.PRODUCT_CRAWL_SUCCESS.getMessage(), null);
+
+    }
+
+    @Operation(summary = "카테고리 별 상품 및 리뷰 검색")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "카테고리별 상품 또는 리뷰 검색 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(oneOf = {
+                                    ProductsByCategoryResponse.class,
+                                    VideoReviewListResponse.class,
+                                    ImageReviewListResponse.class
+                            })
+                    )
+            )
+    })
+    @GetMapping("/categories/search")
+    public ApiResponse<?> searchProductsByCategory(
+            @RequestParam MiddleCategory middleCategory,
+            @RequestParam(required = false) SubCategory subCategory,
+            @RequestParam(defaultValue = "false") SearchType searchType,
+            @RequestParam(required = false) MediaType mediaType,
+            @Parameter(hidden = true) @CurrentUser Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+
+        if (searchType == SearchType.REVIEW) {
+            if (mediaType == MediaType.VIDEO) {
+                VideoReviewListResponse videoReviewResponse = reviewReadService.searchVideoReviewsByCategory(
+                        middleCategory, subCategory, page, size);
+
+                return ApiResponse.success(HttpStatus.OK, CATEGORY_REVIEW_SEARCH_SUCCESS.getMessage(),
+                        videoReviewResponse);
+
+            } else if (mediaType == MediaType.IMAGE) {
+                ImageReviewListResponse imageReviewListResponse = reviewReadService.searchImageReviewsByCategory(
+                        middleCategory, subCategory, page, size);
+
+                return ApiResponse.success(HttpStatus.OK, CATEGORY_REVIEW_SEARCH_SUCCESS.getMessage(),
+                        imageReviewListResponse);
+            }
+            throw new MissingMediaTypeException();
+        }
+        ProductsByCategoryResponse categoryProductResponse = productReadService.searchProductsByCategory(
+                middleCategory, subCategory, userId, page, size);
+
+        return ApiResponse.success(HttpStatus.OK, CATEGORY_SEARCH_SUCCESS.getMessage(), categoryProductResponse);
+    }
+
+    @Operation(summary = "상품명 또는 브랜드명 상품 및 리뷰 검색")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200",
+                    description = "상품명/브랜드명 검색 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(oneOf = {
+                                    SearchProductsResponse.class,
+                                    KeywordVideoReviewListResponse.class,
+                                    KeywordImageReviewListResponse.class
+                            })
+                    )
+            )
+    })
+    @GetMapping("/search")
+    public ApiResponse<?> search(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "false") SearchType searchType,
+            @RequestParam(required = false) MediaType mediaType,
+            @Parameter(hidden = true) @CurrentUser Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        // 리뷰 검색
+        if (searchType == SearchType.REVIEW) {
+
+            // 동영상 리뷰
+            if (mediaType == MediaType.VIDEO) {
+                KeywordVideoReviewListResponse videoReviewResponse = reviewReadService.searchVideoReviewsByKeyword(
+                        keyword, page, size);
+
+                return ApiResponse.success(HttpStatus.OK, ResponseMessage.NAME_BRAND_REVIEW_SEARCH_SUCCESS.getMessage(),
+                        videoReviewResponse);
+                // 이미지 리뷰
+            } else if (mediaType == MediaType.IMAGE) {
+                KeywordImageReviewListResponse imageReviewResponse = reviewReadService.searchImageReviewsByKeyword(
+                        keyword, page, size);
+
+                return ApiResponse.success(HttpStatus.OK, ResponseMessage.NAME_BRAND_REVIEW_SEARCH_SUCCESS.getMessage(),
+                        imageReviewResponse);
+            }
+
+            throw new MissingMediaTypeException();
+        }
+        // 상품 검색
+        SearchProductsResponse searchResults = productReadService.search(keyword, page,
+                size, userId);
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.NAME_BRAND_SEARCH_SUCCESS.getMessage(),
+                searchResults);
+
+    }
+
+    /**
+     * 메인페이지 4개 : 기존 캐시 사용 이후, 더보기 프리페치 실행 더보기용: 페이지별 캐시 사용
+     *
+     * @param middleCategory
+     * @param page
+     * @param size
+     * @param userId
+     * @return
+     */
+    @Operation(summary = "신상품 카테고리별 조회 (메인 페이지 + 더보기)")
+    @GetMapping("/categories/new")
+    public ApiResponse<NewProductsByCategoryResponse> searchNewProductsByCategory(
+            @RequestParam MiddleCategory middleCategory,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "4") int size,
+            @Parameter(hidden = true) @CurrentUser Long userId) {
+
+        NewProductsByCategoryResponse newProductsByCategoryResponse;
+
+        if (page == 0 && size == 4) {
+            newProductsByCategoryResponse = productReadService.searchNewProductsByCategory(middleCategory, userId);
+        } else {
+            newProductsByCategoryResponse = productReadService.getNewProductsForMorePage(middleCategory, page, size,
+                    userId);
+        }
+
+        return ApiResponse.success(HttpStatus.OK, CATEGORY_NEW_LIST_SUCCESS.getMessage(),
+                newProductsByCategoryResponse);
+    }
+
+    /**
+     * 메인페이지 : 기존 캐시 사용 + 프리페치 실행 더보기용: 페이지별 캐시 사용
+     *
+     * @param middleCategory
+     * @param page
+     * @param size
+     * @param userId
+     * @return
+     */
+    @Operation(summary = "인기상품 카테고리별 조회 (메인 페이지 + 더보기)")
+    @GetMapping("/categories/popular")
+    public ApiResponse<PopularProductsByCategoryResponse> searchPopularProductsByCategory(
+            @RequestParam MiddleCategory middleCategory,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "4") int size,
+            @Parameter(hidden = true) @CurrentUser Long userId) {
+
+        PopularProductsByCategoryResponse popularProductsByCategoryResponse;
+
+        if (page == 0 && size == 4) {
+            popularProductsByCategoryResponse = productReadService.searchPopularProductsByCategory(middleCategory,
+                    userId);
+        } else {
+            popularProductsByCategoryResponse = productReadService.getPopularProductsForMorePage(middleCategory, page,
+                    size, userId);
+        }
+
+        return ApiResponse.success(HttpStatus.OK, CATEGORY_POPULAR_LIST_SUCCESS.getMessage(),
+                popularProductsByCategoryResponse);
+    }
+
+    @Hidden
+    @Operation(summary = "카테고리별 신제품 크롤링")
+    @PostMapping("/crawl/new")
+    public ApiResponse<Void> crawlNew(@RequestBody CrawlRequest request) {
+        newProductCrawler.scrapeNewByCategory(request.mainCategory(), request.middleCategory());
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.PRODUCT_CRAWL_NEW_SUCCESS.getMessage(), null);
+    }
+
+    @Hidden
+    @Operation(summary = "상품 옵션 크롤링")
+    @PostMapping("/crawl/options")
+    public ApiResponse<Void> crawlOptions() {
+        productCrawler.crawlAllOptions();
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.PRODUCT_OPTION_SUCCESS.getMessage(), null);
+    }
+
+    @Operation(summary = "상세조회 제품(별점 포함) 조회 (상세 조회)")
+    @GetMapping("/details/{productId}")
+    public ApiResponse<ProductDetailResponse> getProductDetail(@PathVariable Long productId,
+                                                               @Parameter(hidden = true) @CurrentUser Long userId) {
+        ProductDetailResponse detail = productReadService.getProductDetail(productId, userId);
+
+        return ApiResponse.success(HttpStatus.OK, PRODUCT_DETAIL_SUCCESS.getMessage(), detail);
+    }
+
+    @Operation(summary = "상세조회 유튜브 리뷰 조회 (상세 조회)")
+    @GetMapping("/details/{productId}/youtube")
+    public ApiResponse<ProductYoutubeResponse> getProductDetailYoutube(@PathVariable Long productId) {
+        ProductYoutubeResponse detailYoutube = productReadService.getProductDetailYoutube(productId);
+
+        return ApiResponse.success(HttpStatus.OK, PRODUCT_YOUTUBE_DETAIL_SUCCESS.getMessage(), detailYoutube);
+    }
+
+
+    @Operation(summary = "상품 엔티티의 search_token 필드 갱신",
+            description = "서버 전용 API 입니다. PRODUCT 테이블의 search_token 필드를 업데이트 하는 기능")
+    @PostMapping("/search-fields/migrate")
+    public ApiResponse<String> updateSearchFields() {
+        productMigrationService.migrateSearchFields();
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.PRODUCT_MIGRATION_SUCCESS.getMessage(), null);
+    }
+}

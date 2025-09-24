@@ -1,0 +1,56 @@
+package com.lokoko.domain.campaign.api.dto.response;
+
+import com.lokoko.domain.brand.domain.entity.Brand;
+import com.lokoko.domain.campaign.domain.entity.Campaign;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignDetailPageStatus;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
+
+import java.time.Instant;
+import java.util.List;
+
+public record CampaignDetailResponse(
+
+        Long campaignId,
+        CampaignType campaignType,
+        String title,
+        String brandImageUrl,
+        String brandName,
+        CampaignLanguage language,
+        Instant applyStartDate,
+        Instant applyDeadline,
+        Instant creatorAnnouncementDate,
+        Instant reviewSubmissionDeadline,
+        List<String> deliverableRequirements,
+        List<String> participationRewards,
+        List<String> eligibilityRequirements,
+        List<CampaignImageResponse> thumbnailImages,
+        List<CampaignImageResponse> detailImages,
+        String campaignStatusCode
+) {
+
+    public static CampaignDetailResponse of(Campaign campaign, List<CampaignImageResponse> thumbnailImages,
+                                            List<CampaignImageResponse> detailImages,
+                                            CampaignDetailPageStatus campaignStatusCode) {
+
+        Brand brand = campaign.getBrand();
+        return new CampaignDetailResponse(
+                campaign.getId(),
+                campaign.getCampaignType(),
+                campaign.getTitle(),
+                brand.getUser().getProfileImageUrl(),
+                brand.getBrandName(),
+                campaign.getLanguage(),
+                campaign.getApplyStartDate(),
+                campaign.getApplyDeadline(),
+                campaign.getCreatorAnnouncementDate(),
+                campaign.getReviewSubmissionDeadline(),
+                campaign.getDeliverableRequirements(),
+                campaign.getParticipationRewards(),
+                campaign.getEligibilityRequirements(),
+                thumbnailImages,
+                detailImages,
+                campaignStatusCode.getCode()
+        );
+    }
+}

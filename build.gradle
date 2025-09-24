@@ -15,6 +15,7 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 def querydslDir = 'src/main/generated'
@@ -64,10 +65,25 @@ dependencies {
 
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.18.0'
 
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    // logging
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
+
+    // AOP
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+    // discord
+    implementation 'com.github.napstr:logback-discord-appender:1.0.0'
+
+    // JSON
+    implementation 'org.json:json:20230227'
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.3'
 
     // Netty DNS Resolver
     runtimeOnly("io.netty:netty-resolver-dns-native-macos:4.1.94.Final:osx-aarch_64")
@@ -93,8 +109,15 @@ dependencies {
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
+    // MapStruct
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
     // Lucene Kuromoji – 일본어 형태소 분석기
     implementation "org.apache.lucene:lucene-analysis-kuromoji:10.2.2"
+
+    // DeepL 번역
+    implementation("com.deepl.api:deepl-java:1.6.0")
 }
 
 tasks.named('test') {

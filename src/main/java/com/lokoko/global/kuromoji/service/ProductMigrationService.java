@@ -1,7 +1,7 @@
 package com.lokoko.global.kuromoji.service;
 
-import com.lokoko.domain.product.entity.Product;
-import com.lokoko.domain.product.repository.ProductRepository;
+import com.lokoko.domain.product.domain.entity.Product;
+import com.lokoko.domain.product.domain.repository.ProductRepository;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
