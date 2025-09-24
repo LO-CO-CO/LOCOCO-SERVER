@@ -79,6 +79,7 @@ public class PermitUrlConfig {
                 "/api/creator/register/complete",
                 "/api/creator/profile",
                 "/api/creator/profile/{campaignId}/address",
+                "/api/customer/profile/image",
                 "/api/creator/profile/address",
                 "/api/creator-campaign/{campaignId}/participate",
                 "/api/campaignReviews/{campaignId}/first",
