@@ -377,11 +377,10 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
 
     @Override
     public Long countBrandDashboardCampaigns(Long brandId) {
-        Long count = queryFactory
+        return queryFactory
                 .select(campaign.count())
                 .from(campaign)
                 .where(campaign.brand.id.eq(brandId))
                 .fetchOne();
-        return count != null ? count : 0L;
     }
 }
