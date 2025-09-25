@@ -89,12 +89,6 @@ public class Creator {
     @Column
     private ContentLanguage contentLanguage = ContentLanguage.ENGLISH;
 
-    @Column
-    private String instaLink;
-
-    @Column
-    private String tiktokLink;
-
     @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column
@@ -107,6 +101,9 @@ public class Creator {
 
     @Column
     private String tikTokUserId;
+
+    @Column
+    private String instagramUserId;
 
     //최종 전화번호
     public String getCreatorPhoneNumber() {
