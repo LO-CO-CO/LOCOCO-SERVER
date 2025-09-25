@@ -40,7 +40,7 @@ public class CampaignReviewUsecase {
     @Transactional
     public ReviewUploadResponse uploadFirst(Long userId, Long campaignId, FirstReviewUploadRequest request) {
         Creator creator = creatorGetService.findByUserId(userId);
-        CreatorCampaign participation = creatorGetService.findParticipation(campaignId, creator.getId());
+        CreatorCampaign participation = creatorCampaignGetService.findParticipation(campaignId, creator.getId());
 
         campaignReviewGetService.findExistingReviewRound(participation.getId(), ReviewRound.FIRST);
 
@@ -56,7 +56,7 @@ public class CampaignReviewUsecase {
     @Transactional
     public ReviewUploadResponse uploadSecond(Long userId, Long campaignId, SecondReviewUploadRequest request) {
         Creator creator = creatorGetService.findByUserId(userId);
-        CreatorCampaign participation = creatorGetService.findParticipation(campaignId, creator.getId());
+        CreatorCampaign participation = creatorCampaignGetService.findParticipation(campaignId, creator.getId());
 
         campaignReviewGetService.findExistingReviewRound(participation.getId(), ReviewRound.SECOND);
 

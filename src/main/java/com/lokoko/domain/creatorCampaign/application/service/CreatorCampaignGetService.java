@@ -24,6 +24,13 @@ public class CreatorCampaignGetService {
     private final CreatorCampaignRepository creatorCampaignRepository;
 
 
+    public CreatorCampaign findParticipation(Long campaignId, Long creatorId) {
+
+        return creatorCampaignRepository
+                .findByCampaignIdAndCreatorId(campaignId, creatorId)
+                .orElseThrow(CreatorCampaignNotFoundException::new);
+    }
+
     /**
      * 특정 크리에이터가 지정된 캠페인에 이미 참여했는지 조회하는 메서드 - 이미 참여했다면 예외 발생
      *
