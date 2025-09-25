@@ -38,10 +38,10 @@ public class CampaignController {
     @Operation(summary = "캠페인 상세 조회")
     @GetMapping("/{campaignId}")
     public ApiResponse<CampaignDetailResponse> getCampaignDetail(
-            @Parameter(hidden = true) @CurrentUser Long creatorId,
+            @Parameter(hidden = true) @CurrentUser Long userId,
             @PathVariable Long campaignId) {
 
-        CampaignDetailResponse response = campaignReadService.getCampaignDetail(creatorId, campaignId);
+        CampaignDetailResponse response = campaignReadService.getCampaignDetail(userId, campaignId);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.CAMPAIGN_DETAIL_GET_SUCCESS.getMessage(), response);
     }
 

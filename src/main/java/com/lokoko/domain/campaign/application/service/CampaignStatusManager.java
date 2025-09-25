@@ -84,23 +84,83 @@ public class CampaignStatusManager {
                 case OPEN_RESERVED -> CampaignDetailPageStatus.OPEN_RESERVED;
                 case RECRUITING -> CampaignDetailPageStatus.RECRUITING;
                 case RECRUITMENT_CLOSED, IN_REVIEW, COMPLETED -> CampaignDetailPageStatus.NOT_APPLIED_ENDED;
-                default -> CampaignDetailPageStatus.UNKNOWN;
+                default -> null;
             };
         } else { // 크리에이터 지원 있는 상태
             ParticipationStatus participationStatus = creatorCampaign.get().getStatus();
 
-            return switch (participationStatus) {
-                case PENDING -> CampaignDetailPageStatus.PENDING;
-                case REJECTED -> CampaignDetailPageStatus.REJECTED;
-                case APPROVED -> CampaignDetailPageStatus.APPROVED_PENDING_ACTION;
-                case APPROVED_ADDRESS_CONFIRMED -> CampaignDetailPageStatus.APPROVED_ADDRESS_CONFIRMED;
-                case APPROVED_FIRST_REVIEW_DONE -> CampaignDetailPageStatus.APPROVED_FIRST_REVIEW_DONE;
-                case APPROVED_REVISION_REQUESTED -> CampaignDetailPageStatus.APPROVED_REVISION_REQUESTED;
-                case APPROVED_REVISION_CONFIRMED -> CampaignDetailPageStatus.APPROVED_REVISION_CONFIRMED;
-                case APPROVED_SECOND_REVIEW_DONE -> CampaignDetailPageStatus.APPROVED_SECOND_REVIEW_DONE;
-                case APPROVED_ADDRESS_NOT_CONFIRMED -> CampaignDetailPageStatus.APPROVED_ADDRESS_NOT_CONFIRMED;
-                case APPROVED_REVIEW_NOT_CONFIRMED -> CampaignDetailPageStatus.APPROVED_REVIEW_NOT_CONFIRMED;
+            // 우선순위 1: 만료/거절 상태는 캠페인 상태와 관계없이 우선 표시
+            if (participationStatus == ParticipationStatus.REJECTED) {
+                return CampaignDetailPageStatus.REJECTED;
+            }
+            if (participationStatus == ParticipationStatus.APPROVED_ADDRESS_NOT_CONFIRMED ||
+                participationStatus == ParticipationStatus.APPROVED_REVIEW_NOT_CONFIRMED) {
+                return CampaignDetailPageStatus.valueOf(participationStatus.name());
+            }
+
+            // 우선순위 2: 완료 상태
+            if (participationStatus == ParticipationStatus.APPROVED_SECOND_REVIEW_DONE) {
+                return CampaignDetailPageStatus.APPROVED_SECOND_REVIEW_DONE;
+            }
+
+            // 우선순위 3: 캠페인 전체 상태 고려
+            return switch (campaignStatus) {
+                case COMPLETED -> CampaignDetailPageStatus.CLOSED;
+                case RECRUITING ,IN_REVIEW, RECRUITMENT_CLOSED -> CampaignDetailPageStatus.ACTIVE;
+                default -> CampaignDetailPageStatus.APPLIED;
             };
         }
+    }
+
+    /**
+     * 비로그인 사용자와 Customer 를 고려한 캠페인 상세 페이지 상태 결정
+     *
+     * @param campaign 캠페인 엔티티
+     * @return 캠페인 상세페이지 상태
+     */
+    public CampaignDetailPageStatus determineStatusForNonLoggedInAndCustomer(Campaign campaign) {
+        CampaignStatus campaignStatus = determineCampaignStatus(campaign);
+
+        if (campaignStatus == CampaignStatus.DRAFT || campaignStatus == CampaignStatus.WAITING_APPROVAL) {
+            throw new CampaignNotViewableException();
+        }
+
+        return switch (campaignStatus) {
+            case OPEN_RESERVED -> CampaignDetailPageStatus.OPEN_RESERVED;
+            case RECRUITING -> CampaignDetailPageStatus.RECRUITING;
+            case RECRUITMENT_CLOSED, IN_REVIEW -> CampaignDetailPageStatus.ACTIVE;
+            case COMPLETED -> CampaignDetailPageStatus.CLOSED;
+            default -> null;
+        };
+    }
+
+    /**
+     * 브랜드 사용자를 위한 캠페인 상세 페이지 상태 결정
+     *
+     * @param campaign 캠페인 엔티티
+     * @return 캠페인 상세페이지 상태
+     */
+    public CampaignDetailPageStatus determineStatusForBrandAndAdmin(Campaign campaign) {
+
+        CampaignStatus campaignStatus = determineCampaignStatus(campaign);
+        Instant now = Instant.now();
+
+        if (campaignStatus == CampaignStatus.DRAFT || campaignStatus == CampaignStatus.WAITING_APPROVAL) {
+            throw new CampaignNotViewableException();
+        }
+
+        if (campaignStatus == CampaignStatus.OPEN_RESERVED) {
+            return CampaignDetailPageStatus.OPEN_RESERVED;
+        }
+
+        if (now.isAfter(campaign.getApplyStartDate()) && now.isBefore(campaign.getReviewSubmissionDeadline())) {
+            return CampaignDetailPageStatus.ACTIVE;
+        }
+
+        if (campaignStatus == CampaignStatus.COMPLETED) {
+            return CampaignDetailPageStatus.CLOSED;
+        }
+
+        return null;
     }
 }
