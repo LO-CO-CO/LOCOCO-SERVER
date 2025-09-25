@@ -331,6 +331,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
 
     @Override
     public BrandDashboardCampaignListResponse findBrandDashboardCampaigns(Long brandId, Pageable pageable) {
+        Instant now = Instant.now();
 
         List<BrandDashboardCampaignResponse> campaigns = queryFactory
                 .select(Projections.constructor(BrandDashboardCampaignResponse.class,
@@ -373,8 +374,9 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                                 .and(campaignImage.displayOrder.eq(0))
                                 .and(campaignImage.imageType.eq(ImageType.THUMBNAIL))
                 )
-                .where(campaign.brand.id.eq(brandId))
-                .orderBy(campaign.createdAt.desc())
+                .where(campaign.brand.id.eq(brandId)
+                        .and(campaign.applyStartDate.loe(now)))
+                .orderBy(campaign.reviewSubmissionDeadline.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -382,7 +384,9 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
         Long totalCount = queryFactory
                 .select(campaign.count())
                 .from(campaign)
-                .where(campaign.brand.id.eq(brandId))
+                .where(campaign.brand.id.eq(brandId)
+                        .and(campaign.applyStartDate.loe(now))
+                )
                 .fetchOne();
 
         long total = totalCount != null ? totalCount : 0L;
