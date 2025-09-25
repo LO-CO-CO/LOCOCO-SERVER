@@ -10,7 +10,8 @@ import com.lokoko.domain.campaignReview.domain.entity.CampaignReviewImage;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReviewVideo;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
-import com.lokoko.global.common.entity.MediaFile;
+import com.lokoko.domain.media.api.dto.repsonse.MediaPresignedUrlResponse;
+import com.lokoko.domain.media.domain.MediaFile;
 import com.lokoko.global.utils.S3UrlParser;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,6 +89,12 @@ public class CampaignReviewMapper {
                 .mediaUrls(mediaUrls)
                 .captionWithHashtags(review.getCaptionWithHashtags())
                 .postUrl(review.getPostUrl())
+                .build();
+    }
+
+    public MediaPresignedUrlResponse toMediaPresignedUrlResponse(List<String> presignedUrls) {
+        return MediaPresignedUrlResponse.builder()
+                .mediaUrl(presignedUrls)
                 .build();
     }
 }
