@@ -40,9 +40,9 @@ jobs:
       # 도커 이미지 생성 후 이미지 push
       - name: Docker build & push to dev
         run: |
-          echo "${{ secrets.DOCKER_USER_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USER_NAME }}" --password-stdin
-          docker build -f Dockerfile-dev -t "${{ secrets.DOCKER_USER_NAME }}/lokoko:latest" .
-          docker push "${{ secrets.DOCKER_USER_NAME }}/lokoko:latest"
+          docker login -u ${{ secrets.DOCKER_USER_NAME }} -p ${{ secrets.DOCKER_USER_TOKEN }}
+          docker build -f Dockerfile-dev -t ${{ secrets.DOCKER_USER_NAME }}/lokoko  .
+          docker push ${{ secrets.DOCKER_USER_NAME }}/lokoko
 
   deploy:
     runs-on: ubuntu-latest
