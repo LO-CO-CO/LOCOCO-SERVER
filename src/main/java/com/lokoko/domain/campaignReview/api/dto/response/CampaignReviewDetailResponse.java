@@ -29,7 +29,7 @@ public record CampaignReviewDetailResponse(
         @Schema(requiredMode = REQUIRED, description = "캡션(해시태그 포함)", example = "Enjoying the summer vibes! #SummerHydration #StayCool")
         String captionWithHashtags,
 
-        @Schema(description = "게시물 URL (1차 리뷰 반환시에는 비어있음", example = "https://www.instagram.com/p/ExamplePost/")
+        @Schema(description = "게시물 URL (1차 리뷰 반환시에는 비어있음)", example = "https://www.instagram.com/p/ExamplePost/")
         String postUrl
 ) {
 }

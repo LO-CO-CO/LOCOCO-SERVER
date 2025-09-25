@@ -3,7 +3,6 @@ package com.lokoko.domain.brand.application.service;
 import com.lokoko.domain.brand.domain.entity.Brand;
 import com.lokoko.domain.brand.domain.repository.BrandRepository;
 import com.lokoko.domain.brand.exception.BrandNotFoundException;
-import com.lokoko.domain.creator.exception.CreatorNotFoundException;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.domain.user.exception.UserNotFoundException;
@@ -21,7 +20,7 @@ public class BrandGetService {
 
     public Brand findByUserId(Long userId) {
         return brandRepository.findByUserId(userId)
-                .orElseThrow(CreatorNotFoundException::new);
+                .orElseThrow(BrandNotFoundException::new);
     }
 
     public User findUserById(Long userId) {
