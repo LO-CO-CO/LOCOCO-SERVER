@@ -16,12 +16,21 @@ public interface CampaignReviewRepository extends JpaRepository<CampaignReview, 
 
     boolean existsByCreatorCampaignIdAndReviewRound(Long creatorCampaignId, ReviewRound reviewRound);
 
+    boolean existsByCreatorCampaignIdAndReviewRoundAndContentType(Long creatorCampaignId, ReviewRound reviewRound,
+                                                                  ContentType contentType);
+
     @Query("select r.contentType from CampaignReview r " +
             "where r.creatorCampaign.id = :creatorCampaignId and r.reviewRound = :reviewRound")
     Optional<ContentType> findContentOnly(@Param("creatorCampaignId") Long creatorCampaignId,
                                           @Param("reviewRound") ReviewRound reviewRound);
 
-    Optional<CampaignReview> findByCreatorCampaignIdAndReviewRound(Long creatorCampaignId, ReviewRound reviewRound);
+    @Query("""
+            select r from CampaignReview r
+            join fetch r.creatorCampaign cc
+            join fetch cc.creator cr
+            where r.id = :reviewId
+            """)
+    Optional<CampaignReview> findWithCreatorCampaignById(@Param("reviewId") Long reviewId);
 
     List<CampaignReview> findAllByCreatorCampaignIdOrderByIdAsc(Long creatorCampaignId);
 

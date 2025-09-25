@@ -64,7 +64,7 @@ public class CreatorUsecase {
                 .map(creatorCampaign -> creatorCampaignMapper.toMyCampaignResponse(
                         creator,
                         creatorCampaign,
-                        campaignReviewGetService.findFirstContent(creatorCampaign.getId()).orElse(null)
+                        campaignReviewGetService.findFirstContentType(creatorCampaign.getId()).orElse(null)
                 ))
                 .toList();
 
