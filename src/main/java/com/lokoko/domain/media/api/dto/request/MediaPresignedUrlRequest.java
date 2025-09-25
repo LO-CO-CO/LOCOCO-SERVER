@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record MediaPresignedUrlRequest(
-        @NotNull List<String> mediaType
+        
+        @NotNull
+        List<String> mediaType
 ) {
 }

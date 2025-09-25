@@ -1,4 +1,4 @@
-package com.lokoko.global.common.entity;
+package com.lokoko.domain.media.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

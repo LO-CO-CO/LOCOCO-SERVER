@@ -3,10 +3,10 @@ package com.lokoko.domain.media.video.domain.repository;
 
 import static com.lokoko.domain.like.domain.entity.QReviewLike.reviewLike;
 
+import com.lokoko.domain.media.video.domain.entity.QReviewVideo;
 import com.lokoko.domain.product.domain.entity.QProduct;
 import com.lokoko.domain.productReview.api.dto.response.MainVideoReview;
 import com.lokoko.domain.productReview.domain.entity.QReview;
-import com.lokoko.domain.video.domain.entity.QReviewVideo;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;

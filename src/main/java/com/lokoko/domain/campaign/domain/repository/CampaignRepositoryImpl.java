@@ -20,7 +20,7 @@ import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductTypeFilter;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatusFilter;
 import com.lokoko.domain.campaign.domain.entity.enums.LanguageFilter;
-import com.lokoko.domain.image.domain.entity.QCampaignImage;
+import com.lokoko.domain.media.image.domain.entity.QCampaignImage;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.domain.user.domain.repository.UserRepository;

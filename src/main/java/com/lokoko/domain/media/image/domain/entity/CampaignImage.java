@@ -3,9 +3,9 @@ package com.lokoko.domain.media.image.domain.entity;
 import static jakarta.persistence.FetchType.LAZY;
 
 import com.lokoko.domain.campaign.domain.entity.Campaign;
+import com.lokoko.domain.media.domain.MediaFile;
 import com.lokoko.domain.media.image.domain.entity.enums.ImageType;
 import com.lokoko.global.common.entity.BaseEntity;
-import com.lokoko.global.common.entity.MediaFile;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;

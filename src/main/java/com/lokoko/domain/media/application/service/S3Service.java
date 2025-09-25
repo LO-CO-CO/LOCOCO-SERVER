@@ -1,9 +1,9 @@
-package com.lokoko.global.common.service;
+package com.lokoko.domain.media.application.service;
 
+import com.lokoko.domain.media.api.dto.repsonse.PresignedUrlResponse;
 import com.lokoko.domain.media.image.exception.FileTypeNotSupportedException;
 import com.lokoko.domain.productReview.exception.ErrorMessage;
 import com.lokoko.domain.productReview.exception.InvalidMediaTypeException;
-import com.lokoko.global.common.dto.PresignedUrlResponse;
 import com.lokoko.global.config.S3Config;
 import java.time.Duration;
 import java.util.UUID;
