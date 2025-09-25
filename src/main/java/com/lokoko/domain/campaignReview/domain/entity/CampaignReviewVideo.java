@@ -1,33 +1,40 @@
-package com.lokoko.domain.image.domain.entity;
+package com.lokoko.domain.campaignReview.domain.entity;
 
 import static jakarta.persistence.FetchType.LAZY;
 
-import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
 import com.lokoko.global.common.entity.BaseEntity;
+import com.lokoko.global.common.entity.MediaFile;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Getter
 @Entity
-@NoArgsConstructor
 @SuperBuilder
-public class CampaignReviewImage extends BaseEntity {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "campaign_review_video")
+public class CampaignReviewVideo extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "campaign_review_image_id")
+    @Column(name = "campaign_review_video_id")
     private Long id;
 
+    @Embedded
+    private MediaFile mediaFile;
+
     @Column(nullable = false)
-    private String url;
+    private int displayOrder;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "campaign_review_id", nullable = false)

@@ -303,8 +303,8 @@ public class AuthService {
         boolean hasBasicInfo = creator.getCreatorName() != null;
 
         // 2단계: SNS 연동 확인 (최소 하나 이상)
-        boolean hasSnsConnected = (creator.getInstaLink() != null) ||
-                (creator.getTiktokLink() != null);
+        boolean hasSnsConnected = (creator.getInstagramUserId() != null) ||
+                (creator.getTikTokUserId() != null);
 
         // 둘 다 충족해야 완료
         return hasBasicInfo && hasSnsConnected;
@@ -315,8 +315,8 @@ public class AuthService {
         Creator creator = user.getCreator();
 
         boolean hasBasicInfo = creator.getCreatorName() != null;
-        boolean hasSnsConnected = (creator.getInstaLink() != null) ||
-                (creator.getTiktokLink() != null);
+        boolean hasSnsConnected = (creator.getInstagramUserId() != null) ||
+                (creator.getTikTokUserId() != null);
 
         if (!hasBasicInfo) {
             return OauthLoginStatus.INFO_REQUIRED;
@@ -412,7 +412,7 @@ public class AuthService {
                 }
 
                 // 1개 이상의 SNS가 연동되지 않은 상태 (SNS_REQUIRED)
-                if (creator.getInstaLink() == null && creator.getTiktokLink() == null) {
+                if (creator.getInstagramUserId() == null && creator.getTikTokUserId() == null) {
                     throw new UserNotCompletedSignUpException();
                 }
 

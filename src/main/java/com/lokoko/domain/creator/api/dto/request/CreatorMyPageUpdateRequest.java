@@ -16,6 +16,9 @@ public record CreatorMyPageUpdateRequest(
          * 크리에이터 마이페이지 수정이 필요한 필드들만 입력받기 (입력받지 않은 필드들은 유지)
          */
 
+        @Schema(description = "크리에이터 프로필 이미지(발급받은 프리사인 URL)", example = "https://s3.amazonaws.com/bucket/...")
+        String profileImageUrl,
+
         @Schema(description = "크리에이터 이름 (최대 30자, 영문/숫자/마침표/언더바만)", example = "hun_cozyboy.01")
         @Pattern(regexp = "^[a-z0-9._]+$")
         @Size(max = 15)

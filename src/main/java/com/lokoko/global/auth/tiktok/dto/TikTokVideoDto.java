@@ -8,9 +8,9 @@ public record TikTokVideoDto(
         String id,
         Long createTime,
         Long viewCount,
-        Integer likeCount,
-        Integer commentCount,
-        Integer shareCount,
+        Long likeCount,
+        Long commentCount,
+        Long shareCount,
         String shareUrl
 ) {
 }
