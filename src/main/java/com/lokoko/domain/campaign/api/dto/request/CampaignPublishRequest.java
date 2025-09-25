@@ -1,16 +1,21 @@
 package com.lokoko.domain.campaign.api.dto.request;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
-import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
+import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
-
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
-
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.*;
 
 public record CampaignPublishRequest(
         @Schema(requiredMode = REQUIRED, description = "캠페인 제목", example = "로코코 신제품")

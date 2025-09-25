@@ -7,7 +7,7 @@ import com.lokoko.domain.creator.api.dto.response.CreatorMyCampaignResponse;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
-import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
+import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.common.response.PageableResponse;
 import java.time.Instant;
 import java.util.List;

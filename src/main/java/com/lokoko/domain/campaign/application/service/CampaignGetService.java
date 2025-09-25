@@ -21,7 +21,7 @@ import com.lokoko.domain.campaign.exception.CampaignNotFoundException;
 import com.lokoko.domain.campaign.exception.NotCampaignOwnershipException;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
-import com.lokoko.domain.image.domain.repository.CampaignImageRepository;
+import com.lokoko.domain.media.image.domain.repository.CampaignImageRepository;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;

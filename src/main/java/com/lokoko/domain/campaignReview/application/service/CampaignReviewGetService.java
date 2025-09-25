@@ -10,7 +10,7 @@ import com.lokoko.domain.campaignReview.exception.FirstReviewNotFoundException;
 import com.lokoko.domain.campaignReview.exception.ReviewAlreadySubmittedException;
 import com.lokoko.domain.creator.exception.CreatorCampaignNotFoundException;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
-import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
+import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

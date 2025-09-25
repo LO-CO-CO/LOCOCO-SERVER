@@ -1,6 +1,6 @@
 package com.lokoko.global.common.service;
 
-import com.lokoko.domain.image.exception.FileTypeNotSupportedException;
+import com.lokoko.domain.media.image.exception.FileTypeNotSupportedException;
 import com.lokoko.domain.productReview.exception.ErrorMessage;
 import com.lokoko.domain.productReview.exception.InvalidMediaTypeException;
 import com.lokoko.global.common.dto.PresignedUrlResponse;

@@ -1,6 +1,6 @@
 package com.lokoko.domain.campaign.domain.repository;
 
-import static com.lokoko.domain.image.domain.entity.enums.ImageType.THUMBNAIL;
+import static com.lokoko.domain.media.image.domain.entity.enums.ImageType.THUMBNAIL;
 
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoResponse;

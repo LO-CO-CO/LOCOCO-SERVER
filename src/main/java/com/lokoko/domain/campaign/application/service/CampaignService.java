@@ -17,11 +17,16 @@ import com.lokoko.domain.campaign.api.dto.response.CampaignMediaResponse;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.enums.ActionType;
 import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
-import com.lokoko.domain.campaign.exception.*;
+import com.lokoko.domain.campaign.exception.CampaignApplicantBulkUpdateException;
+import com.lokoko.domain.campaign.exception.CampaignCapacityExceedException;
+import com.lokoko.domain.campaign.exception.CampaignNotEditableException;
+import com.lokoko.domain.campaign.exception.CampaignNotFoundException;
+import com.lokoko.domain.campaign.exception.NoApplicableCreatorsException;
+import com.lokoko.domain.campaign.exception.NotCampaignOwnershipException;
 import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
-import com.lokoko.domain.image.domain.entity.CampaignImage;
-import com.lokoko.domain.image.domain.entity.enums.ImageType;
-import com.lokoko.domain.image.domain.repository.CampaignImageRepository;
+import com.lokoko.domain.media.image.domain.entity.CampaignImage;
+import com.lokoko.domain.media.image.domain.entity.enums.ImageType;
+import com.lokoko.domain.media.image.domain.repository.CampaignImageRepository;
 import com.lokoko.domain.productReview.exception.ErrorMessage;
 import com.lokoko.domain.productReview.exception.InvalidMediaTypeException;
 import com.lokoko.domain.productReview.exception.PresignedUrlParsingException;
@@ -29,6 +34,7 @@ import com.lokoko.global.common.dto.PresignedUrlResponse;
 import com.lokoko.global.common.entity.MediaFile;
 import com.lokoko.global.common.service.S3Service;
 import com.lokoko.global.utils.S3UrlParser;
+import jakarta.persistence.EntityManager;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.Collection;
@@ -36,8 +42,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -283,7 +287,8 @@ public class CampaignService {
     }
 
     @Transactional
-    public CreatorApprovedResponse approveCreatorApplicants(Long campaignId, Long brandId, CreatorApproveRequest creatorApproveRequest) {
+    public CreatorApprovedResponse approveCreatorApplicants(Long campaignId, Long brandId,
+                                                            CreatorApproveRequest creatorApproveRequest) {
 
         Brand brand = getBrandOrThrow(brandId);
         Campaign campaign = campaignRepository.findCampaignWithLockById(campaignId)
@@ -292,7 +297,8 @@ public class CampaignService {
         validateBrandOwnsCampaign(campaign, brand);
 
         List<Long> participationIds = creatorApproveRequest.creatorCampaignIds();
-        List<Long> pendingParticipationIds = creatorCampaignRepository.findPendingApplicationIds(campaignId, participationIds);
+        List<Long> pendingParticipationIds = creatorCampaignRepository.findPendingApplicationIds(campaignId,
+                participationIds);
 
         validateApplicableCreators(pendingParticipationIds);
         validateOverCampaignCapacity(campaign, pendingParticipationIds);
@@ -303,7 +309,7 @@ public class CampaignService {
         int updatedCount = creatorCampaignRepository.bulkApproveApplicationStatus(pendingParticipationIds);
 
         // 벌크 업데이트가 모두 성공한다는 보장이 없다. 일부만 성공할 수도 있기 때문에, 실패시 예외 던져야한다.
-        if (updatedCount != pendingParticipationIds.size()){
+        if (updatedCount != pendingParticipationIds.size()) {
             throw new CampaignApplicantBulkUpdateException();
         }
         return new CreatorApprovedResponse(campaign.getApprovedNumber(), campaign.getRecruitmentNumber());

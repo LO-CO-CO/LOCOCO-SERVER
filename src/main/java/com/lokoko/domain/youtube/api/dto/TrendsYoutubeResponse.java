@@ -2,7 +2,7 @@ package com.lokoko.domain.youtube.api.dto;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
-import com.lokoko.domain.video.domain.entity.YoutubeVideo;
+import com.lokoko.domain.media.video.domain.entity.YoutubeVideo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 

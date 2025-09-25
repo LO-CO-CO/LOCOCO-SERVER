@@ -3,7 +3,7 @@ package com.lokoko.domain.campaignReview.domain.repository;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
-import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
+import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -3,11 +3,13 @@ package com.lokoko.domain.productReview.application.service;
 
 import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
-import com.lokoko.domain.image.domain.entity.ReceiptImage;
-import com.lokoko.domain.image.domain.entity.ReviewImage;
-import com.lokoko.domain.image.domain.repository.ReceiptImageRepository;
-import com.lokoko.domain.image.domain.repository.ReviewImageRepository;
 import com.lokoko.domain.like.domain.repository.ReviewLikeRepository;
+import com.lokoko.domain.media.image.domain.entity.ReceiptImage;
+import com.lokoko.domain.media.image.domain.entity.ReviewImage;
+import com.lokoko.domain.media.image.domain.repository.ReceiptImageRepository;
+import com.lokoko.domain.media.image.domain.repository.ReviewImageRepository;
+import com.lokoko.domain.media.video.domain.entity.ReviewVideo;
+import com.lokoko.domain.media.video.domain.repository.ReviewVideoRepository;
 import com.lokoko.domain.product.application.event.PopularProductsCacheEvictEvent;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.ProductOption;
@@ -35,8 +37,6 @@ import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.domain.user.exception.UserNotFoundException;
-import com.lokoko.domain.video.domain.entity.ReviewVideo;
-import com.lokoko.domain.video.domain.repository.ReviewVideoRepository;
 import com.lokoko.global.common.annotation.DistributedLock;
 import com.lokoko.global.common.dto.PresignedUrlResponse;
 import com.lokoko.global.common.entity.MediaFile;
