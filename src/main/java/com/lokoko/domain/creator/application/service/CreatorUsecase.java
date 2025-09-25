@@ -137,8 +137,8 @@ public class CreatorUsecase {
             }
         }
 
-        boolean hasInstagram = creator.getInstaLink() != null && !creator.getInstaLink().isBlank();
-        boolean hasTiktok = creator.getTiktokLink() != null && !creator.getTiktokLink().isBlank();
+        boolean hasInstagram = creator.getInstagramUserId() != null && !creator.getInstagramUserId().isBlank();
+        boolean hasTiktok = creator.getTikTokUserId() != null && !creator.getTikTokUserId().isBlank();
 
         if (!hasInstagram && !hasTiktok) {
             throw new SnsNotConnectedException();

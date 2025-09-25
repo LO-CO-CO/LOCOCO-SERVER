@@ -71,8 +71,8 @@ public class CreatorMapper {
 
     public CreatorSnsConnectedResponse toSnsStateResponse(Creator creator) {
         return new CreatorSnsConnectedResponse(
-                creator.getInstaLink() != null,
-                creator.getTiktokLink() != null
+                creator.getInstagramUserId() != null,
+                creator.getTikTokUserId() != null
         );
     }
 
