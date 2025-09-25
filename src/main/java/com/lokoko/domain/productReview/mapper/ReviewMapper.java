@@ -1,5 +1,6 @@
 package com.lokoko.domain.productReview.mapper;
 
+import com.lokoko.domain.media.api.dto.repsonse.MediaPresignedUrlResponse;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.ProductOption;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
@@ -11,7 +12,6 @@ import com.lokoko.domain.productReview.api.dto.response.MainImageReview;
 import com.lokoko.domain.productReview.api.dto.response.MainImageReviewResponse;
 import com.lokoko.domain.productReview.api.dto.response.MainVideoReview;
 import com.lokoko.domain.productReview.api.dto.response.MainVideoReviewResponse;
-import com.lokoko.domain.productReview.api.dto.response.ReviewMediaResponse;
 import com.lokoko.domain.productReview.api.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.productReview.api.dto.response.ReviewResponse;
 import com.lokoko.domain.productReview.api.dto.response.VideoReviewListResponse;
@@ -50,8 +50,8 @@ public interface ReviewMapper {
      * @param urls 미디어 파일 URL 목록 (S3 presigned URL)
      * @return ReviewMediaResponse (응답 DTO)
      */
-    default ReviewMediaResponse toReviewMediaResponse(List<String> urls) {
-        return new ReviewMediaResponse(urls);
+    default MediaPresignedUrlResponse toReviewMediaResponse(List<String> urls) {
+        return new MediaPresignedUrlResponse(urls);
     }
 
     /**

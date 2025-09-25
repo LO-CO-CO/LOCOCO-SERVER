@@ -9,11 +9,9 @@ import com.lokoko.domain.brand.domain.repository.BrandRepository;
 import com.lokoko.domain.brand.exception.BrandNotFoundException;
 import com.lokoko.domain.campaign.api.dto.request.CampaignCreateRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignDraftRequest;
-import com.lokoko.domain.campaign.api.dto.request.CampaignMediaRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignPublishRequest;
 import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse;
-import com.lokoko.domain.campaign.api.dto.response.CampaignMediaResponse;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.enums.ActionType;
 import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
@@ -24,6 +22,8 @@ import com.lokoko.domain.campaign.exception.CampaignNotFoundException;
 import com.lokoko.domain.campaign.exception.NoApplicableCreatorsException;
 import com.lokoko.domain.campaign.exception.NotCampaignOwnershipException;
 import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
+import com.lokoko.domain.media.api.dto.repsonse.MediaPresignedUrlResponse;
+import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
 import com.lokoko.domain.media.image.domain.entity.CampaignImage;
 import com.lokoko.domain.media.image.domain.entity.enums.ImageType;
 import com.lokoko.domain.media.image.domain.repository.CampaignImageRepository;
@@ -59,7 +59,7 @@ public class CampaignService {
     private final S3Service s3Service;
     private final EntityManager entityManager;
 
-    public CampaignMediaResponse createMediaPresignedUrl(Long brandId, CampaignMediaRequest request) {
+    public MediaPresignedUrlResponse createMediaPresignedUrl(Long brandId, MediaPresignedUrlRequest request) {
 
         brandRepository.findById(brandId).orElseThrow(BrandNotFoundException::new);
 
@@ -76,7 +76,7 @@ public class CampaignService {
                 .map(PresignedUrlResponse::presignedUrl)
                 .toList();
 
-        return new CampaignMediaResponse(urls);
+        return new MediaPresignedUrlResponse(urls);
     }
 
     @Transactional

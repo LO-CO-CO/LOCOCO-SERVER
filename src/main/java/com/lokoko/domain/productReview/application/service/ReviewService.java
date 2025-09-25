@@ -4,6 +4,8 @@ package com.lokoko.domain.productReview.application.service;
 import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
 import com.lokoko.domain.like.domain.repository.ReviewLikeRepository;
+import com.lokoko.domain.media.api.dto.repsonse.MediaPresignedUrlResponse;
+import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
 import com.lokoko.domain.media.image.domain.entity.ReceiptImage;
 import com.lokoko.domain.media.image.domain.entity.ReviewImage;
 import com.lokoko.domain.media.image.domain.repository.ReceiptImageRepository;
@@ -18,10 +20,8 @@ import com.lokoko.domain.product.domain.repository.ProductRepository;
 import com.lokoko.domain.product.exception.ProductNotFoundException;
 import com.lokoko.domain.product.exception.ProductOptionMismatchException;
 import com.lokoko.domain.product.exception.ProductOptionNotFoundException;
-import com.lokoko.domain.productReview.api.dto.request.ReviewMediaRequest;
 import com.lokoko.domain.productReview.api.dto.request.ReviewReceiptRequest;
 import com.lokoko.domain.productReview.api.dto.request.ReviewRequest;
-import com.lokoko.domain.productReview.api.dto.response.ReviewMediaResponse;
 import com.lokoko.domain.productReview.api.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.productReview.api.dto.response.ReviewResponse;
 import com.lokoko.domain.productReview.application.event.PopularReviewsCacheEvictEvent;
@@ -94,9 +94,9 @@ public class ReviewService {
         return reviewMapper.toReviewReceiptUrl(List.of(presignedUrl));
     }
 
-    public ReviewMediaResponse createMediaPresignedUrl(
+    public MediaPresignedUrlResponse createMediaPresignedUrl(
             Long userId,
-            ReviewMediaRequest request) {
+            MediaPresignedUrlRequest request) {
         userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
