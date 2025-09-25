@@ -52,7 +52,12 @@ public class CampaignGetService {
 
         CampaignDetailPageStatus detailPageStatus = determineDetailPageStatus(userId, campaign);
 
-        return CampaignDetailResponse.of(campaign, topImages, bottomImages, detailPageStatus);
+        String currentUserRole = null; // 비로그인 유저
+        if (userId != null){
+            User currentUser = userRepository.findById(userId).get();
+            currentUserRole = currentUser.getRole().name();
+        }
+        return CampaignDetailResponse.of(campaign, topImages, bottomImages, detailPageStatus, currentUserRole);
     }
 
     private Campaign findCampaignAndInitializeCollection(Long campaignId) {

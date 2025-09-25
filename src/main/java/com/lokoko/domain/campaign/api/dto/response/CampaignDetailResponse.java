@@ -41,12 +41,15 @@ public record CampaignDetailResponse(
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "하단 이미지 목록 리스트")
         List<CampaignImageResponse> detailImages,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인 상태" , example = "Coming Soon, Apply Now!, Completed ....")
-        String campaignStatusCode
+        String campaignStatusCode,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "현재 상세페이지를 조회하고 있는 사용자의 권한 정보" , example = "CUSTOMER , BRAND, CREATOR, ADMIN, null(비로그인 사용자")
+        String currentUserRole
 ) {
 
     public static CampaignDetailResponse of(Campaign campaign, List<CampaignImageResponse> thumbnailImages,
                                             List<CampaignImageResponse> detailImages,
-                                            CampaignDetailPageStatus campaignStatusCode) {
+                                            CampaignDetailPageStatus campaignStatusCode,
+                                            String currentUserRole) {
 
         Brand brand = campaign.getBrand();
         return new CampaignDetailResponse(
@@ -64,7 +67,8 @@ public record CampaignDetailResponse(
                 campaign.getEligibilityRequirements(),
                 thumbnailImages,
                 detailImages,
-                campaignStatusCode.getCode()
+                campaignStatusCode.getCode(),
+                currentUserRole
         );
     }
 }
