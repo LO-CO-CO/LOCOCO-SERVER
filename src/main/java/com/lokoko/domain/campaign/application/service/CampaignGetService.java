@@ -16,8 +16,12 @@ import com.lokoko.domain.campaign.exception.NotCampaignOwnershipException;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
 import com.lokoko.domain.image.domain.repository.CampaignImageRepository;
+import com.lokoko.domain.user.domain.entity.User;
+import com.lokoko.domain.user.domain.repository.UserRepository;
+import com.lokoko.domain.user.exception.UserNotFoundException;
 import java.util.List;
 import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +36,7 @@ public class CampaignGetService {
     private final CampaignRepository campaignRepository;
     private final CampaignImageRepository campaignImageRepository;
     private final CreatorCampaignRepository creatorCampaignRepository;
+    private final UserRepository userRepository;
 
     private final CampaignStatusManager campaignStatusManager;
 
@@ -40,23 +45,49 @@ public class CampaignGetService {
                 .orElseThrow(CampaignNotFoundException::new);
     }
 
-    public CampaignDetailResponse getCampaignDetail(Long creatorId, Long campaignId) {
+    public CampaignDetailResponse getCampaignDetail(Long userId, Long campaignId) {
+        Campaign campaign = findCampaignAndInitializeCollection(campaignId);
+        List<CampaignImageResponse> topImages = campaignImageRepository.findThumbnailImagesByCampaignId(campaignId);
+        List<CampaignImageResponse> bottomImages = campaignImageRepository.findDetailImagesByCampaignId(campaignId);
 
+        CampaignDetailPageStatus detailPageStatus = determineDetailPageStatus(userId, campaign);
+
+        String currentUserRole = null; // 비로그인 유저
+        if (userId != null){
+            User currentUser = userRepository.findById(userId).get();
+            currentUserRole = currentUser.getRole().name();
+        }
+        return CampaignDetailResponse.of(campaign, topImages, bottomImages, detailPageStatus, currentUserRole);
+    }
+
+    private Campaign findCampaignAndInitializeCollection(Long campaignId) {
         Campaign campaign = campaignRepository.findCampaignWithBrandById(campaignId)
                 .orElseThrow(CampaignNotFoundException::new);
-
         initializeElementCollections(campaign);
+        return campaign;
+    }
 
-        List<CampaignImageResponse> thumbnailImages = campaignImageRepository.findThumbnailImagesByCampaignId(campaignId);
-        List<CampaignImageResponse> detailImages = campaignImageRepository.findDetailImagesByCampaignId(campaignId);
+    private CampaignDetailPageStatus determineDetailPageStatus(Long userId, Campaign campaign) {
+        if (userId == null) {
+            return campaignStatusManager.determineStatusForNonLoggedInAndCustomer(campaign);
+        }
 
-        //캠페인 상세페이지를 조회하는 크리에이터가 캠페인에 참여하지 않았을 수도 있으므로 Optional 을 반환
-        Optional<CreatorCampaign> creatorCampaign = creatorCampaignRepository.findByCreatorIdAndCampaignId(creatorId,
-                campaignId);
-        CampaignDetailPageStatus campaignStatus = campaignStatusManager.determineStatusInDetailPage(campaign,
-                creatorCampaign);
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
 
-        return CampaignDetailResponse.of(campaign, thumbnailImages, detailImages, campaignStatus);
+        return switch (user.getRole()) {
+            case PENDING, CUSTOMER -> campaignStatusManager.determineStatusForNonLoggedInAndCustomer(campaign);
+            case BRAND, ADMIN -> campaignStatusManager.determineStatusForBrandAndAdmin(campaign);
+            case CREATOR -> determineStatusForCreator(campaign, user);
+        };
+    }
+
+    private CampaignDetailPageStatus determineStatusForCreator(Campaign campaign, User user) {
+        Long creatorId = user.getCreator().getId();
+        Optional<CreatorCampaign> creatorCampaign = creatorCampaignRepository
+                .findByCreatorIdAndCampaignId(creatorId, campaign.getId());
+
+        return campaignStatusManager.determineStatusInDetailPage(campaign, creatorCampaign);
     }
 
     private static void initializeElementCollections(Campaign campaign) {
@@ -98,8 +129,6 @@ public class CampaignGetService {
 
         return CampaignBasicResponse.of(draftCampaign, thumbnailImages, detailImages);
     }
-
-
 
     public BrandMyCampaignInfoListResponse getSimpleCampaignInfos(Long brandId) {
         return campaignRepository.findSimpleCampaignInfoByBrandId(brandId);
