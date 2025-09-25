@@ -11,6 +11,7 @@ import com.lokoko.domain.campaignReview.api.dto.response.ReviewUploadResponse;
 import com.lokoko.domain.campaignReview.application.mapper.CampaignReviewMapper;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewGetService;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewSaveService;
+import com.lokoko.domain.campaignReview.application.service.CampaignReviewUpdateService;
 import com.lokoko.domain.campaignReview.application.service.CreatorCampaignUpdateService;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
 import com.lokoko.domain.campaignReview.exception.MismatchedContentTypeException;
@@ -18,6 +19,8 @@ import com.lokoko.domain.creator.application.service.CreatorGetService;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creatorCampaign.application.service.CreatorCampaignGetService;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
+import com.lokoko.domain.media.api.dto.repsonse.MediaPresignedUrlResponse;
+import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,6 +37,7 @@ public class CampaignReviewUsecase {
 
     private final CampaignReviewSaveService campaignReviewSaveService;
     private final CreatorCampaignUpdateService creatorCampaignUpdateService;
+    private final CampaignReviewUpdateService campaignReviewUpdateService;
 
     private final CampaignReviewMapper campaignReviewMapper;
     private final CampaignMapper campaignMapper;
@@ -94,5 +98,13 @@ public class CampaignReviewUsecase {
         return eligible.stream()
                 .map(campaignMapper::toCampaignParticipationResponse)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public MediaPresignedUrlResponse createMediaPresignedUrl(Long userId, MediaPresignedUrlRequest request) {
+        Creator creator = creatorGetService.findByUserId(userId);
+        List<String> urls = campaignReviewUpdateService.createPresignedUrlForReview(creator.getId(), request);
+
+        return campaignReviewMapper.toMediaPresignedUrlResponse(urls);
     }
 }
