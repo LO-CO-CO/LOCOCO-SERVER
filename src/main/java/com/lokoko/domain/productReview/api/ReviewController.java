@@ -2,8 +2,8 @@ package com.lokoko.domain.productReview.api;
 
 import static com.lokoko.domain.productReview.api.message.ResponseMessage.REVIEW_DELETE_SUCCESS;
 
-import com.lokoko.domain.media.api.dto.repsonse.MediaPresignedUrlResponse;
 import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
+import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
 import com.lokoko.domain.productReview.api.dto.request.ReviewReceiptRequest;
 import com.lokoko.domain.productReview.api.dto.request.ReviewRequest;
 import com.lokoko.domain.productReview.api.dto.response.ImageReviewDetailResponse;

@@ -1,6 +1,6 @@
 package com.lokoko.domain.productReview.mapper;
 
-import com.lokoko.domain.media.api.dto.repsonse.MediaPresignedUrlResponse;
+import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.ProductOption;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;

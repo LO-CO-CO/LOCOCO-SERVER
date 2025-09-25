@@ -1,4 +1,4 @@
-package com.lokoko.domain.media.api.dto.repsonse;
+package com.lokoko.domain.media.api.dto.response;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 

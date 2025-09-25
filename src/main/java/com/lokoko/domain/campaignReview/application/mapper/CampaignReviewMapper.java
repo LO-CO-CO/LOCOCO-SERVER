@@ -10,7 +10,7 @@ import com.lokoko.domain.campaignReview.domain.entity.CampaignReviewImage;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReviewVideo;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
-import com.lokoko.domain.media.api.dto.repsonse.MediaPresignedUrlResponse;
+import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
 import com.lokoko.domain.media.domain.MediaFile;
 import com.lokoko.global.utils.S3UrlParser;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
 package com.lokoko.domain.media.application.service;
 
-import com.lokoko.domain.media.api.dto.repsonse.PresignedUrlResponse;
+import com.lokoko.domain.media.api.dto.response.PresignedUrlResponse;
 import com.lokoko.domain.media.image.exception.FileTypeNotSupportedException;
 import com.lokoko.domain.productReview.exception.ErrorMessage;
 import com.lokoko.domain.productReview.exception.InvalidMediaTypeException;

@@ -6,8 +6,8 @@ import com.lokoko.domain.campaignReview.api.dto.request.SecondReviewUploadReques
 import com.lokoko.domain.campaignReview.api.dto.response.ReviewUploadResponse;
 import com.lokoko.domain.campaignReview.api.message.ResponseMessage;
 import com.lokoko.domain.campaignReview.application.usecase.CampaignReviewUsecase;
-import com.lokoko.domain.media.api.dto.repsonse.MediaPresignedUrlResponse;
 import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
+import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;

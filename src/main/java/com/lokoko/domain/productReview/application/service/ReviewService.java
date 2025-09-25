@@ -5,9 +5,9 @@ import static com.lokoko.domain.media.application.service.MediaValidationUtil.va
 import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
 import com.lokoko.domain.like.domain.repository.ReviewLikeRepository;
-import com.lokoko.domain.media.api.dto.repsonse.MediaPresignedUrlResponse;
-import com.lokoko.domain.media.api.dto.repsonse.PresignedUrlResponse;
 import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
+import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
+import com.lokoko.domain.media.api.dto.response.PresignedUrlResponse;
 import com.lokoko.domain.media.application.service.S3Service;
 import com.lokoko.domain.media.domain.MediaFile;
 import com.lokoko.domain.media.image.domain.entity.ReceiptImage;
