@@ -9,12 +9,12 @@ import com.lokoko.domain.customer.api.dto.response.CustomerSnsConnectedResponse;
 import com.lokoko.domain.customer.domain.entity.Customer;
 import com.lokoko.domain.customer.domain.repository.CustomerRepository;
 import com.lokoko.domain.customer.exception.CustomerNotFoundException;
+import com.lokoko.domain.media.application.service.S3Service;
+import com.lokoko.domain.media.domain.MediaFile;
 import com.lokoko.domain.productReview.exception.ErrorMessage;
 import com.lokoko.domain.productReview.exception.InvalidMediaTypeException;
 import com.lokoko.domain.user.application.service.UserService;
 import com.lokoko.domain.user.domain.entity.User;
-import com.lokoko.global.common.entity.MediaFile;
-import com.lokoko.global.common.service.S3Service;
 import com.lokoko.global.utils.S3UrlParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,8 @@ public class CustomerService {
     private final S3Service s3Service;
     private final UserService userService;
 
-    public CustomerProfileImageResponse createCustomerProfilePresignedUrl(Long customerId, CustomerProfileImageRequest request) {
+    public CustomerProfileImageResponse createCustomerProfilePresignedUrl(Long customerId,
+                                                                          CustomerProfileImageRequest request) {
         customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
 
         String mediaType = request.mediaType();

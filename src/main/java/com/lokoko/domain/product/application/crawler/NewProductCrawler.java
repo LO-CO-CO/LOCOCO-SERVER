@@ -1,7 +1,7 @@
 package com.lokoko.domain.product.application.crawler;
 
-import com.lokoko.domain.image.domain.entity.ProductImage;
-import com.lokoko.domain.image.domain.repository.ProductImageRepository;
+import com.lokoko.domain.media.image.domain.entity.ProductImage;
+import com.lokoko.domain.media.image.domain.repository.ProductImageRepository;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.enums.MainCategory;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;

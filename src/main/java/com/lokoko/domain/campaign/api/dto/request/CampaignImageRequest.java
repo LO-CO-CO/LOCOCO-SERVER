@@ -1,6 +1,6 @@
 package com.lokoko.domain.campaign.api.dto.request;
 
-import com.lokoko.domain.image.domain.entity.enums.ImageType;
+import com.lokoko.domain.media.image.domain.entity.enums.ImageType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

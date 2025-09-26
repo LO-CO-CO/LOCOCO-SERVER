@@ -1,6 +1,6 @@
 package com.lokoko.domain.youtube.mapper;
 
-import com.lokoko.domain.video.domain.entity.YoutubeVideo;
+import com.lokoko.domain.media.video.domain.entity.YoutubeVideo;
 import com.lokoko.domain.youtube.api.dto.TrendsYoutubeResponse;
 import java.util.List;
 

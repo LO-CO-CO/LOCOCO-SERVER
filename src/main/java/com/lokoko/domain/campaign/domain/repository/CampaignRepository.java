@@ -1,13 +1,10 @@
 package com.lokoko.domain.campaign.domain.repository;
 
 import com.lokoko.domain.campaign.domain.entity.Campaign;
-
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
+import jakarta.persistence.LockModeType;
 import java.time.Instant;
 import java.util.Optional;
-
-import jakarta.persistence.LockModeType;
-
-import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -16,7 +13,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CampaignRepository extends JpaRepository<Campaign, Long> , CampaignRepositoryCustom {
+public interface CampaignRepository extends JpaRepository<Campaign, Long>, CampaignRepositoryCustom {
 
     /**
      * Campaign 과 brand 를 fetch join
@@ -46,5 +43,4 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long> , Camp
             "AND c.campaignStatus NOT IN ('DRAFT', 'WAITING_APPROVAL') " +
             "AND c.reviewSubmissionDeadline <= :now")
     Integer countCompletedCampaignsById(@Param("brandId") Long brandId, @Param("now") Instant now);
-
 }

@@ -1,16 +1,26 @@
 package com.lokoko.domain.campaign.domain.repository;
 
+import static com.lokoko.domain.media.image.domain.entity.enums.ImageType.THUMBNAIL;
+
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignResponse;
+import com.lokoko.domain.brand.domain.entity.Brand;
+import com.lokoko.domain.campaign.api.dto.response.CampaignParticipatedResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignListResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignListResponse;
 import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignResponse;
 import com.lokoko.domain.campaign.domain.entity.QCampaign;
-import com.lokoko.domain.campaign.domain.entity.enums.*;
-import com.lokoko.domain.image.domain.entity.QCampaignImage;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignChipStatus;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductTypeFilter;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatusFilter;
+import com.lokoko.domain.campaign.domain.entity.enums.LanguageFilter;
+import com.lokoko.domain.media.image.domain.entity.QCampaignImage;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.domain.user.domain.repository.UserRepository;
@@ -18,19 +28,15 @@ import com.lokoko.global.common.response.PageableResponse;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.DateTimeExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Repository;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-
-import static com.lokoko.domain.image.domain.entity.enums.ImageType.THUMBNAIL;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
@@ -63,23 +69,25 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
 
         return new BrandMyCampaignInfoListResponse(simpleResponses);
     }
+
     @Override
-    public BrandMyCampaignListResponse findBrandMyCampaigns(Long brandId, CampaignStatusFilter filterStatus, Pageable pageable) {
+    public BrandMyCampaignListResponse findBrandMyCampaigns(Long brandId, CampaignStatusFilter filterStatus,
+                                                            Pageable pageable) {
         Instant now = Instant.now();
 
         StringExpression statusCase = new CaseBuilder()
                 .when(campaign.campaignStatus.eq(CampaignStatus.DRAFT))
-                    .then(CampaignStatus.DRAFT.name())
+                .then(CampaignStatus.DRAFT.name())
                 .when(campaign.campaignStatus.eq(CampaignStatus.WAITING_APPROVAL))
-                    .then(CampaignStatus.WAITING_APPROVAL.name())
+                .then(CampaignStatus.WAITING_APPROVAL.name())
                 .when(Expressions.asDateTime(now).before(campaign.applyStartDate))
-                    .then(CampaignStatus.OPEN_RESERVED.name())
+                .then(CampaignStatus.OPEN_RESERVED.name())
                 .when(Expressions.asDateTime(now).before(campaign.applyDeadline))
-                    .then(CampaignStatus.RECRUITING.name())
+                .then(CampaignStatus.RECRUITING.name())
                 .when(Expressions.asDateTime(now).before(campaign.creatorAnnouncementDate))
-                    .then(CampaignStatus.RECRUITMENT_CLOSED.name())
+                .then(CampaignStatus.RECRUITMENT_CLOSED.name())
                 .when(Expressions.asDateTime(now).before(campaign.reviewSubmissionDeadline))
-                    .then(CampaignStatus.IN_REVIEW.name())
+                .then(CampaignStatus.IN_REVIEW.name())
                 .otherwise(CampaignStatus.COMPLETED.name());
 
         BooleanExpression condition = campaign.brand.id.eq(brandId);
@@ -87,9 +95,9 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
         if (filterStatus != null && !"ALL".equals(filterStatus.name())) {
             if ("ACTIVE".equals(filterStatus.name())) {
                 condition = condition.and(
-                    statusCase.eq(CampaignStatus.RECRUITING.name())
-                    .or(statusCase.eq(CampaignStatus.RECRUITMENT_CLOSED.name()))
-                    .or(statusCase.eq(CampaignStatus.IN_REVIEW.name()))
+                        statusCase.eq(CampaignStatus.RECRUITING.name())
+                                .or(statusCase.eq(CampaignStatus.RECRUITMENT_CLOSED.name()))
+                                .or(statusCase.eq(CampaignStatus.IN_REVIEW.name()))
                 );
             } else {
                 condition = condition.and(statusCase.eq(filterStatus.name()));
@@ -149,7 +157,8 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
     }
 
     @Override
-    public MainPageUpcomingCampaignListResponse findUpcomingCampaignsInMainPage(LanguageFilter lang, CampaignProductTypeFilter category) {
+    public MainPageUpcomingCampaignListResponse findUpcomingCampaignsInMainPage(LanguageFilter lang,
+                                                                                CampaignProductTypeFilter category) {
 
         BooleanExpression langCondition = buildLanguageCondition(lang);
         BooleanExpression categoryCondition = buildCategoryCondition(category);
@@ -187,7 +196,8 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
     }
 
     @Override
-    public MainPageCampaignListResponse findCampaignsInMainPage(Long userId, LanguageFilter lang, CampaignProductTypeFilter category, Pageable pageable) {
+    public MainPageCampaignListResponse findCampaignsInMainPage(Long userId, LanguageFilter lang,
+                                                                CampaignProductTypeFilter category, Pageable pageable) {
 
         User user = null;
         if (userId != null) {
@@ -259,6 +269,25 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
         return new MainPageCampaignListResponse(campaignList, pageInfo);
     }
 
+    @Override
+    public List<CampaignParticipatedResponse> findInReviewCampaignTitlesByBrand(Brand brand) {
+        QCampaign campaign = QCampaign.campaign;
+
+        return queryFactory
+                .select(Projections.constructor(
+                        CampaignParticipatedResponse.class,
+                        campaign.id,
+                        campaign.title
+                ))
+                .from(campaign)
+                .where(
+                        campaign.brand.eq(brand),
+                        campaign.isPublished.isTrue(),
+                        campaign.campaignStatus.eq(CampaignStatus.IN_REVIEW)
+                )
+                .orderBy(campaign.title.asc())
+                .fetch();
+    }
 
     private BooleanExpression buildLanguageCondition(LanguageFilter lang) {
         if (lang == null || lang == LanguageFilter.ALL) {

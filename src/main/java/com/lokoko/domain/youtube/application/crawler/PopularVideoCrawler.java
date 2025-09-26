@@ -1,7 +1,7 @@
 package com.lokoko.domain.youtube.application.crawler;
 
 import com.google.api.services.youtube.YouTube;
-import com.lokoko.domain.video.domain.entity.YoutubeVideo;
+import com.lokoko.domain.media.video.domain.entity.YoutubeVideo;
 import com.lokoko.domain.youtube.exception.YoutubeApiException;
 import java.io.IOException;
 import java.time.Instant;

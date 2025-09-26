@@ -1,14 +1,14 @@
 package com.lokoko.domain.user.application.service;
 
-import com.lokoko.domain.image.domain.repository.ReceiptImageRepository;
-import com.lokoko.domain.image.domain.repository.ReviewImageRepository;
+import com.lokoko.domain.media.image.domain.repository.ReceiptImageRepository;
+import com.lokoko.domain.media.image.domain.repository.ReviewImageRepository;
+import com.lokoko.domain.media.video.domain.repository.ReviewVideoRepository;
 import com.lokoko.domain.productReview.domain.entity.Review;
 import com.lokoko.domain.productReview.domain.repository.ReviewRepository;
 import com.lokoko.domain.productReview.exception.ReviewNotFoundException;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.domain.user.exception.UserNotFoundException;
-import com.lokoko.domain.video.domain.repository.ReviewVideoRepository;
 import com.lokoko.global.utils.AdminValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

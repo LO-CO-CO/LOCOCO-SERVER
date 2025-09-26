@@ -7,12 +7,13 @@ import com.lokoko.domain.creator.api.dto.request.CreatorMyPageUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorProfileImageRequest;
 import com.lokoko.domain.creator.api.dto.response.CreatorProfileImageResponse;
 import com.lokoko.domain.creator.domain.entity.Creator;
+import com.lokoko.domain.creatorCampaign.application.service.CreatorCampaignGetService;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
+import com.lokoko.domain.media.application.service.S3Service;
+import com.lokoko.domain.media.domain.MediaFile;
 import com.lokoko.domain.productReview.exception.ErrorMessage;
 import com.lokoko.domain.productReview.exception.InvalidMediaTypeException;
 import com.lokoko.domain.user.application.service.UserService;
-import com.lokoko.global.common.entity.MediaFile;
-import com.lokoko.global.common.service.S3Service;
 import com.lokoko.global.utils.S3UrlParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class CreatorUpdateService {
 
     private final CreatorGetService creatorGetService;
+    private final CreatorCampaignGetService creatorCampaignGetService;
+
     private final CreatorCampaignUpdateService creatorCampaignUpdateService;
     private final UserService userService;
     private final S3Service s3Service;
@@ -99,7 +102,7 @@ public class CreatorUpdateService {
      * 배송지 확정 - 참여 레코드 조회 → 주소 확정 플래그/시간 변경 - 참여 상태는 공통 로직으로 재계산(주소만 확정이면 APPROVED_ADDRESS_CONFIRMED)
      */
     public void confirmAddress(Long campaignId, Long creatorId) {
-        CreatorCampaign participation = creatorGetService.findParticipation(campaignId, creatorId);
+        CreatorCampaign participation = creatorCampaignGetService.findParticipation(campaignId, creatorId);
 
         participation.changeAddressConfirmed(true);
 
