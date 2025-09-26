@@ -3,9 +3,8 @@ package com.lokoko.domain.campaign.api.dto.request;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
-import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
+import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import jakarta.validation.constraints.Size;
-
 import java.time.Instant;
 import java.util.List;
 

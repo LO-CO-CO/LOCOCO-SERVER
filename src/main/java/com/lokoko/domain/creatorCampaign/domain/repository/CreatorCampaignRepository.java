@@ -1,6 +1,7 @@
 package com.lokoko.domain.creatorCampaign.domain.repository;
 
 
+import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
 import jakarta.persistence.LockModeType;
@@ -17,7 +18,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign, Long> , CreatorCampaignRepositoryCustom{
+public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign, Long>,
+        CreatorCampaignRepositoryCustom {
 
     Optional<CreatorCampaign> findByCampaignIdAndCreatorId(Long campaignId, Long creatorId);
 
@@ -57,4 +59,5 @@ public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign
             "AND cc.campaign.id = :campaignId")
     List<Long> findPendingApplicationIds(Long campaignId, List<Long> applicationIds);
 
+    Optional<CreatorCampaign> findByCampaignAndCreator_Id(Campaign campaign, Long creatorId);
 }

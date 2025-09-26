@@ -1,5 +1,7 @@
 package com.lokoko.domain.campaign.domain.entity;
 
+import static jakarta.persistence.FetchType.LAZY;
+
 import com.lokoko.domain.brand.domain.entity.Brand;
 import com.lokoko.domain.campaign.api.dto.request.CampaignCreateRequest;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
@@ -7,19 +9,26 @@ import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
 import com.lokoko.domain.campaign.exception.DraftNotFilledException;
-import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
+import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.common.entity.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import java.time.Instant;
+import java.util.List;
+import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.stream.Stream;
-
-import static jakarta.persistence.FetchType.LAZY;
 
 @Getter
 @Entity
@@ -45,15 +54,13 @@ public class Campaign extends BaseEntity {
     private CampaignLanguage language;
 
     /**
-     * 캠페인 종류
-     * ex. GIVEAWAY / CONTENTS / EXCLUSIVE
+     * 캠페인 종류 ex. GIVEAWAY / CONTENTS / EXCLUSIVE
      */
     @Enumerated(value = EnumType.STRING)
     private CampaignType campaignType;
 
     /**
-     * 캠페인 상태
-     * ex. 임시 저장 / 대기 중 / 오픈 예정 / 진행 중 / 종료
+     * 캠페인 상태 ex. 임시 저장 / 대기 중 / 오픈 예정 / 진행 중 / 종료
      */
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
@@ -132,12 +139,13 @@ public class Campaign extends BaseEntity {
     /**
      * 승인 인원 수 증가 메소드
      */
-    public void increaseApprovedNumber(int toUpdateCount){
+    public void increaseApprovedNumber(int toUpdateCount) {
         this.approvedNumber += toUpdateCount;
     }
 
     /**
      * 캠페인 상태 변경
+     *
      * @param newStatus
      */
     public void changeStatus(CampaignStatus newStatus) {
@@ -205,12 +213,14 @@ public class Campaign extends BaseEntity {
     }
 
     public void validatePublishable() {
-        if (isDraft()) throw new DraftNotFilledException();
+        if (isDraft()) {
+            throw new DraftNotFilledException();
+        }
     }
 
     /**
-     * 임시 저장 여부 반환
-     * 필수 필드 중 하나라도 비어있으면 임시저장으로 간주.
+     * 임시 저장 여부 반환 필수 필드 중 하나라도 비어있으면 임시저장으로 간주.
+     *
      * @return 임시저장 여부
      */
     public boolean isDraft() {

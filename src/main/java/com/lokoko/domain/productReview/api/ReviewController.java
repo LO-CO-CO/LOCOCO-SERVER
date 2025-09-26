@@ -2,14 +2,14 @@ package com.lokoko.domain.productReview.api;
 
 import static com.lokoko.domain.productReview.api.message.ResponseMessage.REVIEW_DELETE_SUCCESS;
 
-import com.lokoko.domain.productReview.api.dto.request.ReviewMediaRequest;
+import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
+import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
 import com.lokoko.domain.productReview.api.dto.request.ReviewReceiptRequest;
 import com.lokoko.domain.productReview.api.dto.request.ReviewRequest;
 import com.lokoko.domain.productReview.api.dto.response.ImageReviewDetailResponse;
 import com.lokoko.domain.productReview.api.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.productReview.api.dto.response.MainImageReviewResponse;
 import com.lokoko.domain.productReview.api.dto.response.MainVideoReviewResponse;
-import com.lokoko.domain.productReview.api.dto.response.ReviewMediaResponse;
 import com.lokoko.domain.productReview.api.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.productReview.api.dto.response.ReviewResponse;
 import com.lokoko.domain.productReview.api.dto.response.VideoReviewDetailResponse;
@@ -59,10 +59,10 @@ public class ReviewController {
 
     @Operation(summary = "사진 또는 영상 presignedUrl 발급")
     @PostMapping("/media")
-    public ApiResponse<ReviewMediaResponse> createMediaPresignedUrl(
+    public ApiResponse<MediaPresignedUrlResponse> createMediaPresignedUrl(
             @Parameter(hidden = true) @CurrentUser Long userId,
-            @RequestBody @Valid ReviewMediaRequest request) {
-        ReviewMediaResponse response = reviewService.createMediaPresignedUrl(userId, request);
+            @RequestBody @Valid MediaPresignedUrlRequest request) {
+        MediaPresignedUrlResponse response = reviewService.createMediaPresignedUrl(userId, request);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_MEDIA_PRESIGNED_URL_SUCCESS.getMessage(),
                 response);

@@ -58,14 +58,11 @@ public class CreatorUsecase {
     public CreatorMyCampaignListResponse getMyCampaigns(Long userId, int page, int size) {
         Creator creator = creatorGetService.findByUserId(userId);
 
-        Slice<CreatorCampaign> slice = creatorCampaignGetService.findMyCampaigns(creator.getId(), page, size);
+        Slice<CreatorCampaign> slice =
+                creatorCampaignGetService.findMyCampaigns(creator.getId(), page, size);
 
         List<CreatorMyCampaignResponse> campaigns = slice.getContent().stream()
-                .map(creatorCampaign -> creatorCampaignMapper.toMyCampaignResponse(
-                        creator,
-                        creatorCampaign,
-                        campaignReviewGetService.findFirstContent(creatorCampaign.getId()).orElse(null)
-                ))
+                .map(creatorCampaign -> creatorCampaignMapper.toMyCampaignResponse(creator, creatorCampaign))
                 .toList();
 
         return creatorCampaignMapper.toMyCampaignListResponse(campaigns, slice);

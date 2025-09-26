@@ -1,9 +1,9 @@
 package com.lokoko.domain.campaign.api.dto.response;
 
-import com.lokoko.domain.image.domain.entity.CampaignImage;
-import io.swagger.v3.oas.annotations.media.Schema;
-
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
+import com.lokoko.domain.media.image.domain.entity.CampaignImage;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public record CampaignImageResponse(
         @Schema(requiredMode = REQUIRED, description = "이미지 id", example = "1")

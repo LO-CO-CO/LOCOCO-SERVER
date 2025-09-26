@@ -2,6 +2,8 @@ package com.lokoko.domain.creatorCampaign.application.service;
 
 import static java.util.List.of;
 
+import com.lokoko.domain.campaign.domain.entity.Campaign;
+import com.lokoko.domain.creator.exception.CreatorCampaignNotFoundException;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
 import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
@@ -21,6 +23,13 @@ public class CreatorCampaignGetService {
 
     private final CreatorCampaignRepository creatorCampaignRepository;
 
+
+    public CreatorCampaign findParticipation(Long campaignId, Long creatorId) {
+
+        return creatorCampaignRepository
+                .findByCampaignIdAndCreatorId(campaignId, creatorId)
+                .orElseThrow(CreatorCampaignNotFoundException::new);
+    }
 
     /**
      * 특정 크리에이터가 지정된 캠페인에 이미 참여했는지 조회하는 메서드 - 이미 참여했다면 예외 발생
@@ -61,5 +70,17 @@ public class CreatorCampaignGetService {
                 creatorId,
                 of(ParticipationStatus.APPROVED_ADDRESS_CONFIRMED, ParticipationStatus.APPROVED_FIRST_REVIEW_DONE)
         );
+    }
+
+    /**
+     * (campaign, creatorId) 조합으로 CreatorCampaign 단건을 조회 메서드 - 존재하지 않을 경우 예외 발생
+     *
+     * @param campaign  캠페인 엔티티 (도메인 인자 전달)
+     * @param creatorId 크리에이터 고유 ID
+     * @return CreatorCampaign
+     */
+    public CreatorCampaign getByCampaignAndCreatorId(Campaign campaign, Long creatorId) {
+        return creatorCampaignRepository.findByCampaignAndCreator_Id(campaign, creatorId)
+                .orElseThrow(CreatorCampaignNotFoundException::new);
     }
 }
