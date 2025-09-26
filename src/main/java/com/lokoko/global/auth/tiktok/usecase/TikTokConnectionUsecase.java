@@ -1,4 +1,4 @@
-package com.lokoko.global.auth.tiktok.service;
+package com.lokoko.global.auth.tiktok.usecase;
 
 import com.lokoko.domain.creator.application.service.CreatorSaveService;
 import com.lokoko.domain.creator.domain.entity.Creator;
@@ -13,6 +13,7 @@ import com.lokoko.global.auth.tiktok.TikTokOAuthClient;
 import com.lokoko.global.auth.tiktok.dto.TikTokConnectionResponse;
 import com.lokoko.global.auth.tiktok.dto.TikTokProfileDto;
 import com.lokoko.global.auth.tiktok.dto.TikTokTokenDto;
+import com.lokoko.global.auth.tiktok.service.TikTokRedisTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TikTokConnectionService {
+public class TikTokConnectionUsecase {
 
     private final TikTokOAuthClient tikTokOAuthClient;
     private final UserGetService userGetService;
