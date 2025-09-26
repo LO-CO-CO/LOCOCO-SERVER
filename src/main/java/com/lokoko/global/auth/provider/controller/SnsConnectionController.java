@@ -53,7 +53,7 @@ public class SnsConnectionController {
     @Operation(summary = "Instagram 계정 연동 / Creator가 Instagram OAuth 인증 페이지로 리다이렉트")
     @GetMapping("/instagram/connect")
     public ApiResponse<String> connectInstagram(@Parameter(hidden = true) @CurrentUser Long userId) {
-        String authUrl = instaOAuthClient.buildAuthorizationUrl(userId);
+        String authUrl = instaConnectionUsecase.buildAuthorizationUrl(userId);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.INSTAGRAM_REDIRECT_URI_GET_SUCCESS.getMessage(),
                 authUrl);

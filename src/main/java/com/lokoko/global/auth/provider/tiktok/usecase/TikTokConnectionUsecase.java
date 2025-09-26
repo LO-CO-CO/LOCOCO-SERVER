@@ -31,6 +31,7 @@ public class TikTokConnectionUsecase {
     private final CreatorSaveService creatorSaveService;
     private final TikTokRedisTokenService tikTokRedisTokenService;
 
+    @Transactional(readOnly = true)
     public String generateConnectionUrl(Long userId) {
 
         userGetService.findUserById(userId);

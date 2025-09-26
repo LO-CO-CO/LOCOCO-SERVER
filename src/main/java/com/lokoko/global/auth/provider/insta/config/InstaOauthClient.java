@@ -1,5 +1,6 @@
 package com.lokoko.global.auth.provider.insta.config;
 
+import com.lokoko.domain.user.application.service.UserGetService;
 import com.lokoko.global.auth.exception.InstagramLongTokenRequestFailedException;
 import com.lokoko.global.auth.exception.InstagramRefreshTokenFailedException;
 import com.lokoko.global.auth.exception.InstagramTokenRequestFailedException;
@@ -23,6 +24,7 @@ public class InstaOauthClient {
     private final OAuthStateManager oAuthStateManager;
     private final @Qualifier("instagramWebClient") WebClient instagramWebClient;
     private final InstaProperties props;
+    private final UserGetService userGetService;
 
     public String buildAuthorizationUrl(Long userId) {
         String state = oAuthStateManager.generateState(userId);

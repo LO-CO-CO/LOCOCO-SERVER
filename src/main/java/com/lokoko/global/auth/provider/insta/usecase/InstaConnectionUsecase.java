@@ -30,6 +30,13 @@ public class InstaConnectionUsecase {
     private final CreatorSaveService creatorSaveService;
     private final InstaRedisTokenService instaRedisTokenService;
 
+    @Transactional(readOnly = true)
+    public String buildAuthorizationUrl(Long userId) {
+        userGetService.findUserById(userId);
+
+        return instaOAuthClient.buildAuthorizationUrl(userId);
+    }
+
     @Transactional
     public InstagramConnectionResponse connectInstagram(Long userId, String code) {
         try {
