@@ -22,7 +22,7 @@ import com.lokoko.domain.campaign.api.dto.response.CampaignParticipatedResponse;
 import com.lokoko.domain.campaign.application.service.CampaignGetService;
 import com.lokoko.domain.campaign.application.service.CampaignService;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatusFilter;
-import com.lokoko.domain.campaignReview.api.dto.response.CampaignReviewDetailResponse;
+import com.lokoko.domain.campaignReview.api.dto.response.CampaignReviewDetailListResponse;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewUpdateService;
 import com.lokoko.domain.campaignReview.domain.entity.enums.RevisionAction;
 import com.lokoko.global.auth.annotation.CurrentUser;
@@ -229,12 +229,13 @@ public class BrandController {
 
     @Operation(summary = "브랜드 마이페이지 - 본인이 발행한 특정 캠페인의 참여자 리뷰 단건 조회")
     @GetMapping("/my/campaigns/{campaignId}/creators/{creatorId}/review")
-    public ApiResponse<CampaignReviewDetailResponse> getCreatorCampaignReview(
+    public ApiResponse<CampaignReviewDetailListResponse> getCreatorCampaignReview(
             @Parameter(hidden = true) @CurrentUser Long brandId,
             @PathVariable Long campaignId,
             @PathVariable Long creatorId) {
 
-        CampaignReviewDetailResponse response = brandUsecase.getCreatorCampaignReview(brandId, campaignId, creatorId);
+        CampaignReviewDetailListResponse response = brandUsecase.getCreatorCampaignReview(brandId, campaignId,
+                creatorId);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_MY_PAGE_REVIEW_DETAIL_GET_SUCCESS.getMessage(),
                 response

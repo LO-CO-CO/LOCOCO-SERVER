@@ -8,6 +8,7 @@ import com.lokoko.domain.campaignReview.domain.repository.CampaignReviewVideoRep
 import com.lokoko.domain.campaignReview.exception.CampaignReviewNotFoundException;
 import com.lokoko.domain.campaignReview.exception.FirstReviewNotFoundException;
 import com.lokoko.domain.campaignReview.exception.ReviewAlreadySubmittedException;
+import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import java.util.List;
 import java.util.Optional;
@@ -107,6 +108,15 @@ public class CampaignReviewGetService {
         }
         return campaignReviewVideoRepository
                 .findVideoUrlsByReviewIdOrderByDisplay(campaignReview.getId());
+    }
+
+    /**
+     * CreatorCampaign과 라운드(FIRST/SECOND)로 리뷰 “목록” 조회. 여러 건 가능성을 고려해 id DESC로 정렬하여 반환.
+     */
+    public List<CampaignReview> getAllByCreatorCampaignAndRound(
+            CreatorCampaign creatorCampaign, ReviewRound reviewRound) {
+        return campaignReviewRepository
+                .findByCreatorCampaignAndReviewRoundOrderByIdDesc(creatorCampaign, reviewRound);
     }
 
     /**

@@ -12,6 +12,7 @@ import com.lokoko.domain.brand.domain.entity.Brand;
 import com.lokoko.domain.campaign.api.dto.response.CampaignParticipatedResponse;
 import com.lokoko.domain.campaign.application.service.CampaignGetService;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
+import com.lokoko.domain.campaignReview.api.dto.response.CampaignReviewDetailListResponse;
 import com.lokoko.domain.campaignReview.api.dto.response.CampaignReviewDetailResponse;
 import com.lokoko.domain.campaignReview.application.mapper.CampaignReviewMapper;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewGetService;
@@ -74,19 +75,21 @@ public class BrandUsecase {
     }
 
     @Transactional(readOnly = true)
-    public CampaignReviewDetailResponse getCreatorCampaignReview(Long brandId, Long campaignId, Long creatorId) {
+    public CampaignReviewDetailListResponse getCreatorCampaignReview(Long brandId, Long campaignId, Long creatorId) {
         brandGetService.getBrandById(brandId);
         Campaign campaign = campaignGetService.findByCampaignId(campaignId);
-        CreatorCampaign creatorCampaign =
-                creatorCampaignGetService.getByCampaignAndCreatorId(campaign, creatorId);
-        ReviewRound reviewRound = campaignReviewStatusManager.determineReviewRound(campaign.getCampaignStatus(),
+        CreatorCampaign creatorCampaign = creatorCampaignGetService.getByCampaignAndCreatorId(campaign, creatorId);
+        ReviewRound round = campaignReviewStatusManager.determineReviewRound(campaign.getCampaignStatus(),
                 creatorCampaign.getStatus());
-        CampaignReview campaignReview = campaignReviewGetService.getByCreatorCampaignAndRound(creatorCampaign,
-                reviewRound);
 
-        List<String> mediaUrls = campaignReviewGetService.getOrderedMediaUrls(campaignReview);
+        List<CampaignReview> reviews = campaignReviewGetService.getAllByCreatorCampaignAndRound(creatorCampaign, round);
 
-        return campaignReviewMapper.toCampaignReviewDetailResponse(campaign, campaignReview, mediaUrls);
+        List<CampaignReviewDetailResponse> reviewResponses = reviews.stream()
+                .map(review -> campaignReviewMapper.toDetailResponse(
+                        review, campaignReviewGetService.getOrderedMediaUrls(review)))
+                .toList();
+
+        return campaignReviewMapper.toDetailListResponse(campaign, round, reviewResponses);
     }
 
     @Transactional

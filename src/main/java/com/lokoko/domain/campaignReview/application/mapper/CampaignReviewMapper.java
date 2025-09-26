@@ -1,6 +1,7 @@
 package com.lokoko.domain.campaignReview.application.mapper;
 
 import com.lokoko.domain.campaign.domain.entity.Campaign;
+import com.lokoko.domain.campaignReview.api.dto.response.CampaignReviewDetailListResponse;
 import com.lokoko.domain.campaignReview.api.dto.response.CampaignReviewDetailResponse;
 import com.lokoko.domain.campaignReview.api.dto.response.ReviewUploadResponse;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
@@ -76,14 +77,12 @@ public class CampaignReviewMapper {
                 .build();
     }
 
-    public CampaignReviewDetailResponse toCampaignReviewDetailResponse(
-            Campaign campaign,
-            CampaignReview review,
-            List<String> mediaUrls
-    ) {
+    public MediaPresignedUrlResponse toMediaPresignedUrlResponse(List<String> urls) {
+        return new MediaPresignedUrlResponse(urls);
+    }
+
+    public CampaignReviewDetailResponse toDetailResponse(CampaignReview review, List<String> mediaUrls) {
         return CampaignReviewDetailResponse.builder()
-                .campaignId(campaign.getId())
-                .title(campaign.getTitle())
                 .contentType(review.getContentType())
                 .mediaUrls(mediaUrls)
                 .captionWithHashtags(review.getCaptionWithHashtags())
@@ -91,9 +90,13 @@ public class CampaignReviewMapper {
                 .build();
     }
 
-    public MediaPresignedUrlResponse toMediaPresignedUrlResponse(List<String> presignedUrls) {
-        return MediaPresignedUrlResponse.builder()
-                .mediaUrl(presignedUrls)
+    public CampaignReviewDetailListResponse toDetailListResponse(Campaign campaign, ReviewRound round,
+                                                                 List<CampaignReviewDetailResponse> reviews) {
+        return CampaignReviewDetailListResponse.builder()
+                .campaignId(campaign.getId())
+                .title(campaign.getTitle())
+                .reviewRound(round)
+                .reviews(reviews)
                 .build();
     }
 }

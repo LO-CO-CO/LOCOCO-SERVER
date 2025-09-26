@@ -13,12 +13,6 @@ import lombok.Builder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record CampaignReviewDetailResponse(
 
-        @Schema(requiredMode = REQUIRED, description = "캠페인 ID", example = "11")
-        Long campaignId,
-
-        @Schema(requiredMode = REQUIRED, description = "캠페인 제목", example = "Summer Hydration Campaign")
-        String title,
-
         @Schema(requiredMode = REQUIRED, description = "소셜 클립 컨텐츠 종류", example = "TIKTOK_VIDEO")
         ContentType contentType,
 
