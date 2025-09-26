@@ -20,6 +20,7 @@ import com.lokoko.domain.creator.exception.SnsNotConnectedException;
 import com.lokoko.domain.creatorCampaign.application.mapper.CreatorCampaignMapper;
 import com.lokoko.domain.creatorCampaign.application.service.CreatorCampaignGetService;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
+import com.lokoko.domain.user.application.service.UserGetService;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.global.auth.entity.enums.OauthLoginStatus;
@@ -36,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CreatorUsecase {
 
+    private final UserGetService userGetService;
     private final CreatorGetService creatorGetService;
     private final CreatorCampaignGetService creatorCampaignGetService;
     private final CampaignReviewGetService campaignReviewGetService;
@@ -118,7 +120,7 @@ public class CreatorUsecase {
 
     @Transactional(readOnly = true)
     public CreatorRegisterCompleteResponse completeCreatorSignup(Long userId) {
-        User user = creatorGetService.findUserById(userId);
+        User user = userGetService.findUserById(userId);
 
         if (user.getRole() != Role.CREATOR) {
             throw new NotCreatorRoleException();

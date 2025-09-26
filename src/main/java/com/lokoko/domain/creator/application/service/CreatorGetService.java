@@ -3,9 +3,6 @@ package com.lokoko.domain.creator.application.service;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creator.domain.repository.CreatorRepository;
 import com.lokoko.domain.creator.exception.CreatorNotFoundException;
-import com.lokoko.domain.user.domain.entity.User;
-import com.lokoko.domain.user.domain.repository.UserRepository;
-import com.lokoko.domain.user.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,16 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class CreatorGetService {
 
     private final CreatorRepository creatorRepository;
-    private final UserRepository userRepository;
 
     public Creator findByUserId(Long userId) {
         return creatorRepository.findByUserId(userId)
                 .orElseThrow(CreatorNotFoundException::new);
-    }
-
-    public User findUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
     }
 }
 

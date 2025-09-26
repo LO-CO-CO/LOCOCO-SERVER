@@ -14,8 +14,6 @@ import com.lokoko.domain.creator.api.message.ResponseMessage;
 import com.lokoko.domain.creator.application.service.CreatorUsecase;
 import com.lokoko.domain.creator.application.service.TikTokApiService;
 import com.lokoko.global.auth.annotation.CurrentUser;
-import com.lokoko.global.auth.tiktok.dto.TikTokProfileDto;
-import com.lokoko.global.auth.tiktok.dto.TikTokVideoListResponse;
 import com.lokoko.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

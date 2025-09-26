@@ -172,9 +172,12 @@ public class Creator {
     public void changeContentLanguage(ContentLanguage contentLanguage) {
         this.contentLanguage = contentLanguage;
     }
-    
+
     public void connectTikTok(String tikTokUserId) {
         this.tikTokUserId = tikTokUserId;
     }
 
+    public void connectInsta(String instagramUserId) {
+        this.instagramUserId = instagramUserId;
+    }
 }

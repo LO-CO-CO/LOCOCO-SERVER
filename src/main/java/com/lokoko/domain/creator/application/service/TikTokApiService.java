@@ -1,9 +1,9 @@
 package com.lokoko.domain.creator.application.service;
 
-import com.lokoko.global.auth.tiktok.TikTokOAuthClient;
-import com.lokoko.global.auth.tiktok.dto.TikTokProfileDto;
-import com.lokoko.global.auth.tiktok.dto.TikTokVideoListResponse;
-import com.lokoko.global.auth.tiktok.service.TikTokRedisTokenService;
+import com.lokoko.global.auth.provider.tiktok.config.TikTokOAuthClient;
+import com.lokoko.global.auth.provider.tiktok.dto.TikTokProfileDto;
+import com.lokoko.global.auth.provider.tiktok.dto.TikTokVideoListResponse;
+import com.lokoko.global.auth.provider.tiktok.service.TikTokRedisTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
