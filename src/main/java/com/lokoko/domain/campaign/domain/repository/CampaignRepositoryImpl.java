@@ -76,6 +76,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 .where(campaign.brand.id.eq(brandId)
                         .and(campaign.applyStartDate.loe(now))
                         .and(campaign.reviewSubmissionDeadline.goe(now)))
+                .orderBy(campaign.title.asc())
                 .fetch();
 
         return new BrandMyCampaignInfoListResponse(simpleResponses);
