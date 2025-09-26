@@ -61,7 +61,7 @@ public class TikTokRedisTokenService {
         }
 
         // 액세스 토큰 만료 확인 (5분 전 미리 갱신)
-        // 액세스 토큰 만료직전이면, refreshToken 을 가져와서, 틱톡에 다시 accessToken 을 요청한다.
+        // 액세스 토큰 만료 직전이면, refreshToken을 가져와서, 틱톡에 다시 accessToken 을 요청한다.
         Instant expiresAt = Instant.parse(expiresAtStr);
         if (isAccessTokenExpiringSoon(expiresAt)) {
             String refreshToken = (String) redisTemplate.opsForHash().get(key, "refreshToken");
