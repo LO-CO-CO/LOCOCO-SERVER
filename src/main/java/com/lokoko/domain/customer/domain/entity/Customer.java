@@ -14,13 +14,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Getter
 @Entity
@@ -151,5 +150,9 @@ public class Customer {
 
     public void connectTikTok(String tikTokUserId) {
         this.tikTokUserId = tikTokUserId;
+    }
+
+    public void connectInsta(String instaUserId) {
+        this.instaUserId = instaUserId;
     }
 }
