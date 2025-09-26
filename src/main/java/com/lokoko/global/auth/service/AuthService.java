@@ -1,5 +1,14 @@
 package com.lokoko.global.auth.service;
 
+import static com.lokoko.global.auth.jwt.utils.JwtProvider.EMAIL_CLAIM;
+import static com.lokoko.global.utils.LineConstants.AUTHORIZE_PATH;
+import static com.lokoko.global.utils.LineConstants.PARAM_CLIENT_ID;
+import static com.lokoko.global.utils.LineConstants.PARAM_REDIRECT_URI;
+import static com.lokoko.global.utils.LineConstants.PARAM_RESPONSE_TYPE;
+import static com.lokoko.global.utils.LineConstants.PARAM_SCOPE;
+import static com.lokoko.global.utils.LineConstants.PARAM_STATE;
+import static com.lokoko.global.utils.LineConstants.PARAM_UI_LOCALES;
+
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.lokoko.domain.brand.domain.entity.Brand;
@@ -21,40 +30,36 @@ import com.lokoko.global.auth.exception.OauthException;
 import com.lokoko.global.auth.exception.RoleChangeNotAllowedException;
 import com.lokoko.global.auth.exception.StateValidationException;
 import com.lokoko.global.auth.exception.UserNotCompletedSignUpException;
-import com.lokoko.global.auth.google.GoogleOAuthClient;
-import com.lokoko.global.auth.google.GoogleProperties;
-import com.lokoko.global.auth.google.dto.GoogleProfileDto;
-import com.lokoko.global.auth.google.dto.GoogleTokenDto;
-import com.lokoko.global.auth.google.dto.RoleUpdateResponse;
-import com.lokoko.global.auth.google.dto.response.AfterLoginUserNameResponse;
 import com.lokoko.global.auth.jwt.dto.LoginResponse;
 import com.lokoko.global.auth.jwt.exception.TokenInvalidException;
 import com.lokoko.global.auth.jwt.utils.CookieUtil;
 import com.lokoko.global.auth.jwt.utils.JwtExtractor;
 import com.lokoko.global.auth.jwt.utils.JwtProvider;
-import com.lokoko.global.auth.line.LineOAuthClient;
-import com.lokoko.global.auth.line.LineProperties;
-import com.lokoko.global.auth.line.dto.LineProfileDto;
-import com.lokoko.global.auth.line.dto.LineTokenDto;
-import com.lokoko.global.auth.line.dto.LineUserInfoDto;
+import com.lokoko.global.auth.provider.google.GoogleOAuthClient;
+import com.lokoko.global.auth.provider.google.GoogleProperties;
+import com.lokoko.global.auth.provider.google.dto.GoogleProfileDto;
+import com.lokoko.global.auth.provider.google.dto.GoogleTokenDto;
+import com.lokoko.global.auth.provider.google.dto.RoleUpdateResponse;
+import com.lokoko.global.auth.provider.google.dto.response.AfterLoginUserNameResponse;
+import com.lokoko.global.auth.provider.line.LineOAuthClient;
+import com.lokoko.global.auth.provider.line.LineProperties;
+import com.lokoko.global.auth.provider.line.dto.LineProfileDto;
+import com.lokoko.global.auth.provider.line.dto.LineTokenDto;
+import com.lokoko.global.auth.provider.line.dto.LineUserInfoDto;
 import com.lokoko.global.utils.GoogleConstants;
 import com.lokoko.global.utils.RedisUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
-import java.util.UUID;
-
-import static com.lokoko.global.auth.jwt.utils.JwtProvider.EMAIL_CLAIM;
-import static com.lokoko.global.utils.LineConstants.*;
 
 @Slf4j
 @Service
@@ -164,7 +169,6 @@ public class AuthService {
             String lastName = profile.familyName();
             String profileImageUrl = profile.picture();
 
-
             Optional<User> userOpt = userRepository.findByGoogleId(googleUserId);
             User user;
             OauthLoginStatus loginStatus;
@@ -191,20 +195,23 @@ public class AuthService {
                     loginStatus = OauthLoginStatus.LOGIN;
                 }
             } else {
-                user = User.createGoogleUser(googleUserId, email, displayName,firstName,lastName,profileImageUrl);
+                user = User.createGoogleUser(googleUserId, email, displayName, firstName, lastName, profileImageUrl);
                 loginStatus = OauthLoginStatus.REGISTER;
             }
 
             user = userRepository.save(user);
 
-            String accessToken = jwtProvider.generateGoogleAccessToken(user.getId(), user.getRole().name(), googleUserId);
+            String accessToken = jwtProvider.generateGoogleAccessToken(user.getId(), user.getRole().name(),
+                    googleUserId);
             String tokenId = UUID.randomUUID().toString();
-            String refreshToken = jwtProvider.generateGoogleRefreshToken(user.getId(), user.getRole().name(), tokenId, googleUserId);
+            String refreshToken = jwtProvider.generateGoogleRefreshToken(user.getId(), user.getRole().name(), tokenId,
+                    googleUserId);
 
             String redisKey = REFRESH_TOKEN_KEY_PREFIX + user.getId();
             redisUtil.setRefreshToken(redisKey, refreshToken, refreshTokenExpiration);
 
-            return LoginResponse.withRole(accessToken, refreshToken, loginStatus, user.getId(), tokenId, user.getRole());
+            return LoginResponse.withRole(accessToken, refreshToken, loginStatus, user.getId(), tokenId,
+                    user.getRole());
         } catch (Exception ex) {
             throw new OauthException(ErrorMessage.OAUTH_ERROR);
         }
@@ -277,7 +284,8 @@ public class AuthService {
 
         String tokenId = UUID.randomUUID().toString();
         String accessToken = jwtProvider.generateGoogleAccessToken(userId, newRole.name(), user.getGoogleId());
-        String refreshToken = jwtProvider.generateGoogleRefreshToken(userId, newRole.name(), tokenId, user.getGoogleId());
+        String refreshToken = jwtProvider.generateGoogleRefreshToken(userId, newRole.name(), tokenId,
+                user.getGoogleId());
 
         String redisKey = REFRESH_TOKEN_KEY_PREFIX + userId;
         redisUtil.setRefreshToken(redisKey, refreshToken, refreshTokenExpiration);
@@ -385,6 +393,7 @@ public class AuthService {
             }
         }
     }
+
     @Transactional(readOnly = true)
     public AfterLoginUserNameResponse getUserName(Long userId) {
         User user = userRepository.findById(userId)

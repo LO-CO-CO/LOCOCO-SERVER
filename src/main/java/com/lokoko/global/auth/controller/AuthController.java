@@ -1,15 +1,23 @@
 package com.lokoko.global.auth.controller;
 
+import static com.lokoko.global.auth.controller.enums.ResponseMessage.GET_LOGIN_USER_ID_SUCCESS;
+import static com.lokoko.global.auth.controller.enums.ResponseMessage.LOGIN_SUCCESS;
+import static com.lokoko.global.auth.controller.enums.ResponseMessage.LOGOUT_SUCCESS;
+import static com.lokoko.global.auth.controller.enums.ResponseMessage.REFRESH_TOKEN_REISSUE;
+import static com.lokoko.global.auth.controller.enums.ResponseMessage.ROLE_ASSIGNED_SUCCESS;
+import static com.lokoko.global.auth.jwt.utils.JwtProvider.ACCESS_TOKEN_HEADER;
+import static com.lokoko.global.auth.jwt.utils.JwtProvider.REFRESH_TOKEN_HEADER;
+
 import com.lokoko.global.auth.annotation.CurrentUser;
-import com.lokoko.global.auth.google.dto.GoogleLoginResponse;
-import com.lokoko.global.auth.google.dto.RoleUpdateRequest;
-import com.lokoko.global.auth.google.dto.RoleUpdateResponse;
-import com.lokoko.global.auth.google.dto.response.AfterLoginUserNameResponse;
 import com.lokoko.global.auth.jwt.dto.JwtTokenResponse;
 import com.lokoko.global.auth.jwt.dto.LoginResponse;
 import com.lokoko.global.auth.jwt.service.JwtService;
 import com.lokoko.global.auth.jwt.utils.CookieUtil;
-import com.lokoko.global.auth.line.dto.LineLoginResponse;
+import com.lokoko.global.auth.provider.google.dto.GoogleLoginResponse;
+import com.lokoko.global.auth.provider.google.dto.RoleUpdateRequest;
+import com.lokoko.global.auth.provider.google.dto.RoleUpdateResponse;
+import com.lokoko.global.auth.provider.google.dto.response.AfterLoginUserNameResponse;
+import com.lokoko.global.auth.provider.line.dto.LineLoginResponse;
 import com.lokoko.global.auth.service.AuthService;
 import com.lokoko.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +26,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,12 +36,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
-
-import static com.lokoko.global.auth.controller.enums.ResponseMessage.*;
-import static com.lokoko.global.auth.jwt.utils.JwtProvider.ACCESS_TOKEN_HEADER;
-import static com.lokoko.global.auth.jwt.utils.JwtProvider.REFRESH_TOKEN_HEADER;
 
 @Slf4j
 @Tag(name = "AUTH")
@@ -90,7 +93,6 @@ public class AuthController {
             @Parameter(hidden = true) @CurrentUser Long userId,
             @RequestBody @Valid RoleUpdateRequest request,
             HttpServletResponse response) {
-
 
         RoleUpdateResponse roleResponse = authService.updateUserRole(userId, request.role());
 
