@@ -2,8 +2,6 @@ package com.lokoko.domain.campaign.domain.repository;
 
 import com.lokoko.domain.brand.api.dto.response.BrandDashboardCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandDashboardCampaignResponse;
-import static com.lokoko.domain.media.image.domain.entity.enums.ImageType.THUMBNAIL;
-
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
@@ -26,17 +24,8 @@ import com.lokoko.domain.campaignReview.domain.entity.QCampaignReview;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewStatus;
 import com.lokoko.domain.creatorCampaign.domain.entity.QCreatorCampaign;
-import com.lokoko.domain.image.domain.entity.QCampaignImage;
-import com.lokoko.domain.image.domain.entity.enums.ImageType;
-import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
-import com.lokoko.domain.campaign.domain.entity.enums.CampaignChipStatus;
-import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
-import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
-import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductTypeFilter;
-import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
-import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatusFilter;
-import com.lokoko.domain.campaign.domain.entity.enums.LanguageFilter;
 import com.lokoko.domain.media.image.domain.entity.QCampaignImage;
+import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.domain.user.domain.repository.UserRepository;
@@ -48,12 +37,15 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+
+import static com.lokoko.domain.media.image.domain.entity.enums.ImageType.THUMBNAIL;
 
 @Repository
 @RequiredArgsConstructor
@@ -402,7 +394,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 .leftJoin(campaignImage).on(
                         campaignImage.campaign.eq(campaign)
                                 .and(campaignImage.displayOrder.eq(0))
-                                .and(campaignImage.imageType.eq(ImageType.THUMBNAIL))
+                                .and(campaignImage.imageType.eq(THUMBNAIL))
                 )
                 .where(campaign.brand.id.eq(brandId)
                         .and(campaign.applyStartDate.loe(now)))
