@@ -1,9 +1,11 @@
 package com.lokoko.domain.campaign.application.service;
 
+import com.lokoko.domain.brand.api.dto.response.BrandDashboardCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.CampaignApplicantListResponse;
 import com.lokoko.domain.brand.domain.entity.Brand;
+import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignDetailResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse;
@@ -25,14 +27,19 @@ import com.lokoko.domain.media.image.domain.repository.CampaignImageRepository;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.domain.user.exception.UserNotFoundException;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -160,5 +167,12 @@ public class CampaignGetService {
         Hibernate.initialize(campaign.getParticipationRewards());
         Hibernate.initialize(campaign.getDeliverableRequirements());
         Hibernate.initialize(campaign.getEligibilityRequirements());
+    }
+
+    /**
+     * 브랜드 대시보드 캠페인 목록 조회
+     */
+    public BrandDashboardCampaignListResponse getBrandDashboardCampaigns(Long brandId, int page, int size) {
+        return campaignRepository.findBrandDashboardCampaigns(brandId, PageRequest.of(page, size));
     }
 }

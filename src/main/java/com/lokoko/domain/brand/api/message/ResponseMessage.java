@@ -26,7 +26,9 @@ public enum ResponseMessage {
     BRAND_MY_PAGE_CAMPAIGNS_GET_SUCCESS("브랜드 마이페이지 캠페인 리스트 조회에 성공했습니다"),
     BRAND_MY_PAGE_REVIEW_DETAIL_GET_SUCCESS("브랜드 마이페이지 캠페인 리뷰 상세 조회에 성공했습니다"),
     BRAND_PROFILE_AND_STATISTICS_GET_SUCCESS("브랜드 마이페이지 프로필 및 통계 정보 조회에 성공했습니다"),
-    DRAFT_CAMPAIGN_GET_SUCCESS("임시저장 상태의 캠페인 조회에 성공했습니다.");
+    DRAFT_CAMPAIGN_GET_SUCCESS("임시저장 상태의 캠페인 조회에 성공했습니다."),
+
+    BRAND_DASHBOARD_GET_SUCCESS("브랜드 대시보드 캠페인 리스트 조회 성공했습니다.");
 
     private final String message;
 }
