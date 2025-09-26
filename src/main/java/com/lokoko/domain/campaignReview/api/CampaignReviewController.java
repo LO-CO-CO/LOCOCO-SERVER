@@ -50,7 +50,7 @@ public class CampaignReviewController {
                 campaignReviewUsecase.uploadSecond(userId, campaignId, request));
     }
 
-    @Operation(summary = "리뷰 업로드 가능한 캠페인 목록 조회 (리뷰 업로드 드롭다운)")
+    @Operation(summary = "리뷰 업로드 가능한 정보 조회 - 크리에이터가 참여중인 캠페인 관련 정보 조회")
     @GetMapping("/my/participation")
     public ApiResponse<List<CampaignParticipatedResponse>> getMyReviewables(
             @Parameter(hidden = true) @CurrentUser Long userId) {
