@@ -6,6 +6,9 @@ import com.lokoko.domain.brand.api.dto.request.BrandNoteRevisionRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandProfileImageRequest;
 import com.lokoko.domain.brand.api.dto.request.CreatorApproveRequest;
 import com.lokoko.domain.brand.api.dto.response.BrandIssuedCampaignResponse;
+import com.lokoko.domain.brand.api.dto.response.BrandDashboardCampaignListResponse;
+import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
+import com.lokoko.domain.brand.api.dto.request.CreatorApproveRequest;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyPageResponse;
@@ -19,6 +22,7 @@ import com.lokoko.domain.brand.application.usecase.BrandUsecase;
 import com.lokoko.domain.campaign.api.dto.request.CampaignDraftRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignPublishRequest;
 import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
+import com.lokoko.domain.campaign.application.service.CampaignGetService;
 import com.lokoko.domain.campaign.application.service.CampaignGetService;
 import com.lokoko.domain.campaign.application.service.CampaignService;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatusFilter;
@@ -286,4 +290,14 @@ public class BrandController {
                 ResponseMessage.CAMPAIGN_PUBLISH_SUCCESS.getMessage(), response);
     }
 
+    @Operation(summary = "브랜드 대시보드 캠페인 리스트 조회")
+    @GetMapping("/dashboard/campaigns")
+    public ApiResponse<BrandDashboardCampaignListResponse> getBrandDashboardCampaigns(
+            @Parameter(hidden = true) @CurrentUser Long brandId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        BrandDashboardCampaignListResponse response = campaignGetService.getBrandDashboardCampaigns(brandId, page, size);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_DASHBOARD_GET_SUCCESS.getMessage(), response);
+    }
 }

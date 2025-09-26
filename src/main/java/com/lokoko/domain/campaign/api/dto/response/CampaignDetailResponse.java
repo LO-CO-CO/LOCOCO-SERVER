@@ -40,18 +40,26 @@ public record CampaignDetailResponse(
         List<CampaignImageResponse> thumbnailImages,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "하단 이미지 목록 리스트")
         List<CampaignImageResponse> detailImages,
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인 상태" , example = "Coming Soon, Apply Now!, Completed ....")
-        String campaignStatusCode,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "사용자가 보는 현재 캠페인 상태")
+        String userSpecificCampaignStatus,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인이 PRO 크리에이터 대상 캠페인인지 여부  ", example = "true")
+        boolean isProCampaign,
         @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "현재 상세페이지를 조회하고 있는 사용자의 권한 정보" , example = "CUSTOMER , BRAND, CREATOR, ADMIN, null(비로그인 사용자")
-        String currentUserRole
+        String currentUserRole,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "현재 사용자가 크리에이터라면, 크리에이터의 등급 정보" , example = "NOT_APPROVED, PRO, NORMAL")
+        String creatorRoleInfo
 ) {
 
     public static CampaignDetailResponse of(Campaign campaign, List<CampaignImageResponse> thumbnailImages,
                                             List<CampaignImageResponse> detailImages,
                                             CampaignDetailPageStatus campaignStatusCode,
-                                            String currentUserRole) {
+                                            String currentUserRole, String creatorRoleInfo) {
 
         Brand brand = campaign.getBrand();
+
+        boolean isProCampaign = campaign.getCampaignType() == CampaignType.CONTENTS
+                || campaign.getCampaignType() == CampaignType.EXCLUSIVE;
+
         return new CampaignDetailResponse(
                 campaign.getId(),
                 campaign.getCampaignType(),
@@ -68,7 +76,9 @@ public record CampaignDetailResponse(
                 thumbnailImages,
                 detailImages,
                 campaignStatusCode.getCode(),
-                currentUserRole
+                isProCampaign,
+                currentUserRole,
+                creatorRoleInfo
         );
     }
 }

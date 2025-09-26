@@ -20,7 +20,7 @@ public class PermitUrlConfig {
                 "/api/reviews/details/video",
                 "/api/reviews/{productId}/{userId}",
                 "/api/products/details/{productId}/youtube",
-                "api/campaigns/upcoming"
+                "/api/campaigns/upcoming"
         };
     }
 
@@ -62,7 +62,9 @@ public class PermitUrlConfig {
         return new String[]{
                 "/api/customer/profile/image",
                 "/api/customer/profile",
-                "/api/customer/sns-status"
+                "/api/customer/sns-status",
+                "/api/auth/sns/tiktok/connect",
+                "/api/auth/sns/tiktok/callback"
         };
     }
 
