@@ -1,8 +1,6 @@
 package com.lokoko.domain.campaignReview.application.mapper;
 
 import com.lokoko.domain.campaign.domain.entity.Campaign;
-import com.lokoko.domain.campaignReview.api.dto.request.FirstReviewUploadRequest;
-import com.lokoko.domain.campaignReview.api.dto.request.SecondReviewUploadRequest;
 import com.lokoko.domain.campaignReview.api.dto.response.CampaignReviewDetailResponse;
 import com.lokoko.domain.campaignReview.api.dto.response.ReviewUploadResponse;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
@@ -12,6 +10,7 @@ import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
 import com.lokoko.domain.media.domain.MediaFile;
+import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.utils.S3UrlParser;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,24 +19,24 @@ import org.springframework.stereotype.Component;
 @Component
 public class CampaignReviewMapper {
 
-    public CampaignReview toFirstReview(CreatorCampaign creatorCampaign,
-                                        FirstReviewUploadRequest request) {
-        CampaignReview campaignReview = new CampaignReview();
-        campaignReview.bindToCreatorCampaign(creatorCampaign);
-        campaignReview.designateRound(ReviewRound.FIRST);
-        campaignReview.chooseContentType(request.contentType());
-        campaignReview.requestFirstReview(request.captionWithHashtags());
-        return campaignReview;
+    public CampaignReview toFirstReview(CreatorCampaign creatorCampaign, ContentType contentType,
+                                        String captionWithHashtags) {
+        CampaignReview review = new CampaignReview();
+        review.bindToCreatorCampaign(creatorCampaign);
+        review.designateRound(ReviewRound.FIRST);
+        review.chooseContentType(contentType);
+        review.requestFirstReview(captionWithHashtags);
+        return review;
     }
 
-    public CampaignReview toSecondReview(CreatorCampaign creatorCampaign,
-                                         SecondReviewUploadRequest request) {
-        CampaignReview campaignReview = new CampaignReview();
-        campaignReview.bindToCreatorCampaign(creatorCampaign);
-        campaignReview.designateRound(ReviewRound.SECOND);
-        campaignReview.chooseContentType(request.contentType());
-        campaignReview.requestSecondReview(request.captionWithHashtags(), request.postUrl());
-        return campaignReview;
+    public CampaignReview toSecondReview(CreatorCampaign creatorCampaign, ContentType contentType,
+                                         String captionWithHashtags, String postUrl) {
+        CampaignReview review = new CampaignReview();
+        review.bindToCreatorCampaign(creatorCampaign);
+        review.designateRound(ReviewRound.SECOND);
+        review.chooseContentType(contentType);
+        review.requestSecondReview(captionWithHashtags, postUrl);
+        return review;
     }
 
     public List<CampaignReviewImage> toCampaignReviewImages(List<String> mediaUrls,
