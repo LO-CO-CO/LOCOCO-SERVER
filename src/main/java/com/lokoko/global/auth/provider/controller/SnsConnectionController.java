@@ -2,6 +2,8 @@ package com.lokoko.global.auth.provider.controller;
 
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.auth.provider.controller.enums.ResponseMessage;
+import com.lokoko.global.auth.provider.insta.config.InstaOauthClient;
+import com.lokoko.global.auth.provider.insta.dto.InstagramConnectionResponse;
 import com.lokoko.global.auth.provider.insta.usecase.InstaConnectionUsecase;
 import com.lokoko.global.auth.provider.tiktok.dto.TikTokConnectionResponse;
 import com.lokoko.global.auth.provider.tiktok.usecase.TikTokConnectionUsecase;
@@ -25,9 +27,11 @@ public class SnsConnectionController {
 
     private final TikTokConnectionUsecase tikTokConnectionUsecase;
     private final InstaConnectionUsecase instaConnectionUsecase;
+
+    private final InstaOauthClient instaOAuthClient;
     private final OAuthStateManager oAuthStateManager;
 
-    @Operation(summary = "TikTok 계정 연결", description = "Creator가 TikTok 계정 연결 / TikTok OAuth 인증 페이지로 리다이렉트")
+    @Operation(summary = "TikTok 계정 연동 / TikTok OAuth 인증 페이지로 리다이렉트")
     @GetMapping("/tiktok/connect")
     public ApiResponse<String> connectTikTok(
             @Parameter(hidden = true) @CurrentUser Long userId) {
@@ -36,19 +40,32 @@ public class SnsConnectionController {
                 authUrl);
     }
 
-    @Operation(summary = "TikTok OAuth 콜백", description = "TikTok OAuth 인증 후 콜백을 처리 및 계정 연결 완료")
+    @Operation(summary = "TikTok OAuth 콜백 / 인증 후 콜백을 처리 및 계정 연결")
     @GetMapping("/tiktok/callback")
-    public ApiResponse<TikTokConnectionResponse> handleTikTokCallback(
-            @RequestParam("code") String code, @RequestParam("state") String state) {
-
+    public ApiResponse<TikTokConnectionResponse> handleTikTokCallback(@RequestParam("code") String code,
+                                                                      @RequestParam("state") String state) {
         Long userId = oAuthStateManager.validateAndGetCreatorId(state);
-
         TikTokConnectionResponse response = tikTokConnectionUsecase.connectTikTok(userId, code);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.TIKTOK_CONNECT_SUCCESS.getMessage(), response);
     }
 
-    /**
-     * 인스타그램 로직 추가 예정
-     */
+    @Operation(summary = "Instagram 계정 연동 / Creator가 Instagram OAuth 인증 페이지로 리다이렉트")
+    @GetMapping("/instagram/connect")
+    public ApiResponse<String> connectInstagram(@Parameter(hidden = true) @CurrentUser Long userId) {
+        String authUrl = instaOAuthClient.buildAuthorizationUrl(userId);
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.INSTAGRAM_REDIRECT_URI_GET_SUCCESS.getMessage(),
+                authUrl);
+    }
+
+    @Operation(summary = "Instagram OAuth 콜백 / 인증 후 code로 액세스 토큰 교환 및 계정 연결")
+    @GetMapping("/instagram/callback")
+    public ApiResponse<InstagramConnectionResponse> handleInstagramCallback(
+            @RequestParam("code") String code, @RequestParam("state") String state) {
+        Long userId = oAuthStateManager.validateAndGetCreatorId(state);
+        InstagramConnectionResponse response = instaConnectionUsecase.connectInstagram(userId, code);
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.INSTAGRAM_CONNECT_SUCCESS.getMessage(), response);
+    }
 }
