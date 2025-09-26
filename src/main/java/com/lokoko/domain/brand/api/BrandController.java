@@ -5,6 +5,7 @@ import com.lokoko.domain.brand.api.dto.request.BrandMyPageUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandNoteRevisionRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandProfileImageRequest;
 import com.lokoko.domain.brand.api.dto.request.CreatorApproveRequest;
+import com.lokoko.domain.brand.api.dto.response.BrandIssuedCampaignResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyPageResponse;
@@ -18,7 +19,6 @@ import com.lokoko.domain.brand.application.usecase.BrandUsecase;
 import com.lokoko.domain.campaign.api.dto.request.CampaignDraftRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignPublishRequest;
 import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
-import com.lokoko.domain.campaign.api.dto.response.CampaignParticipatedResponse;
 import com.lokoko.domain.campaign.application.service.CampaignGetService;
 import com.lokoko.domain.campaign.application.service.CampaignService;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatusFilter;
@@ -216,14 +216,14 @@ public class BrandController {
                 response);
     }
 
-    @Operation(summary = "브랜드 마이페이지 - 본인이 발행한 승인된 캠페인 제목 목록 조회")
-    @GetMapping("/my/campaigns/titles")
-    public ApiResponse<List<CampaignParticipatedResponse>> getCampaignTitles(
+    @Operation(summary = "브랜드 마이페이지 - 본인이 발행한 승인된 캠페인 리뷰 관련 정보 조회 (리스트 반환)")
+    @GetMapping("/my/campaigns/in-review")
+    public ApiResponse<List<BrandIssuedCampaignResponse>> getCampaignDetails(
             @Parameter(hidden = true) @CurrentUser Long brandId) {
-        List<CampaignParticipatedResponse> response = brandUsecase.getCampaignTitles(brandId);
+        List<BrandIssuedCampaignResponse> response = brandUsecase.getMyIssuedCampaignsInReview(brandId);
 
         return ApiResponse.success(HttpStatus.OK,
-                ResponseMessage.BRAND_MY_PAGE_CAMPAIGNS_TITLES_GET_SUCCESS.getMessage(),
+                ResponseMessage.BRAND_MY_PAGE_CAMPAIGNS_DETAILS_GET_SUCCESS.getMessage(),
                 response);
     }
 
