@@ -4,7 +4,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
-import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
+import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import lombok.Builder;

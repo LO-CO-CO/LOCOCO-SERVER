@@ -1,11 +1,11 @@
 package com.lokoko.domain.product.application.service;
 
 
-import com.lokoko.domain.image.domain.entity.ProductImage;
-import com.lokoko.domain.image.domain.repository.ProductImageRepository;
 import com.lokoko.domain.like.application.service.ProductLikeService;
 import com.lokoko.domain.like.domain.entity.ProductLike;
 import com.lokoko.domain.like.domain.repository.ProductLikeRepository;
+import com.lokoko.domain.media.image.domain.entity.ProductImage;
+import com.lokoko.domain.media.image.domain.repository.ProductImageRepository;
 import com.lokoko.domain.product.api.dto.ReviewStats;
 import com.lokoko.domain.product.api.dto.response.CachedNewProduct;
 import com.lokoko.domain.product.api.dto.response.CachedNewProductListResponse;

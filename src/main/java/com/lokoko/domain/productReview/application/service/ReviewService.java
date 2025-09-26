@@ -1,13 +1,21 @@
 package com.lokoko.domain.productReview.application.service;
 
 
+import static com.lokoko.domain.media.application.utils.MediaValidationUtil.validateMediaFiles;
 import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
-import com.lokoko.domain.image.domain.entity.ReceiptImage;
-import com.lokoko.domain.image.domain.entity.ReviewImage;
-import com.lokoko.domain.image.domain.repository.ReceiptImageRepository;
-import com.lokoko.domain.image.domain.repository.ReviewImageRepository;
 import com.lokoko.domain.like.domain.repository.ReviewLikeRepository;
+import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
+import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
+import com.lokoko.domain.media.api.dto.response.PresignedUrlResponse;
+import com.lokoko.domain.media.application.service.S3Service;
+import com.lokoko.domain.media.domain.MediaFile;
+import com.lokoko.domain.media.image.domain.entity.ReceiptImage;
+import com.lokoko.domain.media.image.domain.entity.ReviewImage;
+import com.lokoko.domain.media.image.domain.repository.ReceiptImageRepository;
+import com.lokoko.domain.media.image.domain.repository.ReviewImageRepository;
+import com.lokoko.domain.media.video.domain.entity.ReviewVideo;
+import com.lokoko.domain.media.video.domain.repository.ReviewVideoRepository;
 import com.lokoko.domain.product.application.event.PopularProductsCacheEvictEvent;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.ProductOption;
@@ -16,10 +24,8 @@ import com.lokoko.domain.product.domain.repository.ProductRepository;
 import com.lokoko.domain.product.exception.ProductNotFoundException;
 import com.lokoko.domain.product.exception.ProductOptionMismatchException;
 import com.lokoko.domain.product.exception.ProductOptionNotFoundException;
-import com.lokoko.domain.productReview.api.dto.request.ReviewMediaRequest;
 import com.lokoko.domain.productReview.api.dto.request.ReviewReceiptRequest;
 import com.lokoko.domain.productReview.api.dto.request.ReviewRequest;
-import com.lokoko.domain.productReview.api.dto.response.ReviewMediaResponse;
 import com.lokoko.domain.productReview.api.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.productReview.api.dto.response.ReviewResponse;
 import com.lokoko.domain.productReview.application.event.PopularReviewsCacheEvictEvent;
@@ -35,12 +41,7 @@ import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.domain.user.exception.UserNotFoundException;
-import com.lokoko.domain.video.domain.entity.ReviewVideo;
-import com.lokoko.domain.video.domain.repository.ReviewVideoRepository;
 import com.lokoko.global.common.annotation.DistributedLock;
-import com.lokoko.global.common.dto.PresignedUrlResponse;
-import com.lokoko.global.common.entity.MediaFile;
-import com.lokoko.global.common.service.S3Service;
 import com.lokoko.global.utils.S3UrlParser;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -94,9 +95,9 @@ public class ReviewService {
         return reviewMapper.toReviewReceiptUrl(List.of(presignedUrl));
     }
 
-    public ReviewMediaResponse createMediaPresignedUrl(
+    public MediaPresignedUrlResponse createMediaPresignedUrl(
             Long userId,
-            ReviewMediaRequest request) {
+            MediaPresignedUrlRequest request) {
         userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
@@ -209,38 +210,6 @@ public class ReviewService {
             }
 
             review.markReceiptUploaded();
-        }
-    }
-
-    public static void validateMediaFiles(List<String> mediaUrls) {
-        if (mediaUrls != null && !mediaUrls.isEmpty()) {
-            long videoCount = mediaUrls.stream().filter(url -> url.contains("/video/")).count();
-            long imageCount = mediaUrls.stream().filter(url -> url.contains("/image/")).count();
-
-            if (videoCount > 0 && imageCount > 0) {
-                throw new InvalidMediaTypeException(ErrorMessage.MIXED_MEDIA_TYPE_NOT_ALLOWED);
-            }
-            if (videoCount > 1) {
-                throw new InvalidMediaTypeException(ErrorMessage.TOO_MANY_VIDEO_FILES);
-            }
-            if (imageCount > 5) {
-                throw new InvalidMediaTypeException(ErrorMessage.TOO_MANY_IMAGE_FILES);
-            }
-        }
-    }
-
-    public static void validateTotalMediaCount(List<String> mediaUrls) {
-        if (mediaUrls != null && mediaUrls.size() > MAX_TOTAL_MEDIA) {
-
-            throw new InvalidMediaTypeException(ErrorMessage.TOO_MANY_MEDIA_FILES);
-        }
-    }
-
-    public static void validateTotalMediaCount(List<String> imageUrls, List<String> videoUrls) {
-        int imageCnt = (imageUrls == null) ? 0 : imageUrls.size();
-        int videoCnt = (videoUrls == null) ? 0 : videoUrls.size();
-        if (imageCnt + videoCnt > MAX_TOTAL_MEDIA) {
-            throw new InvalidMediaTypeException(ErrorMessage.TOO_MANY_MEDIA_FILES);
         }
     }
 

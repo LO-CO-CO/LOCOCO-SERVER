@@ -5,8 +5,8 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
-import com.lokoko.domain.image.domain.entity.ProductImage;
-import com.lokoko.domain.image.domain.repository.ProductImageRepository;
+import com.lokoko.domain.media.image.domain.entity.ProductImage;
+import com.lokoko.domain.media.image.domain.repository.ProductImageRepository;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;

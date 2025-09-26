@@ -7,7 +7,6 @@ import com.lokoko.domain.creator.api.dto.response.CreatorMyCampaignResponse;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
-import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.common.response.PageableResponse;
 import java.time.Instant;
 import java.util.List;
@@ -27,17 +26,15 @@ public class CreatorCampaignMapper {
                 .build();
     }
 
-    public CreatorMyCampaignResponse toMyCampaignResponse(Creator creator,
-                                                          CreatorCampaign participation,
-                                                          ContentType firstReviewContentTypeOrNull) {
-        Campaign campaign = participation.getCampaign();
+    public CreatorMyCampaignResponse toMyCampaignResponse(Creator creator, CreatorCampaign participation) {
+        Campaign c = participation.getCampaign();
 
         return CreatorMyCampaignResponse.builder()
                 .basicInfo(toBasicInfo(creator))
-                .campaignId(campaign.getId())
-                .title(campaign.getTitle())
-                .reviewSubmissionDeadline(campaign.getReviewSubmissionDeadline())
-                .contentType(firstReviewContentTypeOrNull)
+                .campaignId(c.getId())
+                .title(c.getTitle())
+                .reviewSubmissionDeadline(c.getReviewSubmissionDeadline())
+                .contentType(c.getFirstContentPlatform())
                 .participationStatus(participation.getStatus())
                 .build();
     }

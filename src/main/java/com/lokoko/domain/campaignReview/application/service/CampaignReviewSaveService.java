@@ -1,12 +1,12 @@
 package com.lokoko.domain.campaignReview.application.service;
 
-import static com.lokoko.domain.productReview.application.service.ReviewService.validateTotalMediaCount;
 
 import com.lokoko.domain.campaignReview.application.mapper.CampaignReviewMapper;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
 import com.lokoko.domain.campaignReview.domain.repository.CampaignReviewImageRepository;
 import com.lokoko.domain.campaignReview.domain.repository.CampaignReviewRepository;
 import com.lokoko.domain.campaignReview.domain.repository.CampaignReviewVideoRepository;
+import com.lokoko.domain.media.application.utils.MediaValidationUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,7 +34,7 @@ public class CampaignReviewSaveService {
             return;
         }
 
-        validateTotalMediaCount(mediaUrls);
+        MediaValidationUtil.validateTotalMediaCount(mediaUrls);
 
         boolean isVideo = mediaUrls.get(0).contains("/video/");
         if (isVideo) {

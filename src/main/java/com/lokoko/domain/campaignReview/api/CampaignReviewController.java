@@ -6,6 +6,8 @@ import com.lokoko.domain.campaignReview.api.dto.request.SecondReviewUploadReques
 import com.lokoko.domain.campaignReview.api.dto.response.ReviewUploadResponse;
 import com.lokoko.domain.campaignReview.api.message.ResponseMessage;
 import com.lokoko.domain.campaignReview.application.usecase.CampaignReviewUsecase;
+import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
+import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
 import com.lokoko.global.auth.annotation.CurrentUser;
 import com.lokoko.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,4 +58,16 @@ public class CampaignReviewController {
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_ABLE_LIST_FETCH_SUCCESS.getMessage(),
                 campaignReviewUsecase.getMyReviewableCampaigns(userId));
     }
+
+    @Operation(summary = "리뷰 작성 미디어 presignedUrl 발급")
+    @PostMapping("/media")
+    public ApiResponse<MediaPresignedUrlResponse> createMediaPresignedUrl(
+            @Parameter(hidden = true) @CurrentUser Long userId,
+            @RequestBody @Valid MediaPresignedUrlRequest request) {
+        MediaPresignedUrlResponse response = campaignReviewUsecase.createMediaPresignedUrl(userId, request);
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_MEDIA_PRESIGNED_URL_SUCCESS.getMessage(),
+                response);
+    }
+
 }
