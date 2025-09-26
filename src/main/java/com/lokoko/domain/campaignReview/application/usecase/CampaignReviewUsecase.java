@@ -59,37 +59,42 @@ public class CampaignReviewUsecase {
         ContentType typeB = campaign.getSecondContentPlatform();
         CampaignReviewValidationUtil.validateTwoSetCombination(typeA, typeB);
 
-        CampaignReviewValidationUtil.requireSetPresent(request.firstMediaUrls(), request.firstCaptionWithHashtags(),
-                true);
+        // A 세트(필수)
+        CampaignReviewValidationUtil.requireFirstSetPresent(
+                request.firstMediaUrls(), request.firstCaptionWithHashtags());
         MediaValidationUtil.validateTotalMediaCount(request.firstMediaUrls());
 
+        // B 세트(캠페인에 second가 있으면 필수, 없으면 금지)
         if (typeB != null) {
-            CampaignReviewValidationUtil.requireSetPresent(
-                    request.secondMediaUrls(), request.secondCaptionWithHashtags(), false);
+            CampaignReviewValidationUtil.requireFirstSetPresent(
+                    request.secondMediaUrls(), request.secondCaptionWithHashtags());
             MediaValidationUtil.validateTotalMediaCount(request.secondMediaUrls());
         } else {
             CampaignReviewValidationUtil.ensureSecondSetAbsentForFirstRound(
                     request.secondMediaUrls(), request.secondCaptionWithHashtags());
         }
 
+        // 동일 타입 FIRST 중복 방지
         campaignReviewGetService.getFirstContent(participation.getId(), typeA);
         if (typeB != null) {
             campaignReviewGetService.getFirstContent(participation.getId(), typeB);
         }
 
+        // 저장 A
         CampaignReview firstA = campaignReviewMapper.toFirstReview(
                 participation, typeA, request.firstCaptionWithHashtags());
         CampaignReview savedA = campaignReviewSaveService.saveReview(firstA);
         campaignReviewSaveService.saveMedia(savedA, request.firstMediaUrls());
 
+        // 저장 B(옵션)
         if (typeB != null) {
             CampaignReview firstB = campaignReviewMapper.toFirstReview(
                     participation, typeB, request.secondCaptionWithHashtags());
             CampaignReview savedB = campaignReviewSaveService.saveReview(firstB);
             campaignReviewSaveService.saveMedia(savedB, request.secondMediaUrls());
         }
-        creatorCampaignUpdateService.refreshParticipationStatus(participation.getId());
 
+        creatorCampaignUpdateService.refreshParticipationStatus(participation.getId());
         return campaignReviewMapper.toUploadResponse(savedA);
     }
 
@@ -111,38 +116,40 @@ public class CampaignReviewUsecase {
         ContentType typeB = campaign.getSecondContentPlatform();
         CampaignReviewValidationUtil.validateTwoSetCombination(typeA, typeB);
 
-        CampaignReviewValidationUtil.requireSetPresent(request.firstMediaUrls(), request.firstCaptionWithHashtags(),
-                true);
+        // A 세트(필수: 미디어/캡션/postUrl)
+        CampaignReviewValidationUtil.requireSecondSetPresent(
+                request.firstMediaUrls(), request.firstCaptionWithHashtags(), request.firstPostUrl(), true);
         MediaValidationUtil.validateTotalMediaCount(request.firstMediaUrls());
 
+        // B 세트(캠페인에 second가 있으면 필수, 없으면 금지)
         if (typeB != null) {
-            CampaignReviewValidationUtil.requireSetPresent(
-                    request.secondMediaUrls(), request.secondCaptionWithHashtags(), false);
+            CampaignReviewValidationUtil.requireSecondSetPresent(
+                    request.secondMediaUrls(), request.secondCaptionWithHashtags(), request.secondPostUrl(), false);
             MediaValidationUtil.validateTotalMediaCount(request.secondMediaUrls());
         } else {
             CampaignReviewValidationUtil.ensureSecondSetAbsentForSecondRound(
                     request.secondMediaUrls(), request.secondCaptionWithHashtags(), request.secondPostUrl());
         }
 
+        // 선행/중복 검증 & 저장 A
         campaignReviewGetService.getFirstOrThrow(participation.getId(), typeA);
         campaignReviewGetService.assertSecondNotExists(participation.getId(), typeA);
-
         CampaignReview secondA = campaignReviewMapper.toSecondReview(
                 participation, typeA, request.firstCaptionWithHashtags(), request.firstPostUrl());
         CampaignReview savedA = campaignReviewSaveService.saveReview(secondA);
         campaignReviewSaveService.saveMedia(savedA, request.firstMediaUrls());
 
+        // B(옵션)
         if (typeB != null) {
             campaignReviewGetService.getFirstOrThrow(participation.getId(), typeB);
             campaignReviewGetService.assertSecondNotExists(participation.getId(), typeB);
-
             CampaignReview secondB = campaignReviewMapper.toSecondReview(
                     participation, typeB, request.secondCaptionWithHashtags(), request.secondPostUrl());
             CampaignReview savedB = campaignReviewSaveService.saveReview(secondB);
             campaignReviewSaveService.saveMedia(savedB, request.secondMediaUrls());
         }
-        creatorCampaignUpdateService.refreshParticipationStatus(participation.getId());
 
+        creatorCampaignUpdateService.refreshParticipationStatus(participation.getId());
         return campaignReviewMapper.toUploadResponse(savedA);
     }
 

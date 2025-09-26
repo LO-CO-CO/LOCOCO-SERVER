@@ -20,7 +20,9 @@ public enum ErrorMessage {
     INVALID_TWO_SET_COMBINATION("두 세트 캠페인은 INSTA_REELS/TIKTOK_VIDEO 조합만 허용됩니다."),
     FIRST_SET_REQUIRED("첫 번째 세트가 비어 있습니다."),
     SECOND_SET_REQUIRED("두 번째 세트가 비어 있습니다."),
-    SECOND_SET_NOT_ALLOWED("두 번째 세트는 제공되면 안 됩니다.");
+    SECOND_SET_NOT_ALLOWED("두 번째 세트는 제공되면 안 됩니다."),
+    FIRST_POST_URL_REQUIRED("첫 번째 게시물 URL이 비어 있습니다."),
+    SECOND_POST_URL_REQUIRED("두 번째 게시물 URL이 비어 있습니다.");
 
     private final String message;
 }
