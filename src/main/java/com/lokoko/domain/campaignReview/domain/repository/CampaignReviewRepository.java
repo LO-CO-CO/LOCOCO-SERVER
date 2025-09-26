@@ -45,4 +45,6 @@ public interface CampaignReviewRepository extends JpaRepository<CampaignReview, 
     List<CampaignReview> findByCreatorCampaignAndReviewRoundOrderByIdDesc(
             CreatorCampaign creatorCampaign, ReviewRound reviewRound);
 
+    Optional<CampaignReview> findTopByCreatorCampaignAndReviewRoundOrderByIdDesc(
+            CreatorCampaign creatorCampaign, ReviewRound reviewRound);
 }

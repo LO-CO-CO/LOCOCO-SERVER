@@ -11,10 +11,12 @@ import com.lokoko.domain.campaignReview.api.dto.response.ReviewUploadResponse;
 import com.lokoko.domain.campaignReview.application.mapper.CampaignReviewMapper;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewGetService;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewSaveService;
+import com.lokoko.domain.campaignReview.application.service.CampaignReviewStatusManager;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewUpdateService;
 import com.lokoko.domain.campaignReview.application.service.CreatorCampaignUpdateService;
 import com.lokoko.domain.campaignReview.application.utils.CampaignReviewValidationUtil;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
+import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.creator.application.service.CreatorGetService;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creatorCampaign.application.service.CreatorCampaignGetService;
@@ -23,7 +25,9 @@ import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
 import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
 import com.lokoko.domain.media.application.utils.MediaValidationUtil;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +44,8 @@ public class CampaignReviewUsecase {
     private final CampaignReviewSaveService campaignReviewSaveService;
     private final CreatorCampaignUpdateService creatorCampaignUpdateService;
     private final CampaignReviewUpdateService campaignReviewUpdateService;
+
+    private final CampaignReviewStatusManager campaignReviewStatusManager;
 
     private final CampaignReviewMapper campaignReviewMapper;
     private final CampaignMapper campaignMapper;
@@ -167,12 +173,55 @@ public class CampaignReviewUsecase {
     }
 
     @Transactional(readOnly = true)
-    public List<CampaignParticipatedResponse> getMyReviewableCampaigns(Long userId) {
+    public CampaignParticipatedResponse getMyReviewableCampaign(Long userId, Long campaignId) {
+        Creator creator = creatorGetService.findByUserId(userId);
+        Campaign campaign = campaignGetService.findByCampaignId(campaignId);
+        CreatorCampaign creatorCampaign =
+                creatorCampaignGetService.getByCampaignAndCreatorId(campaign, creator.getId());
+
+        ReviewRound nowRound = campaignReviewStatusManager
+                .determineReviewRound(campaign.getCampaignStatus(), creatorCampaign.getStatus());
+        
+        if (nowRound == ReviewRound.SECOND) {
+            Optional<CampaignReview> latestFirst =
+                    campaignReviewGetService.findLatestFirst(creatorCampaign);
+
+            String brandNote = latestFirst.map(CampaignReview::getBrandNote).orElse(null);
+            Instant revisionRequestedAt = latestFirst.map(CampaignReview::getRevisionRequestedAt).orElse(null);
+
+            return campaignMapper.toCampaignParticipationResponse(
+                    creatorCampaign, nowRound, brandNote, revisionRequestedAt
+            );
+        }
+
+        // FIRST 업로드 차례면 노트/시간 없음
+        return campaignMapper.toCampaignParticipationResponse(creatorCampaign, nowRound);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CampaignParticipatedResponse> getMyReviewables(Long userId) {
         Creator creator = creatorGetService.findByUserId(userId);
         List<CreatorCampaign> eligible = creatorCampaignGetService.findReviewable(creator.getId());
 
+        // 각 참여 캠페인별로 현재 업로드 가능한 리뷰 라운드 및 브랜드 노트(있다면) 포함 응답 생성
         return eligible.stream()
-                .map(campaignMapper::toCampaignParticipationResponse)
+                .map(creatorCampaign -> {
+                    ReviewRound nowRound = campaignReviewStatusManager.determineReviewRound(
+                            creatorCampaign.getCampaign().getCampaignStatus(), creatorCampaign.getStatus());
+
+                    if (nowRound == ReviewRound.SECOND) {
+                        // SECOND 업로드 차례면 이전 FIRST 리뷰의 브랜드 노트/시간 포함
+                        var latestFirst = campaignReviewGetService.findLatestFirst(creatorCampaign);
+                        String brandNote = latestFirst.map(CampaignReview::getBrandNote).orElse(null);
+                        Instant revisionRequestedAt = latestFirst.map(CampaignReview::getRevisionRequestedAt)
+                                .orElse(null);
+                        return campaignMapper.toCampaignParticipationResponse(creatorCampaign, nowRound, brandNote,
+                                revisionRequestedAt);
+                    }
+
+                    // FIRST 업로드 차례면 노트/시간 없음
+                    return campaignMapper.toCampaignParticipationResponse(creatorCampaign, nowRound);
+                })
                 .toList();
     }
 

@@ -126,6 +126,18 @@ public class CampaignReviewGetService {
         return campaignReviewRepository.existsByCreatorCampaignIdAndReviewRound(creatorCampaignId, reviewRound);
     }
 
+    /**
+     * 해당 CreatorCampaign의 가장 최신(최대 id) 1차(FIRST) 리뷰 1건을 Optional로 반환 - 여러 FIRST가 있을 수 있으므로 id DESC 정렬 후 첫 요소만 선택한다.
+     *
+     * @param creatorCampaign 조회 대상 CreatorCampaign
+     * @return 최신 FIRST 리뷰 (없으면 Optional.empty())
+     */
+    public Optional<CampaignReview> findLatestFirst(CreatorCampaign creatorCampaign) {
+
+        return campaignReviewRepository.findTopByCreatorCampaignAndReviewRoundOrderByIdDesc(creatorCampaign,
+                ReviewRound.FIRST);
+    }
+
     public boolean existsFirst(Long creatorCampaignId) {
         return existsRound(creatorCampaignId, ReviewRound.FIRST);
     }
