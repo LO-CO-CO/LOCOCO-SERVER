@@ -1,4 +1,4 @@
-package com.lokoko.domain.media.application.service;
+package com.lokoko.domain.media.application.utils;
 
 import com.lokoko.domain.productReview.exception.ErrorMessage;
 import com.lokoko.domain.productReview.exception.InvalidMediaTypeException;
@@ -30,6 +30,10 @@ public class MediaValidationUtil {
 
             throw new InvalidMediaTypeException(ErrorMessage.TOO_MANY_MEDIA_FILES);
         }
+    }
+
+    public static void validateMediaCounts(List<String> mediaUrls) {
+        MediaValidationUtil.validateTotalMediaCount(mediaUrls);
     }
 
     public static void validateTotalMediaCount(List<String> imageUrls, List<String> videoUrls) {
