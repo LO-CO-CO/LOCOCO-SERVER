@@ -6,7 +6,7 @@ import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
 import com.lokoko.domain.campaignReview.domain.repository.CampaignReviewImageRepository;
 import com.lokoko.domain.campaignReview.domain.repository.CampaignReviewRepository;
 import com.lokoko.domain.campaignReview.domain.repository.CampaignReviewVideoRepository;
-import com.lokoko.domain.media.application.service.MediaValidationUtil;
+import com.lokoko.domain.media.application.utils.MediaValidationUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -8,8 +8,6 @@ import com.lokoko.domain.campaignReview.domain.repository.CampaignReviewVideoRep
 import com.lokoko.domain.campaignReview.exception.CampaignReviewNotFoundException;
 import com.lokoko.domain.campaignReview.exception.FirstReviewNotFoundException;
 import com.lokoko.domain.campaignReview.exception.ReviewAlreadySubmittedException;
-import com.lokoko.domain.creator.exception.CreatorCampaignNotFoundException;
-import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import java.util.List;
 import java.util.Optional;
@@ -26,102 +24,89 @@ public class CampaignReviewGetService {
     private final CampaignReviewImageRepository campaignReviewImageRepository;
     private final CampaignReviewVideoRepository campaignReviewVideoRepository;
 
+    /**
+     * 리뷰 ID로 {@link CampaignReview} 를 조회. 존재하지 않을 경우 {@link CampaignReviewNotFoundException} 발생.
+     *
+     * @param campaignReviewId 조회할 리뷰 ID
+     * @return 조회된 {@link CampaignReview} 엔티티
+     * @throws CampaignReviewNotFoundException 해당 ID의 리뷰가 없을 경우
+     */
     public CampaignReview findById(Long campaignReviewId) {
         return campaignReviewRepository.findById(campaignReviewId)
                 .orElseThrow(CampaignReviewNotFoundException::new);
     }
 
     /**
-     * 특정 CreatorCampaign 내 지정 라운드(1차/2차)의 리뷰가 이미 존재하는지 검증하는 메서드 - 존재하면 예외를 던짐
+     * CreatorCampaign의 1차(FIRST) 리뷰 중 가장 먼저 생성된 리뷰의 ContentType 조회 메서드 - 다건 가능성을 고려하여 정렬 후 첫 번째 요소만 반환.
      *
-     * @param creatorCampaignId CreatorCampaign ID
-     * @param reviewRound       FIRST 또는 SECOND
+     * @param creatorCampaignId 조회할 CreatorCampaign ID
+     * @return Optional<ContentType> 존재하면 ContentType, 없으면 Optional.empty()
      */
-    public void getExistingReviewRound(Long creatorCampaignId, ReviewRound reviewRound) {
-        if (campaignReviewRepository.existsByCreatorCampaignIdAndReviewRound(creatorCampaignId, reviewRound)) {
-            throw new ReviewAlreadySubmittedException();
-        }
+    public Optional<ContentType> findFirstContentType(Long creatorCampaignId) {
+        List<ContentType> types =
+                campaignReviewRepository.findContentOnly(creatorCampaignId, ReviewRound.FIRST);
+        return types.stream().findFirst();
     }
 
-
     /**
-     * 1차 업로드 - 동일 Campaign내 같은 ContentType의 1차 리뷰가 이미 존재하는지 검증하는 메서드 - 존재하면 예외 던짐
+     * 동일 Campaign 내 특정 ContentType의 1차(FIRST) 리뷰가 이미 존재하는지 검증. 존재할 경우 예외 던짐
      *
      * @param creatorCampaignId CreatorCampaign ID
-     * @param type              업로드하려는 1차 리뷰의 ContentType
+     * @param type              검증할 {@link ContentType}
+     * @throws ReviewAlreadySubmittedException 동일 타입의 1차 리뷰가 이미 존재할 경우
      */
     public void getFirstContent(Long creatorCampaignId, ContentType type) {
         if (campaignReviewRepository.existsByCreatorCampaignIdAndReviewRoundAndContentType(
                 creatorCampaignId, ReviewRound.FIRST, type)) {
-
             throw new ReviewAlreadySubmittedException();
         }
     }
 
     /**
-     * 1차 리뷰 ID가 실제 1차(FIRST)인지, 그리고 해당 1차가 현재 유저(creatorId)의 소유인지 검증하고 엔티티를 반환하는 메서드 - 조건 불일치 시 예외 던짐
+     * (2차 업로드용) 특정 CreatorCampaign + ContentType 조합으로 1차(FIRST) 리뷰 조회 메서드 - 없을 경우 예외 던짐
      *
-     * @param firstReviewId 1차 리뷰 ID
-     * @param creatorId     현재 유저의 Creator ID
+     * @param creatorCampaignId CreatorCampaign ID
+     * @param type              조회할 {@link ContentType}
+     * @return 조회된 {@link CampaignReview} 엔티티
+     * @throws FirstReviewNotFoundException 해당 조건의 1차 리뷰가 없을 경우
      */
-    public CampaignReview getFirstReviewWithOwnershipCheck(Long firstReviewId, Long creatorId) {
-        CampaignReview first = campaignReviewRepository.findWithCreatorCampaignById(firstReviewId)
+    public CampaignReview getFirstOrThrow(Long creatorCampaignId, ContentType type) {
+        return campaignReviewRepository
+                .findTopByCreatorCampaignIdAndReviewRoundAndContentTypeOrderByIdAsc(
+                        creatorCampaignId, ReviewRound.FIRST, type)
                 .orElseThrow(FirstReviewNotFoundException::new);
-
-        if (first.getReviewRound() != ReviewRound.FIRST) {
-            throw new FirstReviewNotFoundException();
-        }
-        if (!first.getCreatorCampaign().getCreator().getId().equals(creatorId)) {
-            throw new CreatorCampaignNotFoundException();
-        }
-        return first;
     }
 
     /**
-     * 특정 1차 리뷰(의 타입)에 대한 2차 리뷰가 이미 존재하는지 검증하는 메서드 - 존재하면 예외 던짐
+     * 특정 CreatorCampaign 내 동일 ContentType의 2차(SECOND) 리뷰 존재 여부 검증. 이미 존재하면 {@link ReviewAlreadySubmittedException} 발생.
      *
-     * @param firstReviewId 1차 리뷰 ID
+     * @param creatorCampaignId CreatorCampaign ID
+     * @param type              검증할 {@link ContentType}
+     * @throws ReviewAlreadySubmittedException 동일 타입의 2차 리뷰가 이미 존재할 경우
      */
-    public void getSecondNotExistsForFirst(Long firstReviewId) {
-        CampaignReview first = campaignReviewRepository.findWithCreatorCampaignById(firstReviewId)
-                .orElseThrow(FirstReviewNotFoundException::new);
-
-        boolean existsSecondSameType = campaignReviewRepository
+    public void assertSecondNotExists(Long creatorCampaignId, ContentType type) {
+        boolean exists = campaignReviewRepository
                 .existsByCreatorCampaignIdAndReviewRoundAndContentType(
-                        first.getCreatorCampaign().getId(),
-                        ReviewRound.SECOND,
-                        first.getContentType());
-
-        if (existsSecondSameType) {
+                        creatorCampaignId, ReviewRound.SECOND, type);
+        if (exists) {
             throw new ReviewAlreadySubmittedException();
         }
     }
 
     /**
-     * 리뷰에 업로드된 미디어 URL 리스트를 displayOrder 오름차순으로 반환하는 메서드 - 이미지가 하나라도 있으면 이미지들만 반환하고, 그렇지 않으면 비디오들을 반환 (N+1 방지)
+     * 리뷰에 업로드된 미디어 URL들을 displayOrder 기준 오름차순으로 반환. 이미지가 존재할 경우 이미지 리스트만 반환, 없을 경우 비디오 리스트 반환.
      *
-     * @param campaignReview 대상 리뷰 엔티티
+     * @param campaignReview 대상 {@link CampaignReview}
      * @return 정렬된 미디어 URL 리스트 (없으면 빈 리스트)
      */
     public List<String> getOrderedMediaUrls(CampaignReview campaignReview) {
-        List<String> imageUrls =
-                campaignReviewImageRepository.findImageUrlsByReviewIdOrderByDisplay(campaignReview.getId());
-        if (!imageUrls.isEmpty()) {
-            return imageUrls;
+        List<String> images = campaignReviewImageRepository
+                .findImageUrlsByReviewIdOrderByDisplay(campaignReview.getId());
+        if (!images.isEmpty()) {
+            return images;
         }
-        return campaignReviewVideoRepository.findVideoUrlsByReviewIdOrderByDisplay(campaignReview.getId());
-    }
-
-    /**
-     * CreatorCampaign과 리뷰 라운드로 리뷰 단건을 조회 메서드 - 존재하지 않으면 예외 발생
-     *
-     * @param creatorCampaign 참여 엔티티
-     * @param reviewRound     리뷰 라운드(FIRST/SECOND)
-     * @return CampaignReview
-     */
-    public CampaignReview getByCreatorCampaignAndRound(CreatorCampaign creatorCampaign, ReviewRound reviewRound) {
-        return campaignReviewRepository.findByCreatorCampaignAndReviewRound(creatorCampaign, reviewRound)
-                .orElseThrow(CampaignReviewNotFoundException::new);
+        return campaignReviewVideoRepository
+                .findVideoUrlsByReviewIdOrderByDisplay(campaignReview.getId());
     }
 
     /**
@@ -129,16 +114,6 @@ public class CampaignReviewGetService {
      */
     public boolean existsRound(Long creatorCampaignId, ReviewRound reviewRound) {
         return campaignReviewRepository.existsByCreatorCampaignIdAndReviewRound(creatorCampaignId, reviewRound);
-    }
-
-    /**
-     * 목록/뷰용: CreatorCampaign의 1차(FIRST) 리뷰 중 하나의 ContentType을 조회하는 메서드 - 없으면 Optional.empty()를 반환
-     *
-     * @param creatorCampaignId CreatorCampaign ID
-     * @return Optional<ContentType>
-     */
-    public Optional<ContentType> findFirstContentType(Long creatorCampaignId) {
-        return campaignReviewRepository.findContentOnly(creatorCampaignId, ReviewRound.FIRST);
     }
 
     public boolean existsFirst(Long creatorCampaignId) {

@@ -22,14 +22,12 @@ import com.lokoko.domain.campaign.exception.NotCampaignOwnershipException;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
 import com.lokoko.domain.media.image.domain.repository.CampaignImageRepository;
-import java.time.Instant;
-import com.lokoko.domain.image.domain.repository.CampaignImageRepository;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.domain.user.exception.UserNotFoundException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.PageRequest;
@@ -61,7 +59,7 @@ public class CampaignGetService {
         CampaignDetailPageStatus detailPageStatus = determineDetailPageStatus(userId, campaign);
 
         String currentUserRole = null; // 비로그인 유저
-        if (userId != null){
+        if (userId != null) {
             User currentUser = userRepository.findById(userId).get();
             currentUserRole = currentUser.getRole().name();
         }
@@ -127,7 +125,7 @@ public class CampaignGetService {
     public List<CampaignParticipatedResponse> getInReviewCampaignTitles(Brand brand) {
         return campaignRepository.findInReviewCampaignTitlesByBrand(brand);
     }
-  
+
     private Campaign findCampaignAndInitializeCollection(Long campaignId) {
         Campaign campaign = campaignRepository.findCampaignWithBrandById(campaignId)
                 .orElseThrow(CampaignNotFoundException::new);
@@ -135,10 +133,6 @@ public class CampaignGetService {
         return campaign;
     }
 
-        List<CampaignImageResponse> thumbnailImages = campaignImageRepository.findThumbnailImagesByCampaignId(
-                campaignId);
-        List<CampaignImageResponse> detailImages = campaignImageRepository.findDetailImagesByCampaignId(campaignId);
-  
     private CampaignDetailPageStatus determineDetailPageStatus(Long userId, Campaign campaign) {
         if (userId == null) {
             return campaignStatusManager.determineStatusForNonLoggedInAndCustomer(campaign);

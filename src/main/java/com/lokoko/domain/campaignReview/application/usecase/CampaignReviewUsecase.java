@@ -13,14 +13,16 @@ import com.lokoko.domain.campaignReview.application.service.CampaignReviewGetSer
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewSaveService;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewUpdateService;
 import com.lokoko.domain.campaignReview.application.service.CreatorCampaignUpdateService;
+import com.lokoko.domain.campaignReview.application.utils.CampaignReviewValidationUtil;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
-import com.lokoko.domain.campaignReview.exception.MismatchedContentTypeException;
 import com.lokoko.domain.creator.application.service.CreatorGetService;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creatorCampaign.application.service.CreatorCampaignGetService;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
 import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
+import com.lokoko.domain.media.application.utils.MediaValidationUtil;
+import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -43,58 +45,112 @@ public class CampaignReviewUsecase {
     private final CampaignMapper campaignMapper;
 
     /**
-     * 1차 리뷰 업로드 - 동일 캠페인 내 같은 ContentType의 1차가 이미 있으면 409
-     * <p> - 1차 리뷰는 동일 캠페인에 대해서 여러개 가능 (타입만 다르면 허용 ex. 인스타, 틱톡)
+     * 1차 리뷰 업로드 - 타입은 Campaign.firstContentPlatform / secondContentPlatform 사용 - 두개 리뷰 컨텐츠를 입력 받아야하는 캠페인이면 2세트 모두 필수
+     * 아니면 첫세트만 허용 - 동일 타입의 FIRST가 이미 존재하면 409
      */
     @Transactional
     public ReviewUploadResponse uploadFirst(Long userId, Long campaignId, FirstReviewUploadRequest request) {
         Creator creator = creatorGetService.findByUserId(userId);
         Campaign campaign = campaignGetService.findByCampaignId(campaignId);
-        CreatorCampaign participation = creatorCampaignGetService.getByCampaignAndCreatorId(campaign, creator.getId());
+        CreatorCampaign participation =
+                creatorCampaignGetService.getByCampaignAndCreatorId(campaign, creator.getId());
 
-        campaignReviewGetService.getFirstContent(participation.getId(), request.contentType());
+        ContentType typeA = campaign.getFirstContentPlatform();
+        ContentType typeB = campaign.getSecondContentPlatform();
+        CampaignReviewValidationUtil.validateTwoSetCombination(typeA, typeB);
 
-        CampaignReview toSave = campaignReviewMapper.toFirstReview(participation, request);
-        CampaignReview saved = campaignReviewSaveService.saveReview(toSave);
-        campaignReviewSaveService.saveMedia(saved, request.mediaUrls());
+        CampaignReviewValidationUtil.requireSetPresent(request.firstMediaUrls(), request.firstCaptionWithHashtags(),
+                true);
+        MediaValidationUtil.validateTotalMediaCount(request.firstMediaUrls());
 
-        creatorCampaignUpdateService.refreshParticipationStatus(participation.getId());
-
-        return campaignReviewMapper.toUploadResponse(saved);
-    }
-
-    /**
-     * 2차 리뷰 업로드 - path/body로 전달받은 firstReviewId 기준으로:
-     * <p> - (a) 해당 1차가 본인 소유인지 + 진짜 1차인지 확인 (아니면 404/권한불일치)
-     * <p> - (b) 동일 타입의 2차가 이미 붙어 있으면 409
-     * <p> - (c) 요청 contentType은 1차와 동일해야 함(불일치시 400)
-     */
-    @Transactional
-    public ReviewUploadResponse uploadSecond(Long userId, Long firstReviewId, SecondReviewUploadRequest request) {
-        Creator creator = creatorGetService.findByUserId(userId);
-        CampaignReview first = campaignReviewGetService.getFirstReviewWithOwnershipCheck(firstReviewId,
-                creator.getId());
-
-        campaignReviewGetService.getSecondNotExistsForFirst(firstReviewId);
-
-        if (request.contentType() != null && request.contentType() != first.getContentType()) {
-            throw new MismatchedContentTypeException();
+        if (typeB != null) {
+            CampaignReviewValidationUtil.requireSetPresent(
+                    request.secondMediaUrls(), request.secondCaptionWithHashtags(), false);
+            MediaValidationUtil.validateTotalMediaCount(request.secondMediaUrls());
+        } else {
+            CampaignReviewValidationUtil.ensureSecondSetAbsentForFirstRound(
+                    request.secondMediaUrls(), request.secondCaptionWithHashtags());
         }
 
-        CreatorCampaign participation = first.getCreatorCampaign();
-        CampaignReview toSave = campaignReviewMapper.toSecondReview(participation, request);
-        CampaignReview saved = campaignReviewSaveService.saveReview(toSave);
-        campaignReviewSaveService.saveMedia(saved, request.mediaUrls());
+        campaignReviewGetService.getFirstContent(participation.getId(), typeA);
+        if (typeB != null) {
+            campaignReviewGetService.getFirstContent(participation.getId(), typeB);
+        }
 
+        CampaignReview firstA = campaignReviewMapper.toFirstReview(
+                participation, typeA, request.firstCaptionWithHashtags());
+        CampaignReview savedA = campaignReviewSaveService.saveReview(firstA);
+        campaignReviewSaveService.saveMedia(savedA, request.firstMediaUrls());
+
+        if (typeB != null) {
+            CampaignReview firstB = campaignReviewMapper.toFirstReview(
+                    participation, typeB, request.secondCaptionWithHashtags());
+            CampaignReview savedB = campaignReviewSaveService.saveReview(firstB);
+            campaignReviewSaveService.saveMedia(savedB, request.secondMediaUrls());
+        }
         creatorCampaignUpdateService.refreshParticipationStatus(participation.getId());
 
-        return campaignReviewMapper.toUploadResponse(saved);
+        return campaignReviewMapper.toUploadResponse(savedA);
+    }
+
+
+    /**
+     * 2차 리뷰 업로드 - 타입은 Campaign.firstContentPlatform / secondContentPlatform 사용
+     * <p> - 두 리뷰 컨텐츠를 모두 입력 받는 캠페인이면 2세트 모두 필수 (각각 postUrl 포함)
+     * <p> 아니면 첫 세트만 허용(두 번째 세트 전달 시 400)
+     * <p> - 각 타입별로: 1차 존재 + 동일 타입이라면 이미 업로드한 2차 리뷰가 없다는 조건이 충족해야 함
+     */
+    @Transactional
+    public ReviewUploadResponse uploadSecond(Long userId, Long campaignId, SecondReviewUploadRequest request) {
+        Creator creator = creatorGetService.findByUserId(userId);
+        Campaign campaign = campaignGetService.findByCampaignId(campaignId);
+        CreatorCampaign participation =
+                creatorCampaignGetService.getByCampaignAndCreatorId(campaign, creator.getId());
+
+        ContentType typeA = campaign.getFirstContentPlatform();
+        ContentType typeB = campaign.getSecondContentPlatform();
+        CampaignReviewValidationUtil.validateTwoSetCombination(typeA, typeB);
+
+        CampaignReviewValidationUtil.requireSetPresent(request.firstMediaUrls(), request.firstCaptionWithHashtags(),
+                true);
+        MediaValidationUtil.validateTotalMediaCount(request.firstMediaUrls());
+
+        if (typeB != null) {
+            CampaignReviewValidationUtil.requireSetPresent(
+                    request.secondMediaUrls(), request.secondCaptionWithHashtags(), false);
+            MediaValidationUtil.validateTotalMediaCount(request.secondMediaUrls());
+        } else {
+            CampaignReviewValidationUtil.ensureSecondSetAbsentForSecondRound(
+                    request.secondMediaUrls(), request.secondCaptionWithHashtags(), request.secondPostUrl());
+        }
+
+        campaignReviewGetService.getFirstOrThrow(participation.getId(), typeA);
+        campaignReviewGetService.assertSecondNotExists(participation.getId(), typeA);
+
+        CampaignReview secondA = campaignReviewMapper.toSecondReview(
+                participation, typeA, request.firstCaptionWithHashtags(), request.firstPostUrl());
+        CampaignReview savedA = campaignReviewSaveService.saveReview(secondA);
+        campaignReviewSaveService.saveMedia(savedA, request.firstMediaUrls());
+
+        if (typeB != null) {
+            campaignReviewGetService.getFirstOrThrow(participation.getId(), typeB);
+            campaignReviewGetService.assertSecondNotExists(participation.getId(), typeB);
+
+            CampaignReview secondB = campaignReviewMapper.toSecondReview(
+                    participation, typeB, request.secondCaptionWithHashtags(), request.secondPostUrl());
+            CampaignReview savedB = campaignReviewSaveService.saveReview(secondB);
+            campaignReviewSaveService.saveMedia(savedB, request.secondMediaUrls());
+        }
+        creatorCampaignUpdateService.refreshParticipationStatus(participation.getId());
+
+        return campaignReviewMapper.toUploadResponse(savedA);
     }
 
     @Transactional(readOnly = true)
     public List<CampaignParticipatedResponse> getMyReviewableCampaigns(Long userId) {
         Creator creator = creatorGetService.findByUserId(userId);
         List<CreatorCampaign> eligible = creatorCampaignGetService.findReviewable(creator.getId());
+
         return eligible.stream()
                 .map(campaignMapper::toCampaignParticipationResponse)
                 .toList();

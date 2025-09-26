@@ -1,7 +1,7 @@
 package com.lokoko.domain.productReview.application.service;
 
 
-import static com.lokoko.domain.media.application.service.MediaValidationUtil.validateMediaFiles;
+import static com.lokoko.domain.media.application.utils.MediaValidationUtil.validateMediaFiles;
 import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
 import com.lokoko.domain.like.domain.repository.ReviewLikeRepository;
