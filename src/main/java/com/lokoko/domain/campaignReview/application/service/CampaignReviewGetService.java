@@ -133,10 +133,9 @@ public class CampaignReviewGetService {
      * @return 최신 FIRST 리뷰 (없으면 Optional.empty())
      */
     public Optional<CampaignReview> findLatestFirst(CreatorCampaign creatorCampaign) {
-        List<CampaignReview> firstReviewsDesc = campaignReviewRepository.findByCreatorCampaignAndReviewRoundOrderByIdDesc(
-                creatorCampaign, ReviewRound.FIRST);
 
-        return firstReviewsDesc.stream().findFirst();
+        return campaignReviewRepository.findTopByCreatorCampaignAndReviewRoundOrderByIdDesc(creatorCampaign,
+                ReviewRound.FIRST);
     }
 
     public boolean existsFirst(Long creatorCampaignId) {
