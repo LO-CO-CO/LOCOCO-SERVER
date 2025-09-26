@@ -64,7 +64,9 @@ public class PermitUrlConfig {
                 "/api/customer/profile",
                 "/api/customer/sns-status",
                 "/api/auth/sns/tiktok/connect",
-                "/api/auth/sns/tiktok/callback"
+                "/api/auth/sns/tiktok/callback",
+                "/api/auth/sns/instagram/connect",
+                "/api/auth/sns/instagram/callback"
         };
     }
 
@@ -75,6 +77,8 @@ public class PermitUrlConfig {
         return new String[]{
                 "/api/auth/sns/tiktok/connect",
                 "/api/auth/sns/tiktok/callback",
+                "/api/auth/sns/instagram/connect",
+                "/api/auth/sns/instagram/callback",
                 "/api/campaigns/media",
                 "/api/creator/register/info",
                 "/api/creator/register/sns-status",
