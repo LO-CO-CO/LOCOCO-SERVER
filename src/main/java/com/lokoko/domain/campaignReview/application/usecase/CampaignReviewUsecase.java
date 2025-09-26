@@ -27,6 +27,7 @@ import com.lokoko.domain.media.application.utils.MediaValidationUtil;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -172,7 +173,33 @@ public class CampaignReviewUsecase {
     }
 
     @Transactional(readOnly = true)
-    public List<CampaignParticipatedResponse> getMyReviewableCampaigns(Long userId) {
+    public CampaignParticipatedResponse getMyReviewableCampaign(Long userId, Long campaignId) {
+        Creator creator = creatorGetService.findByUserId(userId);
+        Campaign campaign = campaignGetService.findByCampaignId(campaignId);
+        CreatorCampaign creatorCampaign =
+                creatorCampaignGetService.getByCampaignAndCreatorId(campaign, creator.getId());
+
+        ReviewRound nowRound = campaignReviewStatusManager
+                .determineReviewRound(campaign.getCampaignStatus(), creatorCampaign.getStatus());
+        
+        if (nowRound == ReviewRound.SECOND) {
+            Optional<CampaignReview> latestFirst =
+                    campaignReviewGetService.findLatestFirst(creatorCampaign);
+
+            String brandNote = latestFirst.map(CampaignReview::getBrandNote).orElse(null);
+            Instant revisionRequestedAt = latestFirst.map(CampaignReview::getRevisionRequestedAt).orElse(null);
+
+            return campaignMapper.toCampaignParticipationResponse(
+                    creatorCampaign, nowRound, brandNote, revisionRequestedAt
+            );
+        }
+
+        // FIRST 업로드 차례면 노트/시간 없음
+        return campaignMapper.toCampaignParticipationResponse(creatorCampaign, nowRound);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CampaignParticipatedResponse> getMyReviewables(Long userId) {
         Creator creator = creatorGetService.findByUserId(userId);
         List<CreatorCampaign> eligible = creatorCampaignGetService.findReviewable(creator.getId());
 

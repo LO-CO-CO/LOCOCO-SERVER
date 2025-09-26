@@ -50,13 +50,25 @@ public class CampaignReviewController {
                 campaignReviewUsecase.uploadSecond(userId, campaignId, request));
     }
 
-    @Operation(summary = "리뷰 업로드 가능한 정보 조회 - 크리에이터가 참여중인 캠페인 관련 정보 조회")
+    @Operation(summary = "리뷰 업로드 가능 정보 단건 조회 - 크리에이터가 참여 중인 특정 캠페인")
+    @GetMapping("/my/participation/{campaignId}")
+    public ApiResponse<CampaignParticipatedResponse> getMyReviewableCampaign(
+            @Parameter(hidden = true) @CurrentUser Long userId,
+            @PathVariable Long campaignId
+    ) {
+        CampaignParticipatedResponse response = campaignReviewUsecase.getMyReviewableCampaign(userId, campaignId);
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_ABLE_ITEM_FETCH_SUCCESS.getMessage(),
+                response);
+    }
+
+    @Operation(summary = "리뷰 업로드 가능한 정보 조회 - 크리에이터가 참여중인 캠페인 관련 정보 조회 (리스트 반환)")
     @GetMapping("/my/participation")
     public ApiResponse<List<CampaignParticipatedResponse>> getMyReviewables(
             @Parameter(hidden = true) @CurrentUser Long userId) {
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_ABLE_LIST_FETCH_SUCCESS.getMessage(),
-                campaignReviewUsecase.getMyReviewableCampaigns(userId));
+                campaignReviewUsecase.getMyReviewables(userId));
     }
 
     @Operation(summary = "리뷰 작성 미디어 presignedUrl 발급")
