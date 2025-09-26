@@ -3,13 +3,14 @@ package com.lokoko.domain.brand.application.usecase;
 import com.lokoko.domain.brand.api.dto.request.BrandInfoUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandMyPageUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandProfileImageRequest;
+import com.lokoko.domain.brand.api.dto.response.BrandIssuedCampaignResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyPageResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandProfileAndStatisticsResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandProfileImageResponse;
 import com.lokoko.domain.brand.application.service.BrandGetService;
 import com.lokoko.domain.brand.application.service.BrandUpdateService;
 import com.lokoko.domain.brand.domain.entity.Brand;
-import com.lokoko.domain.campaign.api.dto.response.CampaignParticipatedResponse;
+import com.lokoko.domain.campaign.application.mapper.CampaignMapper;
 import com.lokoko.domain.campaign.application.service.CampaignGetService;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaignReview.api.dto.response.CampaignReviewDetailListResponse;
@@ -40,6 +41,7 @@ public class BrandUsecase {
 
     private final CampaignReviewStatusManager campaignReviewStatusManager;
 
+    private final CampaignMapper campaignMapper;
     private final CampaignReviewMapper campaignReviewMapper;
 
     @Transactional
@@ -68,10 +70,13 @@ public class BrandUsecase {
     }
 
     @Transactional(readOnly = true)
-    public List<CampaignParticipatedResponse> getCampaignTitles(Long brandId) {
+    public List<BrandIssuedCampaignResponse> getMyIssuedCampaignsInReview(Long brandId) {
         Brand brand = brandGetService.getBrandById(brandId);
+        List<Campaign> campaigns = campaignGetService.getBrandIssuedCampaignsInReview(brand);
 
-        return campaignGetService.getInReviewCampaignTitles(brand);
+        return campaigns.stream()
+                .map(campaignMapper::toBrandIssuedCampaignResponse)
+                .toList();
     }
 
     @Transactional(readOnly = true)

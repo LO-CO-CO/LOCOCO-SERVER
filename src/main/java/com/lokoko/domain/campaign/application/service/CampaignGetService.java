@@ -126,6 +126,11 @@ public class CampaignGetService {
         return campaignRepository.findInReviewCampaignTitlesByBrand(brand);
     }
 
+    public List<Campaign> getBrandIssuedCampaignsInReview(Brand brand) {
+        return campaignRepository.findAllByBrandAndCampaignStatusOrderByTitleAsc(
+                brand, CampaignStatus.IN_REVIEW);
+    }
+
     private Campaign findCampaignAndInitializeCollection(Long campaignId) {
         Campaign campaign = campaignRepository.findCampaignWithBrandById(campaignId)
                 .orElseThrow(CampaignNotFoundException::new);
