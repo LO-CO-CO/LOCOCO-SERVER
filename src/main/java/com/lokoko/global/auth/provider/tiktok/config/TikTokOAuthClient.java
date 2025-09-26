@@ -1,4 +1,4 @@
-package com.lokoko.global.auth.provider.tiktok;
+package com.lokoko.global.auth.provider.tiktok.config;
 
 import com.lokoko.global.auth.exception.TikTokProfileFetchFailedException;
 import com.lokoko.global.auth.exception.TikTokTokenRequestFailedException;

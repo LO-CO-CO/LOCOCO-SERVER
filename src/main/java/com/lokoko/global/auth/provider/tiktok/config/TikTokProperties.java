@@ -1,10 +1,10 @@
-package com.lokoko.global.auth.provider.google;
+package com.lokoko.global.auth.provider.tiktok.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "google")
-public record GoogleProperties(
-        String clientId,
+@ConfigurationProperties(prefix = "tiktok")
+public record TikTokProperties(
+        String clientKey,
         String clientSecret,
         String redirectUri,
         String baseUrl,

@@ -1,4 +1,4 @@
-package com.lokoko.global.auth.provider.line;
+package com.lokoko.global.auth.provider.line.config;
 
 import lombok.Getter;
 import lombok.Setter;

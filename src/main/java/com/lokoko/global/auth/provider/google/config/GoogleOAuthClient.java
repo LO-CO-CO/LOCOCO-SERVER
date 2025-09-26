@@ -1,4 +1,4 @@
-package com.lokoko.global.auth.provider.google;
+package com.lokoko.global.auth.provider.google.config;
 
 import com.lokoko.global.auth.provider.google.dto.GoogleProfileDto;
 import com.lokoko.global.auth.provider.google.dto.GoogleTokenDto;

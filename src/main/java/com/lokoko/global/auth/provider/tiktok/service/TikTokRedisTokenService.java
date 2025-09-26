@@ -1,7 +1,7 @@
 package com.lokoko.global.auth.provider.tiktok.service;
 
 import com.lokoko.global.auth.exception.TikTokReAuthenticationRequiredException;
-import com.lokoko.global.auth.provider.tiktok.TikTokOAuthClient;
+import com.lokoko.global.auth.provider.tiktok.config.TikTokOAuthClient;
 import com.lokoko.global.auth.provider.tiktok.dto.TikTokTokenDto;
 import java.time.Duration;
 import java.time.Instant;

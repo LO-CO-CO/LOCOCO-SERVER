@@ -1,4 +1,4 @@
-package com.lokoko.global.auth.provider.line;
+package com.lokoko.global.auth.provider.line.config;
 
 import com.lokoko.global.auth.provider.line.dto.LineProfileDto;
 import com.lokoko.global.auth.provider.line.dto.LineTokenDto;

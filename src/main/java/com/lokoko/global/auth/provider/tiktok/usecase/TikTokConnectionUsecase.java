@@ -9,7 +9,7 @@ import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.global.auth.exception.ErrorMessage;
 import com.lokoko.global.auth.exception.OauthException;
-import com.lokoko.global.auth.provider.tiktok.TikTokOAuthClient;
+import com.lokoko.global.auth.provider.tiktok.config.TikTokOAuthClient;
 import com.lokoko.global.auth.provider.tiktok.dto.TikTokConnectionResponse;
 import com.lokoko.global.auth.provider.tiktok.dto.TikTokProfileDto;
 import com.lokoko.global.auth.provider.tiktok.dto.TikTokTokenDto;

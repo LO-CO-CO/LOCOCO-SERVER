@@ -1,6 +1,6 @@
 package com.lokoko.domain.creator.application.service;
 
-import com.lokoko.global.auth.provider.tiktok.TikTokOAuthClient;
+import com.lokoko.global.auth.provider.tiktok.config.TikTokOAuthClient;
 import com.lokoko.global.auth.provider.tiktok.dto.TikTokProfileDto;
 import com.lokoko.global.auth.provider.tiktok.dto.TikTokVideoListResponse;
 import com.lokoko.global.auth.provider.tiktok.service.TikTokRedisTokenService;
