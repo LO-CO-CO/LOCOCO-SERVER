@@ -13,15 +13,19 @@ import com.lokoko.domain.campaign.domain.entity.enums.*;
 import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
 import com.lokoko.domain.campaign.exception.CampaignNotFoundException;
 import com.lokoko.domain.campaign.exception.NotCampaignOwnershipException;
+import com.lokoko.domain.creator.domain.entity.Creator;
+import com.lokoko.domain.creator.domain.entity.enums.CreatorStatus;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
 import com.lokoko.domain.image.domain.repository.CampaignImageRepository;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.domain.user.exception.UserNotFoundException;
+
 import java.util.List;
 import java.util.Optional;
 
+import com.lokoko.domain.user.domain.entity.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.PageRequest;
@@ -53,11 +57,26 @@ public class CampaignGetService {
         CampaignDetailPageStatus detailPageStatus = determineDetailPageStatus(userId, campaign);
 
         String currentUserRole = null; // 비로그인 유저
-        if (userId != null){
+        String creatorRoleInfo = null;
+
+        if (userId != null) {
             User currentUser = userRepository.findById(userId).get();
             currentUserRole = currentUser.getRole().name();
+            // user 타입 확인
+            if (currentUserRole.equals(Role.CREATOR.name())) {
+
+                Creator currentCreator = currentUser.getCreator();
+                if (currentCreator.getCreatorStatus() == CreatorStatus.NOT_APPROVED){
+                    creatorRoleInfo = CreatorStatus.NOT_APPROVED.name();
+                }
+                if (currentCreator.getCreatorType() != null){
+                    creatorRoleInfo = currentCreator.getCreatorType().name();
+                }
+            }
         }
-        return CampaignDetailResponse.of(campaign, topImages, bottomImages, detailPageStatus, currentUserRole);
+
+        return CampaignDetailResponse.of(campaign, topImages, bottomImages,
+                detailPageStatus, currentUserRole, creatorRoleInfo);
     }
 
     private Campaign findCampaignAndInitializeCollection(Long campaignId) {
