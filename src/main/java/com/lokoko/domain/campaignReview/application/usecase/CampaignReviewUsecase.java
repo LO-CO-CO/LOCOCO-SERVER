@@ -59,9 +59,9 @@ public class CampaignReviewUsecase {
         ContentType typeB = campaign.getSecondContentPlatform();
         CampaignReviewValidationUtil.validateTwoSetCombination(typeA, typeB);
 
-        // A 세트(필수)
-        CampaignReviewValidationUtil.requireFirstSetPresent(
-                request.firstMediaUrls(), request.firstCaptionWithHashtags());
+        // A 세트(캠페인에 second가 없는 단일 타입 캠페인)
+        CampaignReviewValidationUtil.requireFirstSetPresent(request.firstMediaUrls(),
+                request.firstCaptionWithHashtags());
         MediaValidationUtil.validateTotalMediaCount(request.firstMediaUrls());
 
         // B 세트(캠페인에 second가 있으면 필수, 없으면 금지)
@@ -73,6 +73,12 @@ public class CampaignReviewUsecase {
             CampaignReviewValidationUtil.ensureSecondSetAbsentForFirstRound(
                     request.secondMediaUrls(), request.secondCaptionWithHashtags());
         }
+
+        // 미디어 합산 개수 제한
+        CampaignReviewValidationUtil.validateCombinedMediaLimit(
+                request.firstMediaUrls(),
+                (typeB != null) ? request.secondMediaUrls() : null
+        );
 
         // 동일 타입 FIRST 중복 방지
         campaignReviewGetService.getFirstContent(participation.getId(), typeA);
@@ -118,22 +124,29 @@ public class CampaignReviewUsecase {
 
         // A 세트(필수: 미디어/캡션/postUrl)
         CampaignReviewValidationUtil.requireSecondSetPresent(
-                request.firstMediaUrls(), request.firstCaptionWithHashtags(), request.firstPostUrl(), true);
+                request.firstMediaUrls(), request.firstCaptionWithHashtags(), request.firstPostUrl());
         MediaValidationUtil.validateTotalMediaCount(request.firstMediaUrls());
 
         // B 세트(캠페인에 second가 있으면 필수, 없으면 금지)
         if (typeB != null) {
             CampaignReviewValidationUtil.requireSecondSetPresent(
-                    request.secondMediaUrls(), request.secondCaptionWithHashtags(), request.secondPostUrl(), false);
+                    request.secondMediaUrls(), request.secondCaptionWithHashtags(), request.secondPostUrl());
             MediaValidationUtil.validateTotalMediaCount(request.secondMediaUrls());
         } else {
             CampaignReviewValidationUtil.ensureSecondSetAbsentForSecondRound(
                     request.secondMediaUrls(), request.secondCaptionWithHashtags(), request.secondPostUrl());
         }
 
+        // 미디어 합산 개수 제한
+        CampaignReviewValidationUtil.validateCombinedMediaLimit(
+                request.firstMediaUrls(),
+                (typeB != null) ? request.secondMediaUrls() : null
+        );
+
         // 선행/중복 검증 & 저장 A
         campaignReviewGetService.getFirstOrThrow(participation.getId(), typeA);
         campaignReviewGetService.assertSecondNotExists(participation.getId(), typeA);
+
         CampaignReview secondA = campaignReviewMapper.toSecondReview(
                 participation, typeA, request.firstCaptionWithHashtags(), request.firstPostUrl());
         CampaignReview savedA = campaignReviewSaveService.saveReview(secondA);
