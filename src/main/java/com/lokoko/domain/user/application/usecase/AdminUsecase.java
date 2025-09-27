@@ -34,15 +34,15 @@ public class AdminUsecase {
 
     @Transactional
     public void approveCreator(Long adminUserId, Long userId) {
-        User admin = userGetService.findUserById(adminUserId);
-        AdminValidator.validateAdminRole(admin);
+        User user = userGetService.findUserById(adminUserId);
+        AdminValidator.validateAdminRole(user);
         adminCreatorUpdateService.approveById(userId, Instant.now());
     }
 
     @Transactional
     public void deleteReviewByAdmin(Long UserId, Long campaignReviewId) {
-        User user = userGetService.findUserById(UserId);
-        AdminValidator.validateCreatorRole(user);
+        User admin = userGetService.findUserById(UserId);
+        AdminValidator.validateAdminRole(admin);
 
         adminReviewDeleteService.deleteReview(UserId, campaignReviewId);
     }
