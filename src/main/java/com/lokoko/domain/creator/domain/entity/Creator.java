@@ -16,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -79,6 +80,9 @@ public class Creator {
     @Column
     private String postalCode;
 
+    @Column
+    private Instant approvedAt;
+
     @Enumerated(EnumType.STRING)
     private SkinType skinType;
 
@@ -94,9 +98,10 @@ public class Creator {
     @Column
     private CreatorStatus creatorStatus = CreatorStatus.NOT_APPROVED;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column
-    private CreatorType creatorType;
+    private CreatorType creatorType = CreatorType.NORMAL;
 
     @Column
     private String tikTokUserId;
@@ -167,6 +172,11 @@ public class Creator {
 
     public void changeSkinTone(SkinTone skinTone) {
         this.skinTone = skinTone;
+    }
+
+    public void approve(Instant when) {
+        this.approvedAt = when;
+        this.creatorStatus = CreatorStatus.APPROVED;
     }
 
     public void changeContentLanguage(ContentLanguage contentLanguage) {
