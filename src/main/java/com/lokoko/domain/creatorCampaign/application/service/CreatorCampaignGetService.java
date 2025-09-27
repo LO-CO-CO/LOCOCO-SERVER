@@ -7,6 +7,7 @@ import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
 import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
 import com.lokoko.domain.creatorCampaign.exception.AlreadyParticipatedCampaignException;
+import com.lokoko.domain.creatorCampaign.exception.CampaignReviewAbleNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -75,6 +76,30 @@ public class CreatorCampaignGetService {
                         ParticipationStatus.APPROVED_REVISION_CONFIRMED
                 )
         );
+    }
+
+    /**
+     * 특정 캠페인에서 크리에이터가 리뷰 작성 가능한 참여 이력을 단건 조회하는 메서드 - 조건은 {@link #findReviewable(Long)}와 동일합니다.
+     *
+     * @param creatorId  크리에이터 고유 ID
+     * @param campaignId 캠페인 고유 ID
+     * @return 리뷰 작성 가능한 CreatorCampaign
+     * @throws CampaignReviewAbleNotFoundException 리뷰 작성 조건을 만족하지 않는 경우 발생
+     */
+    @Transactional(readOnly = true)
+    public CreatorCampaign findReviewableInReviewByCampaign(Long creatorId, Long campaignId) {
+        return creatorCampaignRepository.findReviewableInReviewByCampaign(
+                        creatorId,
+                        campaignId,
+                        CampaignStatus.IN_REVIEW,
+                        List.of(
+                                ParticipationStatus.APPROVED_ADDRESS_CONFIRMED,
+                                ParticipationStatus.APPROVED_FIRST_REVIEW_DONE,
+                                ParticipationStatus.APPROVED_REVISION_REQUESTED,
+                                ParticipationStatus.APPROVED_REVISION_CONFIRMED
+                        )
+                )
+                .orElseThrow(CampaignReviewAbleNotFoundException::new);
     }
 
     /**

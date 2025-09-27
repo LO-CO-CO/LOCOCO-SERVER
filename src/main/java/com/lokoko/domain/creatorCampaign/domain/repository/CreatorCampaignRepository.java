@@ -33,14 +33,20 @@ public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign
     Optional<CreatorCampaign> findByCreatorIdAndCampaignId(Long creatorId, Long campaignId);
 
     @Query("""
-            select cc
-            from CreatorCampaign cc
-            join fetch cc.campaign c
-            where cc.creator.id = :creatorId
-              and cc.status in :statuses
-            order by cc.appliedAt desc, cc.id desc
+                select cc
+                from CreatorCampaign cc
+                join cc.campaign c
+                where cc.creator.id = :creatorId
+                  and c.id = :campaignId
+                  and c.campaignStatus = :campaignStatus
+                  and cc.status in :allowedStatuses
             """)
-    List<CreatorCampaign> findAllByCreatorAndStatuses(Long creatorId, Collection<ParticipationStatus> statuses);
+    Optional<CreatorCampaign> findReviewableInReviewByCampaign(
+            @Param("creatorId") Long creatorId,
+            @Param("campaignId") Long campaignId,
+            @Param("campaignStatus") CampaignStatus campaignStatus,
+            @Param("allowedStatuses") Collection<ParticipationStatus> allowedStatuses
+    );
 
     @Query("""
                 select cc

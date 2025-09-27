@@ -175,17 +175,12 @@ public class CampaignReviewUsecase {
     @Transactional(readOnly = true)
     public CampaignParticipatedResponse getMyReviewableCampaign(Long userId, Long campaignId) {
         Creator creator = creatorGetService.findByUserId(userId);
-        Campaign campaign = campaignGetService.findByCampaignId(campaignId);
         CreatorCampaign creatorCampaign =
-                creatorCampaignGetService.getByCampaignAndCreatorId(campaign, creator.getId());
-
-        ReviewRound nowRound = campaignReviewStatusManager
-                .determineReviewRound(campaign.getCampaignStatus(), creatorCampaign.getStatus());
+                creatorCampaignGetService.findReviewableInReviewByCampaign(creator.getId(), campaignId);
+        ReviewRound nowRound = campaignReviewStatusManager.mapRoundForCreator(creatorCampaign.getStatus());
 
         if (nowRound == ReviewRound.SECOND) {
-            Optional<CampaignReview> latestFirst =
-                    campaignReviewGetService.findLatestFirst(creatorCampaign);
-
+            Optional<CampaignReview> latestFirst = campaignReviewGetService.findLatestFirst(creatorCampaign);
             String brandNote = latestFirst.map(CampaignReview::getBrandNote).orElse(null);
             Instant revisionRequestedAt = latestFirst.map(CampaignReview::getRevisionRequestedAt).orElse(null);
 
@@ -194,7 +189,7 @@ public class CampaignReviewUsecase {
             );
         }
 
-        // FIRST 업로드 차례면 노트/시간 없음
+        // FIRST 업로드 차례는 노트/시간 없이 반환
         return campaignMapper.toCampaignParticipationResponse(creatorCampaign, nowRound);
     }
 
