@@ -47,11 +47,15 @@ public class CreatorCampaignRepositoryImpl implements CreatorCampaignRepositoryC
                 .select(Projections.constructor(CampaignApplicantResponse.class,
                         creatorCampaign.id,
                         creator.id,
-                        user.profileImageUrl,
-                        user.name,
-                        creator.creatorName,
-                        creatorSocialStats.instagramFollower,
-                        creatorSocialStats.tiktokFollower,
+                        Projections.constructor(CampaignApplicantResponse.CreatorInfo.class,
+                                user.name,
+                                creator.creatorName,
+                                user.profileImageUrl
+                        ),
+                        Projections.constructor(CampaignApplicantResponse.FollowerCount.class,
+                                creatorSocialStats.instagramFollower,
+                                creatorSocialStats.tiktokFollower
+                        ),
                         JPAExpressions
                                 .select(subCreatorCampaign.count().intValue())
                                 .from(subCreatorCampaign)
