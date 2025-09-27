@@ -86,12 +86,6 @@ public class CampaignReviewUsecase {
                 (typeB != null) ? request.secondMediaUrls() : null
         );
 
-        // 동일 타입 FIRST 중복 방지
-        campaignReviewGetService.getFirstContent(participation.getId(), typeA);
-        if (typeB != null) {
-            campaignReviewGetService.getFirstContent(participation.getId(), typeB);
-        }
-
         // 저장 A
         CampaignReview firstA = campaignReviewMapper.toFirstReview(
                 participation, typeA, request.firstCaptionWithHashtags());
@@ -151,7 +145,6 @@ public class CampaignReviewUsecase {
 
         // 선행/중복 검증 & 저장 A
         campaignReviewGetService.getFirstOrThrow(participation.getId(), typeA);
-        campaignReviewGetService.assertSecondNotExists(participation.getId(), typeA);
 
         CampaignReview secondA = campaignReviewMapper.toSecondReview(
                 participation, typeA, request.firstCaptionWithHashtags(), request.firstPostUrl());
@@ -161,7 +154,6 @@ public class CampaignReviewUsecase {
         // B(옵션)
         if (typeB != null) {
             campaignReviewGetService.getFirstOrThrow(participation.getId(), typeB);
-            campaignReviewGetService.assertSecondNotExists(participation.getId(), typeB);
             CampaignReview secondB = campaignReviewMapper.toSecondReview(
                     participation, typeB, request.secondCaptionWithHashtags(), request.secondPostUrl());
             CampaignReview savedB = campaignReviewSaveService.saveReview(secondB);
