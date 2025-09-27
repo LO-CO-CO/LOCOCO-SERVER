@@ -33,11 +33,19 @@ public class AdminController {
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_REVIEW_DELETE_SUCCESS.getMessage());
     }
 
-    @Operation(summary = "캠페인 신청 승인")
+    @Operation(summary = "어드민 캠페인 신청 승인")
     @PostMapping("/campaigns/{campaignId}/approval")
     public ApiResponse<Void> approveCampaign(@Parameter(hidden = true) @CurrentUser Long userId,
                                              @PathVariable Long campaignId) {
         adminUsecase.approveCampaign(userId, campaignId);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_CAMPAIGN_APPROVAL_SUCCESS.getMessage());
+    }
+
+    @Operation(summary = "어드민 크리에이터 회원가입 승인")
+    @PostMapping("/creators/{userId}/registration/approval")
+    public ApiResponse<Void> approveCreator(@Parameter(hidden = true) @CurrentUser Long adminUserId,
+                                            @PathVariable Long userId) {
+        adminUsecase.approveCreator(adminUserId, userId);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_CREATOR_APPROVAL_SUCCESS.getMessage());
     }
 }
