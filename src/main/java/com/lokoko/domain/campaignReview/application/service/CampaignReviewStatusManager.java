@@ -38,4 +38,25 @@ public class CampaignReviewStatusManager {
         }
         throw new CampaignNotViewableException();
     }
+
+    /**
+     * 크리에이터 관점에서 리뷰 라운드 상태 관련 메서드
+     *
+     * <p>두 가지 관점에서 리뷰 라운드를 판별합니다:
+     * <ul>
+     *   <li>브랜드 관점: 캠페인 상태(CampaignStatus)와 참여 상태(ParticipationStatus)를 함께 보고
+     *       브랜드가 현재 어떤 리뷰 라운드를 확인할 수 있는지 결정
+     *       (예: IN_REVIEW + APPROVED_FIRST_REVIEW_DONE → FIRST)</li>
+     *   <li>크리에이터 관점: 참여 상태(ParticipationStatus)만으로 현재 업로드 가능한 리뷰 라운드를 매핑
+     * </ul>
+     */
+    public ReviewRound mapRoundForCreator(ParticipationStatus participationStatus) {
+        return switch (participationStatus) {
+            case APPROVED_ADDRESS_CONFIRMED -> ReviewRound.FIRST;
+            case APPROVED_FIRST_REVIEW_DONE,
+                 APPROVED_REVISION_REQUESTED,
+                 APPROVED_REVISION_CONFIRMED -> ReviewRound.SECOND;
+            default -> throw new CampaignNotViewableException();
+        };
+    }
 }

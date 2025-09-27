@@ -1,8 +1,7 @@
 package com.lokoko.domain.creatorCampaign.application.service;
 
-import static java.util.List.of;
-
 import com.lokoko.domain.campaign.domain.entity.Campaign;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import com.lokoko.domain.creator.exception.CreatorCampaignNotFoundException;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
@@ -66,9 +65,15 @@ public class CreatorCampaignGetService {
      * @return 리뷰 작성 자격이 있는 {@link CreatorCampaign} 리스트 (최신순으로 정렬)
      */
     public List<CreatorCampaign> findReviewable(Long creatorId) {
-        return creatorCampaignRepository.findAllByCreatorAndStatuses(
+        return creatorCampaignRepository.findReviewablesInReview(
                 creatorId,
-                of(ParticipationStatus.APPROVED_ADDRESS_CONFIRMED, ParticipationStatus.APPROVED_FIRST_REVIEW_DONE)
+                CampaignStatus.IN_REVIEW,
+                List.of(
+                        ParticipationStatus.APPROVED_ADDRESS_CONFIRMED,
+                        ParticipationStatus.APPROVED_FIRST_REVIEW_DONE,
+                        ParticipationStatus.APPROVED_REVISION_REQUESTED,
+                        ParticipationStatus.APPROVED_REVISION_CONFIRMED
+                )
         );
     }
 

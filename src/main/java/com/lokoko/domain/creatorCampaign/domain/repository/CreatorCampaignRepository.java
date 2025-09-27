@@ -2,6 +2,7 @@ package com.lokoko.domain.creatorCampaign.domain.repository;
 
 
 import com.lokoko.domain.campaign.domain.entity.Campaign;
+import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
 import jakarta.persistence.LockModeType;
@@ -60,4 +61,17 @@ public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign
     List<Long> findPendingApplicationIds(Long campaignId, List<Long> applicationIds);
 
     Optional<CreatorCampaign> findByCampaignAndCreator_Id(Campaign campaign, Long creatorId);
+
+    @Query("""
+                select cc
+                from CreatorCampaign cc
+                join fetch cc.campaign c
+                where cc.creator.id = :creatorId
+                  and c.campaignStatus = :campaignStatus
+                  and cc.status in :statuses
+                order by cc.id desc
+            """)
+    List<CreatorCampaign> findReviewablesInReview(@Param("creatorId") Long creatorId,
+                                                  @Param("campaignStatus") CampaignStatus campaignStatus,
+                                                  @Param("statuses") Collection<ParticipationStatus> statuses);
 }
