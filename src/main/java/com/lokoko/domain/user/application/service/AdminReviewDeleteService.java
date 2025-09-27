@@ -6,32 +6,21 @@ import com.lokoko.domain.media.video.domain.repository.ReviewVideoRepository;
 import com.lokoko.domain.productReview.domain.entity.Review;
 import com.lokoko.domain.productReview.domain.repository.ReviewRepository;
 import com.lokoko.domain.productReview.exception.ReviewNotFoundException;
-import com.lokoko.domain.user.domain.entity.User;
-import com.lokoko.domain.user.domain.repository.UserRepository;
-import com.lokoko.domain.user.exception.UserNotFoundException;
-import com.lokoko.global.utils.AdminValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class AdminReviewService {
+public class AdminReviewDeleteService {
 
     private final ReviewRepository reviewRepository;
-    private final UserRepository userRepository;
     private final ReviewImageRepository reviewImageRepository;
     private final ReviewVideoRepository reviewVideoRepository;
     private final ReceiptImageRepository receiptImageRepository;
 
     @Transactional
     public void deleteReview(Long userId, Long reviewId) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        AdminValidator.validateUserRole(user);
-
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(ReviewNotFoundException::new);
 
