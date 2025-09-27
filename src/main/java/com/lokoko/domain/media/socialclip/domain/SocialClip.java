@@ -25,7 +25,7 @@ public class SocialClip extends BaseEntity {
     @Column(name = "social_clip_id")
     private Long id;
 
-    @ManyToOne(fetch = LAZY)
+    @OneToOne(fetch = LAZY)
     @JoinColumn(name = "campaign_review_id")
     private CampaignReview campaignReview;
 
@@ -38,8 +38,4 @@ public class SocialClip extends BaseEntity {
     Long shares;
 
     private Instant uploadedAt;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ContentType contentType;
 }
