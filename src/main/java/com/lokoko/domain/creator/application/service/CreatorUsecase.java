@@ -64,10 +64,10 @@ public class CreatorUsecase {
                 creatorCampaignGetService.findMyCampaigns(creator.getId(), page, size);
 
         List<CreatorMyCampaignResponse> campaigns = slice.getContent().stream()
-                .map(creatorCampaign -> creatorCampaignMapper.toMyCampaignResponse(creator, creatorCampaign))
+                .map(creatorCampaignMapper::toMyCampaignResponse)
                 .toList();
 
-        return creatorCampaignMapper.toMyCampaignListResponse(campaigns, slice);
+        return creatorCampaignMapper.toMyCampaignListResponse(creator, campaigns, slice);
     }
 
     @Transactional

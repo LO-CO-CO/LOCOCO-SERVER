@@ -26,22 +26,21 @@ public class CreatorCampaignMapper {
                 .build();
     }
 
-    public CreatorMyCampaignResponse toMyCampaignResponse(Creator creator, CreatorCampaign participation) {
+    public CreatorMyCampaignResponse toMyCampaignResponse(CreatorCampaign participation) {
         Campaign c = participation.getCampaign();
 
         return CreatorMyCampaignResponse.builder()
-                .basicInfo(toBasicInfo(creator))
                 .campaignId(c.getId())
                 .title(c.getTitle())
                 .reviewSubmissionDeadline(c.getReviewSubmissionDeadline())
-                .contentType(c.getFirstContentPlatform())
                 .participationStatus(participation.getStatus())
                 .build();
     }
 
-    public CreatorMyCampaignListResponse toMyCampaignListResponse(List<CreatorMyCampaignResponse> campaigns,
+    public CreatorMyCampaignListResponse toMyCampaignListResponse(Creator creator, List<CreatorMyCampaignResponse> campaigns,
                                                                   Slice<?> slice) {
         return CreatorMyCampaignListResponse.builder()
+                .basicInfo(toBasicInfo(creator))
                 .campaigns(campaigns)
                 .pageInfo(PageableResponse.of(slice))
                 .build();
@@ -53,6 +52,8 @@ public class CreatorCampaignMapper {
                 .creatorName(creator.getCreatorName())
                 .firstName(creator.getFirstName())
                 .lastName(creator.getLastName())
+                .email(creator.getUser() != null ? creator.getUser().getEmail() : null)
+                .creatorLevel(creator.getCreatorType().name())
                 .build();
     }
 }

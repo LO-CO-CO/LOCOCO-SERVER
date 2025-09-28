@@ -12,6 +12,9 @@ import lombok.Builder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record CreatorMyCampaignListResponse(
 
+        @Schema(requiredMode = REQUIRED, description = "크리에이터 기본 정보")
+        CreatorBasicInfo basicInfo,
+
         @Schema(requiredMode = REQUIRED)
         List<CreatorMyCampaignResponse> campaigns,
 
