@@ -1,11 +1,11 @@
 package com.lokoko.domain.campaign.application.service;
 
+import com.lokoko.domain.brand.api.dto.request.ApplicantStatus;
 import com.lokoko.domain.brand.api.dto.response.BrandDashboardCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.CampaignApplicantListResponse;
 import com.lokoko.domain.brand.domain.entity.Brand;
-import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignDetailResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse;
@@ -39,9 +39,6 @@ import org.hibernate.Hibernate;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -169,8 +166,8 @@ public class CampaignGetService {
         return campaignRepository.findSimpleCampaignInfoByBrandId(brandId);
     }
 
-    public CampaignApplicantListResponse getCampaignApplicants(Long brandId, Long campaignId, int page, int size) {
-        return creatorCampaignRepository.findCampaignApplicants(brandId, campaignId, PageRequest.of(page, size));
+    public CampaignApplicantListResponse getCampaignApplicants(Long brandId, Long campaignId, int page, int size, ApplicantStatus status) {
+        return creatorCampaignRepository.findCampaignApplicants(brandId, campaignId, PageRequest.of(page, size), status);
     }
 
     public int countOngoingCampaigns(Long brandId, Instant now) {

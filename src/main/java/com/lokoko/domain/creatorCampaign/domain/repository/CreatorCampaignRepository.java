@@ -57,6 +57,13 @@ public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign
             """)
     Slice<CreatorCampaign> findSliceWithCampaignByCreator(Long creatorId, Pageable pageable);
 
+    @Query("""
+                select count(cc)
+                from CreatorCampaign cc
+                where cc.creator.id = :creatorId
+            """)
+    Long countByCreatorId(Long creatorId);
+
     @Modifying(clearAutomatically = true)
     @Query("UPDATE CreatorCampaign cc SET cc.status = 'APPROVED' WHERE cc.id IN :applicationIds")
     int bulkApproveApplicationStatus(List<Long> applicationIds);

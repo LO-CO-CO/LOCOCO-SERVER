@@ -15,7 +15,9 @@ public record PageableResponse(
         @Schema(requiredMode = REQUIRED)
         Integer numberOfElements,
         @Schema(requiredMode = REQUIRED)
-        Boolean isLast
+        Boolean isLast,
+        @Schema(description = "전체 페이지 개수")
+        Integer totalPages
 ) {
     public static PageableResponse of(Slice<?> slice) {
         return PageableResponse.builder()
@@ -23,6 +25,21 @@ public record PageableResponse(
                 .pageSize(slice.getSize())
                 .numberOfElements(slice.getNumberOfElements())
                 .isLast(slice.isLast())
+                .totalPages(null)
+                .build();
+    }
+
+    /**
+     * 전체 페이지 정보와 함께 PageableResponse 생성
+     */
+    public static PageableResponse of(int pageNumber, int pageSize, int numberOfElements, boolean isLast, long totalElements) {
+        int totalPages = (int) Math.ceil((double) totalElements / pageSize);
+        return PageableResponse.builder()
+                .pageNumber(pageNumber)
+                .pageSize(pageSize)
+                .numberOfElements(numberOfElements)
+                .isLast(isLast)
+                .totalPages(totalPages)
                 .build();
     }
 }

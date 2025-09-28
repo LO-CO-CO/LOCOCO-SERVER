@@ -157,11 +157,12 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
         long total = totalCount != null ? totalCount : 0L;
         boolean isLast = (pageable.getOffset() + pageable.getPageSize()) >= total;
 
-        PageableResponse pageInfo = new PageableResponse(
+        PageableResponse pageInfo = PageableResponse.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
                 campaigns.size(),
-                isLast
+                isLast,
+                total
         );
 
         return new BrandMyCampaignListResponse(campaigns, pageInfo);
@@ -271,11 +272,12 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
         long total = totalCount != null ? totalCount : 0L;
         boolean isLast = (pageable.getOffset() + pageable.getPageSize()) >= total;
 
-        PageableResponse pageInfo = new PageableResponse(
+        PageableResponse pageInfo = PageableResponse.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
                 campaignList.size(),
-                isLast);
+                isLast,
+                total);
 
         return new MainPageCampaignListResponse(campaignList, pageInfo);
     }
@@ -415,11 +417,12 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
         long total = totalCount != null ? totalCount : 0L;
         boolean isLast = (pageable.getOffset() + pageable.getPageSize()) >= total;
 
-        PageableResponse pageInfo = new PageableResponse(
+        PageableResponse pageInfo = PageableResponse.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
                 campaigns.size(),
-                isLast
+                isLast,
+                total
         );
 
         return new BrandDashboardCampaignListResponse(campaigns, pageInfo);

@@ -63,11 +63,13 @@ public class CreatorUsecase {
         Slice<CreatorCampaign> slice =
                 creatorCampaignGetService.findMyCampaigns(creator.getId(), page, size);
 
+        Long totalElements = creatorCampaignGetService.countMyCampaigns(creator.getId());
+
         List<CreatorMyCampaignResponse> campaigns = slice.getContent().stream()
                 .map(creatorCampaignMapper::toMyCampaignResponse)
                 .toList();
 
-        return creatorCampaignMapper.toMyCampaignListResponse(creator, campaigns, slice);
+        return creatorCampaignMapper.toMyCampaignListResponse(creator, campaigns, slice, totalElements);
     }
 
     @Transactional
