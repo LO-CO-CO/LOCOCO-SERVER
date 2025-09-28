@@ -2,6 +2,7 @@ package com.lokoko.domain.creator.util;
 
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewStatus;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
+import com.lokoko.domain.creator.api.dto.response.NextAction;
 import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import lombok.AccessLevel;
@@ -21,7 +22,7 @@ public class CampaignStatusMapper {
     /**
      * ParticipationStatus를 직접 받는 메서드
      */
-    public static String determineNextAction(
+    public static NextAction determineNextAction(
             ParticipationStatus participationStatus,
             List<ReviewInfo> reviews,
             List<ContentType> requiredContentTypes) {
@@ -30,15 +31,15 @@ public class CampaignStatusMapper {
             return determineActiveAction(reviews, requiredContentTypes);
         }
 
-        return participationStatus.getDefaultAction();
+        return mapToNextAction(participationStatus.getDefaultAction());
     }
 
     /**
      * Active 상태에서의 세부 액션 결정
      */
-    private static String determineActiveAction(List<ReviewInfo> reviews, List<ContentType> requiredContentTypes) {
+    private static NextAction determineActiveAction(List<ReviewInfo> reviews, List<ContentType> requiredContentTypes) {
         if (reviews.isEmpty()) {
-            return "Upload 1st Review";
+            return NextAction.UPLOAD_FIRST_REVIEW;
         }
 
         // FIRST 라운드에서 SUBMITTED 상태 확인 (브랜드 승인 대기) - 최우선
@@ -47,7 +48,7 @@ public class CampaignStatusMapper {
                     && review.reviewStatus() == ReviewStatus.SUBMITTED);
 
         if (hasFirstSubmitted) {
-            return "Revision Requested";
+            return NextAction.REVISION_REQUESTED;
         }
 
         // 수정 요청된 리뷰가 있는지 확인
@@ -60,7 +61,7 @@ public class CampaignStatusMapper {
                     .filter(review -> review.reviewStatus() == ReviewStatus.REVISION_REQUESTED)
                     .allMatch(ReviewInfo::noteViewed);
 
-            return allNotesViewed ? "Upload 2nd Review" : "View Notes";
+            return allNotesViewed ? NextAction.UPLOAD_SECOND_REVIEW : NextAction.VIEW_NOTES;
         }
 
         // FIRST 라운드가 완료되었고 SUBMITTED가 아닌 경우 (브랜드 승인 후)
@@ -68,10 +69,24 @@ public class CampaignStatusMapper {
                 .anyMatch(review -> review.reviewRound() == ReviewRound.FIRST);
 
         if (hasFirstReview) {
-            return "Upload 2nd Review";
+            return NextAction.UPLOAD_SECOND_REVIEW;
         }
 
-        return "Upload 1st Review";
+        return NextAction.UPLOAD_FIRST_REVIEW;
+    }
+
+    /**
+     * String 액션을 NextAction enum으로 매핑
+     */
+    private static NextAction mapToNextAction(String action) {
+        return switch (action) {
+            case "View Details" -> NextAction.VIEW_DETAILS;
+            case "Confirm Address" -> NextAction.CONFIRM_ADDRESS;
+            case "Upload 1st Review" -> NextAction.UPLOAD_FIRST_REVIEW;
+            case "Upload 2nd Review" -> NextAction.UPLOAD_SECOND_REVIEW;
+            case "View Results" -> NextAction.VIEW_RESULTS;
+            default -> NextAction.VIEW_DETAILS;
+        };
     }
 
 

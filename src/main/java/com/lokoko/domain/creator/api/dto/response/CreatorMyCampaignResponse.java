@@ -22,8 +22,8 @@ public record CreatorMyCampaignResponse(
         @Schema(description = "리뷰 제출 데드라인")
         Instant reviewSubmissionDeadline,
 
-        @Schema(description = "다음 액션", example = "Upload 1st Review", allowableValues = {"View Details", "Confirm Address", "Upload 1st Review", "Revision Requested", "View Notes", "Upload 2nd Review", "View Results"})
-        String nextAction,
+        @Schema(description = "다음 액션", example = "UPLOAD_FIRST_REVIEW")
+        NextAction nextAction,
 
 
         @Schema(description = "참여 상태 (내부용)", example = "APPROVED_ADDRESS_CONFIRMED")
@@ -42,7 +42,7 @@ public record CreatorMyCampaignResponse(
             List<CampaignStatusMapper.ReviewInfo> reviews,
             List<ContentType> requiredContentTypes) {
 
-        String nextAction = CampaignStatusMapper.determineNextAction(
+        NextAction nextAction = CampaignStatusMapper.determineNextAction(
                 participationStatus, reviews, requiredContentTypes);
 
         return CreatorMyCampaignResponse.builder()
@@ -67,7 +67,7 @@ public record CreatorMyCampaignResponse(
                 .campaignId(campaignId)
                 .title(title)
                 .reviewSubmissionDeadline(reviewSubmissionDeadline)
-                .nextAction("브랜드 승인 대기")  // PENDING 상태의 한국어 액션
+                .nextAction(NextAction.BRAND_APPROVAL_WAITING)  // PENDING 상태의 액션
                 .participationStatus(participationStatus)
                 .build();
     }
