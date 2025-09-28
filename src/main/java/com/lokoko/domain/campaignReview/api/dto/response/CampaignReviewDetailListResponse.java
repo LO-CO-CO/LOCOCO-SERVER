@@ -15,8 +15,8 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record CampaignReviewDetailListResponse(
 
-        @Schema(requiredMode = REQUIRED, description = "캠페인 ID", example = "11")
-        Long campaignId,
+        @Schema(requiredMode = REQUIRED, description = "캠페인 리뷰 ID", example = "11")
+        Long campaignReviewId,
 
         @Schema(requiredMode = REQUIRED, description = "캠페인 제목", example = "Summer Hydration Campaign")
         String title,
