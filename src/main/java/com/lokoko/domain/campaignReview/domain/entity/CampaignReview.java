@@ -19,13 +19,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.Instant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "campaign_reviews")
+@Table(name = "campaign_reviews",
+       uniqueConstraints = {
+           @UniqueConstraint(
+               name = "uq_campaign_review_campaign_round_content",
+               columnNames = {"creator_campaign_id", "review_round", "content_type"}
+           )
+       })
 @NoArgsConstructor
 public class CampaignReview extends BaseEntity {
 
