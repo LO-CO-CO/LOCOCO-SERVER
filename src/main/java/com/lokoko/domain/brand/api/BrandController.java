@@ -229,34 +229,18 @@ public class BrandController {
                 response);
     }
 
-//    @Operation(summary = "브랜드 마이페이지 - 본인이 발행한 특정 캠페인의 참여자 리뷰 단건 조회")
-//    @GetMapping("/my/campaigns/in-review/{campaignReviewId}")
-//    public ApiResponse<CampaignReviewDetailListResponse> getCreatorCampaignReview(
-//            @Parameter(hidden = true) @CurrentUser Long brandId,
-//            @PathVariable Long campaignReviewId) {
-//
-//        CampaignReviewDetailListResponse response = brandUsecase.getCreatorCampaignReview(brandId, campaignReviewId);
-//
-//        return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_MY_PAGE_REVIEW_DETAIL_GET_SUCCESS.getMessage(),
-//                response
-//        );
-//    }
-
-
-    @Operation(summary = "[테스트용] 브랜드 마이페이지 - 캠페인 리뷰 단건 조회")
+    @Operation(summary = "브랜드 마이페이지 - 본인이 발행한 특정 캠페인의 참여자 리뷰 단건 조회")
     @GetMapping("/my/campaigns/in-review/{campaignReviewId}")
-    public ApiResponse<CampaignReviewDetailListResponse> getCreatorCampaignReviewd(
-            @RequestParam(defaultValue = "1") Long brandId,
+    public ApiResponse<CampaignReviewDetailListResponse> getCreatorCampaignReview(
+            @Parameter(hidden = true) @CurrentUser Long brandId,
             @PathVariable Long campaignReviewId) {
-
 
         CampaignReviewDetailListResponse response = brandUsecase.getCreatorCampaignReview(brandId, campaignReviewId);
 
-        return ApiResponse.success(HttpStatus.OK,
-                ResponseMessage.BRAND_MY_PAGE_REVIEW_DETAIL_GET_SUCCESS.getMessage(),
-                response);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_MY_PAGE_REVIEW_DETAIL_GET_SUCCESS.getMessage(),
+                response
+        );
     }
-
 
     @Operation(summary = "브랜드 마이페이지 - 캠페인 지원자 확인 뷰 - 특정 캠페인에 조회한 크리에이터 승인 ")
     @PatchMapping("/my/campaigns/{campaignId}/applicants/approve")
