@@ -91,6 +91,8 @@ public class PermitUrlConfig {
                 "/api/campaignReviews/{campaignId}/first",
                 "/api/campaignReviews/{campaignId}/second",
                 "/api/campaignReviews/my/participation",
+                "/api/campaignReviews/my/participation/{campaignId}",
+                "/api/creator/profile/campaigns"
         };
     }
 
@@ -115,6 +117,7 @@ public class PermitUrlConfig {
                 "/api/brands/register/info",
                 "/api/brands/profile/image",
                 "/api/brands/profile",
+                "/api/brands/my/campaigns/creators/{campaignReviewId}/review"
         };
     }
 
