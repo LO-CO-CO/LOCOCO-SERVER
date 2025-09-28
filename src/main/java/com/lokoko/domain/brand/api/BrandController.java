@@ -230,7 +230,7 @@ public class BrandController {
     }
 
     @Operation(summary = "브랜드 마이페이지 - 본인이 발행한 특정 캠페인의 참여자 리뷰 단건 조회")
-    @GetMapping("/my/campaigns/in-review/{campaignReviewId}")
+    @GetMapping("/my/campaigns/creators/{campaignReviewId}/review")
     public ApiResponse<CampaignReviewDetailListResponse> getCreatorCampaignReview(
             @Parameter(hidden = true) @CurrentUser Long brandId,
             @PathVariable Long campaignReviewId) {
