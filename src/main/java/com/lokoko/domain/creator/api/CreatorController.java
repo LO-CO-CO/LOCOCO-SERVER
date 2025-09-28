@@ -47,7 +47,7 @@ public class CreatorController {
                 creatorUsecase.getMyProfile(userId));
     }
 
-    @Operation(summary = "크리에이터 마이페이지 내가 참여중/참여한 캠페인 목록 조회 [무한 스크롤]")
+    @Operation(summary = "크리에이터 마이페이지 내가 참여중/참여한 캠페인 목록 조회 [페이지네이션]")
     @GetMapping("/profile/campaigns")
     public ApiResponse<CreatorMyCampaignListResponse> getMyCampaigns(@Parameter(hidden = true) @CurrentUser Long userId,
                                                                      @RequestParam(defaultValue = "0") int page,
