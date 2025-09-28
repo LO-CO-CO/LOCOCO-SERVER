@@ -99,10 +99,10 @@ public class CampaignReviewMapper {
                                                                  String postUrl) {
 
         // 브랜드 노트 마감일은 캠페인 deadLine으로부터 4일 전
-        Instant brandNoteDeadline = campaign.getApplyDeadline().minus(Duration.ofDays(4));
+        Instant brandNoteDeadline = campaign.getReviewSubmissionDeadline().minus(Duration.ofDays(4));
 
         return CampaignReviewDetailListResponse.builder()
-                .campaignId(campaign.getId())
+                .campaignReviewId(review.getId())
                 .title(campaign.getTitle())
                 .reviewRound(round)
                 .contentType(review.getContentType())
