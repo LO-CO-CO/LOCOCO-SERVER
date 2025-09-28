@@ -96,11 +96,12 @@ public class CreatorCampaignRepositoryImpl implements CreatorCampaignRepositoryC
         long total = totalCount != null ? totalCount : 0L;
         boolean isLast = (pageable.getOffset() + pageable.getPageSize()) >= total;
 
-        PageableResponse pageInfo = new PageableResponse(
+        PageableResponse pageInfo = PageableResponse.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
                 applicants.size(),
-                isLast
+                isLast,
+                total
         );
 
         return new CampaignApplicantListResponse(applicants, pageInfo);

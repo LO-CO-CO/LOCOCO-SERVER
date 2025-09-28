@@ -60,6 +60,15 @@ public class CreatorCampaignGetService {
     }
 
     /**
+     * 특정 크리에이터가 참여한 캠페인 총 개수 조회
+     * @param creatorId 조회할 크리에이터의 고유 ID
+     * @return 크리에이터가 참여한 캠페인 총 개수
+     */
+    public Long countMyCampaigns(Long creatorId) {
+        return creatorCampaignRepository.countByCreatorId(creatorId);
+    }
+
+    /**
      * 크리에이터가 현재 리뷰 작성이 가능한 캠페인 참여 이력들을 조회하는 메서드
      *
      * 리뷰 작성 가능 조건:

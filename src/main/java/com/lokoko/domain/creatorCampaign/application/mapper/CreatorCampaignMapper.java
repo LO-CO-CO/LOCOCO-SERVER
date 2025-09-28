@@ -128,6 +128,24 @@ public class CreatorCampaignMapper {
                 .build();
     }
 
+    /**
+     * totalPages 정보를 포함한 CreatorMyCampaignListResponse 생성
+     */
+    public CreatorMyCampaignListResponse toMyCampaignListResponse(Creator creator, List<CreatorMyCampaignResponse> campaigns,
+                                                                  Slice<?> slice, long totalElements) {
+        return CreatorMyCampaignListResponse.builder()
+                .basicInfo(toBasicInfo(creator))
+                .campaigns(campaigns)
+                .pageInfo(PageableResponse.of(
+                        slice.getNumber(),
+                        slice.getSize(),
+                        slice.getNumberOfElements(),
+                        slice.isLast(),
+                        totalElements
+                ))
+                .build();
+    }
+
     private CreatorBasicInfo toBasicInfo(Creator creator) {
         return CreatorBasicInfo.builder()
                 .creatorId(creator.getId())

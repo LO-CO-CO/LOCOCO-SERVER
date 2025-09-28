@@ -51,7 +51,7 @@ public class CreatorController {
     @GetMapping("/profile/campaigns")
     public ApiResponse<CreatorMyCampaignListResponse> getMyCampaigns(@Parameter(hidden = true) @CurrentUser Long userId,
                                                                      @RequestParam(defaultValue = "0") int page,
-                                                                     @RequestParam(defaultValue = "20") int size
+                                                                     @RequestParam(defaultValue = "12") int size
     ) {
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.MY_CAMPAIGN_FETCH_SUCCESS.getMessage(),
                 creatorUsecase.getMyCampaigns(userId, page, size));
