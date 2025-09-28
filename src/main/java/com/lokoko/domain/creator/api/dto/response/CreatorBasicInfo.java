@@ -30,6 +30,13 @@ public record CreatorBasicInfo(
         Gender gender,
 
         @Schema(requiredMode = REQUIRED, description = "생년월일(YYYY-MM-DD)", example = "1999-10-19")
-        String birthDate
+        String birthDate,
+
+        @Schema(requiredMode = REQUIRED, description = "이메일", example = "chanel@gmail.com")
+        String email,
+
+        @Schema(requiredMode = REQUIRED, description = "크리에이터 레벨", example = "PRO / NORMAL")
+        String creatorLevel
+
 ) {
 }
