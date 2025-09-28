@@ -1,10 +1,6 @@
 package com.lokoko.domain.brand.api;
 
-import com.lokoko.domain.brand.api.dto.request.BrandInfoUpdateRequest;
-import com.lokoko.domain.brand.api.dto.request.BrandMyPageUpdateRequest;
-import com.lokoko.domain.brand.api.dto.request.BrandNoteRevisionRequest;
-import com.lokoko.domain.brand.api.dto.request.BrandProfileImageRequest;
-import com.lokoko.domain.brand.api.dto.request.CreatorApproveRequest;
+import com.lokoko.domain.brand.api.dto.request.*;
 import com.lokoko.domain.brand.api.dto.response.BrandDashboardCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandIssuedCampaignResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
@@ -259,11 +255,12 @@ public class BrandController {
     public ApiResponse<CampaignApplicantListResponse> getCampaignApplicants(
             @Parameter(hidden = true) @CurrentUser Long brandId,
             @PathVariable Long campaignId,
+            @RequestParam(required = false) ApplicantStatus status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         CampaignApplicantListResponse response = campaignGetService.getCampaignApplicants(brandId, campaignId, page,
-                size);
+                size , status);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.CAMPAIGN_APPLICANTS_GET_SUCCESS.getMessage(),
                 response);
