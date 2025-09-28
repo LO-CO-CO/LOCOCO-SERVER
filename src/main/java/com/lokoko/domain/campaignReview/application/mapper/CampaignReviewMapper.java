@@ -13,9 +13,12 @@ import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
 import com.lokoko.domain.media.domain.MediaFile;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.utils.S3UrlParser;
+import org.springframework.stereotype.Component;
+
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.stereotype.Component;
 
 @Component
 public class CampaignReviewMapper {
@@ -90,13 +93,22 @@ public class CampaignReviewMapper {
                 .build();
     }
 
-    public CampaignReviewDetailListResponse toDetailListResponse(Campaign campaign, ReviewRound round,
-                                                                 List<CampaignReviewDetailResponse> reviews) {
+    public CampaignReviewDetailListResponse toDetailListResponse(Campaign campaign, CampaignReview review,
+                                                                 ReviewRound round,
+                                                                 List<String> mediaUrls) {
+
+        // 브랜드 노트 마감일은 캠페인 deadLine으로부터 4일 전
+        Instant brandNoteDeadline = campaign.getApplyDeadline().minus(Duration.ofDays(4));
+
         return CampaignReviewDetailListResponse.builder()
                 .campaignId(campaign.getId())
                 .title(campaign.getTitle())
                 .reviewRound(round)
-                .reviews(reviews)
+                .contentType(review.getContentType())
+                .reviewImages(mediaUrls)
+                .captionWithHashtags(review.getCaptionWithHashtags())
+                .brandNote(review.getBrandNote())
+                .brandNoteDeadline(brandNoteDeadline)
                 .build();
     }
 }

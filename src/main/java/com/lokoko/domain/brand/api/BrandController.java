@@ -5,10 +5,8 @@ import com.lokoko.domain.brand.api.dto.request.BrandMyPageUpdateRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandNoteRevisionRequest;
 import com.lokoko.domain.brand.api.dto.request.BrandProfileImageRequest;
 import com.lokoko.domain.brand.api.dto.request.CreatorApproveRequest;
-import com.lokoko.domain.brand.api.dto.response.BrandIssuedCampaignResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandDashboardCampaignListResponse;
-import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
-import com.lokoko.domain.brand.api.dto.request.CreatorApproveRequest;
+import com.lokoko.domain.brand.api.dto.response.BrandIssuedCampaignResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyPageResponse;
@@ -23,7 +21,6 @@ import com.lokoko.domain.campaign.api.dto.request.CampaignDraftRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignPublishRequest;
 import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.campaign.application.service.CampaignGetService;
-import com.lokoko.domain.campaign.application.service.CampaignGetService;
 import com.lokoko.domain.campaign.application.service.CampaignService;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatusFilter;
 import com.lokoko.domain.campaignReview.api.dto.response.CampaignReviewDetailListResponse;
@@ -35,7 +32,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,6 +43,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @Tag(name = "BRAND")
 @RestController
@@ -232,14 +230,12 @@ public class BrandController {
     }
 
     @Operation(summary = "브랜드 마이페이지 - 본인이 발행한 특정 캠페인의 참여자 리뷰 단건 조회")
-    @GetMapping("/my/campaigns/{campaignId}/creators/{creatorId}/review")
+    @GetMapping("/my/campaigns/in-review/{campaignReviewId}")
     public ApiResponse<CampaignReviewDetailListResponse> getCreatorCampaignReview(
             @Parameter(hidden = true) @CurrentUser Long brandId,
-            @PathVariable Long campaignId,
-            @PathVariable Long creatorId) {
+            @PathVariable Long campaignReviewId) {
 
-        CampaignReviewDetailListResponse response = brandUsecase.getCreatorCampaignReview(brandId, campaignId,
-                creatorId);
+        CampaignReviewDetailListResponse response = brandUsecase.getCreatorCampaignReview(brandId, campaignReviewId);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_MY_PAGE_REVIEW_DETAIL_GET_SUCCESS.getMessage(),
                 response
