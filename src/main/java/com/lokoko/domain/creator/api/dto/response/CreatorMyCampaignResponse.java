@@ -19,6 +19,10 @@ public record CreatorMyCampaignResponse(
         @Schema(description = "캠페인 이름")
         String title,
 
+        @Schema(description = "캠페인 대표 이미지 URL", example = "https://example.com/campaign-image.jpg")
+        @JsonInclude(JsonInclude.Include.ALWAYS)
+        String campaignImageUrl,
+
         @Schema(description = "리뷰 제출 데드라인")
         Instant reviewSubmissionDeadline,
 
@@ -37,6 +41,7 @@ public record CreatorMyCampaignResponse(
     public static CreatorMyCampaignResponse of(
             Long campaignId,
             String title,
+            String campaignImageUrl,
             Instant reviewSubmissionDeadline,
             ParticipationStatus participationStatus,
             List<CampaignStatusMapper.ReviewInfo> reviews,
@@ -48,6 +53,7 @@ public record CreatorMyCampaignResponse(
         return CreatorMyCampaignResponse.builder()
                 .campaignId(campaignId)
                 .title(title)
+                .campaignImageUrl(campaignImageUrl)
                 .reviewSubmissionDeadline(reviewSubmissionDeadline)
                 .nextAction(nextAction)
                 .participationStatus(participationStatus) // 호환성을 위해 유지
@@ -60,12 +66,14 @@ public record CreatorMyCampaignResponse(
     public static CreatorMyCampaignResponse ofSimple(
             Long campaignId,
             String title,
+            String campaignImageUrl,
             Instant reviewSubmissionDeadline,
             ParticipationStatus participationStatus) {
 
         return CreatorMyCampaignResponse.builder()
                 .campaignId(campaignId)
                 .title(title)
+                .campaignImageUrl(campaignImageUrl)
                 .reviewSubmissionDeadline(reviewSubmissionDeadline)
                 .nextAction(NextAction.BRAND_APPROVAL_WAITING)  // PENDING 상태의 액션
                 .participationStatus(participationStatus)
