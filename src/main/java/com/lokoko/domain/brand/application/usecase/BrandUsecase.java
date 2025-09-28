@@ -95,20 +95,30 @@ public class BrandUsecase {
             throw new NotCampaignOwnershipException();
         }
 
-        // 현재 라운드 결정
-        ReviewRound round = campaignReviewStatusManager.determineReviewRound(
-                campaign.getCampaignStatus(),
-                creatorCampaign.getStatus()
-        );
+        // 현재 라운드 결정 (일단 미사용)
+        //ReviewRound round = campaignReviewStatusManager.determineReviewRound(
+        //        campaign.getCampaignStatus(),
+        //        creatorCampaign.getStatus()
+        //);
+
+        // 현재 DB에 저장된 round를 가져와서 검증
+        ReviewRound round = review.getReviewRound();
 
         // 업로드 된 미디어 URL 조회
         List<String> mediaUrls = campaignReviewGetService.getOrderedMediaUrls(review);
 
+
+        // 만약 2차 리뷰이고, postUrl이 존재한다면 같이 내려주기
+        String postUrl = null;
+        if (round == ReviewRound.SECOND && review.getPostUrl() != null) {
+            postUrl = review.getPostUrl();
+        }
         return campaignReviewMapper.toDetailListResponse(
                 campaign,
                 review,
                 round,
-                mediaUrls
+                mediaUrls,
+                postUrl
         );
     }
 

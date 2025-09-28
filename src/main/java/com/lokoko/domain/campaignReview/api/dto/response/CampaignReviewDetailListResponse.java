@@ -37,6 +37,9 @@ public record CampaignReviewDetailListResponse(
         String brandNote,
 
         @Schema(requiredMode = REQUIRED, description = "브랜드 노트 검수 마감일")
-        Instant brandNoteDeadline
+        Instant brandNoteDeadline,
+
+        @Schema(description = "2차 리뷰 완료 시 실제 게시물 URL")
+        String postUrl
 ) {
 }
