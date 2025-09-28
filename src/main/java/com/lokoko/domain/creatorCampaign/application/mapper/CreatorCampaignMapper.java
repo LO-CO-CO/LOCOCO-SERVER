@@ -10,6 +10,7 @@ import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creator.util.CampaignStatusMapper;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
+import com.lokoko.domain.media.image.domain.repository.CampaignImageRepository;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.common.response.PageableResponse;
 import java.time.Instant;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Component;
 public class CreatorCampaignMapper {
 
     private final CampaignReviewRepository campaignReviewRepository;
+    private final CampaignImageRepository campaignImageRepository;
 
     public CreatorCampaign toCampaignParticipation(Creator creator, Campaign campaign, Instant now) {
         return CreatorCampaign.builder()
@@ -46,6 +48,13 @@ public class CreatorCampaignMapper {
             requiredContentTypes.add(campaign.getSecondContentPlatform());
         }
 
+        // 캠페인 대표 이미지 조회 (썸네일 타입의 첫 번째 이미지)
+        String campaignImageUrl = campaignImageRepository.findThumbnailImagesByCampaignId(campaign.getId())
+                .stream()
+                .findFirst()
+                .map(com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse::url)
+                .orElse(null);
+
         // 실제 리뷰 정보 조회
         List<CampaignReview> campaignReviews = campaignReviewRepository.findAllByCreatorCampaignIdOrderByIdAsc(participation.getId());
 
@@ -66,6 +75,7 @@ public class CreatorCampaignMapper {
         return CreatorMyCampaignResponse.of(
                 campaign.getId(),
                 campaign.getTitle(),
+                campaignImageUrl,
                 campaign.getReviewSubmissionDeadline(),
                 participation.getStatus(),
                 reviewInfos, // 실제 리뷰 정보
@@ -91,9 +101,17 @@ public class CreatorCampaignMapper {
             requiredContentTypes.add(campaign.getSecondContentPlatform());
         }
 
+        // 캠페인 대표 이미지 조회 (썸네일 타입의 첫 번째 이미지)
+        String campaignImageUrl = campaignImageRepository.findThumbnailImagesByCampaignId(campaign.getId())
+                .stream()
+                .findFirst()
+                .map(com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse::url)
+                .orElse(null);
+
         return CreatorMyCampaignResponse.of(
                 campaign.getId(),
                 campaign.getTitle(),
+                campaignImageUrl,
                 campaign.getReviewSubmissionDeadline(),
                 participation.getStatus(),
                 reviews,
