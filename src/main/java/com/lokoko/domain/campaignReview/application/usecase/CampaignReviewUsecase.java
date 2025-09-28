@@ -17,10 +17,13 @@ import com.lokoko.domain.campaignReview.application.service.CreatorCampaignUpdat
 import com.lokoko.domain.campaignReview.application.utils.CampaignReviewValidationUtil;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
+import com.lokoko.domain.campaignReview.exception.CampaignReviewNotFoundException;
+import com.lokoko.domain.creatorCampaign.exception.CampaignReviewAbleNotFoundException;
 import com.lokoko.domain.creator.application.service.CreatorGetService;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creatorCampaign.application.service.CreatorCampaignGetService;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
+import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
 import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
 import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
 import com.lokoko.domain.media.application.utils.MediaValidationUtil;
@@ -164,52 +167,218 @@ public class CampaignReviewUsecase {
         return campaignReviewMapper.toUploadResponse(savedA);
     }
 
-    @Transactional(readOnly = true)
-    public CampaignParticipatedResponse getMyReviewableCampaign(Long userId, Long campaignId) {
+    @Transactional
+    public CampaignParticipatedResponse getMyReviewableCampaign(Long userId, Long campaignId, ReviewRound round) {
         Creator creator = creatorGetService.findByUserId(userId);
         CreatorCampaign creatorCampaign =
                 creatorCampaignGetService.findReviewableInReviewByCampaign(creator.getId(), campaignId);
-        ReviewRound nowRound = campaignReviewStatusManager.mapRoundForCreator(creatorCampaign.getStatus());
 
-        if (nowRound == ReviewRound.SECOND) {
-            Optional<CampaignReview> latestFirst = campaignReviewGetService.findLatestFirst(creatorCampaign);
-            String brandNote = latestFirst.map(CampaignReview::getBrandNote).orElse(null);
-            Instant revisionRequestedAt = latestFirst.map(CampaignReview::getRevisionRequestedAt).orElse(null);
-
-            return campaignMapper.toCampaignParticipationResponse(
-                    creatorCampaign, nowRound, brandNote, revisionRequestedAt
-            );
+        // ACTIVE 상태에서만 업로드 가능
+        if (creatorCampaign.getStatus() != ParticipationStatus.ACTIVE) {
+            throw new CampaignReviewAbleNotFoundException();
         }
 
-        // FIRST 업로드 차례는 노트/시간 없이 반환
-        return campaignMapper.toCampaignParticipationResponse(creatorCampaign, nowRound);
+        // 조회 시점에 브랜드 노트가 있는 리뷰들의 noteViewed를 true로 업데이트
+        markBrandNotesAsViewed(creatorCampaign);
+
+        // round 파라미터가 있으면 해당 라운드만 필터링
+        List<CampaignParticipatedResponse.ReviewContentStatus> reviewContents;
+        if (round != null) {
+            reviewContents = createRoundSpecificReviewContentStatuses(creatorCampaign, round);
+        } else {
+            reviewContents = createReviewContentStatuses(creatorCampaign);
+        }
+
+        return campaignMapper.toCampaignParticipationResponse(creatorCampaign, reviewContents);
     }
 
     @Transactional(readOnly = true)
-    public List<CampaignParticipatedResponse> getMyReviewables(Long userId) {
+    public List<CampaignParticipatedResponse> getMyReviewables(Long userId, ReviewRound round) {
         Creator creator = creatorGetService.findByUserId(userId);
         List<CreatorCampaign> eligibles = creatorCampaignGetService.findReviewable(creator.getId());
 
         return eligibles.stream()
+                .filter(cc -> cc.getStatus() == ParticipationStatus.ACTIVE)  // ACTIVE만 필터링
                 .map(creatorCampaign -> {
-                    ReviewRound nowRound = campaignReviewStatusManager
-                            .mapRoundForCreator(creatorCampaign.getStatus());
-
-                    if (nowRound == ReviewRound.SECOND) {
-                        Optional<CampaignReview> latestFirst =
-                                campaignReviewGetService.findLatestFirst(creatorCampaign);
-                        String brandNote = latestFirst.map(CampaignReview::getBrandNote).orElse(null);
-                        Instant revisionRequestedAt = latestFirst.map(CampaignReview::getRevisionRequestedAt)
-                                .orElse(null);
-
-                        return campaignMapper.toCampaignParticipationResponse(
-                                creatorCampaign, nowRound, brandNote, revisionRequestedAt);
+                    // round 파라미터가 있으면 해당 라운드만 필터링
+                    List<CampaignParticipatedResponse.ReviewContentStatus> reviewContents;
+                    if (round != null) {
+                        reviewContents = createRoundSpecificReviewContentStatuses(creatorCampaign, round);
+                    } else {
+                        reviewContents = createReviewContentStatuses(creatorCampaign);
                     }
 
-                    return campaignMapper.toCampaignParticipationResponse(creatorCampaign, nowRound);
+                    return campaignMapper.toCampaignParticipationResponse(creatorCampaign, reviewContents);
+                })
+                .filter(response -> !response.reviewContents().isEmpty())  // 빈 컨텐츠는 제외
+                .toList();
+    }
+
+    /**
+     * 실제 업로드 가능한 리뷰 라운드를 결정하는 메서드
+     * ACTIVE 상태에서 기존 리뷰 존재 여부로 1차/2차 구분
+     */
+    private ReviewRound determineActualReviewRound(CreatorCampaign creatorCampaign) {
+        // 1차 리뷰가 존재하는지 확인
+        boolean hasFirstReview = campaignReviewGetService.existsFirst(creatorCampaign.getId());
+
+        if (hasFirstReview) {
+            // 1차 리뷰가 있으면 2차 업로드 차례
+            return ReviewRound.SECOND;
+        } else {
+            // 1차 리뷰가 없으면 1차 업로드 차례
+            return ReviewRound.FIRST;
+        }
+    }
+
+    /**
+     * 각 content type별 리뷰 상태를 생성하는 메서드
+     */
+    private List<CampaignParticipatedResponse.ReviewContentStatus> createReviewContentStatuses(CreatorCampaign creatorCampaign) {
+        Campaign campaign = creatorCampaign.getCampaign();
+        List<ContentType> campaignContentTypes = List.of(
+                campaign.getFirstContentPlatform(),
+                campaign.getSecondContentPlatform()
+        ).stream().filter(ct -> ct != null).toList();
+
+        // 기존 리뷰 현황 조회
+        List<ContentType> existingFirstTypes = campaignReviewGetService
+                .findContentTypesByRound(creatorCampaign.getId(), ReviewRound.FIRST);
+        List<ContentType> existingSecondTypes = campaignReviewGetService
+                .findContentTypesByRound(creatorCampaign.getId(), ReviewRound.SECOND);
+
+        return campaignContentTypes.stream()
+                .map(contentType -> {
+                    boolean hasFirstReview = existingFirstTypes.contains(contentType);
+                    boolean hasSecondReview = existingSecondTypes.contains(contentType);
+
+                    ReviewRound nowRound = hasFirstReview ? ReviewRound.SECOND : ReviewRound.FIRST;
+
+                    // 2차 리뷰 업로드 시에만 해당 content type의 1차 리뷰에서 브랜드 노트 정보 가져오기
+                    String brandNote = null;
+                    Instant revisionRequestedAt = null;
+
+                    if (nowRound == ReviewRound.SECOND) {
+                        // 해당 content type의 1차 리뷰에서 브랜드 노트 조회
+                        Optional<CampaignReview> firstReviewForContentType = campaignReviewGetService
+                                .findByContentType(creatorCampaign.getId(), ReviewRound.FIRST, contentType);
+
+                        if (firstReviewForContentType.isPresent()) {
+                            CampaignReview review = firstReviewForContentType.get();
+                            brandNote = review.getBrandNote();
+                            revisionRequestedAt = review.getRevisionRequestedAt();
+                        }
+                    }
+
+                    // 기존 리뷰의 캡션과 미디어 URL 정보 가져오기
+                    String captionWithHashtags = null;
+                    List<String> mediaUrls = null;
+
+                    // 현재 라운드에 해당하는 기존 리뷰가 있다면 정보 가져오기
+                    ReviewRound reviewRoundToCheck = hasFirstReview ? ReviewRound.FIRST : null;
+                    if (reviewRoundToCheck != null) {
+                        Optional<CampaignReview> existingReview = campaignReviewGetService
+                                .findByContentType(creatorCampaign.getId(), reviewRoundToCheck, contentType);
+
+                        if (existingReview.isPresent()) {
+                            CampaignReview review = existingReview.get();
+                            captionWithHashtags = review.getCaptionWithHashtags();
+                            mediaUrls = campaignReviewGetService.getOrderedMediaUrls(review);
+                        }
+                    }
+
+                    return campaignMapper.toReviewContentStatus(contentType, nowRound, brandNote, revisionRequestedAt, captionWithHashtags, mediaUrls);
+                })
+                .filter(status -> {
+                    // 이미 2차 리뷰까지 완료된 content type은 제외
+                    boolean hasSecondReview = existingSecondTypes.contains(status.contentType());
+                    return !hasSecondReview;
                 })
                 .toList();
     }
+
+    /**
+     * 특정 라운드에 해당하는 content type별 리뷰 상태를 생성하는 메서드
+     */
+    private List<CampaignParticipatedResponse.ReviewContentStatus> createRoundSpecificReviewContentStatuses(
+            CreatorCampaign creatorCampaign, ReviewRound targetRound) {
+        Campaign campaign = creatorCampaign.getCampaign();
+        List<ContentType> campaignContentTypes = List.of(
+                campaign.getFirstContentPlatform(),
+                campaign.getSecondContentPlatform()
+        ).stream().filter(ct -> ct != null).toList();
+
+        // 기존 리뷰 현황 조회
+        List<ContentType> existingFirstTypes = campaignReviewGetService
+                .findContentTypesByRound(creatorCampaign.getId(), ReviewRound.FIRST);
+        List<ContentType> existingSecondTypes = campaignReviewGetService
+                .findContentTypesByRound(creatorCampaign.getId(), ReviewRound.SECOND);
+
+        return campaignContentTypes.stream()
+                .filter(contentType -> {
+                    boolean hasFirstReview = existingFirstTypes.contains(contentType);
+                    boolean hasSecondReview = existingSecondTypes.contains(contentType);
+
+                    if (targetRound == ReviewRound.FIRST) {
+                        // 1차 라운드 요청: 1차 리뷰가 없는 것들만
+                        return !hasFirstReview;
+                    } else {
+                        // 2차 라운드 요청: 1차는 있고 2차는 없는 것들만
+                        return hasFirstReview && !hasSecondReview;
+                    }
+                })
+                .map(contentType -> {
+                    // 2차 라운드 요청 시에만 브랜드 노트 정보 포함
+                    String brandNote = null;
+                    Instant revisionRequestedAt = null;
+
+                    if (targetRound == ReviewRound.SECOND) {
+                        Optional<CampaignReview> firstReviewForContentType = campaignReviewGetService
+                                .findByContentType(creatorCampaign.getId(), ReviewRound.FIRST, contentType);
+
+                        if (firstReviewForContentType.isPresent()) {
+                            CampaignReview review = firstReviewForContentType.get();
+                            brandNote = review.getBrandNote();
+                            revisionRequestedAt = review.getRevisionRequestedAt();
+                        }
+                    }
+
+                    // 기존 리뷰의 캡션과 미디어 URL 정보 가져오기
+                    String captionWithHashtags = null;
+                    List<String> mediaUrls = null;
+
+                    if (targetRound == ReviewRound.SECOND) {
+                        // 2차 리뷰 시에는 1차 리뷰 정보를 가져옴
+                        Optional<CampaignReview> firstReviewForContentType = campaignReviewGetService
+                                .findByContentType(creatorCampaign.getId(), ReviewRound.FIRST, contentType);
+
+                        if (firstReviewForContentType.isPresent()) {
+                            CampaignReview review = firstReviewForContentType.get();
+                            captionWithHashtags = review.getCaptionWithHashtags();
+                            mediaUrls = campaignReviewGetService.getOrderedMediaUrls(review);
+                        }
+                    }
+
+                    return campaignMapper.toReviewContentStatus(contentType, targetRound, brandNote, revisionRequestedAt, captionWithHashtags, mediaUrls);
+                })
+                .toList();
+    }
+
+    /**
+     * 조회 시점에 브랜드 노트가 있는 모든 1차 리뷰의 noteViewed를 true로 업데이트
+     */
+    private void markBrandNotesAsViewed(CreatorCampaign creatorCampaign) {
+        // 해당 캠페인의 모든 1차 리뷰 조회
+        List<CampaignReview> firstReviews = campaignReviewGetService
+                .getAllByCreatorCampaignAndRound(creatorCampaign, ReviewRound.FIRST);
+
+        // 브랜드 노트가 있는 리뷰들의 noteViewed를 true로 업데이트
+        firstReviews.stream()
+                .filter(review -> review.getBrandNote() != null && !review.getBrandNote().isEmpty())
+                .filter(review -> !review.isNoteViewed()) // 아직 확인하지 않은 것만
+                .forEach(CampaignReview::markNoteAsViewed);
+    }
+
 
     @Transactional(readOnly = true)
     public MediaPresignedUrlResponse createMediaPresignedUrl(Long userId, MediaPresignedUrlRequest request) {

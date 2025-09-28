@@ -25,11 +25,11 @@ public class CreatorCampaignUpdateService {
         if (!Boolean.TRUE.equals(creatorCampaign.getAddressConfirmed())) {
             nextStatus = ParticipationStatus.APPROVED;
         } else if (secondExists) {
-            nextStatus = ParticipationStatus.APPROVED_SECOND_REVIEW_DONE;
+            nextStatus = ParticipationStatus.COMPLETED;
         } else if (firstExists) {
-            nextStatus = ParticipationStatus.APPROVED_FIRST_REVIEW_DONE;
+            nextStatus = ParticipationStatus.ACTIVE;
         } else {
-            nextStatus = ParticipationStatus.APPROVED_ADDRESS_CONFIRMED;
+            nextStatus = ParticipationStatus.ACTIVE;
         }
 
         if (creatorCampaign.getStatus() != nextStatus) {

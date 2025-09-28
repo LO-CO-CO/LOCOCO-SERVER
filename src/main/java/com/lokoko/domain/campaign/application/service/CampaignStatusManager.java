@@ -93,14 +93,13 @@ public class CampaignStatusManager {
             if (participationStatus == ParticipationStatus.REJECTED) {
                 return CampaignDetailPageStatus.REJECTED;
             }
-            if (participationStatus == ParticipationStatus.APPROVED_ADDRESS_NOT_CONFIRMED ||
-                participationStatus == ParticipationStatus.APPROVED_REVIEW_NOT_CONFIRMED) {
-                return CampaignDetailPageStatus.valueOf(participationStatus.name());
+            if (participationStatus == ParticipationStatus.EXPIRED) {
+                return CampaignDetailPageStatus.APPROVED_ADDRESS_NOT_CONFIRMED; // 기존 호환성 유지
             }
 
             // 우선순위 2: 완료 상태
-            if (participationStatus == ParticipationStatus.APPROVED_SECOND_REVIEW_DONE) {
-                return CampaignDetailPageStatus.APPROVED_SECOND_REVIEW_DONE;
+            if (participationStatus == ParticipationStatus.COMPLETED) {
+                return CampaignDetailPageStatus.APPROVED_SECOND_REVIEW_DONE; // 기존 호환성 유지
             }
 
             // 우선순위 3: 캠페인 전체 상태 고려

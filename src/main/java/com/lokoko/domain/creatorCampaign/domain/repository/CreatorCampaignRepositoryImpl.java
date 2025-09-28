@@ -39,7 +39,7 @@ public class CreatorCampaignRepositoryImpl implements CreatorCampaignRepositoryC
                     .then("PENDING")
                 .when(creatorCampaign.status.eq(ParticipationStatus.REJECTED))
                     .then("REJECTED")
-                .when(creatorCampaign.status.in(ParticipationStatus.getApprovedStatuses()))
+                .when(creatorCampaign.status.in(ParticipationStatus.getActiveStatuses()))
                     .then("APPROVED")
                 .otherwise("PENDING");
 
