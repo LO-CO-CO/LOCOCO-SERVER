@@ -2,8 +2,11 @@ package com.lokoko.domain.creator.api.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
+import com.lokoko.domain.creator.util.CampaignStatusMapper;
+import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
+import java.util.List;
 import lombok.Builder;
 
 @Builder
@@ -19,7 +22,53 @@ public record CreatorMyCampaignResponse(
         @Schema(description = "리뷰 제출 데드라인")
         Instant reviewSubmissionDeadline,
 
-        @Schema(description = "참여 상태", example = "APPROVED_ADDRESS_CONFIRMED")
+        @Schema(description = "다음 액션", example = "UPLOAD_FIRST_REVIEW")
+        NextAction nextAction,
+
+
+        @Schema(description = "참여 상태 (내부용)", example = "APPROVED_ADDRESS_CONFIRMED")
+        @Deprecated
         ParticipationStatus participationStatus
 ) {
+
+    /**
+     * 개선된 ParticipationStatus를 사용한 간소화된 factory method
+     */
+    public static CreatorMyCampaignResponse of(
+            Long campaignId,
+            String title,
+            Instant reviewSubmissionDeadline,
+            ParticipationStatus participationStatus,
+            List<CampaignStatusMapper.ReviewInfo> reviews,
+            List<ContentType> requiredContentTypes) {
+
+        NextAction nextAction = CampaignStatusMapper.determineNextAction(
+                participationStatus, reviews, requiredContentTypes);
+
+        return CreatorMyCampaignResponse.builder()
+                .campaignId(campaignId)
+                .title(title)
+                .reviewSubmissionDeadline(reviewSubmissionDeadline)
+                .nextAction(nextAction)
+                .participationStatus(participationStatus) // 호환성을 위해 유지
+                .build();
+    }
+
+    /**
+     * 간단한 버전 (리뷰 정보 없이) - 이제 더욱 간단해짐!
+     */
+    public static CreatorMyCampaignResponse ofSimple(
+            Long campaignId,
+            String title,
+            Instant reviewSubmissionDeadline,
+            ParticipationStatus participationStatus) {
+
+        return CreatorMyCampaignResponse.builder()
+                .campaignId(campaignId)
+                .title(title)
+                .reviewSubmissionDeadline(reviewSubmissionDeadline)
+                .nextAction(NextAction.BRAND_APPROVAL_WAITING)  // PENDING 상태의 액션
+                .participationStatus(participationStatus)
+                .build();
+    }
 }

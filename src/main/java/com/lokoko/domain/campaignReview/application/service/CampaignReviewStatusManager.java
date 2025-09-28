@@ -25,17 +25,12 @@ public class CampaignReviewStatusManager {
 
         if (campaignStatus == CampaignStatus.IN_REVIEW) {
             return switch (participationStatus) {
-                case APPROVED_FIRST_REVIEW_DONE,
-                     APPROVED_REVISION_REQUESTED,
-                     APPROVED_REVISION_CONFIRMED -> ReviewRound.FIRST;
-                case APPROVED_SECOND_REVIEW_DONE -> ReviewRound.SECOND;
+                case ACTIVE -> ReviewRound.FIRST;
+                case COMPLETED -> ReviewRound.SECOND;
                 default -> throw new CampaignNotViewableException();
             };
         }
-        if (campaignStatus == CampaignStatus.COMPLETED
-                && participationStatus == ParticipationStatus.APPROVED_SECOND_REVIEW_DONE) {
-            return ReviewRound.SECOND;
-        }
+        // 캠페인이 종료된 경우 새로운 리뷰 작성 불가
         throw new CampaignNotViewableException();
     }
 
@@ -52,10 +47,8 @@ public class CampaignReviewStatusManager {
      */
     public ReviewRound mapRoundForCreator(ParticipationStatus participationStatus) {
         return switch (participationStatus) {
-            case APPROVED_ADDRESS_CONFIRMED -> ReviewRound.FIRST;
-            case APPROVED_FIRST_REVIEW_DONE,
-                 APPROVED_REVISION_REQUESTED,
-                 APPROVED_REVISION_CONFIRMED -> ReviewRound.SECOND;
+            case ACTIVE -> ReviewRound.FIRST;
+            case COMPLETED -> ReviewRound.SECOND;
             default -> throw new CampaignNotViewableException();
         };
     }

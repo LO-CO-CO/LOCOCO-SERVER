@@ -145,4 +145,28 @@ public class CampaignReviewGetService {
     public boolean existsSecond(Long creatorCampaignId) {
         return existsRound(creatorCampaignId, ReviewRound.SECOND);
     }
+
+    /**
+     * 특정 CreatorCampaign과 리뷰 라운드에 해당하는 모든 리뷰들의 ContentType 목록을 조회
+     *
+     * @param creatorCampaignId 조회할 CreatorCampaign ID
+     * @param reviewRound 조회할 리뷰 라운드
+     * @return 해당 라운드의 모든 리뷰 ContentType 목록
+     */
+    public List<ContentType> findContentTypesByRound(Long creatorCampaignId, ReviewRound reviewRound) {
+        return campaignReviewRepository.findContentOnly(creatorCampaignId, reviewRound);
+    }
+
+    /**
+     * 특정 CreatorCampaign, 리뷰 라운드, ContentType에 해당하는 리뷰를 조회
+     *
+     * @param creatorCampaignId 조회할 CreatorCampaign ID
+     * @param reviewRound 조회할 리뷰 라운드
+     * @param contentType 조회할 ContentType
+     * @return 해당 조건의 리뷰 (없으면 Optional.empty())
+     */
+    public Optional<CampaignReview> findByContentType(Long creatorCampaignId, ReviewRound reviewRound, ContentType contentType) {
+        return campaignReviewRepository.findTopByCreatorCampaignIdAndReviewRoundAndContentTypeOrderByIdAsc(
+                creatorCampaignId, reviewRound, contentType);
+    }
 }

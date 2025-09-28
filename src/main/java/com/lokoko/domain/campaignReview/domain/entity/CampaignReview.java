@@ -64,6 +64,9 @@ public class CampaignReview extends BaseEntity {
 
     private Instant revisionRequestedAt;
 
+    @Column(nullable = false)
+    private boolean noteViewed = false;
+
     /**
      * 리뷰 생성시, 캠페인에 할당 메서드
      */
@@ -100,7 +103,7 @@ public class CampaignReview extends BaseEntity {
         this.brandNote = brandNote;
         this.brandNoteStatus = BrandNoteStatus.PUBLISHED;
         this.status = ReviewStatus.REVISION_REQUESTED;
-        creatorCampaign.changeStatus(ParticipationStatus.APPROVED_REVISION_REQUESTED);
+        creatorCampaign.changeStatus(ParticipationStatus.ACTIVE);
         this.revisionRequestedAt = Instant.now();
     }
 
@@ -121,5 +124,12 @@ public class CampaignReview extends BaseEntity {
         this.captionWithHashtags = captionWithHashtags;
         this.postUrl = postUrl;
         this.status = ReviewStatus.RESUBMITTED;
+    }
+
+    /**
+     * 크리에이터가 브랜드 노트를 확인했을 때 호출하는 메서드
+     */
+    public void markNoteAsViewed() {
+        this.noteViewed = true;
     }
 }
