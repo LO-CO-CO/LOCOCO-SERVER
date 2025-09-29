@@ -29,12 +29,6 @@ public record CompletedReviewResponse(
             String captionWithHashtags,
 
             @Schema(description = "최종 제출한 미디어 URL 목록")
-            List<String> mediaUrls,
-
-            @Schema(description = "최종 제출한 포스트 URL", example = "https://instagram.com/p/...")
-            String postUrl,
-
-            @Schema(description = "1차 리뷰에 대한 브랜드 노트", example = "흠 이건 좀 수정하셔야 될 것 같은데요?")
-            String brandNote
+            List<String> mediaUrls
     ) {}
 }

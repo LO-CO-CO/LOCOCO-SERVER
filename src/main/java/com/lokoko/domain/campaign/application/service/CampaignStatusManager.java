@@ -105,8 +105,7 @@ public class CampaignStatusManager {
             // 우선순위 3: 캠페인 전체 상태 고려
             return switch (campaignStatus) {
                 case COMPLETED -> CampaignDetailPageStatus.CLOSED;
-                case IN_REVIEW, RECRUITMENT_CLOSED -> CampaignDetailPageStatus.ACTIVE;
-                default -> CampaignDetailPageStatus.APPLIED; // RECRUITING 및 기타 상태
+                default -> CampaignDetailPageStatus.APPLIED;
             };
         }
     }

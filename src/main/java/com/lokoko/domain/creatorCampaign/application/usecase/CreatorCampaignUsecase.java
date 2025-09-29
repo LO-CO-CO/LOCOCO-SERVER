@@ -46,7 +46,7 @@ public class CreatorCampaignUsecase {
         if (campaign.getCampaignStatus() != CampaignStatus.RECRUITING) {
             throw new CampaignNotRecruitingException();
         }
-        if (campaign.getRecruitmentNumber() != null
+        if (campaign.getRecruitmentNumber() > 0
                 && campaign.getApprovedNumber() >= campaign.getRecruitmentNumber()) {
             throw new CampaignRecruitmentFullException();
         }

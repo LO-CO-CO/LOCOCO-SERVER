@@ -382,23 +382,11 @@ public class CampaignReviewUsecase {
                         CampaignReview review = secondReview.get();
                         String captionWithHashtags = review.getCaptionWithHashtags();
                         List<String> mediaUrls = campaignReviewGetService.getOrderedMediaUrls(review);
-                        String postUrl = review.getPostUrl();
-
-                        // 1차 리뷰에서 브랜드 노트 가져오기
-                        String brandNote = null;
-                        Optional<CampaignReview> firstReview = campaignReviewGetService
-                                .findByContentType(creatorCampaign.getId(), ReviewRound.FIRST, contentType);
-
-                        if (firstReview.isPresent()) {
-                            brandNote = firstReview.get().getBrandNote();
-                        }
 
                         return CompletedReviewResponse.CompletedReviewContent.builder()
                                 .contentType(contentType)
                                 .captionWithHashtags(captionWithHashtags)
                                 .mediaUrls(mediaUrls)
-                                .postUrl(postUrl)
-                                .brandNote(brandNote)
                                 .build();
                     }
                     return null;
