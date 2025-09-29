@@ -85,7 +85,6 @@ public record CampaignPublishRequest(
         ContentType firstContentType,
 
         @Schema(requiredMode = NOT_REQUIRED, description = "두 번째 컨텐츠 플랫폼", example = "INSTAGRAM_REELS 또는 INSTAGRAM_POST 또는 TIKTOK_VIDEO")
-        @NotNull(message = "컨텐츠 플랫폼 선택은 필수입니다")
         ContentType secondContentType
 ) {
 }
