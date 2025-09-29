@@ -38,7 +38,11 @@ public class PermitUrlConfig {
                 "/api/products/categories/popular",
                 "/api/products/details/{productId}",
                 "/api/campaigns/{campaignId}",
-                "/api/campaigns"
+                "/api/campaigns",
+                "/api/auth/sns/tiktok/connect",
+                "/api/auth/sns/tiktok/callback",
+                "/api/auth/sns/instagram/connect",
+                "/api/auth/sns/instagram/callback"
         };
     }
 
@@ -63,10 +67,6 @@ public class PermitUrlConfig {
                 "/api/customer/profile/image",
                 "/api/customer/profile",
                 "/api/customer/sns-status",
-                "/api/auth/sns/tiktok/connect",
-                "/api/auth/sns/tiktok/callback",
-                "/api/auth/sns/instagram/connect",
-                "/api/auth/sns/instagram/callback"
         };
     }
 
@@ -75,10 +75,6 @@ public class PermitUrlConfig {
      */
     public String[] getCreatorUrl() {
         return new String[]{
-                "/api/auth/sns/tiktok/connect",
-                "/api/auth/sns/tiktok/callback",
-                "/api/auth/sns/instagram/connect",
-                "/api/auth/sns/instagram/callback",
                 "/api/campaigns/media",
                 "/api/creator/register/info",
                 "/api/creator/register/sns-status",
