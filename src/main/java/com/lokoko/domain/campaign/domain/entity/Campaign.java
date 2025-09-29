@@ -80,11 +80,11 @@ public class Campaign extends BaseEntity {
 
     private Instant reviewSubmissionDeadline;
 
-    private Integer recruitmentNumber; // 모집 인원
+    private int recruitmentNumber; // 모집 인원
 
-    private Integer applicantNumber; // 지원 인원
+    private int applicantNumber; // 지원 인원
 
-    private Integer approvedNumber; // 승인 인원
+    private int approvedNumber; // 승인 인원
 
     /**
      * 크리에이터 참여 보상 목록
@@ -234,7 +234,7 @@ public class Campaign extends BaseEntity {
                 this.applyDeadline == null,
                 this.creatorAnnouncementDate == null,
                 this.reviewSubmissionDeadline == null,
-                this.recruitmentNumber == null,
+                this.recruitmentNumber <= 0,
                 this.participationRewards == null || this.participationRewards.isEmpty(),
                 this.deliverableRequirements == null || this.deliverableRequirements.isEmpty(),
                 this.firstContentPlatform == null,
