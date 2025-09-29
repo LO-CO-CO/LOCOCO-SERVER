@@ -13,11 +13,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.mortbay.util.IO;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Tag(name = "SNS_CONNECTION", description = "SNS(틱톡 및 인스타그램) 계정 연결 API")
 @RestController
@@ -33,11 +37,10 @@ public class SnsConnectionController {
 
     @Operation(summary = "TikTok 계정 연동 / TikTok OAuth 인증 페이지로 리다이렉트")
     @GetMapping("/tiktok/connect")
-    public ApiResponse<String> connectTikTok(
-            @Parameter(hidden = true) @CurrentUser Long userId) {
+    public void connectTikTok(HttpServletResponse response,
+                              @Parameter(hidden = true) @CurrentUser Long userId) throws IOException {
         String authUrl = tikTokConnectionUsecase.generateConnectionUrl(userId);
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.TIKTOK_REDIRECT_URI_GET_SUCCESS.getMessage(),
-                authUrl);
+        response.sendRedirect(authUrl);
     }
 
     @Operation(summary = "TikTok OAuth 콜백 / 인증 후 콜백을 처리 및 계정 연결")
@@ -52,11 +55,10 @@ public class SnsConnectionController {
 
     @Operation(summary = "Instagram 계정 연동 / Creator가 Instagram OAuth 인증 페이지로 리다이렉트")
     @GetMapping("/instagram/connect")
-    public ApiResponse<String> connectInstagram(@Parameter(hidden = true) @CurrentUser Long userId) {
+    public void connectInstagram(HttpServletResponse response,
+                                 @Parameter(hidden = true) @CurrentUser Long userId) throws IOException {
         String authUrl = instaConnectionUsecase.buildAuthorizationUrl(userId);
-
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.INSTAGRAM_REDIRECT_URI_GET_SUCCESS.getMessage(),
-                authUrl);
+        response.sendRedirect(authUrl);
     }
 
     @Operation(summary = "Instagram OAuth 콜백 / 인증 후 code로 액세스 토큰 교환 및 계정 연결")
