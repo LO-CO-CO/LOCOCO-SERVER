@@ -167,6 +167,14 @@ public class CampaignGetService {
     }
 
     public CampaignApplicantListResponse getCampaignApplicants(Long brandId, Long campaignId, int page, int size, ApplicantStatus status) {
+
+        Campaign campaign = campaignRepository.findById(campaignId)
+                .orElseThrow(CampaignNotFoundException::new);
+
+        if (!campaign.getBrand().getId().equals(brandId)) {
+            throw new NotCampaignOwnershipException();
+        }
+
         return creatorCampaignRepository.findCampaignApplicants(brandId, campaignId, PageRequest.of(page, size), status);
     }
 
