@@ -60,12 +60,12 @@ public record CustomerMyPageRequest(
         @Size(max = 20)
         String cityOrTown,
 
-        @Schema(description = "Address Line 1 (최대 30자)", example = "1234 Market St")
-        @Size(max = 30)
+        @Schema(description = "Address Line 1 (최대 200자)", example = "1234 Market St")
+        @Size(max = 200)
         String addressLine1,
 
-        @Schema(description = "Address Line 2 (최대 30자)", example = "Apt 5B")
-        @Size(max = 30)
+        @Schema(description = "Address Line 2 (최대 200자)", example = "Apt 5B")
+        @Size(max = 200)
         String addressLine2,
 
         @Schema(description = "ZIP Code (최대 10자)", example = "94103")

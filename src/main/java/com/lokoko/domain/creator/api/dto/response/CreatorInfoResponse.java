@@ -43,10 +43,10 @@ public record CreatorInfoResponse(
         @Schema(requiredMode = REQUIRED, description = "City / Town (최대 20자)", example = "San Francisco")
         String cityOrTown,
 
-        @Schema(requiredMode = REQUIRED, description = "Address Line 1 (텍스트, 최대 30자)", example = "1234 Market St")
+        @Schema(requiredMode = REQUIRED, description = "Address Line 1 (텍스트, 최대 200자)", example = "1234 Market St")
         String addressLine1,
 
-        @Schema(requiredMode = REQUIRED, description = "Address Line 2 (텍스트, 최대 30자)", example = "Apt 5B")
+        @Schema(requiredMode = REQUIRED, description = "Address Line 2 (텍스트, 최대 200자)", example = "Apt 5B")
         String addressLine2,
 
         @Schema(requiredMode = REQUIRED, description = "ZIP Code (최대 10자, 미국은 필수)", example = "94103")
