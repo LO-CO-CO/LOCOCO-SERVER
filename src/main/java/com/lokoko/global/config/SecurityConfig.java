@@ -76,7 +76,7 @@ public class SecurityConfig {
                         "http://localhost:3000", "https://localhost:3000",
                         "https://lococo-test.vercel.app/",
                         "https://www.lococo.beauty", "https://lococo.beauty"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("Authorization", "RefreshToken"));
         configuration.setAllowCredentials(true);
