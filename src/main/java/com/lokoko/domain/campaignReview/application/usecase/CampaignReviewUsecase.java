@@ -386,13 +386,11 @@ public class CampaignReviewUsecase {
 
                         // 1차 리뷰에서 브랜드 노트 가져오기
                         String brandNote = null;
-                        Instant revisionRequestedAt = null;
                         Optional<CampaignReview> firstReview = campaignReviewGetService
                                 .findByContentType(creatorCampaign.getId(), ReviewRound.FIRST, contentType);
 
                         if (firstReview.isPresent()) {
                             brandNote = firstReview.get().getBrandNote();
-                            revisionRequestedAt = firstReview.get().getRevisionRequestedAt();
                         }
 
                         return CompletedReviewResponse.CompletedReviewContent.builder()
@@ -401,7 +399,6 @@ public class CampaignReviewUsecase {
                                 .mediaUrls(mediaUrls)
                                 .postUrl(postUrl)
                                 .brandNote(brandNote)
-                                .revisionRequestedAt(revisionRequestedAt)
                                 .build();
                     }
                     return null;
@@ -460,6 +457,7 @@ public class CampaignReviewUsecase {
 
         return CompletedReviewResponse.builder()
                 .campaignId(campaignId)
+                .campaignName(creatorCampaign.getCampaign().getTitle())
                 .reviewContents(reviewContents)
                 .build();
     }

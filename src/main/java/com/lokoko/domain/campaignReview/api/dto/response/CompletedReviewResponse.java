@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
-
-import java.time.Instant;
 import java.util.List;
 
 @Builder
@@ -13,6 +11,9 @@ import java.util.List;
 public record CompletedReviewResponse(
         @Schema(description = "참여한 캠페인 ID", example = "61")
         Long campaignId,
+
+        @Schema(description = "캠페인 이름", example = "신상품 홍보 캠페인")
+        String campaignName,
 
         @Schema(description = "완료된 리뷰 컨텐츠 목록")
         List<CompletedReviewContent> reviewContents
@@ -34,9 +35,6 @@ public record CompletedReviewResponse(
             String postUrl,
 
             @Schema(description = "1차 리뷰에 대한 브랜드 노트", example = "흠 이건 좀 수정하셔야 될 것 같은데요?")
-            String brandNote,
-
-            @Schema(description = "브랜드 노트 작성 시간", example = "2025-09-29T07:33:53Z")
-            Instant revisionRequestedAt
+            String brandNote
     ) {}
 }
