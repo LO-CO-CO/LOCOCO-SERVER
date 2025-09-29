@@ -1,8 +1,5 @@
 package com.lokoko.domain.campaign.api.dto.request;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
@@ -14,8 +11,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
 import java.time.Instant;
 import java.util.List;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 public record CampaignPublishRequest(
         @Schema(requiredMode = REQUIRED, description = "캠페인 제목", example = "로코코 신제품")
@@ -83,8 +84,7 @@ public record CampaignPublishRequest(
         @NotNull(message = "컨텐츠 플랫폼 선택은 필수입니다")
         ContentType firstContentType,
 
-        @Schema(requiredMode = REQUIRED, description = "두 번째 컨텐츠 플랫폼", example = "INSTAGRAM_REELS 또는 INSTAGRAM_POST 또는 TIKTOK_VIDEO")
-        @NotNull(message = "컨텐츠 플랫폼 선택은 필수입니다")
+        @Schema(requiredMode = NOT_REQUIRED, description = "두 번째 컨텐츠 플랫폼", example = "INSTAGRAM_REELS 또는 INSTAGRAM_POST 또는 TIKTOK_VIDEO")
         ContentType secondContentType
 ) {
 }
