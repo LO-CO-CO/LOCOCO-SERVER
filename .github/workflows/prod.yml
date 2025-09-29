@@ -101,7 +101,7 @@ jobs:
             echo "{
                 admin 0.0.0.0:2020
             }
-            https://lococo.beauty, https://52.79.208.129.nip.io {
+            https://lococo.beauty, https://www.lococo.beauty, https://52.79.208.129.nip.io {
                 reverse_proxy 127.0.0.1:${STANDBY_PORT}
             }" | sudo tee /etc/caddy/Caddyfile
             
