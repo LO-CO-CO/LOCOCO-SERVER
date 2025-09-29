@@ -4,8 +4,8 @@ import static com.lokoko.global.utils.ProductCrawlerConstants.SELECTOR_OPTION_BU
 import static com.lokoko.global.utils.ProductCrawlerConstants.SELECTOR_OPTION_LIST;
 import static com.lokoko.global.utils.ProductCrawlerConstants.SELECTOR_OPTION_NAME;
 
-import com.lokoko.domain.image.domain.entity.ProductImage;
-import com.lokoko.domain.image.domain.repository.ProductImageRepository;
+import com.lokoko.domain.media.image.domain.entity.ProductImage;
+import com.lokoko.domain.media.image.domain.repository.ProductImageRepository;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.ProductOption;
 import com.lokoko.domain.product.domain.entity.enums.MainCategory;

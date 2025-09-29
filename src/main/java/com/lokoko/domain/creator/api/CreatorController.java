@@ -14,8 +14,6 @@ import com.lokoko.domain.creator.api.message.ResponseMessage;
 import com.lokoko.domain.creator.application.service.CreatorUsecase;
 import com.lokoko.domain.creator.application.service.TikTokApiService;
 import com.lokoko.global.auth.annotation.CurrentUser;
-import com.lokoko.global.auth.tiktok.dto.TikTokProfileDto;
-import com.lokoko.global.auth.tiktok.dto.TikTokVideoListResponse;
 import com.lokoko.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -49,11 +47,11 @@ public class CreatorController {
                 creatorUsecase.getMyProfile(userId));
     }
 
-    @Operation(summary = "크리에이터 마이페이지 내가 참여중/참여한 캠페인 목록 조회 [무한 스크롤]")
+    @Operation(summary = "크리에이터 마이페이지 내가 참여중/참여한 캠페인 목록 조회 [페이지네이션]")
     @GetMapping("/profile/campaigns")
     public ApiResponse<CreatorMyCampaignListResponse> getMyCampaigns(@Parameter(hidden = true) @CurrentUser Long userId,
                                                                      @RequestParam(defaultValue = "0") int page,
-                                                                     @RequestParam(defaultValue = "20") int size
+                                                                     @RequestParam(defaultValue = "12") int size
     ) {
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.MY_CAMPAIGN_FETCH_SUCCESS.getMessage(),
                 creatorUsecase.getMyCampaigns(userId, page, size));

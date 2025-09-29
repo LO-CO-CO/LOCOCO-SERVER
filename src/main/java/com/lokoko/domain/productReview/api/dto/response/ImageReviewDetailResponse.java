@@ -3,8 +3,8 @@ package com.lokoko.domain.productReview.api.dto.response;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lokoko.domain.image.domain.entity.ProductImage;
-import com.lokoko.domain.image.domain.entity.ReviewImage;
+import com.lokoko.domain.media.image.domain.entity.ProductImage;
+import com.lokoko.domain.media.image.domain.entity.ReviewImage;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.productReview.domain.entity.Review;
 import com.lokoko.domain.user.domain.entity.User;

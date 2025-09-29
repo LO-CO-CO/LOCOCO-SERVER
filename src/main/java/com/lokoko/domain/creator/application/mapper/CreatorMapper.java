@@ -17,12 +17,15 @@ public class CreatorMapper {
         return CreatorMyPageResponse.builder()
                 .creatorId(creator.getId())
                 .creatorBasicInfo(CreatorBasicInfo.builder()
+                        .creatorId(creator.getId())
                         .profileImageUrl(creator.getUser().getProfileImageUrl())
                         .creatorName(creator.getCreatorName())
                         .firstName(creator.getFirstName())
                         .lastName(creator.getLastName())
                         .gender(creator.getGender())
                         .birthDate(creator.getBirthDate())
+                        .email(creator.getUser().getEmail())
+                        .creatorLevel(creator.getCreatorType().name())
                         .build())
                 .creatorContactInfo(CreatorContactInfo.builder()
                         .email(creator.getUser().getEmail())
@@ -71,8 +74,8 @@ public class CreatorMapper {
 
     public CreatorSnsConnectedResponse toSnsStateResponse(Creator creator) {
         return new CreatorSnsConnectedResponse(
-                creator.getInstaLink() != null,
-                creator.getTiktokLink() != null
+                creator.getInstagramUserId() != null,
+                creator.getTikTokUserId() != null
         );
     }
 

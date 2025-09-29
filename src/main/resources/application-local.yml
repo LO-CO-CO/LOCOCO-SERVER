@@ -72,6 +72,12 @@ tiktok:
   base-url: ${TIKTOK_BASE_URL}
   scope: ${TIKTOK_SCOPE}
 
+instagram:
+  client-id: ${INSTAGRAM_CLIENT_ID}
+  client-secret: ${INSTAGRAM_CLIENT_SECRET}
+  redirect-uri: ${INSTAGRAM_CALLBACK_URL}
+  scope: ${INSTAGRAM_SCOPE}
+
 logging:
   discord-error:
     webhook-url: ${DISCORD_ERROR_WEBHOOK_URL}

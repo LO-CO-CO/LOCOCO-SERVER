@@ -7,7 +7,7 @@ import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewStatus;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
-import com.lokoko.domain.socialclip.domain.entity.enums.ContentType;
+import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,22 +20,19 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-
 @Getter
 @Entity
-@Table(
-        name = "campaign_reviews",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uq_campaign_review_campaign_round",
-                        columnNames = {"creator_campaign_id", "review_round"}
-                )
-        }
-)
+@Table(name = "campaign_reviews",
+       uniqueConstraints = {
+           @UniqueConstraint(
+               name = "uq_campaign_review_campaign_round_content",
+               columnNames = {"creator_campaign_id", "review_round", "content_type"}
+           )
+       })
 @NoArgsConstructor
 public class CampaignReview extends BaseEntity {
 
@@ -71,8 +68,11 @@ public class CampaignReview extends BaseEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "creator_campaign_id", nullable = false)
     private CreatorCampaign creatorCampaign;
-    
+
     private Instant revisionRequestedAt;
+
+    @Column(nullable = false)
+    private boolean noteViewed = false;
 
     /**
      * 리뷰 생성시, 캠페인에 할당 메서드
@@ -110,17 +110,16 @@ public class CampaignReview extends BaseEntity {
         this.brandNote = brandNote;
         this.brandNoteStatus = BrandNoteStatus.PUBLISHED;
         this.status = ReviewStatus.REVISION_REQUESTED;
-        creatorCampaign.changeStatus(ParticipationStatus.APPROVED_REVISION_REQUESTED);
+        creatorCampaign.changeStatus(ParticipationStatus.ACTIVE);
         this.revisionRequestedAt = Instant.now();
     }
 
     /**
-     * 추후, 브랜드 노트 조회가 필요한 API 에서는
-     * CampaignReview 의 BrandNoteStatus 가 DRAFT 인 경우,
-     * 아무것도 보여주지 않으면 됩니다.
+     * 추후, 브랜드 노트 조회가 필요한 API 에서는 CampaignReview 의 BrandNoteStatus 가 DRAFT 인 경우, 아무것도 보여주지 않으면 됩니다.
+     *
      * @param brandNote
      */
-    public void saveRequestRevision(String brandNote){
+    public void saveRequestRevision(String brandNote) {
         this.brandNote = brandNote;
         this.brandNoteStatus = BrandNoteStatus.DRAFT;
     }
@@ -132,5 +131,12 @@ public class CampaignReview extends BaseEntity {
         this.captionWithHashtags = captionWithHashtags;
         this.postUrl = postUrl;
         this.status = ReviewStatus.RESUBMITTED;
+    }
+
+    /**
+     * 크리에이터가 브랜드 노트를 확인했을 때 호출하는 메서드
+     */
+    public void markNoteAsViewed() {
+        this.noteViewed = true;
     }
 }

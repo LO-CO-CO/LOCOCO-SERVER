@@ -7,6 +7,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ResponseMessage {
     ADMIN_REVIEW_DELETE_SUCCESS("어드민 리뷰 삭제에 성공했습니다"),
+    ADMIN_CAMPAIGN_APPROVAL_SUCCESS("어드민 캠페인 승인에 성공했습니다."),
+    ADMIN_CREATOR_APPROVAL_SUCCESS("어드민 크리에이터 회원가입 승인에 성공했습니다."),
 
     USER_ID_CHECK_SUCCESS("사용 가능한 ID입니다.");
 

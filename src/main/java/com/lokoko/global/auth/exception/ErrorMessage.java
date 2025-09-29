@@ -27,6 +27,13 @@ public enum ErrorMessage {
     TIKTOK_CONNECTION_FAILED("TikTok 계정 연결에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR.value()),
     TIKTOK_RECONNECTION_REQUIRED("TikTok 계정 재연결이 필요합니다.", HttpStatus.BAD_GATEWAY.value()),
 
+    // Instagram 관련
+    INSTAGRAM_TOKEN_REQUEST_FAILED("Instagram 토큰 발급에 실패했습니다.", HttpStatus.BAD_GATEWAY.value()),
+    INSTAGRAM_LONG_TOKEN_REQUEST_FAILED("Instagram 장기 토큰 발급에 실패했습니다.", HttpStatus.BAD_GATEWAY.value()),
+    INSTAGRAM_REFRESH_TOKEN_FAILED("Instagram 장기 토큰 갱신에 실패했습니다.", HttpStatus.BAD_GATEWAY.value()),
+    INSTAGRAM_CONNECTION_FAILED("Instagram 계정 연결에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR.value()),
+    INSTAGRAM_RECONNECTION_REQUIRED("Instagram 계정 재연결이 필요합니다.", HttpStatus.UNAUTHORIZED.value()),
+
     // 역할 관련
     ROLE_INVALID_TYPE("선택할 수 없는 역할입니다", HttpStatus.BAD_REQUEST.value()),
     ROLE_ALREADY_EXIST("이미 역할이 설정된 사용자입니다", HttpStatus.BAD_REQUEST.value()),

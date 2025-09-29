@@ -1,12 +1,12 @@
 package com.lokoko.domain.productReview.application.service;
 
-import com.lokoko.domain.image.domain.repository.ReviewImageRepository;
+import com.lokoko.domain.media.image.domain.repository.ReviewImageRepository;
+import com.lokoko.domain.media.video.domain.repository.ReviewVideoRepository;
 import com.lokoko.domain.productReview.api.dto.response.MainImageReview;
 import com.lokoko.domain.productReview.api.dto.response.MainImageReviewResponse;
 import com.lokoko.domain.productReview.api.dto.response.MainVideoReview;
 import com.lokoko.domain.productReview.api.dto.response.MainVideoReviewResponse;
 import com.lokoko.domain.productReview.mapper.ReviewMapper;
-import com.lokoko.domain.video.domain.repository.ReviewVideoRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;

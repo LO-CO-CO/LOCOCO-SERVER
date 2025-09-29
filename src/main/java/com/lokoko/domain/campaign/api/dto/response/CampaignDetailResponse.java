@@ -5,40 +5,65 @@ import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignDetailPageStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.Instant;
 import java.util.List;
 
 public record CampaignDetailResponse(
 
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인 id" , example = "1")
         Long campaignId,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인 종류" , example = "GIVEAWAY")
         CampaignType campaignType,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인 제목"  , example = "캠페인aa")
         String title,
-        String brandImageUrl,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "브랜드 이름" , example = "브랜드A")
         String brandName,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인 언어" , example = "EN / ES")
         CampaignLanguage language,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인 지원 시작 날짜" , example = "2025-09-16T07:32:08.995Z")
         Instant applyStartDate,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인 지원 마감 날짜", example = "2025-09-16T07:32:08.995Z" )
         Instant applyDeadline,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "크리에이터 발표 날짜" , example = "2025-09-16T07:32:08.995Z")
         Instant creatorAnnouncementDate,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "2차 리뷰 제출 마감일" , example = "2025-09-16T07:32:08.995Z")
         Instant reviewSubmissionDeadline,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "크리에이터 컨텐츠 제출 요구사항 리스트")
         List<String> deliverableRequirements,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "크리에이터 참요 조건 리스트")
         List<String> participationRewards,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "크리에이터 자격 요건 리스트")
         List<String> eligibilityRequirements,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "상단 이미지 목록 리스트")
         List<CampaignImageResponse> thumbnailImages,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "하단 이미지 목록 리스트")
         List<CampaignImageResponse> detailImages,
-        String campaignStatusCode
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "사용자가 보는 현재 캠페인 상태")
+        String userSpecificCampaignStatus,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인이 PRO 크리에이터 대상 캠페인인지 여부  ", example = "true")
+        boolean isProCampaign,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "현재 상세페이지를 조회하고 있는 사용자의 권한 정보" , example = "CUSTOMER , BRAND, CREATOR, ADMIN, null(비로그인 사용자")
+        String currentUserRole,
+        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "현재 사용자가 크리에이터라면, 크리에이터의 등급 정보" , example = "NOT_APPROVED, PRO, NORMAL")
+        String creatorRoleInfo
 ) {
 
     public static CampaignDetailResponse of(Campaign campaign, List<CampaignImageResponse> thumbnailImages,
                                             List<CampaignImageResponse> detailImages,
-                                            CampaignDetailPageStatus campaignStatusCode) {
+                                            CampaignDetailPageStatus campaignStatusCode,
+                                            String currentUserRole, String creatorRoleInfo) {
 
         Brand brand = campaign.getBrand();
+
+        boolean isProCampaign = campaign.getCampaignType() == CampaignType.CONTENTS
+                || campaign.getCampaignType() == CampaignType.EXCLUSIVE;
+
         return new CampaignDetailResponse(
                 campaign.getId(),
                 campaign.getCampaignType(),
                 campaign.getTitle(),
-                brand.getUser().getProfileImageUrl(),
                 brand.getBrandName(),
                 campaign.getLanguage(),
                 campaign.getApplyStartDate(),
@@ -50,7 +75,10 @@ public record CampaignDetailResponse(
                 campaign.getEligibilityRequirements(),
                 thumbnailImages,
                 detailImages,
-                campaignStatusCode.getCode()
+                campaignStatusCode.getCode(),
+                isProCampaign,
+                currentUserRole,
+                creatorRoleInfo
         );
     }
 }

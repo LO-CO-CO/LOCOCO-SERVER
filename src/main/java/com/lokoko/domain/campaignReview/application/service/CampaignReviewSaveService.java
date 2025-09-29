@@ -1,10 +1,12 @@
 package com.lokoko.domain.campaignReview.application.service;
 
+
+import com.lokoko.domain.campaignReview.application.mapper.CampaignReviewMapper;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
+import com.lokoko.domain.campaignReview.domain.repository.CampaignReviewImageRepository;
 import com.lokoko.domain.campaignReview.domain.repository.CampaignReviewRepository;
-import com.lokoko.domain.image.domain.entity.CampaignReviewImage;
-import com.lokoko.domain.image.domain.repository.CampaignReviewImageRepository;
-import java.util.ArrayList;
+import com.lokoko.domain.campaignReview.domain.repository.CampaignReviewVideoRepository;
+import com.lokoko.domain.media.application.utils.MediaValidationUtil;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,27 +18,33 @@ public class CampaignReviewSaveService {
 
     private final CampaignReviewRepository campaignReviewRepository;
     private final CampaignReviewImageRepository campaignReviewImageRepository;
+    private final CampaignReviewVideoRepository campaignReviewVideoRepository;
+
+    private final CampaignReviewMapper campaignReviewMapper;
 
     @Transactional
     public CampaignReview saveReview(CampaignReview campaignReview) {
+
         return campaignReviewRepository.save(campaignReview);
     }
 
     @Transactional
-    public void saveImages(CampaignReview campaignReview, List<String> imageUrls) {
-        if (imageUrls == null || imageUrls.isEmpty()) {
+    public void saveMedia(CampaignReview campaignReview, List<String> mediaUrls) {
+        if (mediaUrls == null || mediaUrls.isEmpty()) {
             return;
         }
 
-        List<CampaignReviewImage> images = new ArrayList<>(imageUrls.size());
-        for (String url : imageUrls) {
-            images.add(
-                    CampaignReviewImage.builder()
-                            .url(url)
-                            .campaignReview(campaignReview)
-                            .build()
+        MediaValidationUtil.validateTotalMediaCount(mediaUrls);
+
+        boolean isVideo = mediaUrls.get(0).contains("/video/");
+        if (isVideo) {
+            campaignReviewVideoRepository.saveAll(
+                    campaignReviewMapper.toCampaignReviewVideos(mediaUrls, campaignReview)
+            );
+        } else {
+            campaignReviewImageRepository.saveAll(
+                    campaignReviewMapper.toCampaignReviewImages(mediaUrls, campaignReview)
             );
         }
-        campaignReviewImageRepository.saveAll(images);
     }
 }

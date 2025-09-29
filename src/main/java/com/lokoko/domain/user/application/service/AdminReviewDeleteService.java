@@ -1,0 +1,39 @@
+package com.lokoko.domain.user.application.service;
+
+import com.lokoko.domain.media.image.domain.repository.ReceiptImageRepository;
+import com.lokoko.domain.media.image.domain.repository.ReviewImageRepository;
+import com.lokoko.domain.media.video.domain.repository.ReviewVideoRepository;
+import com.lokoko.domain.productReview.domain.entity.Review;
+import com.lokoko.domain.productReview.domain.repository.ReviewRepository;
+import com.lokoko.domain.productReview.exception.ReviewNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class AdminReviewDeleteService {
+
+    private final ReviewRepository reviewRepository;
+    private final ReviewImageRepository reviewImageRepository;
+    private final ReviewVideoRepository reviewVideoRepository;
+    private final ReceiptImageRepository receiptImageRepository;
+
+    @Transactional
+    public void deleteReview(Long userId, Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(ReviewNotFoundException::new);
+
+        deleteAllMediaOfReview(review);
+        reviewRepository.delete(review);
+    }
+
+    /**
+     * Todo: 리뷰에 연결된 모든 미디어(영수증, 사진, 비디오)를 삭제하는 메소드 추후 유틸 클래스로 분리 예정
+     */
+    public void deleteAllMediaOfReview(Review review) {
+        receiptImageRepository.deleteAllByReview(review);
+        reviewImageRepository.deleteAllByReview(review);
+        reviewVideoRepository.deleteAllByReview(review);
+    }
+}

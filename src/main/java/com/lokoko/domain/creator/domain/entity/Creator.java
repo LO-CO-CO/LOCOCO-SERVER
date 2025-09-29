@@ -16,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -79,6 +80,9 @@ public class Creator {
     @Column
     private String postalCode;
 
+    @Column
+    private Instant approvedAt;
+
     @Enumerated(EnumType.STRING)
     private SkinType skinType;
 
@@ -88,12 +92,6 @@ public class Creator {
     @Enumerated(EnumType.STRING)
     @Column
     private ContentLanguage contentLanguage = ContentLanguage.ENGLISH;
-
-    @Column
-    private String instaLink;
-
-    @Column
-    private String tiktokLink;
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
@@ -107,6 +105,9 @@ public class Creator {
 
     @Column
     private String tikTokUserId;
+
+    @Column
+    private String instagramUserId;
 
     //최종 전화번호
     public String getCreatorPhoneNumber() {
@@ -173,12 +174,20 @@ public class Creator {
         this.skinTone = skinTone;
     }
 
+    public void approve(Instant when) {
+        this.approvedAt = when;
+        this.creatorStatus = CreatorStatus.APPROVED;
+    }
+
     public void changeContentLanguage(ContentLanguage contentLanguage) {
         this.contentLanguage = contentLanguage;
     }
-    
+
     public void connectTikTok(String tikTokUserId) {
         this.tikTokUserId = tikTokUserId;
     }
 
+    public void connectInsta(String instagramUserId) {
+        this.instagramUserId = instagramUserId;
+    }
 }

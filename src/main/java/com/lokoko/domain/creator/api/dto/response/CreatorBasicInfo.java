@@ -12,8 +12,11 @@ import lombok.Builder;
 public record CreatorBasicInfo(
 
         /**
-         * 크리에이터 기본 정보 (프로필 이미지 URL, 크리에이터명, 이름, 성)
+         * 크리에이터 기본 정보 (크리에이터 ID, 프로필 이미지 URL, 크리에이터명, 이름, 성)
          */
+        @Schema(requiredMode = REQUIRED, description = "크리에이터 ID", example = "123")
+        Long creatorId,
+
         @Schema(requiredMode = REQUIRED, description = "프로필 이미지 URL", example = "https://s3.example.com/profile/us-user-1001.jpg")
         String profileImageUrl,
 
@@ -30,6 +33,13 @@ public record CreatorBasicInfo(
         Gender gender,
 
         @Schema(requiredMode = REQUIRED, description = "생년월일(YYYY-MM-DD)", example = "1999-10-19")
-        String birthDate
+        String birthDate,
+
+        @Schema(requiredMode = REQUIRED, description = "이메일", example = "chanel@gmail.com")
+        String email,
+
+        @Schema(requiredMode = REQUIRED, description = "크리에이터 레벨", example = "PRO / NORMAL")
+        String creatorLevel
+
 ) {
 }

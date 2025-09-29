@@ -14,7 +14,7 @@ public record BrandMyPageUpdateRequest(
         @Size(max = 10, message = "담당자명은 최대 10자까지 가능합니다")
         String managerName,
 
-        @Size(max = 10, message = "담당자 연락처는 최대 10자까지 가능합니다")
+        @Size(max = 11, message = "담당자 연락처는 최대 11자까지 가능합니다")
         @Pattern(regexp = "^[0-9]+$", message = "연락처는 숫자만 입력 가능합니다")
         String phoneNumber,
 

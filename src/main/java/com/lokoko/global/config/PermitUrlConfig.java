@@ -20,7 +20,7 @@ public class PermitUrlConfig {
                 "/api/reviews/details/video",
                 "/api/reviews/{productId}/{userId}",
                 "/api/products/details/{productId}/youtube",
-                "api/campaigns/upcoming"
+                "/api/campaigns/upcoming"
         };
     }
 
@@ -57,13 +57,16 @@ public class PermitUrlConfig {
 
     /**
      * 4) Customer 전용 - Customer 권한 필요
-     *
      */
     public String[] getCustomerUrl() {
         return new String[]{
                 "/api/customer/profile/image",
                 "/api/customer/profile",
-                "/api/customer/sns-status"
+                "/api/customer/sns-status",
+                "/api/auth/sns/tiktok/connect",
+                "/api/auth/sns/tiktok/callback",
+                "/api/auth/sns/instagram/connect",
+                "/api/auth/sns/instagram/callback"
         };
     }
 
@@ -74,27 +77,34 @@ public class PermitUrlConfig {
         return new String[]{
                 "/api/auth/sns/tiktok/connect",
                 "/api/auth/sns/tiktok/callback",
+                "/api/auth/sns/instagram/connect",
+                "/api/auth/sns/instagram/callback",
                 "/api/campaigns/media",
                 "/api/creator/register/info",
                 "/api/creator/register/sns-status",
                 "/api/creator/register/complete",
                 "/api/creator/profile",
                 "/api/creator/profile/{campaignId}/address",
+                "/api/customer/profile/image",
                 "/api/creator/profile/address",
                 "/api/creator-campaign/{campaignId}/participate",
                 "/api/campaignReviews/{campaignId}/first",
                 "/api/campaignReviews/{campaignId}/second",
                 "/api/campaignReviews/my/participation",
+                "/api/campaignReviews/my/participation/{campaignId}",
+                "/api/creator/profile/campaigns"
         };
     }
 
     /**
      * 6) 브랜드 전용 (Brand) - Brand 권한 필요
      */
-    public String[] getBrandUrl(){
+    public String[] getBrandUrl() {
         return new String[]{
-                "/api/brands/my/campaigns/{campaigned}/applicants",
+                "/api/brands/my/campaigns/{campaignId}/creators/{creatorId}/review",
+                "/api/brands/my/campaigns/{campaignId}/applicants",
                 "/api/brands/my/campaigns/infos",
+                "/api/brands/my/campaigns/in-review",
                 "/api/brands/my/campaigns/{campaignId}/applicants/approve",
                 "/api/brands/my/profile/stats",
                 "/api/brands/my/campaigns",
@@ -107,6 +117,7 @@ public class PermitUrlConfig {
                 "/api/brands/register/info",
                 "/api/brands/profile/image",
                 "/api/brands/profile",
+                "/api/brands/my/campaigns/creators/{campaignReviewId}/review"
         };
     }
 

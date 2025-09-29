@@ -20,6 +20,7 @@ import com.lokoko.domain.creator.exception.SnsNotConnectedException;
 import com.lokoko.domain.creatorCampaign.application.mapper.CreatorCampaignMapper;
 import com.lokoko.domain.creatorCampaign.application.service.CreatorCampaignGetService;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
+import com.lokoko.domain.user.application.service.UserGetService;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.global.auth.entity.enums.OauthLoginStatus;
@@ -36,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CreatorUsecase {
 
+    private final UserGetService userGetService;
     private final CreatorGetService creatorGetService;
     private final CreatorCampaignGetService creatorCampaignGetService;
     private final CampaignReviewGetService campaignReviewGetService;
@@ -58,17 +60,16 @@ public class CreatorUsecase {
     public CreatorMyCampaignListResponse getMyCampaigns(Long userId, int page, int size) {
         Creator creator = creatorGetService.findByUserId(userId);
 
-        Slice<CreatorCampaign> slice = creatorCampaignGetService.findMyCampaigns(creator.getId(), page, size);
+        Slice<CreatorCampaign> slice =
+                creatorCampaignGetService.findMyCampaigns(creator.getId(), page, size);
+
+        Long totalElements = creatorCampaignGetService.countMyCampaigns(creator.getId());
 
         List<CreatorMyCampaignResponse> campaigns = slice.getContent().stream()
-                .map(creatorCampaign -> creatorCampaignMapper.toMyCampaignResponse(
-                        creator,
-                        creatorCampaign,
-                        campaignReviewGetService.findFirstContent(creatorCampaign.getId()).orElse(null)
-                ))
+                .map(creatorCampaignMapper::toMyCampaignResponse)
                 .toList();
 
-        return creatorCampaignMapper.toMyCampaignListResponse(campaigns, slice);
+        return creatorCampaignMapper.toMyCampaignListResponse(creator, campaigns, slice, totalElements);
     }
 
     @Transactional
@@ -121,7 +122,7 @@ public class CreatorUsecase {
 
     @Transactional(readOnly = true)
     public CreatorRegisterCompleteResponse completeCreatorSignup(Long userId) {
-        User user = creatorGetService.findUserById(userId);
+        User user = userGetService.findUserById(userId);
 
         if (user.getRole() != Role.CREATOR) {
             throw new NotCreatorRoleException();
@@ -137,8 +138,8 @@ public class CreatorUsecase {
             }
         }
 
-        boolean hasInstagram = creator.getInstaLink() != null && !creator.getInstaLink().isBlank();
-        boolean hasTiktok = creator.getTiktokLink() != null && !creator.getTiktokLink().isBlank();
+        boolean hasInstagram = creator.getInstagramUserId() != null && !creator.getInstagramUserId().isBlank();
+        boolean hasTiktok = creator.getTikTokUserId() != null && !creator.getTikTokUserId().isBlank();
 
         if (!hasInstagram && !hasTiktok) {
             throw new SnsNotConnectedException();
