@@ -87,4 +87,14 @@ public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign
     List<CreatorCampaign> findReviewablesInReview(@Param("creatorId") Long creatorId,
                                                   @Param("campaignStatus") CampaignStatus campaignStatus,
                                                   @Param("statuses") Collection<ParticipationStatus> statuses);
+
+    /**
+     * 캠페인 ID와 참여 상태로 크리에이터 캠페인 조회
+     * @param campaignId 캠페인 ID
+     * @param status 참여 상태
+     * @return 해당하는 크리에이터 캠페인 목록
+     */
+    @Query("SELECT cc FROM CreatorCampaign cc WHERE cc.campaign.id = :campaignId AND cc.status = :status")
+    List<CreatorCampaign> findByCampaignIdAndStatus(@Param("campaignId") Long campaignId,
+                                                     @Param("status") ParticipationStatus status);
 }
