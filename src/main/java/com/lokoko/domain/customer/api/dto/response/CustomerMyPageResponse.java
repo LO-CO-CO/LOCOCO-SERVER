@@ -53,10 +53,10 @@ public record CustomerMyPageResponse(
         @Schema(description = "City/Town (텍스트, 최대 20자)", example = "San Francisco")
         String cityOrTown,
 
-        @Schema(description = "Address Line 1 (최대 200자)", example = "1234 Market St")
+        @Schema(description = "Address Line 1 (최대 100자)", example = "1234 Market St")
         String addressLine1,
 
-        @Schema(description = "Address Line 2 (최대 200자)", example = "Apt 5B")
+        @Schema(description = "Address Line 2 (최대 100자)", example = "Apt 5B")
         String addressLine2,
 
         @Schema(description = "ZIP Code (최대 10자)", example = "94103")
