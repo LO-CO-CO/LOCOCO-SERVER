@@ -4,9 +4,9 @@ import com.lokoko.domain.campaign.api.dto.response.CampaignParticipatedResponse;
 import com.lokoko.domain.campaignReview.api.dto.request.FirstReviewUploadRequest;
 import com.lokoko.domain.campaignReview.api.dto.request.SecondReviewUploadRequest;
 import com.lokoko.domain.campaignReview.api.dto.response.ReviewUploadResponse;
+import com.lokoko.domain.campaignReview.api.dto.response.CompletedReviewResponse;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.campaignReview.api.message.ResponseMessage;
-import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.domain.campaignReview.application.usecase.CampaignReviewUsecase;
 import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
 import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
@@ -84,6 +84,18 @@ public class CampaignReviewController {
         MediaPresignedUrlResponse response = campaignReviewUsecase.createMediaPresignedUrl(userId, request);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_MEDIA_PRESIGNED_URL_SUCCESS.getMessage(),
+                response);
+    }
+
+    @Operation(summary = "완료된 캠페인 리뷰 결과 조회 (2차 리뷰)")
+    @GetMapping("/{campaignId}/results")
+    public ApiResponse<CompletedReviewResponse> getCompletedReviews(
+            @Parameter(hidden = true) @CurrentUser Long userId,
+            @PathVariable Long campaignId
+    ) {
+        CompletedReviewResponse response = campaignReviewUsecase.getCompletedReviews(userId, campaignId);
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.COMPLETED_REVIEW_FETCH_SUCCESS.getMessage(),
                 response);
     }
 

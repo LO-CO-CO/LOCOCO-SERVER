@@ -72,15 +72,36 @@ public class CreatorCampaignMapper {
                 ))
                 .collect(java.util.stream.Collectors.toList());
 
+        // creatorAnnouncementDate 이전이면 PENDING으로 표시
+        ParticipationStatus displayStatus = calculateDisplayStatus(participation, campaign);
+
         return CreatorMyCampaignResponse.of(
                 campaign.getId(),
                 campaign.getTitle(),
                 campaignImageUrl,
                 campaign.getReviewSubmissionDeadline(),
-                participation.getStatus(),
+                displayStatus,
                 reviewInfos, // 실제 리뷰 정보
                 requiredContentTypes
         );
+    }
+
+    /**
+     * 크리에이터에게 보여줄 실제 상태 계산
+     * APPROVED 상태라도 creatorAnnouncementDate 이전이면 PENDING으로 표시
+     */
+    private ParticipationStatus calculateDisplayStatus(CreatorCampaign participation, Campaign campaign) {
+        // 기본적으로는 실제 상태를 반환
+        ParticipationStatus actualStatus = participation.getStatus();
+
+        // APPROVED 상태이고 creatorAnnouncementDate가 아직 지나지 않았다면 PENDING으로 표시
+        if (actualStatus == ParticipationStatus.APPROVED
+            && campaign.getCreatorAnnouncementDate() != null
+            && Instant.now().isBefore(campaign.getCreatorAnnouncementDate())) {
+            return ParticipationStatus.PENDING;
+        }
+
+        return actualStatus;
     }
 
     /**
