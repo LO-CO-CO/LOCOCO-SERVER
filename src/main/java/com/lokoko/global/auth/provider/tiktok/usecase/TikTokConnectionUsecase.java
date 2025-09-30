@@ -10,7 +10,6 @@ import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.global.auth.exception.ErrorMessage;
 import com.lokoko.global.auth.exception.OauthException;
 import com.lokoko.global.auth.provider.tiktok.config.TikTokOAuthClient;
-import com.lokoko.global.auth.provider.tiktok.dto.TikTokConnectionResponse;
 import com.lokoko.global.auth.provider.tiktok.dto.TikTokProfileDto;
 import com.lokoko.global.auth.provider.tiktok.dto.TikTokTokenDto;
 import com.lokoko.global.auth.provider.tiktok.service.TikTokRedisTokenService;
@@ -39,7 +38,7 @@ public class TikTokConnectionUsecase {
     }
 
     @Transactional
-    public TikTokConnectionResponse connectTikTok(Long userId, String code, String returnTo) {
+    public String connectTikTok(Long userId, String code, String returnTo) {
         try {
             User user = userGetService.findUserById(userId);
 
@@ -69,8 +68,7 @@ public class TikTokConnectionUsecase {
                 customerSaveService.save(customer);
             }
 
-            String redirectUrl = "https://lococo.beauty/oauth/tiktok/loading?success=true&return_to=" + returnTo;
-            return TikTokConnectionResponse.connected(profileDto.openId(),redirectUrl);
+            return "https://lococo.beauty" + returnTo + "?success=true";
 
         } catch (OauthException e) {
             throw e;
