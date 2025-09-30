@@ -34,6 +34,7 @@ public class SnsConnectionController {
     private final InstaOauthClient instaOAuthClient;
     private final OAuthStateManager oAuthStateManager;
 
+
     @Operation(summary = "TikTok 계정 연동 / TikTok OAuth 인증 페이지로 리다이렉트")
     @GetMapping("/tiktok/connect")
     public void connectTikTok(HttpServletResponse response,
