@@ -26,6 +26,24 @@ public class OAuthStateManager {
         return state;
     }
 
+    public String generateStateWithReturnTo(Long creatorId, String returnTo) {
+        String state = UUID.randomUUID().toString();
+
+        redisTemplate.opsForValue().set(
+                "oauth:state:" + state,
+                String.valueOf(creatorId),
+                5, TimeUnit.MINUTES
+        );
+
+        redisTemplate.opsForValue().set(
+                "oauth:returnTo:" + state,
+                returnTo,
+                5, TimeUnit.MINUTES
+        );
+
+        return state;
+    }
+
     public Long validateAndGetCreatorId(String state) {
         String key = "oauth:state:" + state;
         String creatorId = redisTemplate.opsForValue().get(key);
@@ -36,5 +54,12 @@ public class OAuthStateManager {
 
         redisTemplate.delete(key);
         return Long.valueOf(creatorId);
+    }
+
+    public String getReturnTo(String state) {
+        String key = "oauth:returnTo:" + state;
+        String returnTo = redisTemplate.opsForValue().get(key);
+        redisTemplate.delete(key);
+        return returnTo;
     }
 }

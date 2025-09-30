@@ -37,8 +37,9 @@ public class SnsConnectionController {
     @Operation(summary = "TikTok 계정 연동 / TikTok OAuth 인증 페이지로 리다이렉트")
     @GetMapping("/sns/tiktok/connect")
     public void connectTikTok(HttpServletResponse response,
-                              @Parameter(hidden = true) @CurrentUser Long userId) throws IOException {
-        String authUrl = tikTokConnectionUsecase.generateConnectionUrl(userId);
+                              @Parameter(hidden = true) @CurrentUser Long userId,
+                              @RequestParam String returnTo) throws IOException {
+        String authUrl = tikTokConnectionUsecase.generateConnectionUrl(userId, returnTo);
         response.sendRedirect(authUrl);
     }
 
@@ -46,9 +47,9 @@ public class SnsConnectionController {
     @Operation(summary = "TikTok OAuth 콜백 / 인증 후 콜백을 처리 및 계정 연결")
     @GetMapping("/tiktok/callback")
     public ApiResponse<TikTokConnectionResponse> handleTikTokCallback(@RequestParam("code") String code,
-                                                                      @RequestParam("state") String state,
-                                                                      @RequestParam String returnTo) {
+                                                                      @RequestParam("state") String state) {
         Long userId = oAuthStateManager.validateAndGetCreatorId(state);
+        String returnTo = oAuthStateManager.getReturnTo(state);
         TikTokConnectionResponse response = tikTokConnectionUsecase.connectTikTok(userId, code, returnTo);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.TIKTOK_CONNECT_SUCCESS.getMessage(), response);
