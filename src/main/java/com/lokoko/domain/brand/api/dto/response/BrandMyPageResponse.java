@@ -10,6 +10,9 @@ public record BrandMyPageResponse(
         @Schema(description = "프로필 이미지 URL")
         String profileImageUrl,
 
+        @Schema(requiredMode = REQUIRED, description = "브랜드명")
+        String brandName,
+
         @Schema(requiredMode = REQUIRED, description = "담당자 이름")
         String managerName,
 
@@ -28,6 +31,7 @@ public record BrandMyPageResponse(
     public static BrandMyPageResponse from(Brand brand, User user) {
         return new BrandMyPageResponse(
                 user.getProfileImageUrl(),
+                brand.getBrandName(),
                 brand.getManagerName(),
                 user.getEmail(),
                 brand.getPhoneNumber(),
