@@ -7,9 +7,11 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -30,9 +32,24 @@ public class JwtExtractor {
     }
 
     public Optional<String> extractJwtToken(HttpServletRequest request) {
-        return Optional.ofNullable(request.getHeader(AUTHORIZATION_HEADER))
-                .filter(refreshToken -> refreshToken.startsWith(BEARER))
-                .map(refreshToken -> refreshToken.replace(BEARER, ""));
+        // 1. Authorization 헤더에서 토큰 추출 시도
+        Optional<String> headerToken = Optional.ofNullable(request.getHeader(AUTHORIZATION_HEADER))
+                .filter(token -> token.startsWith(BEARER))
+                .map(token -> token.replace(BEARER, ""));
+
+        if (headerToken.isPresent()) {
+            return headerToken;
+        }
+
+        // 2. 쿠키에서 Access Token 추출 시도
+        if (request.getCookies() != null) {
+            return Arrays.stream(request.getCookies())
+                    .filter(cookie -> JwtProvider.ACCESS_TOKEN_HEADER.equals(cookie.getName()))
+                    .findFirst()
+                    .map(Cookie::getValue);
+        }
+
+        return Optional.empty();
     }
 
     public Long getId(String token) {
