@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
@@ -56,7 +57,7 @@ public class EventProcessor {
     /**
      * 개별 이벤트 처리
      */
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     protected void processEvent(ScheduledEvent event) {
         log.debug("Processing event: {} for target: {} ({})",
                 event.getEventType(), event.getTargetId(), event.getTargetType());

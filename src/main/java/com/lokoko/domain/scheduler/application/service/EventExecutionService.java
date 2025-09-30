@@ -23,7 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -159,19 +164,22 @@ public class EventExecutionService {
             creatorCampaign.changeStatus(ParticipationStatus.REJECTED);
         }
 
-        // APPROVED 상태의 크리에이터들에 대해 배송지 입력 마감 이벤트 등록
+        // APPROVED 상태의 크리에이터들에 대해 배송지 입력 마감 이벤트 등록 (배치 처리)
         List<CreatorCampaign> approvedCreators = creatorCampaignRepository
                 .findByCampaignIdAndStatus(campaignId, ParticipationStatus.APPROVED);
 
-        Instant addressDeadline = Instant.now().plus(Duration.ofHours(24));
-        for (CreatorCampaign creatorCampaign : approvedCreators) {
-            ScheduledEvent addressEvent = ScheduledEvent.builder()
-                    .eventType(EventType.CREATOR_ADDRESS_DEADLINE)
-                    .targetId(creatorCampaign.getId())
-                    .targetType(TargetType.CREATOR_CAMPAIGN)
-                    .executeAt(addressDeadline)
-                    .build();
-            scheduledEventRepository.save(addressEvent);
+        if (!approvedCreators.isEmpty()) {
+            Instant addressDeadline = Instant.now().plus(Duration.ofHours(24));
+            List<ScheduledEvent> addressEvents = approvedCreators.stream()
+                    .map(creatorCampaign -> ScheduledEvent.builder()
+                            .eventType(EventType.CREATOR_ADDRESS_DEADLINE)
+                            .targetId(creatorCampaign.getId())
+                            .targetType(TargetType.CREATOR_CAMPAIGN)
+                            .executeAt(addressDeadline)
+                            .build())
+                    .collect(Collectors.toList());
+
+            scheduledEventRepository.saveAll(addressEvents);
         }
     }
 
@@ -187,8 +195,27 @@ public class EventExecutionService {
         List<CreatorCampaign> activeCreators = creatorCampaignRepository
                 .findByCampaignIdAndStatus(campaignId, ParticipationStatus.ACTIVE);
 
+        if (activeCreators.isEmpty()) {
+            return;
+        }
+
+        // 필수 콘텐츠 타입 목록
+        List<ContentType> requiredContentTypes = getRequiredContentTypes(campaign);
+
+        // 모든 크리에이터의 제출 현황을 한 번에 조회
+        List<Long> creatorCampaignIds = activeCreators.stream()
+                .map(CreatorCampaign::getId)
+                .collect(Collectors.toList());
+
+        Map<Long, Set<ContentType>> submittedContentMap = getSubmittedContentTypesMap(
+                creatorCampaignIds, ReviewRound.FIRST);
+
+        // 각 크리에이터의 제출 여부 확인
         for (CreatorCampaign creatorCampaign : activeCreators) {
-            if (!hasSubmittedFirstReview(creatorCampaign, campaign)) {
+            Set<ContentType> submittedTypes = submittedContentMap.getOrDefault(
+                    creatorCampaign.getId(), new HashSet<>());
+
+            if (!submittedTypes.containsAll(requiredContentTypes)) {
                 creatorCampaign.changeStatus(ParticipationStatus.EXPIRED);
             }
         }
@@ -206,8 +233,27 @@ public class EventExecutionService {
         List<CreatorCampaign> activeCreators = creatorCampaignRepository
                 .findByCampaignIdAndStatus(campaignId, ParticipationStatus.ACTIVE);
 
+        if (activeCreators.isEmpty()) {
+            return;
+        }
+
+        // 필수 콘텐츠 타입 목록
+        List<ContentType> requiredContentTypes = getRequiredContentTypes(campaign);
+
+        // 모든 크리에이터의 제출 현황을 한 번에 조회
+        List<Long> creatorCampaignIds = activeCreators.stream()
+                .map(CreatorCampaign::getId)
+                .collect(Collectors.toList());
+
+        Map<Long, Set<ContentType>> submittedContentMap = getSubmittedContentTypesMap(
+                creatorCampaignIds, ReviewRound.SECOND);
+
+        // 각 크리에이터의 제출 여부 확인
         for (CreatorCampaign creatorCampaign : activeCreators) {
-            if (!hasSubmittedSecondReview(creatorCampaign, campaign)) {
+            Set<ContentType> submittedTypes = submittedContentMap.getOrDefault(
+                    creatorCampaign.getId(), new HashSet<>());
+
+            if (!submittedTypes.containsAll(requiredContentTypes)) {
                 creatorCampaign.changeStatus(ParticipationStatus.EXPIRED);
             }
         }
@@ -229,41 +275,23 @@ public class EventExecutionService {
     }
 
     /**
-     * 1차 리뷰 제출 여부 확인
-     * 캠페인에 설정된 모든 콘텐츠 타입에 대해 제출되었는지 확인
+     * 여러 크리에이터의 제출된 콘텐츠 타입을 한 번에 조회 (N+1 문제 해결)
      */
-    private boolean hasSubmittedFirstReview(CreatorCampaign creatorCampaign, Campaign campaign) {
-        List<ContentType> requiredContentTypes = getRequiredContentTypes(campaign);
+    private Map<Long, Set<ContentType>> getSubmittedContentTypesMap(
+            List<Long> creatorCampaignIds, ReviewRound reviewRound) {
 
-        for (ContentType contentType : requiredContentTypes) {
-            boolean hasSubmitted = campaignReviewRepository.existsByCreatorCampaignIdAndReviewRoundAndContentType(
-                    creatorCampaign.getId(),
-                    ReviewRound.FIRST,
-                    contentType
-            );
+        List<Object[]> results = campaignReviewRepository
+                .findContentTypesByCreatorCampaignIdsAndReviewRound(creatorCampaignIds, reviewRound);
 
-            if (!hasSubmitted) return false;
+        Map<Long, Set<ContentType>> map = new HashMap<>();
+        for (Object[] result : results) {
+            Long creatorCampaignId = (Long) result[0];
+            ContentType contentType = (ContentType) result[1];
+
+            map.computeIfAbsent(creatorCampaignId, k -> new HashSet<>()).add(contentType);
         }
-        return true;
-    }
 
-    /**
-     * 2차 리뷰 제출 여부 확인
-     * 캠페인에 설정된 모든 콘텐츠 타입에 대해 제출되었는지 확인
-     */
-    private boolean hasSubmittedSecondReview(CreatorCampaign creatorCampaign, Campaign campaign) {
-        List<ContentType> requiredContentTypes = getRequiredContentTypes(campaign);
-
-        for (ContentType contentType : requiredContentTypes) {
-            boolean hasSubmitted = campaignReviewRepository.existsByCreatorCampaignIdAndReviewRoundAndContentType(
-                    creatorCampaign.getId(),
-                    ReviewRound.SECOND,
-                    contentType
-            );
-
-            if (!hasSubmitted) return false;
-        }
-        return true;
+        return map;
     }
 
     /**
