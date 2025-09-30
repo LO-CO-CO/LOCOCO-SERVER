@@ -42,6 +42,7 @@ public class SnsConnectionController {
         response.sendRedirect(authUrl);
     }
 
+
     @Operation(summary = "TikTok OAuth 콜백 / 인증 후 콜백을 처리 및 계정 연결")
     @GetMapping("/tiktok/callback")
     public ApiResponse<TikTokConnectionResponse> handleTikTokCallback(@RequestParam("code") String code,
