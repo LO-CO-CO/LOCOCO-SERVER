@@ -30,11 +30,17 @@ public class TikTokOAuthClient {
     private final TikTokProperties props;
 
 
-    public String buildAuthorizationUrl(Long creatorId) {
+    public String buildAuthorizationUrl(Long creatorId, String returnTo) {
 
         String encodedRedirectUri = URLEncoder.encode(props.redirectUri(), StandardCharsets.UTF_8);
         String encodedScope = URLEncoder.encode(props.scope(), StandardCharsets.UTF_8);
-        String state = oAuthStateManager.generateState(creatorId);
+
+        String state;
+        if (returnTo != null && !returnTo.isEmpty()) {
+            state = oAuthStateManager.generateStateWithReturnTo(creatorId, returnTo);
+        } else {
+            state = oAuthStateManager.generateState(creatorId);
+        }
 
         String authUrl = TikTokConstants.AUTHORIZE_BASE_URL +
                 TikTokConstants.PARAM_RESPONSE_TYPE +
