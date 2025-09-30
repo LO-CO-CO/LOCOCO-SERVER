@@ -32,10 +32,10 @@ public class TikTokConnectionUsecase {
     private final TikTokRedisTokenService tikTokRedisTokenService;
 
     @Transactional(readOnly = true)
-    public String generateConnectionUrl(Long userId) {
+    public String generateConnectionUrl(Long userId, String returnTo) {
 
         userGetService.findUserById(userId);
-        return tikTokOAuthClient.buildAuthorizationUrl(userId);
+        return tikTokOAuthClient.buildAuthorizationUrl(userId, returnTo);
     }
 
     @Transactional
