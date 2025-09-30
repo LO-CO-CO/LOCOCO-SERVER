@@ -1,14 +1,5 @@
 package com.lokoko.global.auth.service;
 
-import static com.lokoko.global.auth.jwt.utils.JwtProvider.EMAIL_CLAIM;
-import static com.lokoko.global.utils.LineConstants.AUTHORIZE_PATH;
-import static com.lokoko.global.utils.LineConstants.PARAM_CLIENT_ID;
-import static com.lokoko.global.utils.LineConstants.PARAM_REDIRECT_URI;
-import static com.lokoko.global.utils.LineConstants.PARAM_RESPONSE_TYPE;
-import static com.lokoko.global.utils.LineConstants.PARAM_SCOPE;
-import static com.lokoko.global.utils.LineConstants.PARAM_STATE;
-import static com.lokoko.global.utils.LineConstants.PARAM_UI_LOCALES;
-
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.lokoko.domain.brand.domain.entity.Brand;
@@ -50,16 +41,20 @@ import com.lokoko.global.utils.GoogleConstants;
 import com.lokoko.global.utils.RedisUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+import java.util.UUID;
+
+import static com.lokoko.global.auth.jwt.utils.JwtProvider.EMAIL_CLAIM;
+import static com.lokoko.global.utils.LineConstants.*;
 
 @Slf4j
 @Service
@@ -400,8 +395,9 @@ public class AuthService {
                 .orElseThrow(UserNotFoundException::new);
 
         String displayName;
+        Role role = user.getRole();
 
-        switch (user.getRole()) {
+        switch (role) {
             case CUSTOMER:
                 Customer customer = customerRepository.findById(userId).orElse(null);
                 if (customer != null && customer.getCustomerName() != null) {
@@ -446,6 +442,6 @@ public class AuthService {
                 throw new InvalidRoleException();
         }
 
-        return new AfterLoginUserNameResponse(displayName);
+        return new AfterLoginUserNameResponse(displayName, role);
     }
 }
