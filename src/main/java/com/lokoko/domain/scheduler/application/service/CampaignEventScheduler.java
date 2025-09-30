@@ -33,6 +33,9 @@ public class CampaignEventScheduler {
      */
     public void scheduleCampaignEvents(Campaign campaign) {
 
+        // 기존 PENDING 상태의 이벤트 삭제 (중복 방지)
+        scheduledEventRepository.deletePendingEventsByTarget(TargetType.CAMPAIGN, campaign.getId());
+
         List<ScheduledEvent> events = new ArrayList<>();
 
         // 1. 모집 시작 이벤트
