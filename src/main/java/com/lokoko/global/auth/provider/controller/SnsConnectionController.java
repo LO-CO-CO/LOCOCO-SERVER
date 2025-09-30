@@ -5,7 +5,6 @@ import com.lokoko.global.auth.provider.controller.enums.ResponseMessage;
 import com.lokoko.global.auth.provider.insta.config.InstaOauthClient;
 import com.lokoko.global.auth.provider.insta.dto.InstagramConnectionResponse;
 import com.lokoko.global.auth.provider.insta.usecase.InstaConnectionUsecase;
-import com.lokoko.global.auth.provider.tiktok.dto.TikTokConnectionResponse;
 import com.lokoko.global.auth.provider.tiktok.usecase.TikTokConnectionUsecase;
 import com.lokoko.global.auth.service.OAuthStateManager;
 import com.lokoko.global.common.response.ApiResponse;
@@ -46,13 +45,23 @@ public class SnsConnectionController {
 
     @Operation(summary = "TikTok OAuth 콜백 / 인증 후 콜백을 처리 및 계정 연결")
     @GetMapping("/tiktok/callback")
-    public ApiResponse<TikTokConnectionResponse> handleTikTokCallback(@RequestParam("code") String code,
-                                                                      @RequestParam("state") String state) {
-        Long userId = oAuthStateManager.validateAndGetCreatorId(state);
-        String returnTo = oAuthStateManager.getReturnTo(state);
-        TikTokConnectionResponse response = tikTokConnectionUsecase.connectTikTok(userId, code, returnTo);
+    public void handleTikTokCallback(@RequestParam("code") String code,
+                                      @RequestParam("state") String state,
+                                      HttpServletResponse response) throws IOException {
+        String returnTo = null;
+        try {
+            Long userId = oAuthStateManager.validateAndGetCreatorId(state);
+            returnTo = oAuthStateManager.getReturnTo(state);
+            String redirectUrl = tikTokConnectionUsecase.connectTikTok(userId, code, returnTo);
 
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.TIKTOK_CONNECT_SUCCESS.getMessage(), response);
+            response.sendRedirect(redirectUrl);
+        } catch (Exception e) {
+            if (returnTo == null) {
+                returnTo = oAuthStateManager.getReturnTo(state);
+            }
+            String errorUrl = "https://lococo.beauty" + returnTo + "?error=tiktok_error";
+            response.sendRedirect(errorUrl);
+        }
     }
 
     @Operation(summary = "Instagram 계정 연동 / Creator가 Instagram OAuth 인증 페이지로 리다이렉트")
