@@ -46,9 +46,10 @@ public class SnsConnectionController {
     @Operation(summary = "TikTok OAuth 콜백 / 인증 후 콜백을 처리 및 계정 연결")
     @GetMapping("/tiktok/callback")
     public ApiResponse<TikTokConnectionResponse> handleTikTokCallback(@RequestParam("code") String code,
-                                                                      @RequestParam("state") String state) {
+                                                                      @RequestParam("state") String state,
+                                                                      @RequestParam String returnTo) {
         Long userId = oAuthStateManager.validateAndGetCreatorId(state);
-        TikTokConnectionResponse response = tikTokConnectionUsecase.connectTikTok(userId, code);
+        TikTokConnectionResponse response = tikTokConnectionUsecase.connectTikTok(userId, code, returnTo);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.TIKTOK_CONNECT_SUCCESS.getMessage(), response);
     }
