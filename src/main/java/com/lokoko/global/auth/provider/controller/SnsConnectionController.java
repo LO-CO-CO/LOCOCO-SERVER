@@ -24,7 +24,7 @@ import java.io.IOException;
 
 @Tag(name = "SNS_CONNECTION", description = "SNS(틱톡 및 인스타그램) 계정 연결 API")
 @RestController
-@RequestMapping("/api/auth/sns")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class SnsConnectionController {
 
@@ -34,9 +34,8 @@ public class SnsConnectionController {
     private final InstaOauthClient instaOAuthClient;
     private final OAuthStateManager oAuthStateManager;
 
-
     @Operation(summary = "TikTok 계정 연동 / TikTok OAuth 인증 페이지로 리다이렉트")
-    @GetMapping("/tiktok/connect")
+    @GetMapping("/sns/tiktok/connect")
     public void connectTikTok(HttpServletResponse response,
                               @Parameter(hidden = true) @CurrentUser Long userId) throws IOException {
         String authUrl = tikTokConnectionUsecase.generateConnectionUrl(userId);
