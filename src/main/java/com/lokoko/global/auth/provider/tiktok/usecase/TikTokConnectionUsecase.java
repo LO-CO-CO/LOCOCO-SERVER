@@ -39,7 +39,7 @@ public class TikTokConnectionUsecase {
     }
 
     @Transactional
-    public TikTokConnectionResponse connectTikTok(Long userId, String code) {
+    public TikTokConnectionResponse connectTikTok(Long userId, String code, String returnTo) {
         try {
             User user = userGetService.findUserById(userId);
 
@@ -69,7 +69,8 @@ public class TikTokConnectionUsecase {
                 customerSaveService.save(customer);
             }
 
-            return TikTokConnectionResponse.connected(profileDto.openId());
+            String redirectUrl = "https://lococo.beauty/oauth/tiktok/loading?success=true&return_to=" + returnTo;
+            return TikTokConnectionResponse.connected(profileDto.openId(),redirectUrl);
 
         } catch (OauthException e) {
             throw e;
