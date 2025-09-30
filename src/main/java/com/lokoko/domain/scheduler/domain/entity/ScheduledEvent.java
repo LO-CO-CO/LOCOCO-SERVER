@@ -18,7 +18,6 @@ import java.time.Instant;
     }
 )
 @Getter
-@Setter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
