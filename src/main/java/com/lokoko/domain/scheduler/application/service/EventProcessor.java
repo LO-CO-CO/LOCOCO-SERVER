@@ -59,9 +59,6 @@ public class EventProcessor {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     protected void processEvent(ScheduledEvent event) {
-        log.debug("Processing event: {} for target: {} ({})",
-                event.getEventType(), event.getTargetId(), event.getTargetType());
-
         try {
             // 이벤트 실행
             eventExecutionService.execute(event);
@@ -70,7 +67,7 @@ public class EventProcessor {
             event.markAsExecuted();
             scheduledEventRepository.save(event);
 
-            log.info("Successfully executed event: {} for target: {} ({})",
+            log.debug("Successfully executed event: {} for target: {} ({})",
                     event.getEventType(), event.getTargetId(), event.getTargetType());
 
         } catch (Exception e) {
