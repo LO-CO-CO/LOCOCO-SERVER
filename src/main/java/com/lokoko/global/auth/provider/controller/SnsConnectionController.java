@@ -55,7 +55,7 @@ public class SnsConnectionController {
     }
 
     @Operation(summary = "Instagram 계정 연동 / Creator가 Instagram OAuth 인증 페이지로 리다이렉트")
-    @GetMapping("/instagram/connect")
+    @GetMapping("/sns/instagram/connect")
     public void connectInstagram(HttpServletResponse response,
                                  @Parameter(hidden = true) @CurrentUser Long userId) throws IOException {
         String authUrl = instaConnectionUsecase.buildAuthorizationUrl(userId);
@@ -63,7 +63,7 @@ public class SnsConnectionController {
     }
 
     @Operation(summary = "Instagram OAuth 콜백 / 인증 후 code로 액세스 토큰 교환 및 계정 연결")
-    @GetMapping("/instagram/callback")
+    @GetMapping("/sns/instagram/callback")
     public ApiResponse<InstagramConnectionResponse> handleInstagramCallback(
             @RequestParam("code") String code, @RequestParam("state") String state) {
         Long userId = oAuthStateManager.validateAndGetCreatorId(state);
