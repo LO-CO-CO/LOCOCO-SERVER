@@ -8,6 +8,14 @@ import com.lokoko.global.auth.provider.insta.usecase.InstaConnectionUsecase;
 import com.lokoko.global.auth.provider.tiktok.usecase.TikTokConnectionUsecase;
 import com.lokoko.global.auth.service.OAuthStateManager;
 import com.lokoko.global.common.response.ApiResponse;
+import com.lokoko.global.auth.jwt.service.JwtService;
+import com.lokoko.global.auth.jwt.utils.CookieUtil;
+import com.lokoko.global.auth.jwt.dto.GenerateTokenDto;
+import com.lokoko.global.auth.jwt.dto.JwtTokenResponse;
+import com.lokoko.domain.user.application.service.UserGetService;
+import com.lokoko.domain.user.domain.entity.User;
+import static com.lokoko.global.auth.jwt.utils.JwtProvider.ACCESS_TOKEN_HEADER;
+import static com.lokoko.global.auth.jwt.utils.JwtProvider.REFRESH_TOKEN_HEADER;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,6 +40,9 @@ public class SnsConnectionController {
 
     private final InstaOauthClient instaOAuthClient;
     private final OAuthStateManager oAuthStateManager;
+    private final JwtService jwtService;
+    private final CookieUtil cookieUtil;
+    private final UserGetService userGetService;
 
     @Operation(summary = "TikTok 계정 연동 / TikTok OAuth 인증 페이지로 리다이렉트")
     @GetMapping("/sns/tiktok/connect")
@@ -49,16 +60,44 @@ public class SnsConnectionController {
                                       @RequestParam("state") String state,
                                       HttpServletResponse response) throws IOException {
         String returnTo = null;
+        Long userId = null;
         try {
-            Long userId = oAuthStateManager.validateAndGetCreatorId(state);
+            userId = oAuthStateManager.validateAndGetCreatorId(state);
             returnTo = oAuthStateManager.getReturnTo(state);
             String redirectUrl = tikTokConnectionUsecase.connectTikTok(userId, code, returnTo);
+
+            // JWT 토큰 생성 및 쿠키 설정
+            User user = userGetService.findUserById(userId);
+            String googleId = user.getGoogleId() != null ? user.getGoogleId() : "";
+
+            GenerateTokenDto tokenDto = GenerateTokenDto.of(userId, user.getRole().name(), googleId);
+            JwtTokenResponse tokens = jwtService.generateJwtToken(tokenDto);
+
+            cookieUtil.setCookie(ACCESS_TOKEN_HEADER, tokens.accessToken(), response);
+            cookieUtil.setCookie(REFRESH_TOKEN_HEADER, tokens.refreshToken(), response);
 
             response.sendRedirect(redirectUrl);
         } catch (Exception e) {
             if (returnTo == null) {
                 returnTo = oAuthStateManager.getReturnTo(state);
             }
+
+            // 에러 발생 시에도 userId가 있으면 토큰 발급
+            if (userId != null) {
+                try {
+                    User user = userGetService.findUserById(userId);
+                    String googleId = user.getGoogleId() != null ? user.getGoogleId() : "";
+
+                    GenerateTokenDto tokenDto = GenerateTokenDto.of(userId, user.getRole().name(), googleId);
+                    JwtTokenResponse tokens = jwtService.generateJwtToken(tokenDto);
+
+                    cookieUtil.setCookie(ACCESS_TOKEN_HEADER, tokens.accessToken(), response);
+                    cookieUtil.setCookie(REFRESH_TOKEN_HEADER, tokens.refreshToken(), response);
+                } catch (Exception tokenError) {
+                    // 토큰 발급 실패는 무시하고 리다이렉트
+                }
+            }
+
             String errorUrl = "https://lococo.beauty" + returnTo + "?error=tiktok_error";
             response.sendRedirect(errorUrl);
         }
