@@ -4,11 +4,11 @@ import lombok.Builder;
 
 @Builder
 public record InstagramConnectionResponse(
-        String instagramUserId
+        String redirectUrl
 ) {
-    public static InstagramConnectionResponse connected(String instaUserId) {
+    public static InstagramConnectionResponse connected(String returnTo) {
         return InstagramConnectionResponse.builder()
-                .instagramUserId(instaUserId)
+                .redirectUrl(returnTo)
                 .build();
     }
 }
