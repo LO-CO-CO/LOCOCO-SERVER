@@ -31,14 +31,14 @@ public class InstaConnectionUsecase {
     private final InstaRedisTokenService instaRedisTokenService;
 
     @Transactional(readOnly = true)
-    public String buildAuthorizationUrl(Long userId) {
+    public String buildAuthorizationUrl(Long userId, String returnTo) {
         userGetService.findUserById(userId);
 
-        return instaOAuthClient.buildAuthorizationUrl(userId);
+        return instaOAuthClient.buildAuthorizationUrl(userId, returnTo);
     }
 
     @Transactional
-    public InstagramConnectionResponse connectInstagram(Long userId, String code) {
+    public InstagramConnectionResponse connectInstagram(Long userId, String code, String returnTo) {
         try {
             User user = userGetService.findUserById(userId);
 
@@ -61,9 +61,7 @@ public class InstaConnectionUsecase {
                 customerSaveService.save(user.getCustomer());
             }
 
-            return InstagramConnectionResponse.builder()
-                    .instagramUserId(instaUserId)
-                    .build();
+            return InstagramConnectionResponse.connected(returnTo);
 
         } catch (InstagramTokenRequestFailedException | InstagramLongTokenRequestFailedException e) {
             throw e;
