@@ -97,4 +97,6 @@ public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign
     @Query("SELECT cc FROM CreatorCampaign cc WHERE cc.campaign.id = :campaignId AND cc.status = :status")
     List<CreatorCampaign> findByCampaignIdAndStatus(@Param("campaignId") Long campaignId,
                                                      @Param("status") ParticipationStatus status);
+
+    List<CreatorCampaign> findAllByCampaign(Campaign campaign);
 }
