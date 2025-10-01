@@ -57,14 +57,13 @@ public class SnsConnectionController {
 
     @Operation(summary = "TikTok OAuth 콜백 / 인증 후 콜백을 처리 및 계정 연결")
     @GetMapping("/tiktok/callback")
-    public ApiResponse<TikTokConnectionResponse> handleTikTokCallback(@RequestParam("code") String code,
-                                                                       @RequestParam("state") String state,
-                                                                       HttpServletResponse response) {
-        String returnTo = null;
-        Long userId = null;
+    public void handleTikTokCallback(@RequestParam("code") String code,
+                                      @RequestParam("state") String state,
+                                      HttpServletResponse response) throws IOException {
+        Long userId = oAuthStateManager.validateAndGetCreatorId(state);
+        String returnTo = oAuthStateManager.getReturnTo(state);
+
         try {
-            userId = oAuthStateManager.validateAndGetCreatorId(state);
-            returnTo = oAuthStateManager.getReturnTo(state);
             TikTokConnectionResponse connectionResponse = tikTokConnectionUsecase.connectTikTok(userId, code, returnTo);
 
             // JWT 토큰 생성 및 쿠키 설정
@@ -77,30 +76,25 @@ public class SnsConnectionController {
             cookieUtil.setCookie(ACCESS_TOKEN_HEADER, tokens.accessToken(), response);
             cookieUtil.setCookie(REFRESH_TOKEN_HEADER, tokens.refreshToken(), response);
 
-            return ApiResponse.success(HttpStatus.OK, ResponseMessage.TIKTOK_CONNECT_SUCCESS.getMessage(), connectionResponse);
+            // 성공 시 returnTo로 리다이렉트
+            response.sendRedirect("https://www.lococo.beauty" + connectionResponse.redirectUrl());
         } catch (Exception e) {
-            if (returnTo == null) {
-                returnTo = oAuthStateManager.getReturnTo(state);
+            // 에러 발생 시에도 토큰 발급 시도
+            try {
+                User user = userGetService.findUserById(userId);
+                String googleId = user.getGoogleId() != null ? user.getGoogleId() : "";
+
+                GenerateTokenDto tokenDto = GenerateTokenDto.of(userId, user.getRole().name(), googleId);
+                JwtTokenResponse tokens = jwtService.generateJwtToken(tokenDto);
+
+                cookieUtil.setCookie(ACCESS_TOKEN_HEADER, tokens.accessToken(), response);
+                cookieUtil.setCookie(REFRESH_TOKEN_HEADER, tokens.refreshToken(), response);
+            } catch (Exception tokenError) {
+                // 토큰 발급 실패는 무시하고 리다이렉트
             }
 
-            // 에러 발생 시에도 userId가 있으면 토큰 발급
-            if (userId != null) {
-                try {
-                    User user = userGetService.findUserById(userId);
-                    String googleId = user.getGoogleId() != null ? user.getGoogleId() : "";
-
-                    GenerateTokenDto tokenDto = GenerateTokenDto.of(userId, user.getRole().name(), googleId);
-                    JwtTokenResponse tokens = jwtService.generateJwtToken(tokenDto);
-
-                    cookieUtil.setCookie(ACCESS_TOKEN_HEADER, tokens.accessToken(), response);
-                    cookieUtil.setCookie(REFRESH_TOKEN_HEADER, tokens.refreshToken(), response);
-                } catch (Exception tokenError) {
-                    // 토큰 발급 실패는 무시하고 리다이렉트
-                }
-            }
-
-            TikTokConnectionResponse errorResponse = new TikTokConnectionResponse(returnTo);
-            return ApiResponse.error(HttpStatus.BAD_REQUEST, ResponseMessage.TIKTOK_CONNECT_FAIL.getMessage(), errorResponse);
+            // 에러 시에도 returnTo로 리다이렉트
+            response.sendRedirect("https://www.lococo.beauty" + returnTo);
         }
     }
 
