@@ -5,6 +5,7 @@ import com.lokoko.global.auth.provider.controller.enums.ResponseMessage;
 import com.lokoko.global.auth.provider.insta.config.InstaOauthClient;
 import com.lokoko.global.auth.provider.insta.dto.InstagramConnectionResponse;
 import com.lokoko.global.auth.provider.insta.usecase.InstaConnectionUsecase;
+import com.lokoko.global.auth.provider.tiktok.dto.TikTokConnectionResponse;
 import com.lokoko.global.auth.provider.tiktok.usecase.TikTokConnectionUsecase;
 import com.lokoko.global.auth.service.OAuthStateManager;
 import com.lokoko.global.common.response.ApiResponse;
@@ -56,15 +57,15 @@ public class SnsConnectionController {
 
     @Operation(summary = "TikTok OAuth 콜백 / 인증 후 콜백을 처리 및 계정 연결")
     @GetMapping("/tiktok/callback")
-    public void handleTikTokCallback(@RequestParam("code") String code,
-                                      @RequestParam("state") String state,
-                                      HttpServletResponse response) throws IOException {
+    public ApiResponse<TikTokConnectionResponse> handleTikTokCallback(@RequestParam("code") String code,
+                                                                       @RequestParam("state") String state,
+                                                                       HttpServletResponse response) {
         String returnTo = null;
         Long userId = null;
         try {
             userId = oAuthStateManager.validateAndGetCreatorId(state);
             returnTo = oAuthStateManager.getReturnTo(state);
-            String redirectUrl = tikTokConnectionUsecase.connectTikTok(userId, code, returnTo);
+            TikTokConnectionResponse connectionResponse = tikTokConnectionUsecase.connectTikTok(userId, code, returnTo);
 
             // JWT 토큰 생성 및 쿠키 설정
             User user = userGetService.findUserById(userId);
@@ -76,7 +77,7 @@ public class SnsConnectionController {
             cookieUtil.setCookie(ACCESS_TOKEN_HEADER, tokens.accessToken(), response);
             cookieUtil.setCookie(REFRESH_TOKEN_HEADER, tokens.refreshToken(), response);
 
-            response.sendRedirect(redirectUrl);
+            return ApiResponse.success(HttpStatus.OK, ResponseMessage.TIKTOK_CONNECT_SUCCESS.getMessage(), connectionResponse);
         } catch (Exception e) {
             if (returnTo == null) {
                 returnTo = oAuthStateManager.getReturnTo(state);
@@ -98,8 +99,8 @@ public class SnsConnectionController {
                 }
             }
 
-            String errorUrl = "https://lococo.beauty" + returnTo + "?error=tiktok_error";
-            response.sendRedirect(errorUrl);
+            TikTokConnectionResponse errorResponse = new TikTokConnectionResponse(returnTo);
+            return ApiResponse.error(HttpStatus.BAD_REQUEST, ResponseMessage.TIKTOK_CONNECT_FAIL.getMessage(), errorResponse);
         }
     }
 
