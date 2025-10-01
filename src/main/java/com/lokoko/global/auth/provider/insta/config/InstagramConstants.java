@@ -16,6 +16,7 @@ public class InstagramConstants {
     public static final String PARAM_RESPONSE_TYPE = "response_type";
     public static final String PARAM_SCOPE = "scope";
     public static final String PARAM_STATE = "state";
+    public static final String PARAM_ACCESS_TOKEN = "access_token";
     public static final String PARAM_CODE = "code";
     public static final String PARAM_GRANT_TYPE = "grant_type";
     public static final String RESPONSE_TYPE_CODE = "code";
