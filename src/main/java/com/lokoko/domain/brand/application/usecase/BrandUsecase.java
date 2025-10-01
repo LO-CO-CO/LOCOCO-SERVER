@@ -100,6 +100,7 @@ public class BrandUsecase {
         // 연관 엔티티들
         CreatorCampaign creatorCampaign = review.getCreatorCampaign();
         Campaign campaign = creatorCampaign.getCampaign();
+        Creator creator = creatorCampaign.getCreator();
 
         // 브랜드 권한 검증 (해당 브랜드가 발행한 캠페인인지 아닌지)
         if (!campaign.getBrand().getId().equals(brandId)) {
@@ -118,18 +119,30 @@ public class BrandUsecase {
         // 업로드 된 미디어 URL 조회
         List<String> mediaUrls = campaignReviewGetService.getOrderedMediaUrls(review);
 
-
         // 만약 2차 리뷰이고, postUrl이 존재한다면 같이 내려주기
         String postUrl = null;
         if (round == ReviewRound.SECOND && review.getPostUrl() != null) {
             postUrl = review.getPostUrl();
         }
+
+        // 크리에이터 정보
+        CampaignReviewDetailListResponse.CreatorInfo creatorInfo = CampaignReviewDetailListResponse.CreatorInfo.builder()
+                .profileImageUrl(creator.getUser().getProfileImageUrl())
+                .fullName(creator.getUser().getName())
+                .creatorName(creator.getCreatorName())
+                .build();
+
+        // 검토 요청 시간 (브랜드가 수정 요청한 시간)
+        Instant reviewRequestedAt = review.getRevisionRequestedAt();
+
         return campaignReviewMapper.toDetailListResponse(
                 campaign,
                 review,
                 round,
                 mediaUrls,
-                postUrl
+                postUrl,
+                creatorInfo,
+                reviewRequestedAt
         );
     }
 

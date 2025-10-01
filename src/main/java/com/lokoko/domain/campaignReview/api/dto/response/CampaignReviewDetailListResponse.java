@@ -40,6 +40,24 @@ public record CampaignReviewDetailListResponse(
         Instant brandNoteDeadline,
 
         @Schema(description = "2차 리뷰 완료 시 실제 게시물 URL")
-        String postUrl
+        String postUrl,
+
+        @Schema(requiredMode = REQUIRED, description = "크리에이터 정보")
+        CreatorInfo creator,
+
+        @Schema(description = "검토 요청 시간 (브랜드가 수정 요청한 시간)")
+        Instant reviewRequestedAt
 ) {
+        @Builder
+        public record CreatorInfo(
+                @Schema(requiredMode = REQUIRED, description = "크리에이터 프로필 이미지 URL")
+                String profileImageUrl,
+
+                @Schema(requiredMode = REQUIRED, description = "크리에이터 풀 네임")
+                String fullName,
+
+                @Schema(requiredMode = REQUIRED, description = "크리에이터 닉네임")
+                String creatorName
+        ) {
+        }
 }
