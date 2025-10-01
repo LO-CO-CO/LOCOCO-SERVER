@@ -1,13 +1,11 @@
 package com.lokoko.domain.scheduler.application.service;
 
 import com.lokoko.domain.scheduler.domain.entity.ScheduledEvent;
-import com.lokoko.domain.scheduler.domain.enums.EventStatus;
 import com.lokoko.domain.scheduler.domain.repository.ScheduledEventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
@@ -24,7 +22,7 @@ import java.util.List;
 public class EventProcessor {
 
     private final ScheduledEventRepository scheduledEventRepository;
-    private final EventExecutionService eventExecutionService;
+    private final EventProcessorService eventProcessorService;
 
     /**
      * 1분마다 실행되는 스케줄러
@@ -47,61 +45,11 @@ public class EventProcessor {
         // 각 이벤트를 개별적으로 처리 (하나의 실패가 다른 이벤트 처리를 막지 않도록)
         for (ScheduledEvent event : eventsToExecute) {
             try {
-                processEvent(event);
+                eventProcessorService.processEvent(event);
             } catch (Exception e) {
                 log.error("Failed to process event {}: {}", event.getId(), e.getMessage(), e);
             }
         }
-    }
-
-    /**
-     * 개별 이벤트 처리
-     */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    protected void processEvent(ScheduledEvent event) {
-        try {
-            // 이벤트 실행
-            eventExecutionService.execute(event);
-
-            // 성공 처리
-            event.markAsExecuted();
-            scheduledEventRepository.save(event);
-
-            log.debug("Successfully executed event: {} for target: {} ({})",
-                    event.getEventType(), event.getTargetId(), event.getTargetType());
-
-        } catch (Exception e) {
-            // 실패 처리
-            event.markAsFailed(e.getMessage());
-            scheduledEventRepository.save(event);
-
-            log.error("Failed to execute event: {} for target: {} - Error: {}",
-                    event.getEventType(), event.getTargetId(), e.getMessage());
-
-            // 재시도 가능한 경우 재시도 이벤트 생성
-            if (event.isRetryable()) {
-                scheduleRetry(event);
-            }
-        }
-    }
-
-    /**
-     * 실패한 이벤트 재시도 스케줄링
-     */
-    private void scheduleRetry(ScheduledEvent failedEvent) {
-        // 5분 후 재시도
-        Instant retryAt = Instant.now().plus(Duration.ofMinutes(5));
-
-        ScheduledEvent retryEvent = ScheduledEvent.builder()
-                .eventType(failedEvent.getEventType())
-                .targetId(failedEvent.getTargetId())
-                .targetType(failedEvent.getTargetType())
-                .executeAt(retryAt)
-                .retryCount(failedEvent.getRetryCount())
-                .status(EventStatus.PENDING)
-                .build();
-
-        scheduledEventRepository.save(retryEvent);
     }
 
     /**
