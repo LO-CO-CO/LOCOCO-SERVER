@@ -96,7 +96,9 @@ public class CampaignReviewMapper {
     public CampaignReviewDetailListResponse toDetailListResponse(Campaign campaign, CampaignReview review,
                                                                  ReviewRound round,
                                                                  List<String> mediaUrls,
-                                                                 String postUrl) {
+                                                                 String postUrl,
+                                                                 CampaignReviewDetailListResponse.CreatorInfo creatorInfo,
+                                                                 Instant reviewRequestedAt) {
 
         // 브랜드 노트 마감일은 캠페인 deadLine으로부터 4일 전
         Instant brandNoteDeadline = campaign.getReviewSubmissionDeadline().minus(Duration.ofDays(4));
@@ -111,6 +113,8 @@ public class CampaignReviewMapper {
                 .brandNote(review.getBrandNote())
                 .brandNoteDeadline(brandNoteDeadline)
                 .postUrl(postUrl)
+                .creator(creatorInfo)
+                .reviewRequestedAt(reviewRequestedAt)
                 .build();
     }
 }

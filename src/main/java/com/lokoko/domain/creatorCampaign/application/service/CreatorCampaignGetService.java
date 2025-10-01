@@ -124,4 +124,11 @@ public class CreatorCampaignGetService {
         return creatorCampaignRepository.findByCampaignAndCreator_Id(campaign, creatorId)
                 .orElseThrow(CreatorCampaignNotFoundException::new);
     }
+
+    /**
+     * 특정 캠페인에 참여한 모든 CreatorCampaign 조회
+     */
+    public List<CreatorCampaign> findAllByCampaign(Campaign campaign) {
+        return creatorCampaignRepository.findAllByCampaign(campaign);
+    }
 }
