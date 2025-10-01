@@ -75,11 +75,13 @@ public class InstaOauthClient {
         try {
             InstagramLongTokenDto dto = instagramWebClient.get()
                     .uri(uriBuilder -> uriBuilder
-                            .path(InstagramConstants.LONG_LIVED_TOKEN_URL)
+                            .scheme("https")
+                            .host("graph.instagram.com")
+                            .path("/access_token")
                             .queryParam(InstagramConstants.PARAM_GRANT_TYPE,
                                     InstagramConstants.GRANT_TYPE_IG_EXCHANGE_TOKEN)
                             .queryParam(InstagramConstants.PARAM_CLIENT_SECRET, props.clientSecret())
-                            .queryParam("access_token", shortAccessToken)
+                            .queryParam(InstagramConstants.PARAM_ACCESS_TOKEN, shortAccessToken)
                             .build())
                     .retrieve()
                     .bodyToMono(InstagramLongTokenDto.class)
@@ -102,10 +104,12 @@ public class InstaOauthClient {
         try {
             InstagramLongTokenDto dto = instagramWebClient.get()
                     .uri(uriBuilder -> uriBuilder
-                            .path(InstagramConstants.REFRESH_TOKEN_URL)
+                            .scheme("https")
+                            .host("graph.instagram.com")
+                            .path("/refresh_access_token")
                             .queryParam(InstagramConstants.PARAM_GRANT_TYPE,
                                     InstagramConstants.GRANT_TYPE_IG_REFRESH_TOKEN)
-                            .queryParam("access_token", longAccessToken)
+                            .queryParam(InstagramConstants.PARAM_ACCESS_TOKEN, longAccessToken)
                             .build())
                     .retrieve()
                     .bodyToMono(InstagramLongTokenDto.class)
@@ -114,7 +118,6 @@ public class InstaOauthClient {
             if (dto == null || dto.accessToken() == null) {
                 throw new InstagramRefreshTokenFailedException();
             }
-
             return dto;
         } catch (Exception e) {
             log.error("Instagram 장기 토큰 갱신 실패: {}", e.getMessage(), e);
