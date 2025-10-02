@@ -2,6 +2,7 @@ package com.lokoko.domain.brand.api.dto.response;
 
 import com.lokoko.domain.campaignReview.domain.entity.enums.ContentStatus;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
+import com.lokoko.domain.creator.api.dto.response.CreatorInfo;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.common.response.PageableResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -42,23 +43,6 @@ public record CreatorPerformanceResponse(
 
             @Schema(requiredMode = REQUIRED, description = "리뷰 성과 목록")
             List<ReviewPerformance> reviews
-    ) {
-    }
-
-    @Builder
-    @Schema(description = "크리에이터 정보")
-    public record CreatorInfo(
-            @Schema(requiredMode = REQUIRED, description = "크리에이터 ID", example = "10")
-            Long creatorId,
-
-            @Schema(requiredMode = REQUIRED, description = "크리에이터 풀 네임", example = "김지수")
-            String creatorFullName,
-
-            @Schema(requiredMode = REQUIRED, description = "크리에이터 닉네임", example = "jisoo_creator")
-            String creatorNickname,
-
-            @Schema(requiredMode = NOT_REQUIRED, description = "프로필 이미지 URL", example = "https://s3.example.com/profile/creator-10.jpg")
-            String profileImageUrl
     ) {
     }
 

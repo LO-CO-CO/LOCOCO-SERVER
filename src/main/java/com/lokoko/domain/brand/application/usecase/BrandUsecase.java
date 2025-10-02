@@ -24,6 +24,7 @@ import com.lokoko.domain.campaignReview.domain.entity.enums.ContentStatus;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewStatus;
 import com.lokoko.domain.creator.domain.entity.Creator;
+import com.lokoko.domain.creator.api.dto.response.CreatorInfo;
 import com.lokoko.domain.creatorCampaign.application.service.CreatorCampaignGetService;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
@@ -126,10 +127,11 @@ public class BrandUsecase {
         }
 
         // 크리에이터 정보
-        CampaignReviewDetailListResponse.CreatorInfo creatorInfo = CampaignReviewDetailListResponse.CreatorInfo.builder()
+        CreatorInfo creatorInfo = CreatorInfo.builder()
+                .creatorId(creator.getId())
+                .creatorFullName(creator.getUser().getName())
+                .creatorNickname(creator.getCreatorName())
                 .profileImageUrl(creator.getUser().getProfileImageUrl())
-                .fullName(creator.getUser().getName())
-                .creatorName(creator.getCreatorName())
                 .build();
 
         // 검토 요청 시간 (브랜드가 수정 요청한 시간)
@@ -188,7 +190,7 @@ public class BrandUsecase {
                     List<CreatorPerformanceResponse.ReviewPerformance> reviews = buildReviewPerformances(campaign, ccList);
 
                     return CreatorPerformanceResponse.CreatorReviewPerformance.builder()
-                            .creator(CreatorPerformanceResponse.CreatorInfo.builder()
+                            .creator(CreatorInfo.builder()
                                     .creatorId(creator.getId())
                                     .creatorFullName(creator.getUser().getName())
                                     .creatorNickname(creator.getCreatorName())
