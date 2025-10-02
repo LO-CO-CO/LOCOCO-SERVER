@@ -12,6 +12,7 @@ import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
 import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.domain.scheduler.domain.entity.ScheduledEvent;
+import com.lokoko.domain.scheduler.domain.enums.EventStatus;
 import com.lokoko.domain.scheduler.domain.enums.EventType;
 import com.lokoko.domain.scheduler.domain.enums.TargetType;
 import com.lokoko.domain.scheduler.domain.repository.ScheduledEventRepository;
@@ -174,6 +175,7 @@ public class EventExecutionService {
                             .targetId(creatorCampaign.getId())
                             .targetType(TargetType.CREATOR_CAMPAIGN)
                             .executeAt(addressDeadline)
+                            .status(EventStatus.PENDING)
                             .build())
                     .collect(Collectors.toList());
 
