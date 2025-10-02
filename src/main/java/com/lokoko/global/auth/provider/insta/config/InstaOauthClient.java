@@ -22,12 +22,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class InstaOauthClient {
 
     private final OAuthStateManager oAuthStateManager;
-    private final @Qualifier("instagramWebClient") WebClient instagramWebClient;
+    private final WebClient instagramWebClient;
     private final InstaProperties props;
     private final UserGetService userGetService;
 
-    public String buildAuthorizationUrl(Long userId) {
-        String state = oAuthStateManager.generateState(userId);
+    public String buildAuthorizationUrl(Long userId, String returnTo) {
+        String state = oAuthStateManager.generateStateWithReturnTo(userId, returnTo);
 
         String encodedRedirect = URLEncoder.encode(props.redirectUri(), StandardCharsets.UTF_8);
         String encodedScope = URLEncoder.encode(props.scope(), StandardCharsets.UTF_8);

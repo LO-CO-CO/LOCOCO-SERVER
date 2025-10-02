@@ -2,6 +2,7 @@ package com.lokoko.domain.campaignReview.api.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
+import com.lokoko.domain.creator.api.dto.response.CreatorInfo;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
@@ -40,6 +41,12 @@ public record CampaignReviewDetailListResponse(
         Instant brandNoteDeadline,
 
         @Schema(description = "2차 리뷰 완료 시 실제 게시물 URL")
-        String postUrl
+        String postUrl,
+
+        @Schema(requiredMode = REQUIRED, description = "크리에이터 정보")
+        CreatorInfo creator,
+
+        @Schema(description = "검토 요청 시간 (브랜드가 수정 요청한 시간)")
+        Instant reviewRequestedAt
 ) {
 }
