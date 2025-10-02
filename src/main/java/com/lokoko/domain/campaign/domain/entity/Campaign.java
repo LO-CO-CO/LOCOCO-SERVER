@@ -237,8 +237,7 @@ public class Campaign extends BaseEntity {
                 this.recruitmentNumber <= 0,
                 this.participationRewards == null || this.participationRewards.isEmpty(),
                 this.deliverableRequirements == null || this.deliverableRequirements.isEmpty(),
-                this.firstContentPlatform == null,
-                this.secondContentPlatform == null
+                this.firstContentPlatform == null
         ).anyMatch(condition -> condition);
     }
 
