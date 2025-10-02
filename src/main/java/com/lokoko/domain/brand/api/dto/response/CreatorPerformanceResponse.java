@@ -6,6 +6,7 @@ import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.common.response.PageableResponse;
 import lombok.Builder;
 
+import java.time.Instant;
 import java.util.List;
 
 @Builder
@@ -43,7 +44,8 @@ public record CreatorPerformanceResponse(
             Long viewCount,
             Long likeCount,
             Long commentCount,
-            Long shareCount
+            Long shareCount,
+            Instant uploadedAt
     ) {
     }
 }

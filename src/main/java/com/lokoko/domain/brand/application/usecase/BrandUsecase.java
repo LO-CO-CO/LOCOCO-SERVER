@@ -300,6 +300,7 @@ public class BrandUsecase {
         Long likeCount = null;
         Long commentCount = null;
         Long shareCount = null;
+        Instant uploadedAt = null;
 
         // 2차 리뷰(최종 업로드)인 경우에만 postUrl과 성과 지표 포함
         if (review.getReviewRound() == ReviewRound.SECOND && review.getStatus() == ReviewStatus.RESUBMITTED) {
@@ -313,6 +314,7 @@ public class BrandUsecase {
                 likeCount = clip.getLikes();
                 commentCount = clip.getComments();
                 shareCount = clip.getShares();
+                uploadedAt = clip.getUploadedAt();
             }
         }
 
@@ -326,6 +328,7 @@ public class BrandUsecase {
                 .likeCount(likeCount)
                 .commentCount(commentCount)
                 .shareCount(shareCount)
+                .uploadedAt(uploadedAt)
                 .build();
     }
 
