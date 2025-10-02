@@ -19,7 +19,6 @@ import com.lokoko.domain.scheduler.domain.repository.ScheduledEventRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -143,18 +142,10 @@ public class EventExecutionService {
 
     /**
      * 크리에이터 발표 처리
-     * - 캠페인 상태를 IN_REVIEW로 변경
      * - 승인되지 않은 크리에이터들을 REJECTED로 변경
      * - 승인된 크리에이터들의 배송지 입력 마감 이벤트 등록
      */
     private void handleCreatorAnnouncement(Long campaignId) {
-        Campaign campaign = campaignRepository.findById(campaignId)
-                .orElseThrow(CampaignNotFoundException::new);
-
-        // 캠페인 상태 변경
-        if (campaign.getCampaignStatus() == CampaignStatus.RECRUITMENT_CLOSED) {
-            campaign.changeStatus(CampaignStatus.IN_REVIEW);
-        }
 
         // PENDING 상태의 크리에이터를 모두 REJECTED로 일괄 변경 (Bulk Update)
         creatorCampaignRepository.bulkUpdateStatus(

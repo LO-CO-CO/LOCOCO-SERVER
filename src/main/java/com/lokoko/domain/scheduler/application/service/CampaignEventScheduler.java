@@ -70,6 +70,15 @@ public class CampaignEventScheduler {
                     .status(EventStatus.PENDING)
                     .build());
 
+            // 리뷰 시작 이벤트 (크리에이터 발표와 동시)
+            events.add(ScheduledEvent.builder()
+                    .eventType(EventType.CAMPAIGN_START_REVIEW)
+                    .targetId(campaign.getId())
+                    .targetType(TargetType.CAMPAIGN)
+                    .executeAt(campaign.getCreatorAnnouncementDate())
+                    .status(EventStatus.PENDING)
+                    .build());
+
             // 4. 1차 리뷰 마감 이벤트 (리뷰 제출 마감 7일 전)
             if (campaign.getReviewSubmissionDeadline() != null) {
                 events.add(ScheduledEvent.builder()
