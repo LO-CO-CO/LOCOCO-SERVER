@@ -20,8 +20,6 @@ public class SocialClipGetService {
      * CampaignReview로 SocialClip 조회
      */
     public Optional<SocialClip> findByCampaignReview(CampaignReview campaignReview) {
-        return socialClipRepository.findAll().stream()
-                .filter(clip -> clip.getCampaignReview().equals(campaignReview))
-                .findFirst();
+        return socialClipRepository.findByCampaignReview(campaignReview);
     }
 }

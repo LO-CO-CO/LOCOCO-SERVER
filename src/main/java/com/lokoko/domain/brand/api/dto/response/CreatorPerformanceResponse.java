@@ -55,29 +55,37 @@ public record CreatorPerformanceResponse(
             @Schema(requiredMode = REQUIRED, description = "리뷰 라운드", example = "SECOND")
             ReviewRound reviewRound,
 
-            @Schema(requiredMode = REQUIRED, description = "콘텐츠 타입", example = "TIKTOK_VIDEO")
-            ContentType contentType,
-
             @Schema(requiredMode = REQUIRED, description = "리뷰 상태", example = "FINAL_UPLOADED")
             ContentStatus reviewStatus,
 
             @Schema(requiredMode = NOT_REQUIRED, description = "게시물 URL (2차 리뷰만)", example = "https://www.instagram.com/p/ABC123/")
             String postUrl,
 
-            @Schema(requiredMode = NOT_REQUIRED, description = "조회수 (2차 리뷰만)", example = "15000")
-            Long viewCount,
-
-            @Schema(requiredMode = NOT_REQUIRED, description = "좋아요 수 (2차 리뷰만)", example = "1200")
-            Long likeCount,
-
-            @Schema(requiredMode = NOT_REQUIRED, description = "댓글 수 (2차 리뷰만)", example = "85")
-            Long commentCount,
-
-            @Schema(requiredMode = NOT_REQUIRED, description = "공유 수 (2차 리뷰만)", example = "30")
-            Long shareCount,
+            @Schema(requiredMode = NOT_REQUIRED, description = "콘텐츠 정보 (2차 리뷰만)")
+            ContentMetrics contents,
 
             @Schema(requiredMode = NOT_REQUIRED, description = "업로드 시간 (2차 리뷰만)", example = "2024-01-15T10:30:00Z")
             Instant uploadedAt
+    ) {
+    }
+
+    @Builder
+    @Schema(description = "콘텐츠 성과 지표")
+    public record ContentMetrics(
+            @Schema(requiredMode = REQUIRED, description = "콘텐츠 타입", example = "INSTA_REELS")
+            ContentType contentType,
+
+            @Schema(requiredMode = NOT_REQUIRED, description = "조회수", example = "234")
+            Long viewCount,
+
+            @Schema(requiredMode = NOT_REQUIRED, description = "좋아요 수", example = "2342")
+            Long likeCount,
+
+            @Schema(requiredMode = NOT_REQUIRED, description = "댓글 수", example = "23423")
+            Long commentCount,
+
+            @Schema(requiredMode = NOT_REQUIRED, description = "공유 수", example = "2342")
+            Long shareCount
     ) {
     }
 }
