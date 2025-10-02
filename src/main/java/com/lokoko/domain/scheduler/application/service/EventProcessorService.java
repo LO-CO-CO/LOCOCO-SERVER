@@ -3,8 +3,10 @@ package com.lokoko.domain.scheduler.application.service;
 import com.lokoko.domain.scheduler.domain.entity.ScheduledEvent;
 import com.lokoko.domain.scheduler.domain.enums.EventStatus;
 import com.lokoko.domain.scheduler.domain.repository.ScheduledEventRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,42 +24,82 @@ public class EventProcessorService {
 
     /**
      * 개별 이벤트 처리
-     * 각 이벤트는 독립적인 트랜잭션에서 실행
+     * 동시성 제어를 위해 PENDING -> PROCESSING 원자적 업데이트 후 실행
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void processEvent(ScheduledEvent event) {
         try {
-            // 이벤트 실행
-            eventExecutionService.execute(event);
+            // 1. PENDING -> PROCESSING 원자적 상태 변경 (동시성 제어)
+            int updated = scheduledEventRepository.updateStatusToProcessing(event.getId());
 
-            // 성공 처리
-            event.markAsExecuted();
-            scheduledEventRepository.save(event);
+            if (updated == 0) {
+                // 이미 다른 스레드에서 처리중이거나 처리됨
+                log.debug("Event {} already being processed or completed", event.getId());
+                return;
+            }
+
+            // 2. 최신 상태로 다시 조회 (낙관적 락 버전 확인용)
+            ScheduledEvent processingEvent = scheduledEventRepository.findById(event.getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Event not found: " + event.getId()));
+
+            // 3. 이벤트 실행
+            eventExecutionService.execute(processingEvent);
+
+            // 4. 성공 처리
+            processingEvent.markAsExecuted();
+            scheduledEventRepository.save(processingEvent);
 
             log.debug("Successfully executed event: {} for target: {} ({})",
-                    event.getEventType(), event.getTargetId(), event.getTargetType());
+                    processingEvent.getEventType(), processingEvent.getTargetId(), processingEvent.getTargetType());
+
+        } catch (OptimisticLockingFailureException e) {
+            // 낙관적 락 충돌 - 다른 스레드에서 이미 처리중
+            log.debug("Event {} lock conflict, already processed by another thread", event.getId());
+
+        } catch (EntityNotFoundException e) {
+            // 복구 불가능한 에러 - 재시도 안 함
+            log.error("Event target not found: {} for target: {} - will not retry",
+                    event.getEventType(), event.getTargetId());
+            markEventAsFailed(event.getId(), e.getMessage(), false);
 
         } catch (Exception e) {
-            // 실패 처리
-            event.markAsFailed(e.getMessage());
-            scheduledEventRepository.save(event);
-
+            // 일시적 에러 - 재시도 가능
             log.error("Failed to execute event: {} for target: {} - Error: {}",
                     event.getEventType(), event.getTargetId(), e.getMessage());
 
-            // 재시도 가능한 경우 재시도 이벤트 생성
-            if (event.isRetryable()) {
-                scheduleRetry(event);
+            // 최신 이벤트 조회 후 실패 처리 및 재시도
+            ScheduledEvent failedEvent = scheduledEventRepository.findById(event.getId())
+                    .orElse(event);
+            failedEvent.markAsFailed(e.getMessage());
+            scheduledEventRepository.save(failedEvent);
+
+            if (failedEvent.isRetryable()) {
+                scheduleRetry(failedEvent);
             }
         }
     }
 
     /**
-     * 실패한 이벤트 재시도 스케줄링
+     * 이벤트 실패 처리 (재시도 여부 제어)
+     */
+    private void markEventAsFailed(Long eventId, String errorMessage, boolean allowRetry) {
+        scheduledEventRepository.findById(eventId).ifPresent(event -> {
+            event.markAsFailed(errorMessage);
+            scheduledEventRepository.save(event);
+
+            if (allowRetry && event.isRetryable()) {
+                scheduleRetry(event);
+            }
+        });
+    }
+
+    /**
+     * 실패한 이벤트 재시도 스케줄링 (지수 백오프)
      */
     private void scheduleRetry(ScheduledEvent failedEvent) {
-        // 5분 후 재시도
-        Instant retryAt = Instant.now().plus(Duration.ofMinutes(5));
+        // 지수 백오프: 5분 -> 10분 -> 20분
+        long delayMinutes = 5L * (long) Math.pow(2, failedEvent.getRetryCount() - 1);
+        Instant retryAt = Instant.now().plus(Duration.ofMinutes(delayMinutes));
 
         ScheduledEvent retryEvent = ScheduledEvent.builder()
                 .eventType(failedEvent.getEventType())
@@ -69,5 +111,8 @@ public class EventProcessorService {
                 .build();
 
         scheduledEventRepository.save(retryEvent);
+
+        log.info("Scheduled retry for event {} (attempt {}) at {}",
+                failedEvent.getId(), failedEvent.getRetryCount(), retryAt);
     }
 }

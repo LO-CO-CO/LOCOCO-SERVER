@@ -27,6 +27,9 @@ public class ScheduledEvent extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long version;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private EventType eventType;

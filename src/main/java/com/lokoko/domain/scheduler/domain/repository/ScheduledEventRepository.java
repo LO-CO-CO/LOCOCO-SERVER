@@ -79,4 +79,13 @@ public interface ScheduledEventRepository extends JpaRepository<ScheduledEvent, 
      */
     @Query("SELECT e FROM ScheduledEvent e WHERE e.targetType = 'CAMPAIGN' AND e.targetId = :campaignId ORDER BY e.executeAt")
     List<ScheduledEvent> findByCampaignId(@Param("campaignId") Long campaignId);
+
+    /**
+     * PENDING 상태의 이벤트를 PROCESSING으로 원자적 업데이트 (동시성 제어)
+     * @param eventId 이벤트 ID
+     * @return 업데이트된 행 수 (1이면 성공, 0이면 이미 처리중)
+     */
+    @Modifying
+    @Query("UPDATE ScheduledEvent e SET e.status = 'PROCESSING' WHERE e.id = :eventId AND e.status = 'PENDING'")
+    int updateStatusToProcessing(@Param("eventId") Long eventId);
 }

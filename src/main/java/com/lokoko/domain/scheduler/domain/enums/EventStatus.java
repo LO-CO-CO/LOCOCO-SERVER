@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 public enum EventStatus {
 
     PENDING("대기중"),
+    PROCESSING("처리중"),
     EXECUTED("실행완료"),
     FAILED("실패");
 
