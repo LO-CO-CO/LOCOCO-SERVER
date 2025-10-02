@@ -34,7 +34,6 @@ public class EventProcessorService {
 
             if (updated == 0) {
                 // 이미 다른 스레드에서 처리중이거나 처리됨
-                log.debug("Event {} already being processed or completed", event.getId());
                 return;
             }
 
@@ -49,17 +48,14 @@ public class EventProcessorService {
             processingEvent.markAsExecuted();
             scheduledEventRepository.save(processingEvent);
 
-            log.debug("Successfully executed event: {} for target: {} ({})",
-                    processingEvent.getEventType(), processingEvent.getTargetId(), processingEvent.getTargetType());
-
         } catch (OptimisticLockingFailureException e) {
             // 낙관적 락 충돌 - 다른 스레드에서 이미 처리중
-            log.debug("Event {} lock conflict, already processed by another thread", event.getId());
 
         } catch (EntityNotFoundException e) {
             // 복구 불가능한 에러 - 재시도 안 함
             log.error("Event target not found: {} for target: {} - will not retry",
                     event.getEventType(), event.getTargetId());
+            // 별도 트랜잭션에서 실패 처리
             markEventAsFailed(event.getId(), e.getMessage(), false);
 
         } catch (Exception e) {
@@ -67,22 +63,17 @@ public class EventProcessorService {
             log.error("Failed to execute event: {} for target: {} - Error: {}",
                     event.getEventType(), event.getTargetId(), e.getMessage());
 
-            // 최신 이벤트 조회 후 실패 처리 및 재시도
-            ScheduledEvent failedEvent = scheduledEventRepository.findById(event.getId())
-                    .orElse(event);
-            failedEvent.markAsFailed(e.getMessage());
-            scheduledEventRepository.save(failedEvent);
-
-            if (failedEvent.isRetryable()) {
-                scheduleRetry(failedEvent);
-            }
+            // 별도 트랜잭션에서 실패 처리 및 재시도
+            markEventAsFailed(event.getId(), e.getMessage(), true);
         }
     }
 
     /**
      * 이벤트 실패 처리 (재시도 여부 제어)
+     * 별도의 트랜잭션으로 실행하여 실패 정보가 확실히 저장되도록 함
      */
-    private void markEventAsFailed(Long eventId, String errorMessage, boolean allowRetry) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void markEventAsFailed(Long eventId, String errorMessage, boolean allowRetry) {
         scheduledEventRepository.findById(eventId).ifPresent(event -> {
             event.markAsFailed(errorMessage);
             scheduledEventRepository.save(event);

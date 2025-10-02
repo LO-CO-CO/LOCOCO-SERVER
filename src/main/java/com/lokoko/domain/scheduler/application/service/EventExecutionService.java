@@ -31,7 +31,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class EventExecutionService {
@@ -156,13 +155,12 @@ public class EventExecutionService {
             campaign.changeStatus(CampaignStatus.IN_REVIEW);
         }
 
-        // PENDING 상태의 크리에이터를 모두 REJECTED로 변경
-        List<CreatorCampaign> pendingCreators = creatorCampaignRepository
-                .findByCampaignIdAndStatus(campaignId, ParticipationStatus.PENDING);
-
-        for (CreatorCampaign creatorCampaign : pendingCreators) {
-            creatorCampaign.changeStatus(ParticipationStatus.REJECTED);
-        }
+        // PENDING 상태의 크리에이터를 모두 REJECTED로 일괄 변경 (Bulk Update)
+        creatorCampaignRepository.bulkUpdateStatus(
+                campaignId,
+                ParticipationStatus.PENDING,
+                ParticipationStatus.REJECTED
+        );
 
         // APPROVED 상태의 크리에이터들에 대해 배송지 입력 마감 이벤트 등록 (배치 처리)
         List<CreatorCampaign> approvedCreators = creatorCampaignRepository
@@ -210,14 +208,22 @@ public class EventExecutionService {
         Map<Long, Set<ContentType>> submittedContentMap = getSubmittedContentTypesMap(
                 creatorCampaignIds, ReviewRound.FIRST);
 
-        // 각 크리에이터의 제출 여부 확인
-        for (CreatorCampaign creatorCampaign : activeCreators) {
-            Set<ContentType> submittedTypes = submittedContentMap.getOrDefault(
-                    creatorCampaign.getId(), new HashSet<>());
+        // EXPIRED 대상 ID 수집
+        List<Long> expiredIds = activeCreators.stream()
+                .map(CreatorCampaign::getId)
+                .filter(id -> {
+                    Set<ContentType> submittedTypes = submittedContentMap.getOrDefault(
+                            id, new HashSet<>());
+                    return !submittedTypes.containsAll(requiredContentTypes);
+                })
+                .collect(Collectors.toList());
 
-            if (!submittedTypes.containsAll(requiredContentTypes)) {
-                creatorCampaign.changeStatus(ParticipationStatus.EXPIRED);
-            }
+        // 일괄 변경 (Bulk Update)
+        if (!expiredIds.isEmpty()) {
+            creatorCampaignRepository.bulkUpdateStatusByIds(
+                    expiredIds,
+                    ParticipationStatus.EXPIRED
+            );
         }
     }
 
@@ -248,14 +254,22 @@ public class EventExecutionService {
         Map<Long, Set<ContentType>> submittedContentMap = getSubmittedContentTypesMap(
                 creatorCampaignIds, ReviewRound.SECOND);
 
-        // 각 크리에이터의 제출 여부 확인
-        for (CreatorCampaign creatorCampaign : activeCreators) {
-            Set<ContentType> submittedTypes = submittedContentMap.getOrDefault(
-                    creatorCampaign.getId(), new HashSet<>());
+        // EXPIRED 대상 ID 수집
+        List<Long> expiredIds = activeCreators.stream()
+                .map(CreatorCampaign::getId)
+                .filter(id -> {
+                    Set<ContentType> submittedTypes = submittedContentMap.getOrDefault(
+                            id, new HashSet<>());
+                    return !submittedTypes.containsAll(requiredContentTypes);
+                })
+                .collect(Collectors.toList());
 
-            if (!submittedTypes.containsAll(requiredContentTypes)) {
-                creatorCampaign.changeStatus(ParticipationStatus.EXPIRED);
-            }
+        // 일괄 변경 (Bulk Update)
+        if (!expiredIds.isEmpty()) {
+            creatorCampaignRepository.bulkUpdateStatusByIds(
+                    expiredIds,
+                    ParticipationStatus.EXPIRED
+            );
         }
     }
 

@@ -28,7 +28,7 @@ public class EventProcessor {
      * 1분마다 실행되는 스케줄러
      * 실행 시간이 된 이벤트들을 찾아서 처리
      */
-    @Scheduled(fixedRate = 60000) // 1분(60초 = 60000ms)마다 실행
+    @Scheduled(fixedDelay = 60000, initialDelay = 0) // 이전 실행 완료 후 60초 대기
     public void processScheduledEvents() {
         Instant now = Instant.now();
 
