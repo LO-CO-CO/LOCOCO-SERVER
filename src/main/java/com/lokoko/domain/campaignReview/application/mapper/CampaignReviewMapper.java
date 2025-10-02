@@ -8,6 +8,7 @@ import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReviewImage;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReviewVideo;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
+import com.lokoko.domain.creator.api.dto.response.CreatorInfo;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
 import com.lokoko.domain.media.domain.MediaFile;
@@ -97,7 +98,7 @@ public class CampaignReviewMapper {
                                                                  ReviewRound round,
                                                                  List<String> mediaUrls,
                                                                  String postUrl,
-                                                                 CampaignReviewDetailListResponse.CreatorInfo creatorInfo,
+                                                                 CreatorInfo creatorInfo,
                                                                  Instant reviewRequestedAt) {
 
         // 브랜드 노트 마감일은 캠페인 deadLine으로부터 4일 전

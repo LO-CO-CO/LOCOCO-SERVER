@@ -3,6 +3,7 @@ package com.lokoko.domain.creatorCampaign.domain.repository;
 import com.lokoko.domain.brand.api.dto.request.ApplicantStatus;
 import com.lokoko.domain.brand.api.dto.response.CampaignApplicantListResponse;
 import com.lokoko.domain.brand.api.dto.response.CampaignApplicantResponse;
+import com.lokoko.domain.creator.api.dto.response.CreatorInfo;
 import com.lokoko.domain.creator.domain.entity.QCreator;
 import com.lokoko.domain.creatorCampaign.domain.entity.QCreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
@@ -52,7 +53,8 @@ public class CreatorCampaignRepositoryImpl implements CreatorCampaignRepositoryC
                 .select(Projections.constructor(CampaignApplicantResponse.class,
                         creatorCampaign.id,
                         creator.id,
-                        Projections.constructor(CampaignApplicantResponse.CreatorInfo.class,
+                        Projections.constructor(CreatorInfo.class,
+                                creator.id,
                                 user.name,
                                 creator.creatorName,
                                 user.profileImageUrl
