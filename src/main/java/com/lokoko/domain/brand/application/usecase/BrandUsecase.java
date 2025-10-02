@@ -282,8 +282,10 @@ public class BrandUsecase {
 
                     performances.add(CreatorPerformanceResponse.ReviewPerformance.builder()
                             .reviewRound(ReviewRound.FIRST)
-                            .contentType(contentType)
                             .reviewStatus(contentStatus)
+                            .contents(CreatorPerformanceResponse.ContentMetrics.builder()
+                                    .contentType(contentType)
+                                    .build())
                             .build());
                 }
             }
@@ -320,16 +322,23 @@ public class BrandUsecase {
             }
         }
 
+        CreatorPerformanceResponse.ContentMetrics contents = null;
+        if (review.getContentType() != null) {
+            contents = CreatorPerformanceResponse.ContentMetrics.builder()
+                    .contentType(review.getContentType())
+                    .viewCount(viewCount)
+                    .likeCount(likeCount)
+                    .commentCount(commentCount)
+                    .shareCount(shareCount)
+                    .build();
+        }
+
         return CreatorPerformanceResponse.ReviewPerformance.builder()
                 .campaignReviewId(review.getId())
                 .reviewRound(review.getReviewRound())
-                .contentType(review.getContentType())
                 .reviewStatus(contentStatus)
                 .postUrl(postUrl)
-                .viewCount(viewCount)
-                .likeCount(likeCount)
-                .commentCount(commentCount)
-                .shareCount(shareCount)
+                .contents(contents)
                 .uploadedAt(uploadedAt)
                 .build();
     }
