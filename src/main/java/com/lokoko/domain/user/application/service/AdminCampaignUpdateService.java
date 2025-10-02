@@ -3,6 +3,7 @@ package com.lokoko.domain.user.application.service;
 import com.lokoko.domain.campaign.application.service.CampaignGetService;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
+import com.lokoko.domain.scheduler.application.service.CampaignEventScheduler;
 import com.lokoko.domain.user.exception.CampaignApprovalNotAllowedException;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AdminCampaignUpdateService {
 
     private final CampaignGetService campaignGetService;
+    private final CampaignEventScheduler campaignEventScheduler;
 
     @Transactional
     public void approve(Long campaignId, Instant now) {
@@ -30,5 +32,8 @@ public class AdminCampaignUpdateService {
         }
 
         campaign.changeStatus(next);
+
+        // 관리자 승인 후 스케줄 이벤트 등록
+        campaignEventScheduler.scheduleCampaignEvents(campaign);
     }
 }

@@ -99,4 +99,28 @@ public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign
                                                      @Param("status") ParticipationStatus status);
 
     List<CreatorCampaign> findAllByCampaign(Campaign campaign);
+
+    /**
+     * 특정 캠페인의 특정 상태를 다른 상태로 일괄 변경
+     * @param campaignId 캠페인 ID
+     * @param fromStatus 변경 전 상태
+     * @param toStatus 변경 후 상태
+     * @return 업데이트된 레코드 수
+     */
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE CreatorCampaign cc SET cc.status = :toStatus WHERE cc.campaign.id = :campaignId AND cc.status = :fromStatus")
+    int bulkUpdateStatus(@Param("campaignId") Long campaignId,
+                         @Param("fromStatus") ParticipationStatus fromStatus,
+                         @Param("toStatus") ParticipationStatus toStatus);
+
+    /**
+     * 특정 ID 목록의 크리에이터 캠페인 상태를 일괄 변경
+     * @param ids 크리에이터 캠페인 ID 목록
+     * @param toStatus 변경 후 상태
+     * @return 업데이트된 레코드 수
+     */
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE CreatorCampaign cc SET cc.status = :toStatus WHERE cc.id IN :ids")
+    int bulkUpdateStatusByIds(@Param("ids") List<Long> ids,
+                              @Param("toStatus") ParticipationStatus toStatus);
 }
