@@ -15,6 +15,7 @@ import com.lokoko.domain.campaignReview.application.service.CampaignReviewSaveSe
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewStatusManager;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewUpdateService;
 import com.lokoko.domain.campaignReview.application.service.CreatorCampaignUpdateService;
+import com.lokoko.domain.media.socialclip.application.service.SocialClipSaveService;
 import com.lokoko.domain.campaignReview.application.utils.CampaignReviewValidationUtil;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
@@ -47,6 +48,7 @@ public class CampaignReviewUsecase {
     private final CampaignReviewSaveService campaignReviewSaveService;
     private final CreatorCampaignUpdateService creatorCampaignUpdateService;
     private final CampaignReviewUpdateService campaignReviewUpdateService;
+    private final SocialClipSaveService socialClipSaveService;
 
     private final CampaignReviewStatusManager campaignReviewStatusManager;
 
@@ -154,6 +156,9 @@ public class CampaignReviewUsecase {
         CampaignReview savedA = campaignReviewSaveService.saveReview(secondA);
         campaignReviewSaveService.saveMedia(savedA, request.firstMediaUrls());
 
+        // 2차 리뷰 업로드 시 SocialClip 생성 (성과 지표 0으로 초기화)
+        socialClipSaveService.createForSecondReview(savedA);
+
         // B(옵션)
         if (typeB != null) {
             campaignReviewGetService.getFirstOrThrow(participation.getId(), typeB);
@@ -161,6 +166,9 @@ public class CampaignReviewUsecase {
                     participation, typeB, request.secondCaptionWithHashtags(), request.secondPostUrl());
             CampaignReview savedB = campaignReviewSaveService.saveReview(secondB);
             campaignReviewSaveService.saveMedia(savedB, request.secondMediaUrls());
+
+            // 2차 리뷰 업로드 시 SocialClip 생성 (성과 지표 0으로 초기화)
+            socialClipSaveService.createForSecondReview(savedB);
         }
 
         creatorCampaignUpdateService.refreshParticipationStatus(participation.getId());

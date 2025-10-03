@@ -11,6 +11,7 @@ import com.lokoko.domain.brand.api.dto.response.BrandProfileAndStatisticsRespons
 import com.lokoko.domain.brand.api.dto.response.BrandProfileImageResponse;
 import com.lokoko.domain.brand.api.dto.response.CampaignApplicantListResponse;
 import com.lokoko.domain.brand.api.dto.response.CreatorApprovedResponse;
+import com.lokoko.domain.brand.api.dto.response.CreatorPerformanceResponse;
 import com.lokoko.domain.brand.api.message.ResponseMessage;
 import com.lokoko.domain.brand.application.usecase.BrandUsecase;
 import com.lokoko.domain.campaign.api.dto.request.CampaignDraftRequest;
@@ -292,5 +293,19 @@ public class BrandController {
     ) {
         BrandDashboardCampaignListResponse response = campaignGetService.getBrandDashboardCampaigns(brandId, page, size);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_DASHBOARD_GET_SUCCESS.getMessage(), response);
+    }
+
+    @Operation(summary = "브랜드 컨텐츠 확인 - 캠페인별 크리에이터 성과 조회")
+    @GetMapping("/my/campaigns/{campaignId}/performances")
+    public ApiResponse<CreatorPerformanceResponse> getCreatorPerformances(
+            @Parameter(hidden = true) @CurrentUser Long brandId,
+            @PathVariable Long campaignId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        CreatorPerformanceResponse response = brandUsecase.getCreatorPerformances(brandId, campaignId, page, size);
+
+        return ApiResponse.success(HttpStatus.OK,
+                ResponseMessage.CREATOR_PERFORMANCE_GET_SUCCESS.getMessage(), response);
     }
 }

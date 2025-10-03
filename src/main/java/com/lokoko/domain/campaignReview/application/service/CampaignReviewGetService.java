@@ -169,4 +169,11 @@ public class CampaignReviewGetService {
         return campaignReviewRepository.findTopByCreatorCampaignIdAndReviewRoundAndContentTypeOrderByIdAsc(
                 creatorCampaignId, reviewRound, contentType);
     }
+
+    /**
+     * 특정 CreatorCampaign의 모든 리뷰 조회
+     */
+    public List<CampaignReview> findAllByCreatorCampaignId(Long creatorCampaignId) {
+        return campaignReviewRepository.findAllByCreatorCampaignId(creatorCampaignId);
+    }
 }

@@ -1,5 +1,6 @@
 package com.lokoko.domain.brand.api.dto.response;
 
+import com.lokoko.domain.creator.api.dto.response.CreatorInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.Instant;
@@ -22,15 +23,6 @@ public record CampaignApplicantResponse(
         @Schema(requiredMode = REQUIRED, description = "승인 상태", example = "PENDING")
         String approveStatus
 ) {
-    public record CreatorInfo(
-            @Schema(requiredMode = REQUIRED, description = "크리에이터 풀네임", example = "James Rodriguez")
-            String creatorFullName,
-            @Schema(requiredMode = REQUIRED, description = "크리에이터 닉네임", example = "echandler")
-            String creatorNickName,
-            @Schema(requiredMode = REQUIRED, description = "크리에이터 프로필 이미지")
-            String creatorProfileImageUrl
-    ) {}
-
     public record FollowerCount(
             @Schema(requiredMode = REQUIRED, description = "인스타그램 팔로워 수", example = "3859")
             Integer instagramFollower,
