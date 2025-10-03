@@ -25,7 +25,7 @@ public class CreatorMapper {
                         .gender(creator.getGender())
                         .birthDate(creator.getBirthDate())
                         .email(creator.getUser().getEmail())
-                        .creatorLevel(creator.getCreatorType().name())
+                        .creatorLevel(creator.getCreatorType() != null ? creator.getCreatorType().name() : null)
                         .build())
                 .creatorContactInfo(CreatorContactInfo.builder()
                         .email(creator.getUser().getEmail())

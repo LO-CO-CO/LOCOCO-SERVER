@@ -177,7 +177,7 @@ public class CreatorCampaignMapper {
                 .gender(creator.getGender())
                 .birthDate(creator.getBirthDate())
                 .email(creator.getUser() != null ? creator.getUser().getEmail() : null)
-                .creatorLevel(creator.getCreatorType().name())
+                .creatorLevel(creator.getCreatorType() != null ? creator.getCreatorType().name() : null)
                 .build();
     }
 }
