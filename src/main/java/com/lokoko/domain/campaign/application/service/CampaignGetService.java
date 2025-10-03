@@ -74,12 +74,15 @@ public class CampaignGetService {
             if (currentUserRole.equals(Role.CREATOR.name())) {
 
                 Creator currentCreator = currentUser.getCreator();
-                if (currentCreator.getCreatorStatus() == CreatorStatus.NOT_APPROVED){
-                    creatorRoleInfo = CreatorStatus.NOT_APPROVED.name();
-                }
+
                 if (currentCreator.getCreatorType() != null){
                     creatorRoleInfo = currentCreator.getCreatorType().name();
                 }
+
+                if (currentCreator.getCreatorStatus() == CreatorStatus.NOT_APPROVED){
+                    creatorRoleInfo = CreatorStatus.NOT_APPROVED.name();
+                }
+
             }
         }
 
