@@ -46,7 +46,7 @@ public record CampaignBasicResponse(
         Instant reviewSubmissionDeadline,
 
         @Schema(requiredMode = REQUIRED, description = "모집 인원 수 ", example = "20")
-        int recruitmentNumber,
+        Integer recruitmentNumber,
 
         @Schema(requiredMode = REQUIRED, description = "캠페인 참여 보상 리스트")
         List<String> participationRewards,
