@@ -82,9 +82,9 @@ public class Campaign extends BaseEntity {
 
     private Integer recruitmentNumber; // 모집 인원
 
-    private Integer applicantNumber; // 지원 인원
+    private int applicantNumber; // 지원 인원
 
-    private Integer approvedNumber; // 승인 인원
+    private int approvedNumber; // 승인 인원
 
     /**
      * 크리에이터 참여 보상 목록
@@ -133,14 +133,14 @@ public class Campaign extends BaseEntity {
      * 캠페인 지원자 수 증가 메소드
      */
     public void increaseApplicant() {
-        this.applicantNumber = (this.applicantNumber != null ? this.applicantNumber : 0) + 1;
+        this.applicantNumber += 1;
     }
 
     /**
      * 승인 인원 수 증가 메소드
      */
     public void increaseApprovedNumber(int toUpdateCount) {
-        this.approvedNumber = (this.approvedNumber != null ? this.approvedNumber : 0) + toUpdateCount;
+        this.approvedNumber +=1 ;
     }
 
     /**
