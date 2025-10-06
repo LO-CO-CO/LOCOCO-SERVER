@@ -140,7 +140,7 @@ public class Campaign extends BaseEntity {
      * 승인 인원 수 증가 메소드
      */
     public void increaseApprovedNumber(int toUpdateCount) {
-        this.approvedNumber +=1 ;
+        this.approvedNumber += toUpdateCount;
     }
 
     /**
