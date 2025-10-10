@@ -165,6 +165,25 @@ public class CampaignGetService {
         return CampaignBasicResponse.of(draftCampaign, thumbnailImages, detailImages);
     }
 
+    /**
+     * 브랜드 마이페이지 승인대기중 캠페인 조회
+     */
+    public CampaignBasicResponse getWaitingApprovalCampaign(Long brandId, Long campaignId) {
+
+        Campaign waitingApprovalCampaign = campaignRepository.findWaitingApprovalCampaignById(campaignId, CampaignStatus.WAITING_APPROVAL)
+                .orElseThrow(CampaignNotFoundException::new);
+
+        if (!waitingApprovalCampaign.getBrand().getId().equals(brandId)){
+            throw new NotCampaignOwnershipException();
+        }
+        initializeElementCollections(waitingApprovalCampaign);
+
+        List<CampaignImageResponse> thumbnailImages = campaignImageRepository.findThumbnailImagesByCampaignId(campaignId);
+        List<CampaignImageResponse> detailImages = campaignImageRepository.findDetailImagesByCampaignId(campaignId);
+
+        return CampaignBasicResponse.of(waitingApprovalCampaign, thumbnailImages, detailImages);
+    }
+
     public BrandMyCampaignInfoListResponse getSimpleCampaignInfos(Long brandId) {
         return campaignRepository.findSimpleCampaignInfoByBrandId(brandId);
     }
@@ -201,5 +220,6 @@ public class CampaignGetService {
     public BrandDashboardCampaignListResponse getBrandDashboardCampaigns(Long brandId, int page, int size) {
         return campaignRepository.findBrandDashboardCampaigns(brandId, PageRequest.of(page, size));
     }
+
 
 }
