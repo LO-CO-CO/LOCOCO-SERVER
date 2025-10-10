@@ -204,6 +204,17 @@ public class BrandController {
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.DRAFT_CAMPAIGN_GET_SUCCESS.getMessage(), response);
     }
 
+    @Operation(summary = "브랜드 마이페이지 - 승인 대기중 캠페인 조회")
+    @GetMapping("/my/campaigns/waiting-approval/{campaignId}")
+    public ApiResponse<CampaignBasicResponse> getWaitingApprovalCampaign(
+            @Parameter(hidden = true) @CurrentUser Long brandId,
+            @PathVariable Long campaignId) {
+
+        CampaignBasicResponse response = campaignGetService.getWaitingApprovalCampaign(brandId, campaignId);
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.WAITING_APPROVAL_CAMPAIGN_GET_SUCCESS.getMessage(), response);
+    }
+
     @Operation(summary = "캠페인 지원자 확인 뷰 - 브랜드 캠페인 목록 간단 조회")
     @GetMapping("/my/campaigns/infos")
     public ApiResponse<BrandMyCampaignInfoListResponse> getSimpleCampaignInfos(
