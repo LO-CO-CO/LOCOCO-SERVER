@@ -32,6 +32,10 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long>, Campa
     @Query("SELECT c FROM Campaign c WHERE c.id = :id AND c.campaignStatus = :status")
     Optional<Campaign> findDraftCampaignById(Long id, @Param("status") CampaignStatus status);
 
+    @EntityGraph(attributePaths = {"brand"})
+    @Query("SELECT c FROM Campaign c WHERE c.id = :id AND c.campaignStatus = :status")
+    Optional<Campaign> findWaitingApprovalCampaignById(Long id, @Param("status") CampaignStatus campaignStatus);
+
     @Query("SELECT count(c) FROM Campaign c " +
             "WHERE c.brand.id = :brandId " +
             "AND c.campaignStatus NOT IN ('DRAFT', 'WAITING_APPROVAL') " +
@@ -47,4 +51,6 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long>, Campa
     Integer countCompletedCampaignsById(@Param("brandId") Long brandId, @Param("now") Instant now);
 
     List<Campaign> findAllByBrandAndCampaignStatusOrderByTitleAsc(Brand brand, CampaignStatus status);
+
+
 }
