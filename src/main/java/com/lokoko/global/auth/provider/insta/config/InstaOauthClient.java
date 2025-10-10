@@ -120,12 +120,14 @@ public class InstaOauthClient {
      */
     public InstagramBusinessAccountDto getInstagramBusinessAccount(String pageId, String pageAccessToken) {
         try {
-            String fields = URLEncoder.encode("instagram_business_account{id,username}", StandardCharsets.UTF_8);
-
             InstagramBusinessAccountDto dto = instagramWebClient.get()
-                    .uri("https://graph.facebook.com/v23.0/" + pageId
-                            + "?" + InstagramConstants.PARAM_FIELDS + "=" + fields
-                            + "&" + InstagramConstants.PARAM_ACCESS_TOKEN + "=" + pageAccessToken)
+                    .uri(uriBuilder -> uriBuilder
+                            .scheme("https")
+                            .host("graph.facebook.com")
+                            .path("/v23.0/{pageId}")
+                            .queryParam("fields", "instagram_business_account{id,username}")
+                            .queryParam("access_token", pageAccessToken)
+                            .build(pageId))
                     .retrieve()
                     .bodyToMono(InstagramBusinessAccountDto.class)
                     .block();
