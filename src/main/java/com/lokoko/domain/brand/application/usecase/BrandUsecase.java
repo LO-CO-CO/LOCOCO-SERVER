@@ -173,14 +173,19 @@ public class BrandUsecase {
             throw new NotCampaignOwnershipException();
         }
 
-        // 해당 캠페인에 참여한 승인된 CreatorCampaign만 조회 (REJECTED 제외)
+        // 해당 캠페인에 참여한 승인된 CreatorCampaign만 조회 (REJECTED 제외), 지원 순서대로 정렬
         List<CreatorCampaign> creatorCampaigns = creatorCampaignGetService.findAllByCampaign(campaign).stream()
                 .filter(cc -> cc.getStatus() != ParticipationStatus.REJECTED)
+                .sorted(Comparator.comparing(CreatorCampaign::getAppliedAt))
                 .toList();
 
-        // 크리에이터별로 그룹화하여 리뷰 정보 구성
+        // 크리에이터별로 그룹화하여 리뷰 정보 구성 (지원 순서 유지)
         List<CreatorPerformanceResponse.CreatorReviewPerformance> allCreatorPerformances = creatorCampaigns.stream()
-                .collect(Collectors.groupingBy(CreatorCampaign::getCreator))
+                .collect(Collectors.groupingBy(
+                        CreatorCampaign::getCreator,
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ))
                 .entrySet().stream()
                 .map(entry -> {
                     Creator creator = entry.getKey();
