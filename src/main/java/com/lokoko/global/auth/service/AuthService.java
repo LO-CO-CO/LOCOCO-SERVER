@@ -389,59 +389,5 @@ public class AuthService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public AfterLoginUserNameResponse getUserName(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(UserNotFoundException::new);
 
-        String displayName;
-        Role role = user.getRole();
-
-        switch (role) {
-            case CUSTOMER:
-                Customer customer = customerRepository.findById(userId).orElse(null);
-                if (customer != null && customer.getCustomerName() != null) {
-                    displayName = customer.getCustomerName();
-                } else {
-                    displayName = user.getFirstName() + " " + user.getLastName();
-                }
-                break;
-
-            case CREATOR:
-                Creator creator = creatorRepository.findById(userId)
-                        .orElseThrow(CreatorNotFoundException::new);
-
-                // Creator 필수 필드가 채워지지 않은 경우 (INFO_REQUIRED)
-                if (creator.getCreatorName() == null) {
-                    throw new UserNotCompletedSignUpException();
-                }
-
-                // 1개 이상의 SNS가 연동되지 않은 상태 (SNS_REQUIRED)
-                if (creator.getInstagramUserId() == null && creator.getTikTokUserId() == null) {
-                    throw new UserNotCompletedSignUpException();
-                }
-
-                // LOGIN 상태 검증 완료
-                displayName = creator.getCreatorName();
-                break;
-
-            case BRAND:
-                Brand brand = brandRepository.findById(userId)
-                        .orElseThrow(BrandNotFoundException::new);
-
-                if (brand.getBrandName() == null) {
-                    throw new UserNotCompletedSignUpException();
-                }
-                displayName = brand.getBrandName();
-                break;
-
-            case PENDING:
-                throw new UserNotCompletedSignUpException();
-
-            default:
-                throw new InvalidRoleException();
-        }
-
-        return new AfterLoginUserNameResponse(displayName, role);
-    }
 }
