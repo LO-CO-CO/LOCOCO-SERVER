@@ -102,15 +102,6 @@ public class AuthController {
         return ApiResponse.success(HttpStatus.OK, ROLE_ASSIGNED_SUCCESS.getMessage(), roleResponse);
     }
 
-    @GetMapping("/name")
-    @Operation(summary = "로그인한 사용자의 이름을 표시하는 API입니다.")
-    public ApiResponse<AfterLoginUserNameResponse> getUserDisplayName(
-            @Parameter(hidden = true) @CurrentUser Long userId) {
-
-        AfterLoginUserNameResponse response = authService.getUserName(userId);
-        return ApiResponse.success(HttpStatus.OK, GET_LOGIN_USER_ID_SUCCESS.getMessage(), response);
-    }
-
     /**
      * Todo: 테스트용으로 JWT 토큰을 발급하고, 쿠키와 헤더에 저장하는 엔드포인트, 추후 제거 예정
      */
