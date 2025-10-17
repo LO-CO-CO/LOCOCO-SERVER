@@ -29,7 +29,9 @@ public enum ResponseMessage {
     DRAFT_CAMPAIGN_GET_SUCCESS("임시저장 상태의 캠페인 조회에 성공했습니다."),
 
     BRAND_DASHBOARD_GET_SUCCESS("브랜드 대시보드 캠페인 리스트 조회 성공했습니다."),
-    CREATOR_PERFORMANCE_GET_SUCCESS("캠페인 크리에이터 성과 리스트 조회에 성공했습니다.");
+    CREATOR_PERFORMANCE_GET_SUCCESS("캠페인 크리에이터 성과 리스트 조회에 성공했습니다."),
+
+    WAITING_APPROVAL_CAMPAIGN_GET_SUCCESS("브랜드 마이페이지 승인 대기중 캠페인 조회에 성공했습니다.");
 
     private final String message;
 }
