@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Hidden
 @Tag(name = "ADMIN")
 @RestController
 @RequestMapping("/api/admin")
@@ -25,6 +24,7 @@ public class AdminController {
 
     private final AdminUsecase adminUsecase;
 
+    @Hidden
     @Operation(summary = "어드민 리뷰 삭제")
     @DeleteMapping("/reviews/{reviewId}")
     public ApiResponse<Void> deleteReviewByAdmin(@Parameter(hidden = true) @CurrentUser Long userId,
@@ -41,6 +41,7 @@ public class AdminController {
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_CAMPAIGN_APPROVAL_SUCCESS.getMessage());
     }
 
+    @Hidden
     @Operation(summary = "어드민 크리에이터 회원가입 승인")
     @PostMapping("/creators/{userId}/registration/approval")
     public ApiResponse<Void> approveCreator(@Parameter(hidden = true) @CurrentUser Long adminUserId,
