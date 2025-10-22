@@ -60,7 +60,7 @@ public class CreatorCampaignRepositoryImpl implements CreatorCampaignRepositoryC
                                 user.profileImageUrl
                         ),
                         Projections.constructor(CampaignApplicantResponse.FollowerCount.class,
-l                                creatorSocialStats.instagramFollower.coalesce(0),
+                              creatorSocialStats.instagramFollower.coalesce(0),
                                 creatorSocialStats.tiktokFollower.coalesce(0)
                         ),
                         JPAExpressions
