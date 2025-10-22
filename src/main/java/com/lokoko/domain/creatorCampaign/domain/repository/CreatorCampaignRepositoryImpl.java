@@ -60,8 +60,8 @@ public class CreatorCampaignRepositoryImpl implements CreatorCampaignRepositoryC
                                 user.profileImageUrl
                         ),
                         Projections.constructor(CampaignApplicantResponse.FollowerCount.class,
-                                creatorSocialStats.instagramFollower,
-                                creatorSocialStats.tiktokFollower
+l                                creatorSocialStats.instagramFollower.coalesce(0),
+                                creatorSocialStats.tiktokFollower.coalesce(0)
                         ),
                         JPAExpressions
                                 .select(subCreatorCampaign.count().intValue())
@@ -73,7 +73,7 @@ public class CreatorCampaignRepositoryImpl implements CreatorCampaignRepositoryC
                 .from(creatorCampaign)
                 .innerJoin(creatorCampaign.creator, creator)
                 .innerJoin(creator.user, user)
-                .innerJoin(creatorSocialStats).on(creatorSocialStats.creator.id.eq(creator.id))
+                .leftJoin(creatorSocialStats).on(creatorSocialStats.creator.id.eq(creator.id))
                 .where(
                         creatorCampaign.campaign.id.eq(campaignId),
                         creatorCampaign.campaign.brand.id.eq(brandId),
