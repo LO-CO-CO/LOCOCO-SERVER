@@ -139,4 +139,11 @@ public class CampaignReview extends BaseEntity {
     public void markNoteAsViewed() {
         this.noteViewed = true;
     }
+
+    /**
+     * 베타 기능: 1차 리뷰에 포스트 URL 첨부
+     */
+    public void attachPostUrl(String postUrl) {
+        this.postUrl = postUrl;
+    }
 }

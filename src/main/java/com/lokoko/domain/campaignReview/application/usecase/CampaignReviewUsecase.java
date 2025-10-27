@@ -10,6 +10,7 @@ import com.lokoko.domain.campaignReview.api.dto.request.SecondReviewUploadReques
 import com.lokoko.domain.campaignReview.api.dto.response.ReviewUploadResponse;
 import com.lokoko.domain.campaignReview.api.dto.response.CompletedReviewResponse;
 import com.lokoko.domain.campaignReview.application.mapper.CampaignReviewMapper;
+import com.lokoko.global.config.BetaFeatureConfig;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewGetService;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewSaveService;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewStatusManager;
@@ -31,6 +32,7 @@ import com.lokoko.domain.media.application.utils.MediaValidationUtil;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -51,6 +53,7 @@ public class CampaignReviewUsecase {
     private final SocialClipSaveService socialClipSaveService;
 
     private final CampaignReviewStatusManager campaignReviewStatusManager;
+    private final BetaFeatureConfig betaFeatureConfig;
 
     private final CampaignReviewMapper campaignReviewMapper;
     private final CampaignMapper campaignMapper;
@@ -91,16 +94,28 @@ public class CampaignReviewUsecase {
                 (typeB != null) ? request.secondMediaUrls() : null
         );
 
-        // 저장 A
-        CampaignReview firstA = campaignReviewMapper.toFirstReview(
-                participation, typeA, request.firstCaptionWithHashtags());
+        // 저장 A (베타 모드일 경우 postUrl 포함)
+        CampaignReview firstA;
+        if (betaFeatureConfig.isFirstReviewUrlEnabled() && request.firstPostUrl() != null) {
+            firstA = campaignReviewMapper.toFirstReview(
+                    participation, typeA, request.firstCaptionWithHashtags(), request.firstPostUrl());
+        } else {
+            firstA = campaignReviewMapper.toFirstReview(
+                    participation, typeA, request.firstCaptionWithHashtags());
+        }
         CampaignReview savedA = campaignReviewSaveService.saveReview(firstA);
         campaignReviewSaveService.saveMedia(savedA, request.firstMediaUrls());
 
         // 저장 B(옵션)
         if (typeB != null) {
-            CampaignReview firstB = campaignReviewMapper.toFirstReview(
-                    participation, typeB, request.secondCaptionWithHashtags());
+            CampaignReview firstB;
+            if (betaFeatureConfig.isFirstReviewUrlEnabled() && request.secondPostUrl() != null) {
+                firstB = campaignReviewMapper.toFirstReview(
+                        participation, typeB, request.secondCaptionWithHashtags(), request.secondPostUrl());
+            } else {
+                firstB = campaignReviewMapper.toFirstReview(
+                        participation, typeB, request.secondCaptionWithHashtags());
+            }
             CampaignReview savedB = campaignReviewSaveService.saveReview(firstB);
             campaignReviewSaveService.saveMedia(savedB, request.secondMediaUrls());
         }
@@ -404,6 +419,37 @@ public class CampaignReviewUsecase {
     }
 
     /**
+     * 완료된 1차 리뷰의 컨텐츠를 생성하는 메서드 (베타 기능)
+     */
+    private List<CompletedReviewResponse.CompletedReviewContent> createCompletedFirstReviewContents(CreatorCampaign creatorCampaign) {
+        // 실제 업로드된 1차 리뷰의 컨텐츠 타입들
+        List<ContentType> existingFirstTypes = campaignReviewGetService
+                .findContentTypesByRound(creatorCampaign.getId(), ReviewRound.FIRST);
+
+        return existingFirstTypes.stream()
+                .map(contentType -> {
+                    // 1차 리뷰 정보 조회
+                    Optional<CampaignReview> firstReview = campaignReviewGetService
+                            .findByContentType(creatorCampaign.getId(), ReviewRound.FIRST, contentType);
+
+                    if (firstReview.isPresent()) {
+                        CampaignReview review = firstReview.get();
+                        String captionWithHashtags = review.getCaptionWithHashtags();
+                        List<String> mediaUrls = campaignReviewGetService.getOrderedMediaUrls(review);
+
+                        return CompletedReviewResponse.CompletedReviewContent.builder()
+                                .contentType(contentType)
+                                .captionWithHashtags(captionWithHashtags)
+                                .mediaUrls(mediaUrls)
+                                .build();
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    /**
      * 조회 시점에 브랜드 노트가 있는 모든 1차 리뷰의 noteViewed를 true로 업데이트
      */
     private void markBrandNotesAsViewed(CreatorCampaign creatorCampaign) {
@@ -428,32 +474,34 @@ public class CampaignReviewUsecase {
     }
 
     /**
-     * 완료된 캠페인의 최종 리뷰 결과 조회 (2차 리뷰)
+     * 완료된 캠페인의 최종 리뷰 결과 조회
+     * 베타 모드: 1차 리뷰 조회
+     * 정식 모드: 2차 리뷰 조회 (2차가 없으면 1차 리뷰 조회)
      */
     @Transactional(readOnly = true)
     public CompletedReviewResponse getCompletedReviews(Long userId, Long campaignId) {
         Creator creator = creatorGetService.findByUserId(userId);
+        Campaign campaign = campaignGetService.findByCampaignId(campaignId);
         CreatorCampaign creatorCampaign =
-                creatorCampaignGetService.getByCampaignAndCreatorId(
-                        campaignGetService.findByCampaignId(campaignId), creator.getId());
+                creatorCampaignGetService.getByCampaignAndCreatorId(campaign, creator.getId());
 
         // COMPLETED 상태만 허용
         if (creatorCampaign.getStatus() != ParticipationStatus.COMPLETED) {
             throw new CampaignReviewAbleNotFoundException();
         }
 
-        // 실제 2차 리뷰 존재 여부 확인
-        List<ContentType> secondReviewTypes = campaignReviewGetService
-                .findContentTypesByRound(creatorCampaign.getId(), ReviewRound.SECOND);
+        List<CompletedReviewResponse.CompletedReviewContent> reviewContents;
 
-        // 완료된 2차 리뷰 조회
-        List<CompletedReviewResponse.CompletedReviewContent> reviewContents =
-                createCompletedReviewContents(creatorCampaign);
-
+        if (betaFeatureConfig.isSimplifiedReviewFlow()) {
+            // 베타 모드: 1차 리뷰 조회
+            reviewContents = createCompletedFirstReviewContents(creatorCampaign);
+        } else {
+            reviewContents = createCompletedReviewContents(creatorCampaign);
+        }
 
         return CompletedReviewResponse.builder()
                 .campaignId(campaignId)
-                .campaignName(creatorCampaign.getCampaign().getTitle())
+                .campaignName(campaign.getTitle())
                 .reviewContents(reviewContents)
                 .build();
     }
