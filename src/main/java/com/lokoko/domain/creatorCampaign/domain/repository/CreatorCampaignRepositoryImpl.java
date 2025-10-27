@@ -24,13 +24,13 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class CreatorCampaignRepositoryImpl implements CreatorCampaignRepositoryCustom{
+public class CreatorCampaignRepositoryImpl implements CreatorCampaignRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
     private final QCreatorCampaign creatorCampaign = QCreatorCampaign.creatorCampaign;
     private final QCreator creator = QCreator.creator;
     private final QUser user = QUser.user;
-    private final QCreatorSocialStats creatorSocialStats =  QCreatorSocialStats.creatorSocialStats;
+    private final QCreatorSocialStats creatorSocialStats = QCreatorSocialStats.creatorSocialStats;
     private final QCreatorCampaign subCreatorCampaign = new QCreatorCampaign("subCreatorCampaign");
 
 
@@ -39,11 +39,11 @@ public class CreatorCampaignRepositoryImpl implements CreatorCampaignRepositoryC
 
         StringExpression simpleStatus = new CaseBuilder()
                 .when(creatorCampaign.status.eq(ParticipationStatus.PENDING))
-                    .then("PENDING")
+                .then("PENDING")
                 .when(creatorCampaign.status.eq(ParticipationStatus.REJECTED))
-                    .then("REJECTED")
+                .then("REJECTED")
                 .when(creatorCampaign.status.in(ParticipationStatus.getActiveStatuses()))
-                    .then("APPROVED")
+                .then("APPROVED")
                 .otherwise("PENDING");
 
         // status 파라미터에 따른 필터링 조건 생성
@@ -57,10 +57,12 @@ public class CreatorCampaignRepositoryImpl implements CreatorCampaignRepositoryC
                                 creator.id,
                                 user.name,
                                 creator.creatorName,
-                                user.profileImageUrl
+                                user.profileImageUrl,
+                                creator.instagramUserId,
+                                creator.tikTokUserId
                         ),
                         Projections.constructor(CampaignApplicantResponse.FollowerCount.class,
-                              creatorSocialStats.instagramFollower.coalesce(0),
+                                creatorSocialStats.instagramFollower.coalesce(0),
                                 creatorSocialStats.tiktokFollower.coalesce(0)
                         ),
                         JPAExpressions
@@ -111,6 +113,7 @@ public class CreatorCampaignRepositoryImpl implements CreatorCampaignRepositoryC
 
     /**
      * ApplicantStatus에 따른 필터링 조건 생성
+     *
      * @param status null이면 필터링 없음, PENDING/APPROVED/REJECTED에 따라 다른 ParticipationStatus 필터링
      */
     private BooleanExpression createStatusCondition(ApplicantStatus status) {
@@ -121,7 +124,8 @@ public class CreatorCampaignRepositoryImpl implements CreatorCampaignRepositoryC
         return switch (status) {
             case PENDING -> creatorCampaign.status.eq(ParticipationStatus.PENDING);
             case REJECTED -> creatorCampaign.status.eq(ParticipationStatus.REJECTED);
-            case APPROVED -> creatorCampaign.status.in(ParticipationStatus.getActiveStatuses()); // APPROVED, ACTIVE, COMPLETED
+            case APPROVED ->
+                    creatorCampaign.status.in(ParticipationStatus.getActiveStatuses()); // APPROVED, ACTIVE, COMPLETED
         };
     }
 }
