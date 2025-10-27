@@ -34,6 +34,12 @@ public record FirstReviewUploadRequest(
 
         @Schema(description = "두번째 1차 캡션+해시태그(선택)", example = "Hydrating mask review 💧 #hydration #mask #skincare")
         @Size(max = 2200)
-        String secondCaptionWithHashtags
+        String secondCaptionWithHashtags,
+
+        @Schema(description = "첫번째 포스트 URL (베타 기능, 선택)", example = "https://www.instagram.com/p/ABC123/")
+        String firstPostUrl,
+
+        @Schema(description = "두번째 포스트 URL (베타 기능, 선택)", example = "https://www.tiktok.com/@user/video/123456")
+        String secondPostUrl
 ) {
 }
