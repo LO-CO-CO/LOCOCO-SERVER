@@ -4,6 +4,7 @@ import com.lokoko.domain.campaignReview.application.service.CampaignReviewGetSer
 import com.lokoko.domain.creator.api.dto.request.CreatorInfoUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorMyPageUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorProfileImageRequest;
+import com.lokoko.domain.creator.api.dto.request.CreatorSnsLinkRequest;
 import com.lokoko.domain.creator.api.dto.response.CreatorAddressInfo;
 import com.lokoko.domain.creator.api.dto.response.CreatorInfoResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorMyCampaignListResponse;
@@ -25,12 +26,13 @@ import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.global.auth.entity.enums.OauthLoginStatus;
 import com.lokoko.global.auth.service.AuthService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -146,5 +148,25 @@ public class CreatorUsecase {
         }
 
         return new CreatorRegisterCompleteResponse(OauthLoginStatus.LOGIN);
+    }
+
+    @Transactional
+    public void updateCreatorSnsLink(Long userId, CreatorSnsLinkRequest request) {
+        User user = userGetService.findUserById(userId);
+
+        if (user.getRole() != Role.CREATOR) {
+            throw new NotCreatorRoleException();
+        }
+
+        Creator creator = creatorGetService.findByUserId(userId);
+
+        OauthLoginStatus currentStatus = authService.getCreatorStatus(user);
+
+        if (currentStatus == OauthLoginStatus.INFO_REQUIRED) {
+            throw new CreatorInfoNotCompletedException();
+        }
+
+        creatorUpdateService.updateSnsLink(creator, request);
+
     }
 }

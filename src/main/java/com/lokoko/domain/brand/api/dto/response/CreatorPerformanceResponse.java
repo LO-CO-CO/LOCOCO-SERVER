@@ -58,13 +58,13 @@ public record CreatorPerformanceResponse(
             @Schema(requiredMode = REQUIRED, description = "리뷰 상태", example = "FINAL_UPLOADED")
             ContentStatus reviewStatus,
 
-            @Schema(requiredMode = NOT_REQUIRED, description = "게시물 URL (2차 리뷰만)", example = "https://www.instagram.com/p/ABC123/")
+            @Schema(requiredMode = NOT_REQUIRED, description = "게시물 URL", example = "https://www.instagram.com/p/ABC123/")
             String postUrl,
 
-            @Schema(requiredMode = NOT_REQUIRED, description = "콘텐츠 정보 (2차 리뷰만)")
+            @Schema(requiredMode = NOT_REQUIRED, description = "콘텐츠 정보")
             ContentMetrics contents,
 
-            @Schema(requiredMode = NOT_REQUIRED, description = "업로드 시간 (2차 리뷰만)", example = "2024-01-15T10:30:00Z")
+            @Schema(requiredMode = NOT_REQUIRED, description = "업로드 시간", example = "2024-01-15T10:30:00Z")
             Instant uploadedAt
     ) {
     }

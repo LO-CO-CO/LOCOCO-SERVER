@@ -32,6 +32,7 @@ import com.lokoko.domain.media.socialclip.application.service.SocialClipGetServi
 import com.lokoko.domain.media.socialclip.domain.SocialClip;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.common.response.PageableResponse;
+import com.lokoko.global.config.BetaFeatureConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +54,7 @@ public class BrandUsecase {
     private final BrandUpdateService brandUpdateService;
 
     private final CampaignReviewStatusManager campaignReviewStatusManager;
+    private final BetaFeatureConfig betaFeatureConfig;
 
     private final CampaignMapper campaignMapper;
     private final CampaignReviewMapper campaignReviewMapper;
@@ -311,8 +313,9 @@ public class BrandUsecase {
         Long shareCount = null;
         Instant uploadedAt = null;
 
-        // 2차 리뷰(최종 업로드)인 경우에만 postUrl과 성과 지표 포함
+        // postUrl 처리 (베타: 1차 리뷰도 포함, 정식: 2차 리뷰만)
         if (review.getReviewRound() == ReviewRound.SECOND && review.getStatus() == ReviewStatus.RESUBMITTED) {
+            // 2차 리뷰의 경우 항상 postUrl 포함
             postUrl = review.getPostUrl();
 
             // SocialClip에서 성과 지표 조회
@@ -325,6 +328,14 @@ public class BrandUsecase {
                 shareCount = clip.getShares();
                 uploadedAt = clip.getUploadedAt();
             }
+        // 정식 릴리즈 시 제거
+        } else if (betaFeatureConfig.isFirstReviewUrlEnabled() &&
+                   review.getReviewRound() == ReviewRound.FIRST &&
+                   review.getPostUrl() != null) {
+           // 1차 리뷰에도 postUrl이 있으면 포함
+            postUrl = review.getPostUrl();
+            // LocalDateTime은 한국 시간(UTC+9)이므로 9시간을 빼서 UTC로 변환
+            uploadedAt = review.getCreatedAt().toInstant(java.time.ZoneOffset.ofHours(9));
         }
 
         CreatorPerformanceResponse.ContentMetrics contents = null;
@@ -352,10 +363,19 @@ public class BrandUsecase {
      * 리뷰 상태를 ContentStatus enum으로 변환
      * PENDING_REVISION: 브랜드 리뷰 대기중 또는 수정 요청 후 크리에이터 노트 미확인
      * REVISING: 브랜드가 수정 요청 + 크리에이터가 노트 확인
+     * FINAL_UPLOADED: 최종 업로드 완료 (베타: 1차 리뷰 완료, 정식: 2차 리뷰 완료)
      */
     private ContentStatus getReviewContentStatus(CampaignReview review) {
         ReviewStatus status = review.getStatus();
 
+        // 베타 모드에서 1차 리뷰 SUBMITTED 상태는 최종 완료로 처리 , 정식 릴리즈시 제거
+        if (betaFeatureConfig.isSimplifiedReviewFlow() &&
+            review.getReviewRound() == ReviewRound.FIRST &&
+            status == ReviewStatus.SUBMITTED) {
+            return ContentStatus.FINAL_UPLOADED;
+        }
+
+        // 정식 모드 또는 2차 리뷰 처리
         return switch (status) {
             case SUBMITTED -> ContentStatus.PENDING_REVISION;
             case REVISION_REQUESTED -> {
