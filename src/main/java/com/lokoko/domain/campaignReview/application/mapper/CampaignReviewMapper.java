@@ -34,6 +34,22 @@ public class CampaignReviewMapper {
         return review;
     }
 
+    /**
+     * 베타 기능: postUrl을 포함한 1차 리뷰 생성
+     */
+    public CampaignReview toFirstReview(CreatorCampaign creatorCampaign, ContentType contentType,
+                                        String captionWithHashtags, String postUrl) {
+        CampaignReview review = new CampaignReview();
+        review.bindToCreatorCampaign(creatorCampaign);
+        review.designateRound(ReviewRound.FIRST);
+        review.chooseContentType(contentType);
+        review.requestFirstReview(captionWithHashtags);
+        if (postUrl != null && !postUrl.isBlank()) {
+            review.attachPostUrl(postUrl);
+        }
+        return review;
+    }
+
     public CampaignReview toSecondReview(CreatorCampaign creatorCampaign, ContentType contentType,
                                          String captionWithHashtags, String postUrl) {
         CampaignReview review = new CampaignReview();
