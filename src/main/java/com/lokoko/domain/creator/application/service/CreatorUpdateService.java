@@ -5,8 +5,12 @@ import com.lokoko.domain.campaignReview.application.service.CreatorCampaignUpdat
 import com.lokoko.domain.creator.api.dto.request.CreatorInfoUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorMyPageUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorProfileImageRequest;
+import com.lokoko.domain.creator.api.dto.request.CreatorSnsLinkRequest;
 import com.lokoko.domain.creator.api.dto.response.CreatorProfileImageResponse;
 import com.lokoko.domain.creator.domain.entity.Creator;
+import com.lokoko.domain.creator.exception.CreatorInstaLinkInvalidException;
+import com.lokoko.domain.creator.exception.CreatorTiktokLinkInvalid;
+import com.lokoko.domain.creator.exception.SnsNotConnectedException;
 import com.lokoko.domain.creatorCampaign.application.service.CreatorCampaignGetService;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.media.application.service.S3Service;
@@ -145,5 +149,44 @@ public class CreatorUpdateService {
         String presignedUrl = s3Service.generatePresignedUrl(mediaType).presignedUrl();
 
         return new CreatorProfileImageResponse(presignedUrl);
+    }
+
+    public void updateSnsLink(Creator creator, CreatorSnsLinkRequest request) {
+        String insta = request.instaLink();
+        String tiktok = request.tiktokLink();
+
+        boolean hasInsta = insta != null && !insta.isBlank();
+        boolean hasTiktok = tiktok != null && !tiktok.isBlank();
+
+        // 둘 다 없는 경우
+        if (!hasInsta && !hasTiktok) {
+            throw new SnsNotConnectedException();
+        }
+
+        if (hasInsta) {
+            if (isValidInstagramLink(insta)) {
+                creator.connectInsta(insta);
+            } else {
+                throw new CreatorInstaLinkInvalidException();
+            }
+        }
+
+        if (hasTiktok) {
+            if (isValidTiktokLink(tiktok)) {
+                creator.connectTikTok(tiktok);
+            } else {
+                throw new CreatorTiktokLinkInvalid();
+            }
+        }
+    }
+
+    private boolean isValidInstagramLink(String url) {
+        return url.startsWith("https://www.instagram.com/")
+                || url.startsWith("https://instagram.com/");
+    }
+
+    private boolean isValidTiktokLink(String url) {
+        return url.startsWith("https://www.tiktok.com/@")
+                || url.startsWith("https://tiktok.com/@");
     }
 }

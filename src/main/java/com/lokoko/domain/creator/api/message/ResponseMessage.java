@@ -13,6 +13,7 @@ public enum ResponseMessage {
     CREATOR_GET_SNS_STATUS_SUCCESS("크리에이터 SNS 연결 상태를 성공적으로 불러왔습니다"),
     CREATOR_GET_INFO_REGISTER_SUCCESS("회원가입시에 입력한 필드를 성공적으로 불러왔습니다."),
     CREATOR_LOGIN_SUCCESS("크리에이터 최종 회원가입이 성공했습니다"),
+    CREATOR_SNS_LINK_UPDATE_SUCCESS("크리에이터 SNS 링크 기입에 성공했습니다."),
 
     // 마이페이지 관련
     PROFILE_FETCH_SUCCESS("크리에이터 마이페이지 조회를 성공했습니다."),

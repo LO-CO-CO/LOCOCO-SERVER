@@ -3,6 +3,7 @@ package com.lokoko.domain.creator.api;
 import com.lokoko.domain.creator.api.dto.request.CreatorInfoUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorMyPageUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorProfileImageRequest;
+import com.lokoko.domain.creator.api.dto.request.CreatorSnsLinkRequest;
 import com.lokoko.domain.creator.api.dto.response.CreatorAddressInfo;
 import com.lokoko.domain.creator.api.dto.response.CreatorInfoResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorMyCampaignListResponse;
@@ -118,6 +119,16 @@ public class CreatorController {
         CreatorSnsConnectedResponse response = creatorUsecase.getCreatorSnsStatus(userId);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_GET_SNS_STATUS_SUCCESS.getMessage(),
                 response);
+    }
+
+    @PatchMapping("/register/sns-link")
+    @Operation(summary = "크리에이터가 직접 SNS 링크를 입력하는 API입니다")
+    public ApiResponse<Void> updateCreatorSnsLink(
+            @Parameter(hidden = true) @CurrentUser Long userId,
+            @RequestBody CreatorSnsLinkRequest request
+    ) {
+        creatorUsecase.updateCreatorSnsLink(userId, request);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_SNS_LINK_UPDATE_SUCCESS.getMessage());
     }
 
     @GetMapping("/register/info")
