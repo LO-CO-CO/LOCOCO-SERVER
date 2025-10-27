@@ -9,7 +9,7 @@ import com.lokoko.domain.creator.api.dto.request.CreatorSnsLinkRequest;
 import com.lokoko.domain.creator.api.dto.response.CreatorProfileImageResponse;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creator.exception.CreatorInstaLinkInvalidException;
-import com.lokoko.domain.creator.exception.CreatorTiktokLinkInvalid;
+import com.lokoko.domain.creator.exception.CreatorTiktokLinkInvalidException;
 import com.lokoko.domain.creator.exception.SnsNotConnectedException;
 import com.lokoko.domain.creatorCampaign.application.service.CreatorCampaignGetService;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
@@ -152,11 +152,11 @@ public class CreatorUpdateService {
     }
 
     public void updateSnsLink(Creator creator, CreatorSnsLinkRequest request) {
-        String insta = request.instaLink();
-        String tiktok = request.tiktokLink();
+        String instaLink = request.instaLink();
+        String tiktokLink = request.tiktokLink();
 
-        boolean hasInsta = insta != null && !insta.isBlank();
-        boolean hasTiktok = tiktok != null && !tiktok.isBlank();
+        boolean hasInsta = instaLink != null && !instaLink.isBlank();
+        boolean hasTiktok = tiktokLink != null && !tiktokLink.isBlank();
 
         // 둘 다 없는 경우
         if (!hasInsta && !hasTiktok) {
@@ -164,18 +164,18 @@ public class CreatorUpdateService {
         }
 
         if (hasInsta) {
-            if (isValidInstagramLink(insta)) {
-                creator.connectInsta(insta);
+            if (isValidInstagramLink(instaLink)) {
+                creator.connectInsta(instaLink);
             } else {
                 throw new CreatorInstaLinkInvalidException();
             }
         }
 
         if (hasTiktok) {
-            if (isValidTiktokLink(tiktok)) {
-                creator.connectTikTok(tiktok);
+            if (isValidTiktokLink(tiktokLink)) {
+                creator.connectTikTok(tiktokLink);
             } else {
-                throw new CreatorTiktokLinkInvalid();
+                throw new CreatorTiktokLinkInvalidException();
             }
         }
     }
