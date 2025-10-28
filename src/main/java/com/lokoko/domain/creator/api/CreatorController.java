@@ -11,6 +11,7 @@ import com.lokoko.domain.creator.api.dto.response.CreatorMyPageResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorProfileImageResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorRegisterCompleteResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorSnsConnectedResponse;
+import com.lokoko.domain.creator.api.dto.response.CreatorSnsLinkResponse;
 import com.lokoko.domain.creator.api.message.ResponseMessage;
 import com.lokoko.domain.creator.application.service.CreatorUsecase;
 import com.lokoko.domain.creator.application.service.TikTokApiService;
@@ -123,12 +124,12 @@ public class CreatorController {
 
     @PatchMapping("/register/sns-link")
     @Operation(summary = "크리에이터가 직접 SNS 링크를 입력하는 API입니다")
-    public ApiResponse<Void> updateCreatorSnsLink(
+    public ApiResponse<CreatorSnsLinkResponse> updateCreatorSnsLink(
             @Parameter(hidden = true) @CurrentUser Long userId,
             @RequestBody CreatorSnsLinkRequest request
     ) {
-        creatorUsecase.updateCreatorSnsLink(userId, request);
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_SNS_LINK_UPDATE_SUCCESS.getMessage());
+        CreatorSnsLinkResponse response = creatorUsecase.updateCreatorSnsLink(userId, request);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_SNS_LINK_UPDATE_SUCCESS.getMessage(),response);
     }
 
     @GetMapping("/register/info")
