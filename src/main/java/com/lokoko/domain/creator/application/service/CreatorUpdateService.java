@@ -33,7 +33,6 @@ public class CreatorUpdateService {
 
     private final CreatorGetService creatorGetService;
     private final CreatorCampaignGetService creatorCampaignGetService;
-    private final CreatorSaveService creatorSaveService;
     private final CreatorCampaignUpdateService creatorCampaignUpdateService;
     private final UserService userService;
     private final S3Service s3Service;
@@ -186,8 +185,6 @@ public class CreatorUpdateService {
         if (creator.getCreatorStatus() != CreatorStatus.APPROVED) {
             creator.approve(Instant.now());
         }
-
-        creatorSaveService.save(creator);
     }
 
     private boolean isValidInstagramLink(String url) {
