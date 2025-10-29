@@ -13,6 +13,7 @@ import com.lokoko.domain.creator.api.dto.response.CreatorMyPageResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorProfileImageResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorRegisterCompleteResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorSnsConnectedResponse;
+import com.lokoko.domain.creator.api.dto.response.CreatorSnsLinkResponse;
 import com.lokoko.domain.creator.application.mapper.CreatorMapper;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creator.exception.CreatorInfoNotCompletedException;
@@ -151,7 +152,7 @@ public class CreatorUsecase {
     }
 
     @Transactional
-    public void updateCreatorSnsLink(Long userId, CreatorSnsLinkRequest request) {
+    public CreatorSnsLinkResponse updateCreatorSnsLink(Long userId, CreatorSnsLinkRequest request) {
         User user = userGetService.findUserById(userId);
 
         if (user.getRole() != Role.CREATOR) {
@@ -168,5 +169,6 @@ public class CreatorUsecase {
 
         creatorUpdateService.updateSnsLink(creator, request);
 
+        return creatorMapper.toSnsLinkResponse(creator);
     }
 }
