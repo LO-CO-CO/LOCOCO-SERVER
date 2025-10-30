@@ -8,6 +8,8 @@ import com.lokoko.domain.creator.api.dto.request.CreatorProfileImageRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorSnsLinkRequest;
 import com.lokoko.domain.creator.api.dto.response.CreatorProfileImageResponse;
 import com.lokoko.domain.creator.domain.entity.Creator;
+import com.lokoko.domain.creator.domain.entity.enums.CreatorStatus;
+import com.lokoko.domain.creator.domain.entity.enums.CreatorType;
 import com.lokoko.domain.creator.exception.CreatorInstaLinkInvalidException;
 import com.lokoko.domain.creator.exception.CreatorTiktokLinkInvalidException;
 import com.lokoko.domain.creator.exception.SnsNotConnectedException;
@@ -23,6 +25,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -30,7 +34,6 @@ public class CreatorUpdateService {
 
     private final CreatorGetService creatorGetService;
     private final CreatorCampaignGetService creatorCampaignGetService;
-
     private final CreatorCampaignUpdateService creatorCampaignUpdateService;
     private final UserService userService;
     private final S3Service s3Service;
@@ -177,6 +180,12 @@ public class CreatorUpdateService {
             } else {
                 throw new CreatorTiktokLinkInvalidException();
             }
+        }
+
+        // (일시적 코드) 크리에이터가 SNS 링크 기입을 성공적으로 마친 뒤 크리에이터 상태를 바로 APPROVED로 변경
+        if (creator.getCreatorStatus() != CreatorStatus.APPROVED) {
+            creator.approve(Instant.now());
+            creator.changeCreatorType(CreatorType.NORMAL);
         }
     }
 

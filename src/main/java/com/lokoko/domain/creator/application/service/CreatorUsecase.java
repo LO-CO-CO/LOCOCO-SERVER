@@ -5,14 +5,7 @@ import com.lokoko.domain.creator.api.dto.request.CreatorInfoUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorMyPageUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorProfileImageRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorSnsLinkRequest;
-import com.lokoko.domain.creator.api.dto.response.CreatorAddressInfo;
-import com.lokoko.domain.creator.api.dto.response.CreatorInfoResponse;
-import com.lokoko.domain.creator.api.dto.response.CreatorMyCampaignListResponse;
-import com.lokoko.domain.creator.api.dto.response.CreatorMyCampaignResponse;
-import com.lokoko.domain.creator.api.dto.response.CreatorMyPageResponse;
-import com.lokoko.domain.creator.api.dto.response.CreatorProfileImageResponse;
-import com.lokoko.domain.creator.api.dto.response.CreatorRegisterCompleteResponse;
-import com.lokoko.domain.creator.api.dto.response.CreatorSnsConnectedResponse;
+import com.lokoko.domain.creator.api.dto.response.*;
 import com.lokoko.domain.creator.application.mapper.CreatorMapper;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creator.exception.CreatorInfoNotCompletedException;
@@ -117,6 +110,12 @@ public class CreatorUsecase {
     }
 
     @Transactional(readOnly = true)
+    public CreatorSnsLinkResponse getCreatorSnsUrls(Long userId) {
+        Creator creator = creatorGetService.findByUserId(userId);
+        return creatorMapper.toSnsLinkResponse(creator);
+    }
+
+    @Transactional(readOnly = true)
     public CreatorInfoResponse getRegisterInfo(Long userId) {
         Creator creator = creatorGetService.findByUserId(userId);
         return creatorMapper.toRegisterInfoResponse(creator);
@@ -151,7 +150,7 @@ public class CreatorUsecase {
     }
 
     @Transactional
-    public void updateCreatorSnsLink(Long userId, CreatorSnsLinkRequest request) {
+    public CreatorSnsLinkResponse updateCreatorSnsLink(Long userId, CreatorSnsLinkRequest request) {
         User user = userGetService.findUserById(userId);
 
         if (user.getRole() != Role.CREATOR) {
@@ -168,5 +167,8 @@ public class CreatorUsecase {
 
         creatorUpdateService.updateSnsLink(creator, request);
 
+        return creatorMapper.toSnsLinkResponse(creator);
     }
+
+
 }

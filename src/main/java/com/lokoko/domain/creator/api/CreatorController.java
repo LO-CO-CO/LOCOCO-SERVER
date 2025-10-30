@@ -4,13 +4,7 @@ import com.lokoko.domain.creator.api.dto.request.CreatorInfoUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorMyPageUpdateRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorProfileImageRequest;
 import com.lokoko.domain.creator.api.dto.request.CreatorSnsLinkRequest;
-import com.lokoko.domain.creator.api.dto.response.CreatorAddressInfo;
-import com.lokoko.domain.creator.api.dto.response.CreatorInfoResponse;
-import com.lokoko.domain.creator.api.dto.response.CreatorMyCampaignListResponse;
-import com.lokoko.domain.creator.api.dto.response.CreatorMyPageResponse;
-import com.lokoko.domain.creator.api.dto.response.CreatorProfileImageResponse;
-import com.lokoko.domain.creator.api.dto.response.CreatorRegisterCompleteResponse;
-import com.lokoko.domain.creator.api.dto.response.CreatorSnsConnectedResponse;
+import com.lokoko.domain.creator.api.dto.response.*;
 import com.lokoko.domain.creator.api.message.ResponseMessage;
 import com.lokoko.domain.creator.application.service.CreatorUsecase;
 import com.lokoko.domain.creator.application.service.TikTokApiService;
@@ -121,14 +115,25 @@ public class CreatorController {
                 response);
     }
 
+    @GetMapping("/sns-link")
+    @Operation(summary = "크리에이터 SNS URL 을 조회하는 API입니다")
+    public ApiResponse<CreatorSnsLinkResponse> getCreatorSnsUrls(
+            @Parameter(hidden = true) @CurrentUser Long userId) {
+
+        CreatorSnsLinkResponse response = creatorUsecase.getCreatorSnsUrls(userId);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_SNS_URLS_GET_SUCCESS.getMessage(),
+                response);
+    }
+
+
     @PatchMapping("/register/sns-link")
     @Operation(summary = "크리에이터가 직접 SNS 링크를 입력하는 API입니다")
-    public ApiResponse<Void> updateCreatorSnsLink(
+    public ApiResponse<CreatorSnsLinkResponse> updateCreatorSnsLink(
             @Parameter(hidden = true) @CurrentUser Long userId,
             @RequestBody CreatorSnsLinkRequest request
     ) {
-        creatorUsecase.updateCreatorSnsLink(userId, request);
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_SNS_LINK_UPDATE_SUCCESS.getMessage());
+        CreatorSnsLinkResponse response = creatorUsecase.updateCreatorSnsLink(userId, request);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CREATOR_SNS_LINK_UPDATE_SUCCESS.getMessage(),response);
     }
 
     @GetMapping("/register/info")

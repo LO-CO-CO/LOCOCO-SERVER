@@ -1,12 +1,6 @@
 package com.lokoko.domain.creator.application.mapper;
 
-import com.lokoko.domain.creator.api.dto.response.CreatorAddressInfo;
-import com.lokoko.domain.creator.api.dto.response.CreatorBasicInfo;
-import com.lokoko.domain.creator.api.dto.response.CreatorContactInfo;
-import com.lokoko.domain.creator.api.dto.response.CreatorFaceInfo;
-import com.lokoko.domain.creator.api.dto.response.CreatorInfoResponse;
-import com.lokoko.domain.creator.api.dto.response.CreatorMyPageResponse;
-import com.lokoko.domain.creator.api.dto.response.CreatorSnsConnectedResponse;
+import com.lokoko.domain.creator.api.dto.response.*;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import org.springframework.stereotype.Component;
 
@@ -89,5 +83,13 @@ public class CreatorMapper {
                 .addressLine2(creator.getAddressLine2())
                 .postalCode(creator.getPostalCode())
                 .build();
+    }
+
+
+    public CreatorSnsLinkResponse toSnsLinkResponse(Creator creator) {
+        return new CreatorSnsLinkResponse(
+                creator.getInstagramUserId(),
+                creator.getTikTokUserId()
+        );
     }
 }
