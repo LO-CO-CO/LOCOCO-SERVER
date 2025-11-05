@@ -16,12 +16,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.Instant;
 
 @Getter
 @Entity
@@ -180,6 +181,10 @@ public class Creator {
 
     public void changeContentLanguage(ContentLanguage contentLanguage) {
         this.contentLanguage = contentLanguage;
+    }
+
+    public void changeCreatorType(CreatorType creatorType) {
+        this.creatorType = creatorType;
     }
 
     public void connectTikTok(String tikTokUserId) {
