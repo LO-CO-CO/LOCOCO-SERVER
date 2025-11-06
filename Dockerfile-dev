@@ -1,4 +1,4 @@
-FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:21-jdk-jammy
 
 RUN apt-get update && apt-get install -y wget curl unzip \
     && wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
