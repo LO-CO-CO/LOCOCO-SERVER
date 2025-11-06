@@ -278,23 +278,6 @@ public class BrandController {
                 response);
     }
 
-
-    /**
-     * 어드민용 캠페인 발행 API 추후 삭제 예정
-     */
-    @Operation(summary = "캠페인 생성 - 발행",
-            description = "브랜드 마이페이지 - 브랜드가 캠페인을 발행 상태로 생성하는 API 입니다.")
-    @PostMapping("/my/campaigns/publish/admin")
-    public ApiResponse<CampaignBasicResponse> createAndPublishCampaignForAdmin(
-            @Parameter(hidden = true) @CurrentUser Long adminId,
-            @Valid @RequestBody CampaignPublishRequest publishRequest) {
-
-        CampaignBasicResponse response = campaignService.createAndPublishCampaignForAdmin(adminId, publishRequest);
-
-        return ApiResponse.success(HttpStatus.OK,
-                ResponseMessage.CAMPAIGN_PUBLISH_SUCCESS.getMessage(), response);
-    }
-
     @Operation(summary = "브랜드 대시보드 캠페인 리스트 조회")
     @GetMapping("/dashboard/campaigns")
     public ApiResponse<BrandDashboardCampaignListResponse> getBrandDashboardCampaigns(
