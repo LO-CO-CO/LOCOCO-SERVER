@@ -15,6 +15,8 @@ import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.common.response.PageableResponse;
 import java.time.Instant;
 import java.util.List;
+
+import com.lokoko.global.config.BetaFeatureConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
@@ -25,6 +27,7 @@ public class CreatorCampaignMapper {
 
     private final CampaignReviewRepository campaignReviewRepository;
     private final CampaignImageRepository campaignImageRepository;
+    private final BetaFeatureConfig betaFeatureConfig;
 
     public CreatorCampaign toCampaignParticipation(Creator creator, Campaign campaign, Instant now) {
         return CreatorCampaign.builder()
@@ -95,7 +98,7 @@ public class CreatorCampaignMapper {
         ParticipationStatus actualStatus = participation.getStatus();
 
         // APPROVED 상태이고 creatorAnnouncementDate가 아직 지나지 않았다면 PENDING으로 표시
-        if (actualStatus == ParticipationStatus.APPROVED
+        if (actualStatus == ParticipationStatus.APPROVED && !betaFeatureConfig.isSimplifiedAnnouncementFlow()
             && campaign.getCreatorAnnouncementDate() != null
             && Instant.now().isBefore(campaign.getCreatorAnnouncementDate())) {
             return ParticipationStatus.PENDING;
