@@ -22,4 +22,11 @@ public class BetaFeatureConfig {
      * 1차 리뷰 업로드시, post URL 을 포함할지 말지 여부를 결정
      */
     private boolean firstReviewUrlEnabled = true;
+
+    /**
+     * 베타버젼 진행에서, true 설정
+     * 정식 버전에서, false 설정
+     * 브랜드가 크리에이터 승인 할 경우, 크리에이터가 크리에이터 발표 시점 이전에도 승인 상태를 볼 수 있도록 한다.
+     */
+    private boolean simplifiedAnnouncementFlow = true;
 }
