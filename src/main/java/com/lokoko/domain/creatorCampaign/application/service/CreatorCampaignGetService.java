@@ -114,6 +114,32 @@ public class CreatorCampaignGetService {
     }
 
     /**
+     * 베타버전 전용: 여러 캠페인 상태에서 리뷰 작성 가능한 CreatorCampaign 조회
+     * RECRUITING, RECRUITMENT_CLOSED, IN_REVIEW 상태 모두에서 리뷰 업로드 가능
+     *
+     * @param creatorId 크리에이터 고유 ID
+     * @param campaignId 캠페인 고유 ID
+     * @return 리뷰 작성 가능한 CreatorCampaign
+     * @throws CampaignReviewAbleNotFoundException 리뷰 작성 조건을 만족하지 않는 경우 발생
+     */
+    @Transactional(readOnly = true)
+    public CreatorCampaign findReviewableInMultipleStatusesForBeta(Long creatorId, Long campaignId) {
+        return creatorCampaignRepository.findReviewableInMultipleStatusesForBeta(
+                        creatorId,
+                        campaignId,
+                        List.of(
+                                CampaignStatus.RECRUITING,        // 모집 중
+                                CampaignStatus.RECRUITMENT_CLOSED, // 모집 종료
+                                CampaignStatus.IN_REVIEW          // 리뷰 진행 중
+                        ),
+                        List.of(
+                                ParticipationStatus.ACTIVE  // 활성 상태만 허용
+                        )
+                )
+                .orElseThrow(CampaignReviewAbleNotFoundException::new);
+    }
+
+    /**
      * (campaign, creatorId) 조합으로 CreatorCampaign 단건을 조회 메서드 - 존재하지 않을 경우 예외 발생
      *
      * @param campaign  캠페인 엔티티 (도메인 인자 전달)
