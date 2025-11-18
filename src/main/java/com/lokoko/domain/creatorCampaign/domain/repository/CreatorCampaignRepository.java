@@ -123,4 +123,31 @@ public interface CreatorCampaignRepository extends JpaRepository<CreatorCampaign
     @Query("UPDATE CreatorCampaign cc SET cc.status = :toStatus WHERE cc.id IN :ids")
     int bulkUpdateStatusByIds(@Param("ids") List<Long> ids,
                               @Param("toStatus") ParticipationStatus toStatus);
+
+    /**
+     * 베타버전 전용: 여러 캠페인 상태에서 리뷰 작성 가능한 CreatorCampaign 조회
+     * RECRUITING, RECRUITMENT_CLOSED, IN_REVIEW 상태 모두 허용
+     *
+     * @param creatorId 크리에이터 ID
+     * @param campaignId 캠페인 ID
+     * @param campaignStatuses 허용할 캠페인 상태 목록
+     * @param allowedStatuses 허용할 참여 상태 목록
+     * @return 리뷰 작성 가능한 CreatorCampaign
+     */
+    @Query("""
+                select cc
+                from CreatorCampaign cc
+                join cc.campaign c
+                where cc.creator.id = :creatorId
+                  and c.id = :campaignId
+                  and c.campaignStatus in :campaignStatuses
+                  and cc.status in :allowedStatuses
+                  and cc.addressConfirmed = true
+            """)
+    Optional<CreatorCampaign> findReviewableInMultipleStatusesForBeta(
+            @Param("creatorId") Long creatorId,
+            @Param("campaignId") Long campaignId,
+            @Param("campaignStatuses") Collection<CampaignStatus> campaignStatuses,
+            @Param("allowedStatuses") Collection<ParticipationStatus> allowedStatuses
+    );
 }
