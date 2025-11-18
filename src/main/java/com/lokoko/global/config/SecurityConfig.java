@@ -74,7 +74,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(
                 Arrays.asList("https://52.79.208.129.nip.io", "https://15.164.250.59.nip.io",
                         "http://localhost:3000", "https://localhost:3000",
-                        "https://lococo-test.vercel.app/",
+                        "https://lococo-test.vercel.app/", "https://lococo-client-web.vercel.app/ko",
                         "https://www.lococo.beauty", "https://lococo.beauty"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));

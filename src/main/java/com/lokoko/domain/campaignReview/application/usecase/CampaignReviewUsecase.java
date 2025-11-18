@@ -193,8 +193,18 @@ public class CampaignReviewUsecase {
     @Transactional
     public CampaignParticipatedResponse getMyReviewableCampaign(Long userId, Long campaignId, ReviewRound round) {
         Creator creator = creatorGetService.findByUserId(userId);
-        CreatorCampaign creatorCampaign =
-                creatorCampaignGetService.findReviewableInReviewByCampaign(creator.getId(), campaignId);
+
+        // 베타버전에서는 여러 캠페인 상태에서 리뷰 업로드 가능
+        CreatorCampaign creatorCampaign;
+        if (betaFeatureConfig.isSimplifiedReviewFlow()) {
+            // 베타버전: RECRUITING, RECRUITMENT_CLOSED, IN_REVIEW 상태 모두 허용
+            creatorCampaign = creatorCampaignGetService.findReviewableInMultipleStatusesForBeta(
+                    creator.getId(), campaignId);
+        } else {
+            // 정식버전: IN_REVIEW 상태만 허용
+            creatorCampaign = creatorCampaignGetService.findReviewableInReviewByCampaign(
+                    creator.getId(), campaignId);
+        }
 
         // ACTIVE 상태에서만 업로드 가능
         if (creatorCampaign.getStatus() != ParticipationStatus.ACTIVE) {
