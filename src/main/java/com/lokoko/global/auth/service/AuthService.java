@@ -175,7 +175,6 @@ public class AuthService {
                 user.updateDisplayName(displayName);
                 user.updateFirstName(firstName);
                 user.updateLastName(lastName);
-                user.updateProfileImage(profileImageUrl);
 
                 if (user.getRole() == Role.PENDING) {
                     loginStatus = OauthLoginStatus.REGISTER;
