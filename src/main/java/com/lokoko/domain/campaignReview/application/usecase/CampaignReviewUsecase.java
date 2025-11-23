@@ -74,15 +74,25 @@ public class CampaignReviewUsecase {
         CampaignReviewValidationUtil.validateTwoSetCombination(typeA, typeB);
 
         // A 세트(캠페인에 second가 없는 단일 타입 캠페인)
-        CampaignReviewValidationUtil.requireFirstSetPresent(request.firstMediaUrls(),
-                request.firstCaptionWithHashtags());
-        MediaValidationUtil.validateTotalMediaCount(request.firstMediaUrls());
+        // 베타 버전에서는 firstMediaUrls, firstCaptionWithHashtags 에 대한 검증을 진행하지 않는다.
+        if (!betaFeatureConfig.isSimplifiedReviewFlow()) {
+            CampaignReviewValidationUtil.requireFirstSetPresent(request.firstMediaUrls(),
+                    request.firstCaptionWithHashtags());
+        }
+        if (request.firstMediaUrls() != null && !request.firstMediaUrls().isEmpty()) {
+            MediaValidationUtil.validateTotalMediaCount(request.firstMediaUrls());
+        }
 
         // B 세트(캠페인에 second가 있으면 필수, 없으면 금지)
         if (typeB != null) {
-            CampaignReviewValidationUtil.requireFirstSetPresent(
-                    request.secondMediaUrls(), request.secondCaptionWithHashtags());
-            MediaValidationUtil.validateTotalMediaCount(request.secondMediaUrls());
+            // 베타 버전에서는 secondMediaUrls, secondCaptionWithHashtags 에 대한 검증을 진행하지 않는다.
+            if (!betaFeatureConfig.isSimplifiedReviewFlow()) {
+                CampaignReviewValidationUtil.requireFirstSetPresent(
+                        request.secondMediaUrls(), request.secondCaptionWithHashtags());
+            }
+            if (request.secondMediaUrls() != null && !request.secondMediaUrls().isEmpty()) {
+                MediaValidationUtil.validateTotalMediaCount(request.secondMediaUrls());
+            }
         } else {
             CampaignReviewValidationUtil.ensureSecondSetAbsentForFirstRound(
                     request.secondMediaUrls(), request.secondCaptionWithHashtags());
