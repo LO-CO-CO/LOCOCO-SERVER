@@ -219,7 +219,6 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
 
         BooleanExpression langCondition = buildLanguageCondition(lang);
         BooleanExpression categoryCondition = buildCategoryCondition(category);
-        BooleanExpression visibilityCondition = buildVisibilityCondition(user);
 
         // DRAFT, WAITING_APPROVAL만 제외하고, 실시간으로 아직 시작되지 않은 캠페인도 제외
         BooleanExpression statusCondition = campaign.campaignStatus.notIn(
@@ -230,7 +229,6 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
         BooleanExpression condition = combineConditions(
                 langCondition,
                 categoryCondition,
-                visibilityCondition,
                 statusCondition
         );
 
@@ -315,20 +313,6 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
         }
         CampaignProductType campaignProductType = CampaignProductType.valueOf(category.name());
         return campaign.campaignProductType.eq(campaignProductType);
-    }
-
-    private BooleanExpression buildVisibilityCondition(User user) {
-        // 브랜드 사용자는 모든 캠페인을 볼 수 있다
-        if (user != null && user.getRole() == Role.BRAND) {
-            return null;
-        }
-
-        // 크리에이터 또는 비로그인 사용자는 캠페인 종료 후 30일까지만 볼 수 있으므로
-        Instant thirtyDaysAgo = Instant.now().minus(30, ChronoUnit.DAYS);
-
-        // reviewSubmissionDeadline이 null이거나, 종료 후 30일이 지나지 않은 캠페인
-        return campaign.reviewSubmissionDeadline.isNull()
-                .or(campaign.reviewSubmissionDeadline.after(thirtyDaysAgo));
     }
 
     private BooleanExpression combineConditions(BooleanExpression... expressions) {
