@@ -5,7 +5,6 @@ import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -46,22 +45,18 @@ public record CampaignPublishRequest(
 
         @Schema(requiredMode = REQUIRED, description = "신청 시작일", example = "2024-12-01T00:00:00Z")
         @NotNull(message = "신청 시작일은 필수입니다")
-        @Future(message = "신청 시작일은 미래 날짜여야 합니다")
         Instant applyStartDate,
 
         @Schema(requiredMode = REQUIRED, description = "신청 마감일", example = "2024-12-15T23:59:59Z")
         @NotNull(message = "신청 마감일은 필수입니다")
-        @Future(message = "신청 마감일은 미래 날짜여야 합니다")
         Instant applyDeadline,
 
         @Schema(requiredMode = REQUIRED, description = "크리에이터 발표일", example = "2024-12-20T00:00:00Z")
         @NotNull(message = "크리에이터 발표일은 필수입니다")
-        @Future(message = "크리에이터 발표일은 미래 날짜여야 합니다")
         Instant creatorAnnouncementDate,
 
         @Schema(requiredMode = REQUIRED, description = "리뷰 제출 마감일", example = "2025-01-15T23:59:59Z")
         @NotNull(message = "리뷰 제출 마감일은 필수입니다")
-        @Future(message = "리뷰 제출 마감일은 미래 날짜여야 합니다")
         Instant reviewSubmissionDeadline,
 
         @Schema(requiredMode = REQUIRED, description = "모집 인원 수", example = "10")
