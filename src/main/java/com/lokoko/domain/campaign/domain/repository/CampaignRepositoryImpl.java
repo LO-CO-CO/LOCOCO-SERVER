@@ -447,7 +447,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
         Long totalCount = queryFactory
                 .select(campaign.count())
                 .from(campaign)
-                .where(statusCondition)
+                .where(statusCondition, campaign.campaignStatus.ne(CampaignStatus.DRAFT))
                 .fetchOne();
 
 

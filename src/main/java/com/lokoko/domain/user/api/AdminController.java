@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -95,14 +96,9 @@ public class AdminController {
     public ApiResponse<Void> modifyCampaign(
             @Parameter(hidden = true) @CurrentUser Long userId,
             @PathVariable Long campaignId,
-            @RequestBody CampaignModifyRequest request
+            @RequestBody @Valid CampaignModifyRequest request
     ){
         adminUsecase.modifyCampaign(userId, campaignId, request);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_CAMPAIGN_DETAIL_GET_SUCCESS.getMessage());
     }
-
-
-
-
-
 }

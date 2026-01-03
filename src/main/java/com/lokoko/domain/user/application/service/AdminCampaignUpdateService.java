@@ -46,7 +46,21 @@ public class AdminCampaignUpdateService {
 
     @Transactional
     public void approveCampaigns(List<Long> campaignIds) {
-        campaignRepository.batchUpdateStatusToApproved(campaignIds);
+        Instant now = Instant.now();
+
+        List<Campaign> campaigns = campaignRepository.findAllById(campaignIds);
+
+        for (Campaign campaign : campaigns) {
+            if (campaign.getCampaignStatus() != CampaignStatus.WAITING_APPROVAL) {
+                continue;
+            }
+            CampaignStatus next = CampaignStatus.RECRUITING;
+            Instant applyStart = campaign.getApplyStartDate();
+            if (applyStart != null && now.isBefore(applyStart)) {
+                next = CampaignStatus.OPEN_RESERVED;
+            }
+            campaign.changeStatus(next);
+        }
         campaignEventScheduler.scheduleCampaignEvents(campaignIds);
     }
 

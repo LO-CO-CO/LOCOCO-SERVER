@@ -52,10 +52,6 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long>, Campa
 
 
     @Modifying(clearAutomatically = true)
-    @Query("UPDATE Campaign c SET c.campaignStatus = 'OPEN_RESERVED' WHERE c.id in :campaignIds")
-    void batchUpdateStatusToApproved(List<Long> campaignIds);
-
-    @Modifying(clearAutomatically = true)
     @Query("UPDATE Campaign c SET c.deleted = 1 WHERE c.id in :campaignIds")
     void batchSoftDeleteCampaigns(List<Long> campaignIds);
 }
