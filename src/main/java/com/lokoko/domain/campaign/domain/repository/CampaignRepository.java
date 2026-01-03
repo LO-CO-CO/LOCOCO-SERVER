@@ -7,10 +7,8 @@ import jakarta.persistence.LockModeType;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Query;
+
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -53,4 +51,11 @@ public interface CampaignRepository extends JpaRepository<Campaign, Long>, Campa
     List<Campaign> findAllByBrandAndCampaignStatusOrderByTitleAsc(Brand brand, CampaignStatus status);
 
 
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Campaign c SET c.campaignStatus = 'OPEN_RESERVED' WHERE c.id in :campaignIds")
+    void batchUpdateStatusToApproved(List<Long> campaignIds);
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Campaign c SET c.deleted = 1 WHERE c.id in :campaignIds")
+    void batchSoftDeleteCampaigns(List<Long> campaignIds);
 }

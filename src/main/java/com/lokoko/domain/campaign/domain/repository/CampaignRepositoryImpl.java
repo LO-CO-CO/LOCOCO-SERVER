@@ -26,8 +26,10 @@ import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewStatus;
 import com.lokoko.domain.creatorCampaign.domain.entity.QCreatorCampaign;
 import com.lokoko.domain.media.image.domain.entity.QCampaignImage;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
+import com.lokoko.domain.user.api.dto.request.ApprovedStatus;
+import com.lokoko.domain.user.api.dto.response.AdminCampaignInfoResponse;
+import com.lokoko.domain.user.api.dto.response.AdminCampaignListResponse;
 import com.lokoko.domain.user.domain.entity.User;
-import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.global.common.response.PageableResponse;
 import com.querydsl.core.types.Projections;
@@ -42,7 +44,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static com.lokoko.domain.media.image.domain.entity.enums.ImageType.THUMBNAIL;
@@ -409,5 +410,70 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
         );
 
         return new BrandDashboardCampaignListResponse(campaigns, pageInfo);
+    }
+
+    @Override
+    public AdminCampaignListResponse findAllCampaignsByAdmin(ApprovedStatus status, Pageable pageable) {
+
+        StringExpression approvedStatus = new CaseBuilder()
+                .when(campaign.campaignStatus.eq(CampaignStatus.WAITING_APPROVAL))
+                .then("PENDING")
+                .when(campaign.campaignStatus.in(CampaignStatus.getApprovedStatuses()))
+                .then("APPROVED")
+                .otherwise("PENDING");
+
+        BooleanExpression statusCondition = createStatusCondition(status);
+
+        List<AdminCampaignInfoResponse> campaignList = queryFactory
+                .select(Projections.constructor(AdminCampaignInfoResponse.class,
+                        campaign.id,
+                        campaign.brand.brandName,
+                        campaign.title,
+                        Projections.constructor(AdminCampaignInfoResponse.RecruitmentStatus.class,
+                                campaign.recruitmentNumber,
+                                campaign.applicantNumber),
+                        campaign.applyStartDate,
+                        campaign.applyDeadline,
+                        approvedStatus
+                ))
+                .from(campaign)
+                .where(statusCondition, campaign.campaignStatus.ne(CampaignStatus.DRAFT))
+                .orderBy(campaign.publishedAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+
+        Long totalCount = queryFactory
+                .select(campaign.count())
+                .from(campaign)
+                .where(statusCondition)
+                .fetchOne();
+
+
+        long total = totalCount != null ? totalCount : 0L;
+        boolean isLast = (pageable.getOffset() + pageable.getPageSize()) >= total;
+
+        PageableResponse pageInfo = PageableResponse.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                campaignList.size(),
+                isLast,
+                total
+        );
+
+        return new AdminCampaignListResponse(campaignList, pageInfo);
+    }
+
+    private BooleanExpression createStatusCondition(ApprovedStatus status) {
+        if (status == null) {
+            return null; // 필터링 없음
+        }
+
+        return switch (status) {
+            case PENDING -> campaign.campaignStatus.eq(CampaignStatus.WAITING_APPROVAL);
+            case APPROVED ->
+                    campaign.campaignStatus.in(CampaignStatus.getApprovedStatuses());
+        };
     }
 }
