@@ -134,7 +134,7 @@ public class CreatorCampaignRepositoryImpl implements CreatorCampaignRepositoryC
     }
 
     @Override
-    public AdminCreatorListResponse findAdminCreators(Pageable pageable) {
+    public AdminCreatorListResponse findCreatorsByAdmin(Pageable pageable) {
 
         StringExpression approveStatusExpr = new CaseBuilder()
                 .when(creator.creatorStatus.eq(CreatorStatus.APPROVED)).then("APPROVED")

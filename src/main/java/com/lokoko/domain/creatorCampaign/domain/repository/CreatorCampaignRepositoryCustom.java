@@ -9,6 +9,6 @@ public interface CreatorCampaignRepositoryCustom {
 
     CampaignApplicantListResponse findCampaignApplicants(Long brandId, Long campaignId, Pageable pageable, ApplicantStatus status);
 
-    AdminCreatorListResponse findAdminCreators(Pageable pageable);
+    AdminCreatorListResponse findCreatorsByAdmin(Pageable pageable);
 
 }
