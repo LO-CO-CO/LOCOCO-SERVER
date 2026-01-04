@@ -15,6 +15,6 @@ public class AdminCreatorGetService {
     private final CreatorCampaignRepository creatorCampaignRepository;
 
     public AdminCreatorListResponse findAllCreators(int page, int size) {
-        return creatorCampaignRepository.findAdminCreators(PageRequest.of(page, size));
+        return creatorCampaignRepository.findCreatorsByAdmin(PageRequest.of(page, size));
     }
 }
