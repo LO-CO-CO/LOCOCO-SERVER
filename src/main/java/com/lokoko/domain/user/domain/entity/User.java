@@ -144,4 +144,8 @@ public class User extends BaseEntity {
     public void updateRole(Role role) {
         this.role = role;
     }
+
+    public void updateStatus(UserStatus status) {
+        this.status = status;
+    }
 }

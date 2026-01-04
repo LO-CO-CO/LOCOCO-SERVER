@@ -26,10 +26,10 @@ import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewStatus;
 import com.lokoko.domain.creatorCampaign.domain.entity.QCreatorCampaign;
 import com.lokoko.domain.media.image.domain.entity.QCampaignImage;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
-import com.lokoko.domain.user.domain.entity.enums.ApprovedStatus;
 import com.lokoko.domain.user.api.dto.response.AdminCampaignInfoResponse;
 import com.lokoko.domain.user.api.dto.response.AdminCampaignListResponse;
 import com.lokoko.domain.user.domain.entity.User;
+import com.lokoko.domain.user.domain.entity.enums.ApprovedStatus;
 import com.lokoko.domain.user.domain.repository.UserRepository;
 import com.lokoko.global.common.response.PageableResponse;
 import com.querydsl.core.types.Projections;
@@ -462,7 +462,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 total
         );
 
-        return new AdminCampaignListResponse(campaignList, pageInfo);
+        return new AdminCampaignListResponse(campaignList, total, pageInfo);
     }
 
     private BooleanExpression createStatusCondition(ApprovedStatus status) {
@@ -472,8 +472,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
 
         return switch (status) {
             case PENDING -> campaign.campaignStatus.eq(CampaignStatus.WAITING_APPROVAL);
-            case APPROVED ->
-                    campaign.campaignStatus.in(CampaignStatus.getApprovedStatuses());
+            case APPROVED -> campaign.campaignStatus.in(CampaignStatus.getApprovedStatuses());
         };
     }
 }

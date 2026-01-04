@@ -20,7 +20,7 @@ public record CreatorInfo(
         @Schema(requiredMode = REQUIRED, description = "크리에이터 닉네임", example = "jisoo_creator")
         String creatorNickname,
 
-        @Schema(requiredMode = NOT_REQUIRED, description = "프로필 이미지 URL", example = "https://s3.example.com/profile/creator-10.jpg")
+        @Schema(requiredMode = REQUIRED, description = "프로필 이미지 URL", example = "https://s3.example.com/profile/creator-10.jpg")
         String profileImageUrl,
 
         @Schema(description = "인스타그램 계정 링크", example = "https://www.instagram.com/_hyon.8x21?igsh=MWU4cTI5aw==")
