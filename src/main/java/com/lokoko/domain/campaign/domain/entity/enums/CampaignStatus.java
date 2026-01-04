@@ -3,6 +3,8 @@ package com.lokoko.domain.campaign.domain.entity.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 /**
  * 브랜드 관점에서 보는 캠페인의 상태에 대한 정보입니다.
  * 피그마 뷰 - [브랜드] 마이페이지의 상태표를 참고
@@ -27,4 +29,8 @@ public enum CampaignStatus {
     COMPLETED("종료");                     // 캠페인 종료
 
     private final String displayName;
+
+    public static List<CampaignStatus> getApprovedStatuses() {
+        return List.of(OPEN_RESERVED, RECRUITING , RECRUITMENT_CLOSED, IN_REVIEW, COMPLETED);
+    }
 }

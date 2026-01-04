@@ -1,6 +1,7 @@
 package com.lokoko.domain.scheduler.application.service;
 
 import com.lokoko.domain.campaign.domain.entity.Campaign;
+import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
 import com.lokoko.domain.scheduler.domain.entity.ScheduledEvent;
 import com.lokoko.domain.scheduler.domain.enums.EventStatus;
 import com.lokoko.domain.scheduler.domain.enums.EventType;
@@ -26,6 +27,7 @@ import java.util.List;
 public class CampaignEventScheduler {
 
     private final ScheduledEventRepository scheduledEventRepository;
+    private final CampaignRepository campaignRepository;
 
     /**
      * 캠페인 승인 시 모든 관련 이벤트 스케줄링
@@ -114,5 +116,13 @@ public class CampaignEventScheduler {
 
         // 이벤트 저장
         scheduledEventRepository.saveAll(events);
+    }
+
+    public void scheduleCampaignEvents(List<Long> campaignIds) {
+
+        List<Campaign> campaigns = campaignRepository.findAllById(campaignIds);
+        for (Campaign campaign : campaigns){
+            scheduleCampaignEvents(campaign);
+        }
     }
 }

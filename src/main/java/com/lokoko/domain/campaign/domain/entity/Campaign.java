@@ -10,18 +10,10 @@ import com.lokoko.domain.campaign.domain.entity.enums.CampaignStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
 import com.lokoko.domain.campaign.exception.DraftNotFilledException;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
+import com.lokoko.domain.user.api.dto.request.CampaignModifyRequest;
 import com.lokoko.global.common.entity.BaseEntity;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Stream;
@@ -29,11 +21,15 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter
 @Entity
+@SQLRestriction("deleted = 0")
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(indexes = {@Index(name = "idx_campaign_status", columnList = "campaign_status"),
+        @Index(name = "idx_published_at", columnList = "published_at")})
 public class Campaign extends BaseEntity {
 
     @Id
@@ -129,6 +125,9 @@ public class Campaign extends BaseEntity {
     @Enumerated(value = EnumType.STRING)
     private ContentType secondContentPlatform;
 
+    @Column(nullable = false)
+    private Integer deleted = 0;
+
     /**
      * 캠페인 지원자 수 증가 메소드
      */
@@ -153,6 +152,57 @@ public class Campaign extends BaseEntity {
     }
 
     public void updateCampaign(CampaignCreateRequest request) {
+
+        if (request.campaignTitle() != null) {
+            this.title = request.campaignTitle();
+        }
+        if (request.language() != null) {
+            this.language = request.language();
+        }
+        if (request.campaignType() != null) {
+            this.campaignType = request.campaignType();
+        }
+        if (request.campaignProductType() != null) {
+            this.campaignProductType = request.campaignProductType();
+        }
+        if (request.applyStartDate() != null) {
+            this.applyStartDate = request.applyStartDate();
+        }
+        if (request.applyDeadline() != null) {
+            this.applyDeadline = request.applyDeadline();
+        }
+        if (request.creatorAnnouncementDate() != null) {
+            this.creatorAnnouncementDate = request.creatorAnnouncementDate();
+        }
+        if (request.reviewSubmissionDeadline() != null) {
+            this.reviewSubmissionDeadline = request.reviewSubmissionDeadline();
+        }
+        if (request.recruitmentNumber() != null) {
+            this.recruitmentNumber = request.recruitmentNumber();
+        }
+
+        if (request.participationRewards() != null) {
+            this.participationRewards.clear();
+            this.participationRewards.addAll(request.participationRewards());
+        }
+        if (request.deliverableRequirements() != null) {
+            this.deliverableRequirements.clear();
+            this.deliverableRequirements.addAll(request.deliverableRequirements());
+        }
+        if (request.eligibilityRequirements() != null) {
+            this.eligibilityRequirements.clear();
+            this.eligibilityRequirements.addAll(request.eligibilityRequirements());
+        }
+        if (request.firstContentType() != null) {
+            this.firstContentPlatform = request.firstContentType();
+        }
+        if (request.secondContentType() != null) {
+            this.secondContentPlatform = request.secondContentType();
+        }
+    }
+
+    // to be refactored...
+    public void updateCampaign(CampaignModifyRequest request) {
 
         if (request.campaignTitle() != null) {
             this.title = request.campaignTitle();

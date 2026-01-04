@@ -18,7 +18,8 @@ public enum ErrorMessage {
     NOT_EDITABLE_CAMPAIGN("발행된 캠페인은 수정할 수 없습니다."),
     NO_APPLICABLE_CREATOR("승인 가능한 지원자가 없습니다."),
     CAMPAIGN_CAPACITY_EXCEED("캠페인 정원 수를 초과하였습니다."),
-    CAMPAIGN_APPLICANT_BULK_UPDATE_FAILED("일부 지원자 승인에 실패했습니다.");
+    CAMPAIGN_APPLICANT_BULK_UPDATE_FAILED("일부 지원자 승인에 실패했습니다."),
+    ADMIN_CAMPAIGN_NOT_MODIFIABLE("수정할 수 없는 캠페인 상태입니다.");
 
     private final String message;
 }
