@@ -52,7 +52,6 @@ public class AdminCreatorUpdateService {
 
                     // NOT_APPROVED → APPROVED
                     creator.approve(now);
-                    creatorSaveService.save(creator);
                 });
     }
 
@@ -74,7 +73,6 @@ public class AdminCreatorUpdateService {
                     }
 
                     user.updateStatus(UserStatus.INACTIVE);
-                    userSaveService.save(user);
                 });
     }
 }
