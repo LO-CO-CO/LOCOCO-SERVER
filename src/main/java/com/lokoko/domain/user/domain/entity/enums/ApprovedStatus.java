@@ -1,4 +1,4 @@
-package com.lokoko.domain.user.api.dto.request;
+package com.lokoko.domain.user.domain.entity.enums;
 
 public enum ApprovedStatus {
     PENDING, APPROVED

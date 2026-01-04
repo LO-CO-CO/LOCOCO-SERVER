@@ -26,7 +26,7 @@ import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewStatus;
 import com.lokoko.domain.creatorCampaign.domain.entity.QCreatorCampaign;
 import com.lokoko.domain.media.image.domain.entity.QCampaignImage;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
-import com.lokoko.domain.user.api.dto.request.ApprovedStatus;
+import com.lokoko.domain.user.domain.entity.enums.ApprovedStatus;
 import com.lokoko.domain.user.api.dto.response.AdminCampaignInfoResponse;
 import com.lokoko.domain.user.api.dto.response.AdminCampaignListResponse;
 import com.lokoko.domain.user.domain.entity.User;

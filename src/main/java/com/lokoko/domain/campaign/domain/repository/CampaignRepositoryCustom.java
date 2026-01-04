@@ -13,7 +13,7 @@ import com.lokoko.domain.campaign.domain.entity.enums.LanguageFilter;
 
 import java.util.List;
 
-import com.lokoko.domain.user.api.dto.request.ApprovedStatus;
+import com.lokoko.domain.user.domain.entity.enums.ApprovedStatus;
 import com.lokoko.domain.user.api.dto.response.AdminCampaignListResponse;
 import org.springframework.data.domain.Pageable;
 

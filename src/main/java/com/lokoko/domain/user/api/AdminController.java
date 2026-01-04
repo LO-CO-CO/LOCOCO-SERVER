@@ -2,7 +2,7 @@ package com.lokoko.domain.user.api;
 
 import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.user.api.dto.request.ApproveCampaignIdsRequest;
-import com.lokoko.domain.user.api.dto.request.ApprovedStatus;
+import com.lokoko.domain.user.domain.entity.enums.ApprovedStatus;
 import com.lokoko.domain.user.api.dto.request.CampaignModifyRequest;
 import com.lokoko.domain.user.api.dto.request.DeleteCampaignIdsRequest;
 import com.lokoko.domain.user.api.dto.response.AdminCampaignListResponse;
