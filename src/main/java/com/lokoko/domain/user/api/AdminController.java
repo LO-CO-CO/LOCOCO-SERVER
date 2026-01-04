@@ -110,7 +110,7 @@ public class AdminController {
             @RequestBody @Valid CampaignModifyRequest request
     ) {
         adminUsecase.modifyCampaign(userId, campaignId, request);
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_CAMPAIGN_DETAIL_GET_SUCCESS.getMessage());
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_CAMPAIGN_MODIFY_SUCCESS.getMessage());
     }
 
     @Operation(summary = "어드민 - 전체 크리에이터 리스트 조회(페이지네이션)")
