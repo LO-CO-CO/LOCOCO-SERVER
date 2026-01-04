@@ -5,10 +5,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
 public record AdminCampaignListResponse(
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "캠페인 목록")
+        @Schema(requiredMode = REQUIRED, description = "캠페인 목록")
         List<AdminCampaignInfoResponse> campaigns,
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "페이징 정보")
+        @Schema(requiredMode = REQUIRED, description = "총 캠페인 개수")
+        Long totalCampaignCount,
+        @Schema(requiredMode = REQUIRED, description = "페이징 정보")
         PageableResponse pageInfo
 ) {
 }

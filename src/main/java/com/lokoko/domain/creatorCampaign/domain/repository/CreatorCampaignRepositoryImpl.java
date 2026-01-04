@@ -5,10 +5,14 @@ import com.lokoko.domain.brand.api.dto.response.CampaignApplicantListResponse;
 import com.lokoko.domain.brand.api.dto.response.CampaignApplicantResponse;
 import com.lokoko.domain.creator.api.dto.response.CreatorInfo;
 import com.lokoko.domain.creator.domain.entity.QCreator;
+import com.lokoko.domain.creator.domain.entity.enums.CreatorStatus;
 import com.lokoko.domain.creatorCampaign.domain.entity.QCreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
 import com.lokoko.domain.creatorSocialStats.domain.entity.QCreatorSocialStats;
+import com.lokoko.domain.user.api.dto.response.AdminCreator;
+import com.lokoko.domain.user.api.dto.response.AdminCreatorListResponse;
 import com.lokoko.domain.user.domain.entity.QUser;
+import com.lokoko.domain.user.domain.entity.enums.UserStatus;
 import com.lokoko.global.common.response.PageableResponse;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -128,4 +132,72 @@ public class CreatorCampaignRepositoryImpl implements CreatorCampaignRepositoryC
                     creatorCampaign.status.in(ParticipationStatus.getActiveStatuses()); // APPROVED, ACTIVE, COMPLETED
         };
     }
+
+    @Override
+    public AdminCreatorListResponse findAdminCreators(Pageable pageable) {
+
+        StringExpression approveStatusExpr = new CaseBuilder()
+                .when(creator.creatorStatus.eq(CreatorStatus.APPROVED)).then("APPROVED")
+                .otherwise("PENDING");
+
+        List<AdminCreator> creators = queryFactory
+                .select(Projections.constructor(AdminCreator.class,
+                        Projections.constructor(CreatorInfo.class,
+                                creator.id,
+                                user.name,
+                                creator.creatorName,
+                                user.profileImageUrl,
+                                creator.instagramUserId,
+                                creator.tikTokUserId
+                        ),
+                        Projections.constructor(AdminCreator.FollowerCount.class,
+                                creatorSocialStats.instagramFollower.coalesce(0),
+                                creatorSocialStats.tiktokFollower.coalesce(0)
+                        ),
+                        JPAExpressions.select(subCreatorCampaign.count().intValue())
+                                .from(subCreatorCampaign)
+                                .where(subCreatorCampaign.creator.id.eq(creator.id)),
+                        // 가입 완료 시점
+                        creator.signupCompletedAt,
+                        approveStatusExpr
+                ))
+                .from(creator)
+                .innerJoin(creator.user, user)
+                .leftJoin(creatorSocialStats).on(creatorSocialStats.creator.id.eq(creator.id))
+                // 가입완료한 크리에이터이면서 UserStatus가 활성화 상태인 것만
+                .where(creator.signupCompletedAt.isNotNull(),
+                        user.status.eq(UserStatus.ACTIVE))
+                .orderBy(
+                        creator.signupCompletedAt.desc(),
+                        user.name.asc(),
+                        creator.id.desc()
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long totalCount = queryFactory
+                .select(creator.count())
+                .from(creator)
+                .innerJoin(creator.user, user)
+                .where(creator.signupCompletedAt.isNotNull(),
+                        user.status.eq(UserStatus.ACTIVE))
+                .fetchOne();
+
+
+        long total = totalCount != null ? totalCount : 0L;
+        boolean isLast = (pageable.getOffset() + pageable.getPageSize()) >= total;
+
+        PageableResponse pageInfo = PageableResponse.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                creators.size(),
+                isLast,
+                total
+        );
+
+        return new AdminCreatorListResponse(creators, total, pageInfo);
+    }
+
+
 }
