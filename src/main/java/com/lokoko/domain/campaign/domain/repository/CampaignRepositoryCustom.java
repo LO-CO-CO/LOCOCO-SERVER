@@ -13,6 +13,8 @@ import com.lokoko.domain.campaign.domain.entity.enums.LanguageFilter;
 
 import java.util.List;
 
+import com.lokoko.domain.user.domain.entity.enums.ApprovedStatus;
+import com.lokoko.domain.user.api.dto.response.AdminCampaignListResponse;
 import org.springframework.data.domain.Pageable;
 
 public interface CampaignRepositoryCustom {
@@ -31,4 +33,7 @@ public interface CampaignRepositoryCustom {
     BrandDashboardCampaignListResponse findBrandDashboardCampaigns(Long brandId, Pageable pageable);
 
     List<CampaignParticipatedResponse> findInReviewCampaignTitlesByBrand(Brand brand);
+
+    AdminCampaignListResponse findAllCampaignsByAdmin(ApprovedStatus status, Pageable pageable);
+
 }

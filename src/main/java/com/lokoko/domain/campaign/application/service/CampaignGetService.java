@@ -221,5 +221,15 @@ public class CampaignGetService {
         return campaignRepository.findBrandDashboardCampaigns(brandId, PageRequest.of(page, size));
     }
 
+    public CampaignBasicResponse getCampaignDetailForAdmin(Long campaignId) {
+        Campaign campaign  = campaignRepository.findById(campaignId)
+                .orElseThrow(CampaignNotFoundException::new);
 
+        initializeElementCollections(campaign);
+
+        List<CampaignImageResponse> thumbnailImages = campaignImageRepository.findThumbnailImagesByCampaignId(campaignId);
+        List<CampaignImageResponse> detailImages = campaignImageRepository.findDetailImagesByCampaignId(campaignId);
+
+        return CampaignBasicResponse.of(campaign, thumbnailImages, detailImages);
+    }
 }
