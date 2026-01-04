@@ -135,7 +135,7 @@ public class AdminController {
 
     // ACTIVE -> INACTIVE로 변경
     @Operation(summary = "어드민 크리에이터 삭제 - 복수 삭제 가능")
-    @PatchMapping("/creators")
+    @DeleteMapping("/creators")
     public ApiResponse<Void> inactivateCreators(
             @Parameter(hidden = true) @CurrentUser Long userId,
             @RequestBody @Valid DeleteCreatorsRequest request
