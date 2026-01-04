@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -125,6 +126,7 @@ public class Campaign extends BaseEntity {
     @Enumerated(value = EnumType.STRING)
     private ContentType secondContentPlatform;
 
+    @Builder.Default
     @Column(nullable = false)
     private Integer deleted = 0;
 
