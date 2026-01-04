@@ -109,6 +109,9 @@ public class Creator {
     @Column
     private String instagramUserId;
 
+    @Column
+    private Instant signupCompletedAt;
+
     //최종 전화번호
     public String getCreatorPhoneNumber() {
         return countryCode + phoneNumber;
@@ -193,5 +196,12 @@ public class Creator {
 
     public void connectInsta(String instagramUserId) {
         this.instagramUserId = instagramUserId;
+    }
+
+    public void updateSignupCompleted() {
+        // null 일때만 now()로 업데이트 (최초 가입 완료 시각)
+        if (this.signupCompletedAt == null) {
+            this.signupCompletedAt = Instant.now();
+        }
     }
 }
