@@ -1,11 +1,11 @@
 package com.lokoko.domain.user.api.dto.request;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
 
 public record DeleteCampaignIdsRequest(
-        @Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = "삭제할 캠페인 ID 목록", example = "[1, 2, 3]")
+        @NotEmpty(message = "한 개 이상의 ID는 필수입니다")
         List<Long> campaignIds
 ) {
 }
