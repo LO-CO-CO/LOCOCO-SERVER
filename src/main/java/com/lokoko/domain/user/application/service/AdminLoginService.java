@@ -11,7 +11,6 @@ import com.lokoko.global.utils.RedisUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +24,7 @@ import static com.lokoko.global.auth.jwt.utils.JwtProvider.*;
 public class AdminLoginService {
 
     private final AdminRepository adminRepository;
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final CookieUtil cookieUtil;
     private final RedisUtil redisUtil;
@@ -40,20 +39,32 @@ public class AdminLoginService {
         Admin admin = adminRepository.findByLoginId(loginRequest.loginId())
                 .orElseThrow(AdminLoginFailedException::new);
 
-        if (!passwordEncoder.matches(loginRequest.password(), admin.getPassword())) {
-            throw new AdminLoginFailedException();
-        }
+        validatePassword(loginRequest, admin);
 
         String tokenId = UUID.randomUUID().toString();
         String accessToken = jwtProvider.generateAccessToken(admin.getId(), "ADMIN", null);
         String refreshToken = jwtProvider.generateRefreshToken(admin.getId(), "ADMIN", tokenId, null);
 
-        String redisKey = REFRESH_TOKEN_KEY_PREFIX + admin.getId();
-        redisUtil.setRefreshToken(redisKey, refreshToken, refreshTokenExpiration);
+        setRefreshTokenInRedis(admin, refreshToken);
 
-        cookieUtil.setCookie(ACCESS_TOKEN_HEADER, accessToken, servletResponse);
-        cookieUtil.setCookie(REFRESH_TOKEN_HEADER, refreshToken, servletResponse);
+        setCookie(servletResponse, accessToken, refreshToken);
 
         return new AdminLoginResponse(accessToken, refreshToken, admin.getId(), "ADMIN");
+    }
+
+    private void validatePassword(AdminLoginRequest loginRequest, Admin admin) {
+        if (!passwordEncoder.matches(loginRequest.password(), admin.getPassword())) {
+            throw new AdminLoginFailedException();
+        }
+    }
+
+    private void setRefreshTokenInRedis(Admin admin, String refreshToken) {
+        String redisKey = REFRESH_TOKEN_KEY_PREFIX + admin.getId();
+        redisUtil.setRefreshToken(redisKey, refreshToken, refreshTokenExpiration);
+    }
+
+    private void setCookie(HttpServletResponse servletResponse, String accessToken, String refreshToken) {
+        cookieUtil.setCookie(ACCESS_TOKEN_HEADER, accessToken, servletResponse);
+        cookieUtil.setCookie(REFRESH_TOKEN_HEADER, refreshToken, servletResponse);
     }
 }
