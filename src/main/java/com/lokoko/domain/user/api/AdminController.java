@@ -144,7 +144,7 @@ public class AdminController {
 
     @Operation(summary = "어드민 로그인")
     @PostMapping("/login")
-    public ApiResponse<AdminLoginResponse> login(@RequestBody AdminLoginRequest loginRequest, HttpServletResponse servletResponse){
+    public ApiResponse<AdminLoginResponse> login(@RequestBody @Valid AdminLoginRequest loginRequest, HttpServletResponse servletResponse){
 
         AdminLoginResponse response =  adminUsecase.login(loginRequest, servletResponse);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_LOGIN_SUCCESS.getMessage(), response);
