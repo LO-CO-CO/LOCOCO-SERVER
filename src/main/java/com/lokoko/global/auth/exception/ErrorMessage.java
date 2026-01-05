@@ -44,7 +44,10 @@ public enum ErrorMessage {
     USER_NOT_COMPLETED_SIGN_UP("회원가입을 완료하지 않은 사용자입니다.", HttpStatus.FORBIDDEN.value()),
 
     // 유저 ID 중복 검사
-    USER_ID_ALREADY_EXIST("이미 존재하는 ID입니다.", HttpStatus.CONFLICT.value());
+    USER_ID_ALREADY_EXIST("이미 존재하는 ID입니다.", HttpStatus.CONFLICT.value()),
+
+    // Admin 로그인 관련
+    ADMIN_LOGIN_FAILED("아이디 또는 비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED.value());
 
     private final String message;
     private final int httpStatus;

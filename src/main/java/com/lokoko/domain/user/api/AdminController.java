@@ -1,13 +1,10 @@
 package com.lokoko.domain.user.api;
 
 import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
-import com.lokoko.domain.user.api.dto.request.ApproveCampaignIdsRequest;
-import com.lokoko.domain.user.api.dto.request.ApproveCreatorsRequest;
-import com.lokoko.domain.user.api.dto.request.CampaignModifyRequest;
-import com.lokoko.domain.user.api.dto.request.DeleteCampaignIdsRequest;
-import com.lokoko.domain.user.api.dto.request.DeleteCreatorsRequest;
+import com.lokoko.domain.user.api.dto.request.*;
 import com.lokoko.domain.user.api.dto.response.AdminCampaignListResponse;
 import com.lokoko.domain.user.api.dto.response.AdminCreatorListResponse;
+import com.lokoko.domain.user.api.dto.response.AdminLoginResponse;
 import com.lokoko.domain.user.api.message.ResponseMessage;
 import com.lokoko.domain.user.application.usecase.AdminUsecase;
 import com.lokoko.domain.user.domain.entity.enums.ApprovedStatus;
@@ -17,6 +14,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -142,5 +140,13 @@ public class AdminController {
     ) {
         adminUsecase.deleteCreators(userId, request);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_CREATORS_DELETE_SUCCESS.getMessage());
+    }
+
+    @Operation(summary = "어드민 로그인")
+    @PostMapping("/login")
+    public ApiResponse<AdminLoginResponse> login(@RequestBody AdminLoginRequest loginRequest, HttpServletResponse servletResponse){
+
+        AdminLoginResponse response =  adminUsecase.login(loginRequest, servletResponse);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_LOGIN_SUCCESS.getMessage(), response);
     }
 }

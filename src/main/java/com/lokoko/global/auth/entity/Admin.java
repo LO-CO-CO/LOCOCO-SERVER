@@ -27,4 +27,8 @@ public class Admin {
     @JoinColumn(name = "user_id")
     private User user;
 
+    private String loginId;
+
+    private String password;
+
 }
