@@ -3,28 +3,24 @@ package com.lokoko.domain.user.application.usecase;
 import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.campaign.application.service.CampaignGetService;
 import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
-import com.lokoko.domain.user.api.dto.request.ApproveCampaignIdsRequest;
-import com.lokoko.domain.user.api.dto.request.ApproveCreatorsRequest;
-import com.lokoko.domain.user.api.dto.request.CampaignModifyRequest;
-import com.lokoko.domain.user.api.dto.request.DeleteCampaignIdsRequest;
-import com.lokoko.domain.user.api.dto.request.DeleteCreatorsRequest;
+import com.lokoko.domain.user.api.dto.request.*;
 import com.lokoko.domain.user.api.dto.response.AdminCampaignListResponse;
 import com.lokoko.domain.user.api.dto.response.AdminCreatorListResponse;
-import com.lokoko.domain.user.application.service.AdminCampaignDeleteService;
-import com.lokoko.domain.user.application.service.AdminCampaignUpdateService;
-import com.lokoko.domain.user.application.service.AdminCreatorGetService;
-import com.lokoko.domain.user.application.service.AdminCreatorUpdateService;
-import com.lokoko.domain.user.application.service.AdminReviewDeleteService;
-import com.lokoko.domain.user.application.service.UserGetService;
+import com.lokoko.domain.user.api.dto.response.AdminLoginResponse;
+import com.lokoko.domain.user.application.service.*;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.entity.enums.ApprovedStatus;
+
 import com.lokoko.global.utils.AdminValidator;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+
 
 @Service
 @RequiredArgsConstructor
@@ -38,8 +34,10 @@ public class AdminUsecase {
     private final AdminCreatorUpdateService adminCreatorUpdateService;
     private final AdminReviewDeleteService adminReviewDeleteService;
     private final AdminCampaignDeleteService adminCampaignDeleteService;
+    private final AdminLoginService adminLoginService;
 
     private final CampaignRepository campaignRepository;
+
 
     private void validateIsAdmin(Long userId) {
         User user = userGetService.findUserById(userId);
@@ -110,4 +108,7 @@ public class AdminUsecase {
         adminCreatorUpdateService.deleteCreators(request.creatorIds());
     }
 
+    public AdminLoginResponse login(AdminLoginRequest loginRequest, HttpServletResponse servletResponse) {
+       return adminLoginService.login(loginRequest, servletResponse);
+    }
 }

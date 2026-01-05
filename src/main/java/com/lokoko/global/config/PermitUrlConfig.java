@@ -20,7 +20,8 @@ public class PermitUrlConfig {
                 "/api/reviews/details/video",
                 "/api/reviews/{productId}/{userId}",
                 "/api/products/details/{productId}/youtube",
-                "/api/campaigns/upcoming"
+                "/api/campaigns/upcoming",
+                "/api/admin/login"
         };
     }
 
