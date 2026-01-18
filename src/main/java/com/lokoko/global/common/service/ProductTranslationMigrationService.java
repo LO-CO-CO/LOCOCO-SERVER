@@ -176,9 +176,9 @@ public class ProductTranslationMigrationService {
         Long productId = product.getId();
         
         // 1. brand_name 마이그레이션
-        if (product.getBrandName() != null && !product.getBrandName().isEmpty()) {
+        if (product.getProductBrand().getBrandName() != null && !product.getProductBrand().getBrandName().isEmpty()) {
             String brandKey = "product_brand_" + productId;
-            createTranslations(brandKey, product.getBrandName());
+            createTranslations(brandKey, product.getProductBrand().getBrandName());
         }
         
         // 2. ingredients 마이그레이션
@@ -349,7 +349,7 @@ public class ProductTranslationMigrationService {
         boolean allValid = true;
         
         // brand_name 검증
-        if (product.getBrandName() != null && !product.getBrandName().isEmpty()) {
+        if (product.getProductBrand().getBrandName() != null && !product.getProductBrand().getBrandName().isEmpty()) {
             String brandKey = "product_brand_" + productId;
             allValid &= validateTranslations(brandKey);
         }

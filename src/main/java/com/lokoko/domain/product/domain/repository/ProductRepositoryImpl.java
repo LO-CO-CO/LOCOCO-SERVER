@@ -233,7 +233,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .select(Projections.constructor(PopularProductProjection.class,
                         p.id,
                         p.productName,
-                        p.brandName,
+                        p.productBrand.brandName,
                         p.unit,
                         r.id.count(),
                         ratingValue.avg(),
@@ -246,7 +246,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
         List<PopularProductProjection> content = query
                 .where(p.middleCategory.eq(category))
-                .groupBy(p.id, p.productName, p.brandName, p.unit, productImage.url)
+                .groupBy(p.id, p.productName, p.productBrand.brandName, p.unit, productImage.url)
                 .orderBy(r.id.count().desc(), ratingValue.avg().desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
@@ -277,7 +277,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .select(Projections.constructor(NewProductProjection.class,
                         p.id,
                         p.productName,
-                        p.brandName,
+                        p.productBrand.brandName,
                         p.unit,
                         r.id.count(),
                         ratingValue.avg(),
@@ -294,7 +294,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         p.middleCategory.eq(category)
                                 .and(p.tag.eq(Tag.NEW))
                 )
-                .groupBy(p.id, p.productName, p.brandName, p.unit, productImage.url, p.createdAt)
+                .groupBy(p.id, p.productName, p.productBrand.brandName, p.unit, productImage.url, p.createdAt)
                 .orderBy(
                         r.id.count().desc(), //  리뷰 수
                         ratingValue.avg().desc(), // 별점

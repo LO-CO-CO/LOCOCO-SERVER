@@ -1,14 +1,15 @@
 package com.lokoko.domain.productReview.api.dto.response;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lokoko.domain.media.image.domain.entity.ProductImage;
 import com.lokoko.domain.media.video.domain.entity.ReviewVideo;
 import com.lokoko.domain.productReview.domain.entity.Review;
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 public record VideoReviewDetailResponse(
         @Schema(requiredMode = REQUIRED)
@@ -62,7 +63,7 @@ public record VideoReviewDetailResponse(
 
         return new VideoReviewDetailResponse(
                 review.getId(),
-                review.getProduct().getBrandName(),
+                review.getProduct().getProductBrand().getBrandName(),
                 review.getProduct().getProductName(),
                 review.getPositiveContent(),
                 review.getNegativeContent(),

@@ -1,8 +1,6 @@
 package com.lokoko.domain.media.video.domain.repository;
 
 
-import static com.lokoko.domain.like.domain.entity.QReviewLike.reviewLike;
-
 import com.lokoko.domain.media.video.domain.entity.QReviewVideo;
 import com.lokoko.domain.product.domain.entity.QProduct;
 import com.lokoko.domain.productReview.api.dto.response.MainVideoReview;
@@ -10,9 +8,12 @@ import com.lokoko.domain.productReview.domain.entity.QReview;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+import static com.lokoko.domain.like.domain.entity.QReviewLike.reviewLike;
 
 @Repository
 @RequiredArgsConstructor
@@ -29,7 +30,7 @@ public class ReviewVideoRepositoryImpl implements ReviewVideoRepositoryCustom {
                 .select(Projections.constructor(MainVideoReview.class,
                         review.id,
                         product.id,
-                        product.brandName,
+                        product.productBrand.brandName,
                         product.productName,
                         reviewLike.count().intValue(),
                         // 일단 여기서 rank 0, service에서 추가
@@ -41,7 +42,7 @@ public class ReviewVideoRepositoryImpl implements ReviewVideoRepositoryCustom {
                 .join(review.product, product)
                 .leftJoin(reviewLike).on(reviewLike.review.eq(review))
                 .where(reviewVideo.displayOrder.eq(0))
-                .groupBy(review.id, product.id, product.brandName, product.productName, review.rating,
+                .groupBy(review.id, product.id, product.productBrand.brandName, product.productName, review.rating,
                         reviewVideo.mediaFile.fileUrl)
                 .orderBy(reviewLike.count().desc(), review.rating.desc())
                 .limit(4)

@@ -8,9 +8,10 @@ import com.lokoko.domain.productReview.domain.entity.QReview;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -28,7 +29,7 @@ public class ReviewImageRepositoryImpl implements ReviewImageRepositoryCustom {
                 .select(Projections.constructor(MainImageReview.class,
                         review.id,
                         product.id,
-                        product.brandName,
+                        product.productBrand.brandName,
                         product.productName,
                         reviewLike.count().intValue(),
                         // 일단 여기서 rank 0, service에서 추가
@@ -40,7 +41,7 @@ public class ReviewImageRepositoryImpl implements ReviewImageRepositoryCustom {
                 .join(review.product, product)
                 .leftJoin(reviewLike).on(reviewLike.review.eq(review))
                 .where(reviewImage.displayOrder.eq(0))
-                .groupBy(review.id, product.id, product.brandName, product.productName, review.rating,
+                .groupBy(review.id, product.id, product.productBrand.brandName, product.productName, review.rating,
                         reviewImage.mediaFile.fileUrl)
                 .orderBy(reviewLike.count().desc(), review.rating.desc())
                 .limit(4)
