@@ -67,6 +67,9 @@ public class AdminProductCreateService {
         ProductBrand productBrand = productBrandRepository.findById(request.productBrandId())
                 .orElseThrow(ProductBrandNotFoundException::new);
 
+        List<ProductImageRequest> images = request.images();
+        validateImages(images);
+
         Product product = Product.builder()
                 .productBrand(productBrand)
                 .productName(request.productName())
@@ -79,9 +82,6 @@ public class AdminProductCreateService {
                 .build();
 
         Product savedProduct = productRepository.save(product);
-
-        List<ProductImageRequest> images = request.images();
-        validateImages(images);
 
         String mainUrl = images.get(0).url();
 

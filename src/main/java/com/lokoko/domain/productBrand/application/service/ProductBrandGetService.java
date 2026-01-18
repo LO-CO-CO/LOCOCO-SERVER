@@ -3,9 +3,9 @@ package com.lokoko.domain.productBrand.application.service;
 import com.lokoko.domain.productBrand.domain.entity.ProductBrand;
 import com.lokoko.domain.productBrand.domain.repository.ProductBrandRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public class ProductBrandGetService {
 
     public List<ProductBrand> getBrandNames(String startsWith) {
 
-        Sort sort = Sort.by(Sort.Direction.ASC);
+        Sort sort = Sort.by(Sort.Direction.ASC, "brandName");
 
         // 파라미터 없으면 전체
         if (startsWith == null || startsWith.isBlank()) {
