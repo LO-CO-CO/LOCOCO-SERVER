@@ -24,7 +24,8 @@ public class PermitUrlConfig {
                 "/api/admin/login",
                 "/api/reviews/brands/videos",
                 "/api/reviews/brands/images",
-                "/api/product-brand"
+                "/api/product-brand",
+                "/api/reviews/brands/summary"
         };
     }
 
