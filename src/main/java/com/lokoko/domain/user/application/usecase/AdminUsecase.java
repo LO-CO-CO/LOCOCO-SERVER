@@ -1,7 +1,11 @@
 package com.lokoko.domain.user.application.usecase;
 
+import com.lokoko.domain.campaign.api.dto.request.AdminCampaignCreateRequest;
+import com.lokoko.domain.campaign.api.dto.response.AdminCampaignBasicResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.campaign.application.service.CampaignGetService;
+import com.lokoko.domain.campaign.application.service.CampaignService;
+import com.lokoko.domain.campaign.domain.entity.enums.ActionType;
 import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
 import com.lokoko.domain.media.api.dto.request.ProductImagePresignedUrlRequest;
 import com.lokoko.domain.media.api.dto.response.ProductImageResponse;
@@ -43,6 +47,7 @@ public class AdminUsecase {
 
     private final UserGetService userGetService;
     private final CampaignGetService campaignGetService;
+    private final CampaignService campaignService;
 
     private final AdminCreatorGetService adminCreatorGetService;
     private final AdminCampaignUpdateService adminCampaignUpdateService;
@@ -96,7 +101,7 @@ public class AdminUsecase {
         return campaignRepository.findAllCampaignsByAdmin(status, PageRequest.of(page, size));
     }
 
-    public CampaignBasicResponse findCampaignDetail(Long userId, Long campaignId) {
+    public AdminCampaignBasicResponse findCampaignDetail(Long userId, Long campaignId) {
         validateIsAdmin(userId);
         return campaignGetService.getCampaignDetailForAdmin(campaignId);
     }
@@ -145,4 +150,11 @@ public class AdminUsecase {
                 .mediaUrl(urls)
                 .build();
     }
+
+    public CampaignBasicResponse publishCampaign(Long userId, AdminCampaignCreateRequest request) {
+        validateIsAdmin(userId);
+        AdminCampaignCreateRequest createRequest = AdminCampaignCreateRequest.convertPublishToCreateRequest(request);
+        return campaignService.createCampaignWithActionForAdmin(ActionType.PUBLISH, createRequest);
+    }
+
 }
