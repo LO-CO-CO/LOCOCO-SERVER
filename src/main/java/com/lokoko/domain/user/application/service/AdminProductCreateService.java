@@ -36,24 +36,13 @@ public class AdminProductCreateService {
 
     private static final int MAX_IMAGE_COUNT = 5;
 
-    @Transactional
     public List<String> createPresignedUrlForProductImages(ProductImagePresignedUrlRequest request) {
         List<String> mediaTypes = request.mediaType();
 
-        if (mediaTypes == null || mediaTypes.isEmpty()) {
-            throw new ProductImageCountException();
-        }
+        int imageCount = mediaTypes == null ? 0 : mediaTypes.size();
 
-        if (mediaTypes.size() > MAX_IMAGE_COUNT) {
-            throw new ProductImageCountException();
-        }
-
-        boolean allImage = mediaTypes.stream()
-                .allMatch(type -> type.startsWith("image/"));
-
-        if (!allImage) {
-            throw new InvalidMediaTypeException(ErrorMessage.UNSUPPORTED_MEDIA_TYPE);
-        }
+        validateImageCount(imageCount);
+        validateImageMediaType(mediaTypes);
 
         return mediaTypes.stream()
                 .map(s3Service::generatePresignedUrl)
@@ -68,7 +57,8 @@ public class AdminProductCreateService {
                 .orElseThrow(ProductBrandNotFoundException::new);
 
         List<ProductImageRequest> images = request.images();
-        validateImages(images);
+        int imageCount = images == null ? 0 : images.size();
+        validateImageCount(imageCount);
 
         Product product = Product.builder()
                 .productBrand(productBrand)
@@ -83,13 +73,11 @@ public class AdminProductCreateService {
 
         Product savedProduct = productRepository.save(product);
 
-        String mainUrl = images.get(0).url();
-
         List<ProductImage> productImages = images.stream()
                 .map(img -> ProductImage.builder()
                         .product(savedProduct)
                         .url(img.url())
-                        .isMain(img.url().equals(mainUrl))
+                        .isMain(img.displayOrder() == 0)
                         .build())
                 .collect(Collectors.toList());
 
@@ -100,12 +88,21 @@ public class AdminProductCreateService {
                 .build();
     }
 
-    private void validateImages(List<ProductImageRequest> images) {
-        if (images == null || images.isEmpty()) {
+    private void validateImageCount(int imageCount) {
+        if (imageCount <= 0) {
             throw new ProductImageCountException();
         }
-        if (images.size() > MAX_IMAGE_COUNT) {
+        if (imageCount > MAX_IMAGE_COUNT) {
             throw new ProductImageCountException();
+        }
+    }
+
+    private void validateImageMediaType(List<String> mediaTypes) {
+        boolean hasInvalidMediaType = mediaTypes.stream()
+                .anyMatch(type -> !type.startsWith("image/"));
+
+        if (hasInvalidMediaType) {
+            throw new InvalidMediaTypeException(ErrorMessage.UNSUPPORTED_MEDIA_TYPE);
         }
     }
 }
