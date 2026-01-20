@@ -424,10 +424,13 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
 
         BooleanExpression statusCondition = createStatusCondition(status);
 
+        StringExpression brandNameExpression = campaign.brandName
+                .coalesce(campaign.brand.brandName);
+
         List<AdminCampaignInfoResponse> campaignList = queryFactory
                 .select(Projections.constructor(AdminCampaignInfoResponse.class,
                         campaign.id,
-                        campaign.brand.brandName,
+                        brandNameExpression,
                         campaign.title,
                         Projections.constructor(AdminCampaignInfoResponse.RecruitmentStatus.class,
                                 campaign.recruitmentNumber,

@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.List;
 
 public record CampaignModifyRequest(
+        String brandName,
         String campaignTitle,
         CampaignLanguage language,
         CampaignType campaignType,

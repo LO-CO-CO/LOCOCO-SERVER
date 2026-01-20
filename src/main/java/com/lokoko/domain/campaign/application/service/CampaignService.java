@@ -7,6 +7,7 @@ import com.lokoko.domain.brand.api.dto.response.CreatorApprovedResponse;
 import com.lokoko.domain.brand.domain.entity.Brand;
 import com.lokoko.domain.brand.domain.repository.BrandRepository;
 import com.lokoko.domain.brand.exception.BrandNotFoundException;
+import com.lokoko.domain.campaign.api.dto.request.AdminCampaignCreateRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignCreateRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignDraftRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignPublishRequest;
@@ -92,12 +93,6 @@ public class CampaignService {
     }
 
     @Transactional
-    public CampaignBasicResponse createAndPublishCampaignForAdmin(Long brandId, CampaignPublishRequest publishRequest) {
-        CampaignCreateRequest createRequest = CampaignCreateRequest.convertPublishToCreateRequest(publishRequest);
-        return createCampaignWithActionForAdmin(brandId, ActionType.PUBLISH, createRequest);
-    }
-
-    @Transactional
     public CampaignBasicResponse updateCampaignToDraft(Long brandId, Long campaignId,
                                                        CampaignDraftRequest draftRequest) {
         CampaignCreateRequest updateRequest = CampaignCreateRequest.convertDraftToCreateRequest(draftRequest);
@@ -128,14 +123,11 @@ public class CampaignService {
     }
 
     @Transactional
-    public CampaignBasicResponse createCampaignWithActionForAdmin(Long brandId, ActionType actionType,
-                                                                  CampaignCreateRequest createRequest) {
-        Brand brand = brandRepository.findById(brandId)
-                .orElseThrow(BrandNotFoundException::new);
+    public CampaignBasicResponse createCampaignWithActionForAdmin(ActionType actionType,
+                                                                  AdminCampaignCreateRequest createRequest) {
+        Campaign campaign = Campaign.createCampaignForAdmin(createRequest);
 
-        Campaign campaign = Campaign.createCampaign(createRequest, brand);
-
-        validatePublishableCampaign(actionType, campaign);
+        validatePublishableCampaignForAdmin(actionType, campaign);
 
         Campaign savedCampaign = campaignRepository.save(campaign);
         List<CampaignImage> savedImages = saveImagesForAdmin(createRequest, savedCampaign);
@@ -169,7 +161,7 @@ public class CampaignService {
         return campaignImageRepository.saveAll(toSaveImages);
     }
 
-    private List<CampaignImage> saveImagesForAdmin(CampaignCreateRequest createRequest, Campaign campaign) {
+    private List<CampaignImage> saveImagesForAdmin(AdminCampaignCreateRequest createRequest, Campaign campaign) {
 
         List<CampaignImage> toSaveImages = Stream.of(
                         createRequest.thumbnailImages(),
@@ -177,7 +169,7 @@ public class CampaignService {
                 )
                 .flatMap(Collection::stream)
                 .map(img -> {
-                    MediaFile mediaFile = createMediaFileFromRegularUrl(img.url());
+                    MediaFile mediaFile = S3UrlParser.parsePresignedUrl(img.url());
                     return CampaignImage.createCampaignImage(
                             mediaFile,
                             img.displayOrder(),
@@ -187,18 +179,6 @@ public class CampaignService {
                 .collect(Collectors.toList());
 
         return campaignImageRepository.saveAll(toSaveImages);
-    }
-
-    private MediaFile createMediaFileFromRegularUrl(String regularUrl) {
-        try {
-            URI uri = new URI(regularUrl);
-            String path = uri.getPath();
-            String fileName = Paths.get(path).getFileName().toString();
-
-            return MediaFile.of(fileName, regularUrl);
-        } catch (Exception e) {
-            throw new PresignedUrlParsingException();
-        }
     }
 
     private CampaignBasicResponse buildCampaignCreateResponse(
@@ -257,6 +237,20 @@ public class CampaignService {
     private static void validatePublishableCampaign(ActionType actionType, Campaign campaign) {
         if (actionType == ActionType.PUBLISH) {
             campaign.validatePublishable();
+            campaign.publish();
+        }
+    }
+
+    /**
+     * 어드민이 생성한 캠페인이 발행가능한지 검증한다.
+     * Brand 연관관계 대신 brandName 필드를 검증한다.
+     *
+     * @param actionType 임시저장 / 발행 여부
+     * @param campaign   캠페인 엔티티
+     */
+    private static void validatePublishableCampaignForAdmin(ActionType actionType, Campaign campaign) {
+        if (actionType == ActionType.PUBLISH) {
+            campaign.validatePublishableForAdmin();
             campaign.publish();
         }
     }

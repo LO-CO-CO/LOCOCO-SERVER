@@ -6,12 +6,7 @@ import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignInfoListResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandMyCampaignListResponse;
 import com.lokoko.domain.brand.api.dto.response.CampaignApplicantListResponse;
 import com.lokoko.domain.brand.domain.entity.Brand;
-import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
-import com.lokoko.domain.campaign.api.dto.response.CampaignDetailResponse;
-import com.lokoko.domain.campaign.api.dto.response.CampaignImageResponse;
-import com.lokoko.domain.campaign.api.dto.response.CampaignParticipatedResponse;
-import com.lokoko.domain.campaign.api.dto.response.MainPageCampaignListResponse;
-import com.lokoko.domain.campaign.api.dto.response.MainPageUpcomingCampaignListResponse;
+import com.lokoko.domain.campaign.api.dto.response.*;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignDetailPageStatus;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductTypeFilter;
@@ -221,7 +216,7 @@ public class CampaignGetService {
         return campaignRepository.findBrandDashboardCampaigns(brandId, PageRequest.of(page, size));
     }
 
-    public CampaignBasicResponse getCampaignDetailForAdmin(Long campaignId) {
+    public AdminCampaignBasicResponse getCampaignDetailForAdmin(Long campaignId) {
         Campaign campaign  = campaignRepository.findById(campaignId)
                 .orElseThrow(CampaignNotFoundException::new);
 
@@ -230,6 +225,6 @@ public class CampaignGetService {
         List<CampaignImageResponse> thumbnailImages = campaignImageRepository.findThumbnailImagesByCampaignId(campaignId);
         List<CampaignImageResponse> detailImages = campaignImageRepository.findDetailImagesByCampaignId(campaignId);
 
-        return CampaignBasicResponse.of(campaign, thumbnailImages, detailImages);
+        return AdminCampaignBasicResponse.of(campaign, thumbnailImages, detailImages);
     }
 }
