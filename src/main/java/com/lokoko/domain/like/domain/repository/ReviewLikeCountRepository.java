@@ -17,8 +17,8 @@ public interface ReviewLikeCountRepository extends JpaRepository<ReviewLikeCount
     int increase(@Param("reviewId") Long reviewId);
 
     // 좋아요 수 감소
-    @Query(value = "UPDATE review_like_count SET like_count = like_count -1 " +
-                   "WHERE review_id = :reviewId",
+    @Query(value = "UPDATE review_like_count SET like_count = CASE WHEN like_count > 0 THEN like_count -1 " +
+                   "ELSE 0 END WHERE review_id = :reviewId",
             nativeQuery = true
     )
     @Modifying
