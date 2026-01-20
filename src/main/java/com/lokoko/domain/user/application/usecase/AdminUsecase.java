@@ -4,7 +4,7 @@ import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.campaign.application.service.CampaignGetService;
 import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
 import com.lokoko.domain.media.api.dto.request.ProductImagePresignedUrlRequest;
-import com.lokoko.domain.media.api.dto.response.ProductImagePresignedUrlResponse;
+import com.lokoko.domain.media.api.dto.response.ProductImageResponse;
 import com.lokoko.domain.user.api.dto.request.AdminLoginRequest;
 import com.lokoko.domain.user.api.dto.request.AdminProductCreateRequest;
 import com.lokoko.domain.user.api.dto.request.ApproveCampaignIdsRequest;
@@ -134,15 +134,14 @@ public class AdminUsecase {
         return adminProductCreateService.createProduct(request);
     }
 
-    @Transactional
-    public ProductImagePresignedUrlResponse createProductImagePresignedUrl(
+    public ProductImageResponse createProductImagePresignedUrl(
             Long userId,
             ProductImagePresignedUrlRequest request
     ) {
         validateIsAdmin(userId);
         List<String> urls = adminProductCreateService.createPresignedUrlForProductImages(request);
 
-        return ProductImagePresignedUrlResponse.builder()
+        return ProductImageResponse.builder()
                 .mediaUrl(urls)
                 .build();
     }

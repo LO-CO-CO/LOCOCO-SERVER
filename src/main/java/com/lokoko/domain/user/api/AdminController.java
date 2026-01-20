@@ -2,7 +2,7 @@ package com.lokoko.domain.user.api;
 
 import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.media.api.dto.request.ProductImagePresignedUrlRequest;
-import com.lokoko.domain.media.api.dto.response.ProductImagePresignedUrlResponse;
+import com.lokoko.domain.media.api.dto.response.ProductImageResponse;
 import com.lokoko.domain.user.api.dto.request.AdminLoginRequest;
 import com.lokoko.domain.user.api.dto.request.AdminProductCreateRequest;
 import com.lokoko.domain.user.api.dto.request.ApproveCampaignIdsRequest;
@@ -173,11 +173,11 @@ public class AdminController {
 
     @Operation(summary = "어드민 상품 이미지 업로드용 presignedUrl 발급")
     @PostMapping("/products/images")
-    public ApiResponse<ProductImagePresignedUrlResponse> createProductImagePresignedUrl(
+    public ApiResponse<ProductImageResponse> createProductImagePresignedUrl(
             @Parameter(hidden = true) @CurrentUser Long userId,
             @Valid @RequestBody ProductImagePresignedUrlRequest request
     ) {
-        ProductImagePresignedUrlResponse response = adminUsecase.createProductImagePresignedUrl(userId, request);
+        ProductImageResponse response = adminUsecase.createProductImagePresignedUrl(userId, request);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_PRESIGNED_URL_SUCCESS.getMessage(), response);
     }
