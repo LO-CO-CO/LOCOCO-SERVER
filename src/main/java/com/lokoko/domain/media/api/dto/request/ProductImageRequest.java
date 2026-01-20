@@ -13,9 +13,7 @@ public record ProductImageRequest(
         String url,
 
         @Min(value = 0, message = "이미지 표시 순서는 음수가 될 수 없습니다.")
-        int displayOrder,
+        int displayOrder
 
-        @NotNull(message = "이미지 타입은 필수입니다.")
-        ImageType imageType
 ) {
 }
