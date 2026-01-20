@@ -2,6 +2,9 @@ package com.lokoko.domain.productReview.application.service;
 
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
+import com.lokoko.domain.productReview.api.dto.response.BrandImageReviewListResponse;
+import com.lokoko.domain.productReview.api.dto.response.BrandVideoReviewListResponse;
+import com.lokoko.domain.productReview.api.dto.response.ProductAndReviewCountResponse;
 import com.lokoko.domain.productReview.api.dto.response.ImageReviewListResponse;
 import com.lokoko.domain.productReview.api.dto.response.ImageReviewResponse;
 import com.lokoko.domain.productReview.api.dto.response.ImageReviewsProductDetailResponse;
@@ -97,6 +100,29 @@ public class ReviewReadService {
                 pageable);
 
         return KeywordImageReviewListResponse.from(keyword, imageReviews);
+    }
+
+    public BrandVideoReviewListResponse searchVideoReviewsByBrandName(String brandName, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Slice<VideoReviewResponse> videoReviews = reviewRepository.findVideoReviewsByBrandName(brandName, pageable);
+
+        return BrandVideoReviewListResponse.from(brandName, videoReviews);
+    }
+
+    public BrandImageReviewListResponse searchImageReviewsByBrandName(String brandName, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Slice<ImageReviewResponse> imageReviews = reviewRepository.findImageReviewsByBrandName(brandName, pageable);
+
+        return BrandImageReviewListResponse.from(brandName, imageReviews);
+    }
+
+    public ProductAndReviewCountResponse getProductAndReviewCount(String brandName) {
+        int productCount = reviewRepository.countProductsByBrandName(brandName);
+        int reviewCount = reviewRepository.countReviewsByBrandName(brandName);
+
+        return ProductAndReviewCountResponse.of(brandName, productCount, reviewCount);
     }
 
     public ImageReviewsProductDetailResponse getImageReviewsInProductDetail(Long productId, int page,

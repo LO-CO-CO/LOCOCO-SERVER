@@ -4,6 +4,8 @@ package com.lokoko.domain.productReview.application.service;
 import static com.lokoko.domain.media.application.utils.MediaValidationUtil.validateMediaFiles;
 import static com.lokoko.global.utils.AllowedMediaType.ALLOWED_MEDIA_TYPES;
 
+import com.lokoko.domain.like.domain.entity.ReviewLikeCount;
+import com.lokoko.domain.like.domain.repository.ReviewLikeCountRepository;
 import com.lokoko.domain.like.domain.repository.ReviewLikeRepository;
 import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
 import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
@@ -62,6 +64,8 @@ public class ReviewService {
     private final ProductRepository productRepository;
     private final ReviewVideoRepository reviewVideoRepository;
     private final ReviewLikeRepository reviewLikeRepository;
+    private final ReviewLikeCountRepository reviewLikeCountRepository;
+
 
     private final S3Service s3Service;
     private final ReviewCacheService reviewCacheService;
@@ -136,11 +140,7 @@ public class ReviewService {
     }
 
     @DistributedLock(key = "'review:product:' + #productId")
-    public ReviewResponse createReview(
-            Long productId,
-            Long userId,
-            ReviewRequest request
-    ) {
+    public ReviewResponse createReview(Long productId, Long userId, ReviewRequest request) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(ProductNotFoundException::new);
 
@@ -166,13 +166,16 @@ public class ReviewService {
         validateMediaFiles(mediaUrls);
 
         Review review = reviewMapper.toReview(request, user, product, option);
-        reviewRepository.save(review);
+        Review savedReview = reviewRepository.save(review);
 
         // 영수증 이미지 저장
         saveReceiptImages(receiptUrls, review);
 
         // 일반 이미지/비디오 저장
         saveMediaFiles(mediaUrls, review);
+
+        // ReviewLikeCount init
+        reviewLikeCountRepository.save(ReviewLikeCount.init(savedReview.getId(), 0L));
 
         eventPublisher.publishEvent(new PopularProductsCacheEvictEvent(product.getMiddleCategory()));
         eventPublisher.publishEvent(new PopularReviewsCacheEvictEvent());

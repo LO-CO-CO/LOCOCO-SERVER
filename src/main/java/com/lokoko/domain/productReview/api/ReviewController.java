@@ -6,6 +6,9 @@ import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
 import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
 import com.lokoko.domain.productReview.api.dto.request.ReviewReceiptRequest;
 import com.lokoko.domain.productReview.api.dto.request.ReviewRequest;
+import com.lokoko.domain.productReview.api.dto.response.BrandImageReviewListResponse;
+import com.lokoko.domain.productReview.api.dto.response.BrandVideoReviewListResponse;
+import com.lokoko.domain.productReview.api.dto.response.ProductAndReviewCountResponse;
 import com.lokoko.domain.productReview.api.dto.response.ImageReviewDetailResponse;
 import com.lokoko.domain.productReview.api.dto.response.ImageReviewsProductDetailResponse;
 import com.lokoko.domain.productReview.api.dto.response.MainImageReviewResponse;
@@ -142,5 +145,39 @@ public class ReviewController {
                                           @PathVariable Long reviewId) {
         reviewService.deleteReview(userId, reviewId);
         return ApiResponse.success(HttpStatus.OK, REVIEW_DELETE_SUCCESS.getMessage());
+    }
+
+    @Operation(summary = "브랜드명 기준 영상 리뷰 검색 (brandName 없으면 전체 조회)")
+    @GetMapping("/brands/videos")
+    public ApiResponse<BrandVideoReviewListResponse> searchVideoReviewsByBrandName(
+            @RequestParam(required = false) String brandName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size
+    ) {
+        BrandVideoReviewListResponse response = reviewReadService.searchVideoReviewsByBrandName(brandName, page, size);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_VIDEO_REVIEW_SEARCH_SUCCESS.getMessage(),
+                response);
+    }
+
+    @Operation(summary = "브랜드명 기준 사진 리뷰 검색 (brandName 없으면 전체 조회)")
+    @GetMapping("/brands/images")
+    public ApiResponse<BrandImageReviewListResponse> searchImageReviewsByBrandName(
+            @RequestParam(required = false) String brandName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size
+    ) {
+        BrandImageReviewListResponse response = reviewReadService.searchImageReviewsByBrandName(brandName, page, size);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_IMAGE_REVIEW_SEARCH_SUCCESS.getMessage(),
+                response);
+    }
+
+    @Operation(summary = "브랜드명 기준 상품 수 및 리뷰 수 조회 (brandName 없으면 전체 조회)")
+    @GetMapping("/brands/summary")
+    public ApiResponse<ProductAndReviewCountResponse> getProductAndReviewCount(
+            @RequestParam(required = false) String brandName
+    ) {
+        ProductAndReviewCountResponse response = reviewReadService.getProductAndReviewCount(brandName);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.BRAND_REVIEW_SUMMARY_SUCCESS.getMessage(),
+                response);
     }
 }
