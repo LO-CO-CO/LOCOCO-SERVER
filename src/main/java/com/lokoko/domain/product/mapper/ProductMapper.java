@@ -22,15 +22,16 @@ import com.lokoko.domain.product.domain.entity.ProductOption;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
 import com.lokoko.global.common.response.PageableResponse;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.ReportingPolicy;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.mapstruct.ReportingPolicy;
 
 @Mapper(
         componentModel = "spring",
@@ -121,7 +122,7 @@ public interface ProductMapper {
     @Mapping(target = "imageUrls", source = "response.imageUrls")
     @Mapping(target = "productOptions", source = "options")
     @Mapping(target = "productName", source = "response.productName")
-    @Mapping(target = "brandName", source = "response.brandName")
+    @Mapping(target = "brandName", source = "product.productBrand.brandName")
     @Mapping(target = "unit", source = "response.unit")
     @Mapping(target = "reviewCount", source = "response.reviewCount")
     @Mapping(target = "rating", source = "response.rating")
@@ -130,8 +131,6 @@ public interface ProductMapper {
     @Mapping(target = "normalPrice", source = "product.normalPrice")
     @Mapping(target = "productDetail", source = "product.productDetail")
     @Mapping(target = "ingredients", source = "product.ingredients")
-    @Mapping(target = "oliveYoungUrl", source = "product.oliveYoungUrl")
-    @Mapping(target = "q10Url", source = "product.qoo10Url")
     @Mapping(target = "middleCategory", source = "product.middleCategory")
     @Mapping(target = "subCategory", source = "product.subCategory")
     ProductDetailResponse toProductDetailResponse(
@@ -210,7 +209,7 @@ public interface ProductMapper {
     @Mapping(target = "productId", source = "product.id")
     @Mapping(target = "url", source = "summary.imageUrl")
     @Mapping(target = "productName", source = "product.productName")
-    @Mapping(target = "brandName", source = "product.brandName")
+    @Mapping(target = "brandName", source = "product.productBrand.brandName")
     @Mapping(target = "unit", source = "product.unit")
     @Mapping(target = "reviewCount", source = "summary.reviewCount")
     @Mapping(target = "rating", source = "summary.avgRating")

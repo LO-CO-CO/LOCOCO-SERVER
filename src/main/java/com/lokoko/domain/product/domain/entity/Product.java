@@ -2,23 +2,30 @@ package com.lokoko.domain.product.domain.entity;
 
 import com.lokoko.domain.product.domain.entity.enums.MainCategory;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
+import com.lokoko.domain.product.domain.entity.enums.ProductCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
 import com.lokoko.domain.product.domain.entity.enums.Tag;
+import com.lokoko.domain.productBrand.domain.entity.ProductBrand;
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+
+import java.time.Instant;
+import java.util.List;
 
 @Getter
 @Entity
@@ -34,11 +41,12 @@ public class Product extends BaseEntity {
     @Column(name = "product_id")
     private Long id;
 
-    @Column(nullable = false)
-    private long normalPrice;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_brand_id")
+    private ProductBrand productBrand;
 
     @Column(nullable = false)
-    private String brandName;
+    private long normalPrice;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String productName;
@@ -55,27 +63,30 @@ public class Product extends BaseEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String ingredients;
 
+    @Column(nullable = false)
+    private Instant manufacturedAt;
+
+    @Column(length = 30, nullable = false)
     private String unit;
 
     @Column(columnDefinition = "TEXT")
     private String youtubeUrl;
 
-    @Column(nullable = false)
-    private String oliveYoungUrl;
-
-    @Column(columnDefinition = "TEXT")
-    private String qoo10Url;
-
     @Enumerated(EnumType.STRING)
     @Column
     private Tag tag;
 
+    // 새롭게 추가된 카테고리
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 30)
+    private ProductCategory productCategory;
+
+    @Enumerated(EnumType.STRING)
+    @Column( length = 20)
     private MainCategory mainCategory;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column( length = 20)
     private MiddleCategory middleCategory;
 
     @Enumerated(EnumType.STRING)

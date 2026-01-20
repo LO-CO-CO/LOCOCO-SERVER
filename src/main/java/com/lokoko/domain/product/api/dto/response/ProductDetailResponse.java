@@ -38,10 +38,6 @@ public record ProductDetailResponse(
         @Schema(requiredMode = REQUIRED)
         String ingredients,
         @Schema(requiredMode = REQUIRED)
-        String oliveYoungUrl,
-        @Schema(requiredMode = REQUIRED)
-        String q10Url,
-        @Schema(requiredMode = REQUIRED)
         MiddleCategory middleCategory,
         @Schema(requiredMode = REQUIRED)
         SubCategory subCategory
@@ -64,8 +60,6 @@ public record ProductDetailResponse(
                 product.getNormalPrice(),
                 product.getProductDetail(),
                 product.getIngredients(),
-                product.getOliveYoungUrl(),
-                product.getQoo10Url(),
                 product.getMiddleCategory(),
                 product.getSubCategory()
         );

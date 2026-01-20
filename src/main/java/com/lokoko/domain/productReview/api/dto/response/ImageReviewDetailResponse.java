@@ -73,7 +73,7 @@ public record ImageReviewDetailResponse(
                 optionName,
                 totalLikes,
                 images,
-                product.getBrandName(),
+                product.getProductBrand().getBrandName(),
                 product.getProductName(),
                 productImage.getUrl(),
                 receiptImage,

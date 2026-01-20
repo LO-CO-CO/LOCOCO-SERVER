@@ -38,7 +38,7 @@ public record ProductListItemResponse(
                 product.getId(),
                 imageUrl,
                 product.getProductName(),
-                product.getBrandName(),
+                product.getProductBrand().getBrandName(),
                 product.getUnit(),
                 summary.reviewCount(),
                 summary.avgRating(),

@@ -5,12 +5,12 @@ import com.lokoko.domain.product.domain.entity.enums.MainCategory;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
 import com.lokoko.domain.product.domain.entity.enums.Tag;
-import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, ProductRepositoryCustom {
@@ -18,9 +18,6 @@ public interface ProductRepository extends JpaRepository<Product, Long>, Product
                                                             SubCategory subCategory);
 
     List<Product> findBySubCategory(SubCategory subCategory);
-
-    @Query("SELECT p FROM Product p WHERE p.oliveYoungUrl IS NOT NULL")
-    List<Product> findAllByOliveYoungUrlNotNull();
 
     Slice<Product> findByMiddleCategoryAndSubCategory(MiddleCategory middleCategory, SubCategory subCategory,
                                                       Pageable pageable);
