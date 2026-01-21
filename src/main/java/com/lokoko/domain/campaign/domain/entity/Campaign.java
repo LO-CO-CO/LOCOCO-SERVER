@@ -206,60 +206,6 @@ public class Campaign extends BaseEntity {
         }
     }
 
-    public void updateCampaignForAdmin(AdminCampaignCreateRequest request) {
-
-        if (request.brandName() != null) {
-            this.brandName = request.brandName();
-        }
-        if (request.campaignTitle() != null) {
-            this.title = request.campaignTitle();
-        }
-        if (request.language() != null) {
-            this.language = request.language();
-        }
-        if (request.campaignType() != null) {
-            this.campaignType = request.campaignType();
-        }
-        if (request.campaignProductType() != null) {
-            this.campaignProductType = request.campaignProductType();
-        }
-        if (request.applyStartDate() != null) {
-            this.applyStartDate = request.applyStartDate();
-        }
-        if (request.applyDeadline() != null) {
-            this.applyDeadline = request.applyDeadline();
-        }
-        if (request.creatorAnnouncementDate() != null) {
-            this.creatorAnnouncementDate = request.creatorAnnouncementDate();
-        }
-        if (request.reviewSubmissionDeadline() != null) {
-            this.reviewSubmissionDeadline = request.reviewSubmissionDeadline();
-        }
-        if (request.recruitmentNumber() != null) {
-            this.recruitmentNumber = request.recruitmentNumber();
-        }
-
-        if (request.participationRewards() != null) {
-            this.participationRewards.clear();
-            this.participationRewards.addAll(request.participationRewards());
-        }
-        if (request.deliverableRequirements() != null) {
-            this.deliverableRequirements.clear();
-            this.deliverableRequirements.addAll(request.deliverableRequirements());
-        }
-        if (request.eligibilityRequirements() != null) {
-            this.eligibilityRequirements.clear();
-            this.eligibilityRequirements.addAll(request.eligibilityRequirements());
-        }
-        if (request.firstContentType() != null) {
-            this.firstContentPlatform = request.firstContentType();
-        }
-        if (request.secondContentType() != null) {
-            this.secondContentPlatform = request.secondContentType();
-        }
-    }
-
-    // to be refactored...
     public void updateCampaign(CampaignModifyRequest request) {
 
         if (request.campaignTitle() != null) {
