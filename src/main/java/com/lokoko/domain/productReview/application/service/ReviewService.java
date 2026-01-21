@@ -175,7 +175,7 @@ public class ReviewService {
         saveMediaFiles(mediaUrls, review);
 
         // ReviewLikeCount init
-        reviewLikeCountRepository.save(ReviewLikeCount.init(savedReview.getId(), 0L));
+        reviewLikeCountRepository.save(ReviewLikeCount.init(savedReview.getId()));
 
         eventPublisher.publishEvent(new PopularProductsCacheEvictEvent(product.getMiddleCategory()));
         eventPublisher.publishEvent(new PopularReviewsCacheEvictEvent());

@@ -17,12 +17,11 @@ public class ReviewLikeCount {
 
     private Long reviewId;
 
-    private Long likeCount;
+    private long likeCount;
 
-    public static ReviewLikeCount init(Long reviewId, Long likeCount) {
+    public static ReviewLikeCount init(Long reviewId) {
         return ReviewLikeCount.builder()
                 .reviewId(reviewId)
-                .likeCount(likeCount)
                 .build();
     }
 
