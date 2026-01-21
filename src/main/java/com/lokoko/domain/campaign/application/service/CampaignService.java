@@ -117,6 +117,8 @@ public class CampaignService {
         validatePublishableCampaign(actionType, campaign);
 
         Campaign savedCampaign = campaignRepository.save(campaign);
+        savedCampaign.assignBrandName(savedCampaign.getBrand().getBrandName());
+
         List<CampaignImage> savedImages = saveImages(createRequest, savedCampaign);
 
         return buildCampaignCreateResponse(savedCampaign, savedImages);

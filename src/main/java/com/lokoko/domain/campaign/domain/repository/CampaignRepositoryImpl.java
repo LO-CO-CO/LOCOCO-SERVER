@@ -424,8 +424,10 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
 
         BooleanExpression statusCondition = createStatusCondition(status);
 
-        StringExpression brandNameExpression = campaign.brandName
-                .coalesce(campaign.brand.brandName);
+        StringExpression brandNameExpression = new CaseBuilder()
+                .when(campaign.brand.isNull())
+                .then(campaign.brandName)
+                .otherwise(campaign.brand.brandName);
 
         List<AdminCampaignInfoResponse> campaignList = queryFactory
                 .select(Projections.constructor(AdminCampaignInfoResponse.class,
@@ -440,6 +442,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                         approvedStatus
                 ))
                 .from(campaign)
+                .leftJoin(campaign.brand)
                 .where(statusCondition, campaign.campaignStatus.ne(CampaignStatus.DRAFT))
                 .orderBy(campaign.publishedAt.desc())
                 .offset(pageable.getOffset())

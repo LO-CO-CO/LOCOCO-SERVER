@@ -133,6 +133,9 @@ public class Campaign extends BaseEntity {
     @Column(nullable = false)
     private Integer deleted = 0;
 
+    public void assignBrandName(String brandName) {
+        this.brandName = brandName;
+    }
     /**
      * 캠페인 지원자 수 증가 메소드
      */
@@ -207,7 +210,9 @@ public class Campaign extends BaseEntity {
     }
 
     public void updateCampaign(CampaignModifyRequest request) {
-
+        if (request.brandName() != null) {
+            this.brandName = request.brandName();
+        }
         if (request.campaignTitle() != null) {
             this.title = request.campaignTitle();
         }
