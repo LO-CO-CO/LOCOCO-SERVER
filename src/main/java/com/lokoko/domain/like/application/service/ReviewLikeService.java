@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ReviewLikeService {
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
@@ -29,6 +28,7 @@ public class ReviewLikeService {
     private final ApplicationEventPublisher eventPublisher;
 
     @DistributedLock(key = "'like:review:' + #reviewId + ':user:' + #userId")
+    @Transactional
     public long toggleReviewLike(Long reviewId, Long userId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(ReviewNotFoundException::new);
