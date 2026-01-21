@@ -14,7 +14,7 @@ public record MainVideoReview(
         @Schema(requiredMode = REQUIRED)
         String productName,
         @Schema(requiredMode = REQUIRED)
-        Integer likeCount,
+        Long likeCount,
         @Schema(requiredMode = REQUIRED)
         Integer rank,
         @Schema(requiredMode = REQUIRED)

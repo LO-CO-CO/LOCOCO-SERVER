@@ -36,6 +36,14 @@ public interface ReviewRepositoryCustom {
 
     Slice<ImageReviewResponse> findImageReviewsByKeyword(List<String> tokens, Pageable pageable);
 
+    Slice<VideoReviewResponse> findVideoReviewsByBrandName(String brandName, Pageable pageable);
+
+    Slice<ImageReviewResponse> findImageReviewsByBrandName(String brandName, Pageable pageable);
+
+    int countProductsByBrandName(String brandName);
+
+    int countReviewsByBrandName(String brandName);
+
     List<RatingCount> countByProductIdsAndRating(List<Long> productIds);
 
     VideoReviewProductDetailResponse findVideoReviewsByProductId(Long productId);

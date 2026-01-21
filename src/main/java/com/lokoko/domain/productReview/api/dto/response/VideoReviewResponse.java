@@ -12,7 +12,7 @@ public record VideoReviewResponse(
         @Schema(requiredMode = REQUIRED)
         String productName,
         @Schema(requiredMode = REQUIRED)
-        Integer likeCount,
+        Long likeCount,
         @Schema(requiredMode = REQUIRED)
         String url
 ) {

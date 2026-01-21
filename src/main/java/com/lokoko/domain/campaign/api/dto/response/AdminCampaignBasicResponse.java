@@ -1,17 +1,22 @@
 package com.lokoko.domain.campaign.api.dto.response;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignType;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.Instant;
 import java.util.List;
 
-public record CampaignBasicResponse(
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+
+public record AdminCampaignBasicResponse(
+
+        @Schema(requiredMode = REQUIRED, description = "브랜드 이름", example = "LOCOCO")
+        String brandName,
+
         @Schema(requiredMode = REQUIRED, description = "캠페인 id", example = "1")
         Long campaignId,
 
@@ -33,16 +38,16 @@ public record CampaignBasicResponse(
         @Schema(requiredMode = REQUIRED, description = "하단 이미지 리스트")
         List<CampaignImageResponse> detailImages,
 
-        @Schema(requiredMode = REQUIRED, description = "크리에이터 지원 시작 일시", example = "2024-12-15T23:59:59Z")
+        @Schema(requiredMode = REQUIRED, description = "크리에이터 지원 시작 일시", example = "2025-09-17T시7:32:08.995Z")
         Instant applyStartDate,
 
-        @Schema(requiredMode = REQUIRED, description = "크리에이터 지원 마감 일", example = "2024-12-15T23:59:59Z")
+        @Schema(requiredMode = REQUIRED, description = "크리에이터 지원 마감 일", example = "2025-09-17T시7:32:08.995Z")
         Instant applyDeadline,
 
-        @Schema(requiredMode = REQUIRED, description = "크리에이터 발표 일시", example = "2024-12-15T23:59:59Z")
+        @Schema(requiredMode = REQUIRED, description = "크리에이터 발표 일시", example = "2025-09-17T07:32:08.995Z")
         Instant creatorAnnouncementDate,
 
-        @Schema(requiredMode = REQUIRED, description = "리뷰 제출 마감일", example = "2024-12-15T23:59:59Z")
+        @Schema(requiredMode = REQUIRED, description = "리뷰 제출 마감일", example = "2025-09-17T07:32:08.995Z")
         Instant reviewSubmissionDeadline,
 
         @Schema(requiredMode = REQUIRED, description = "모집 인원 수 ", example = "20")
@@ -63,9 +68,11 @@ public record CampaignBasicResponse(
         @Schema(requiredMode = REQUIRED, description = "두 번째 제출 컨텐츠", example = "TIKTOK_VIDEO")
         ContentType secondContentType
 ) {
-    public static CampaignBasicResponse of(Campaign campaign, List<CampaignImageResponse> thumbnailImages,
+
+    public static AdminCampaignBasicResponse of(Campaign campaign, List<CampaignImageResponse> thumbnailImages,
                                            List<CampaignImageResponse> detailImages) {
-        return new CampaignBasicResponse(
+        return new AdminCampaignBasicResponse(
+                campaign.getBrandName(),
                 campaign.getId(),
                 campaign.getTitle(),
                 campaign.getLanguage(),

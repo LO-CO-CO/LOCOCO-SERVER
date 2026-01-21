@@ -1,5 +1,7 @@
 package com.lokoko.domain.user.api;
 
+import com.lokoko.domain.campaign.api.dto.request.AdminCampaignCreateRequest;
+import com.lokoko.domain.campaign.api.dto.response.AdminCampaignBasicResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
 import com.lokoko.domain.media.api.dto.request.ProductImagePresignedUrlRequest;
 import com.lokoko.domain.media.api.dto.response.ProductImageResponse;
@@ -101,11 +103,11 @@ public class AdminController {
 
     @Operation(summary = "발행한 캠페인 정보 단건 조회(수정 페이지 진입 시 정보 반환 용)")
     @GetMapping("/campaigns/{campaignId}")
-    public ApiResponse<CampaignBasicResponse> getCampaignDetail(
+    public ApiResponse<AdminCampaignBasicResponse> getCampaignDetail(
             @Parameter(hidden = true) @CurrentUser Long userId,
             @PathVariable Long campaignId
     ) {
-        CampaignBasicResponse response = adminUsecase.findCampaignDetail(userId, campaignId);
+        AdminCampaignBasicResponse response = adminUsecase.findCampaignDetail(userId, campaignId);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_CAMPAIGN_DETAIL_GET_SUCCESS.getMessage(), response);
     }
 
@@ -118,6 +120,17 @@ public class AdminController {
     ) {
         adminUsecase.modifyCampaign(userId, campaignId, request);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_CAMPAIGN_MODIFY_SUCCESS.getMessage());
+    }
+
+    @Operation(summary = "어드민 - 캠페인 생성")
+    @PostMapping("/campaigns")
+    public ApiResponse<CampaignBasicResponse> createCampaignForAdmin(
+            @Parameter(hidden = true) @CurrentUser Long userId,
+            @RequestBody @Valid AdminCampaignCreateRequest request
+    ) {
+
+        CampaignBasicResponse response = adminUsecase.publishCampaign(userId, request);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_CAMPAIGN_CREATE_SUCCESS.getMessage(), response);
     }
 
     @Operation(summary = "어드민 - 전체 크리에이터 리스트 조회(페이지네이션)")

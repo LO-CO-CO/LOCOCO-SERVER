@@ -1,6 +1,7 @@
 package com.lokoko.domain.like.application.service;
 
 import com.lokoko.domain.like.domain.entity.ReviewLike;
+import com.lokoko.domain.like.domain.repository.ReviewLikeCountRepository;
 import com.lokoko.domain.like.domain.repository.ReviewLikeRepository;
 import com.lokoko.domain.productReview.application.event.PopularReviewsCacheEvictEvent;
 import com.lokoko.domain.productReview.domain.entity.Review;
@@ -18,14 +19,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ReviewLikeService {
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final ReviewLikeRepository reviewLikeRepository;
+    private final ReviewLikeCountRepository reviewLikeCountRepository;
+
     private final ApplicationEventPublisher eventPublisher;
 
     @DistributedLock(key = "'like:review:' + #reviewId + ':user:' + #userId")
+    @Transactional
     public long toggleReviewLike(Long reviewId, Long userId) {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(ReviewNotFoundException::new);
@@ -36,8 +39,10 @@ public class ReviewLikeService {
                 .findByReviewIdAndUserId(reviewId, userId);
         if (existing.isPresent()) {
             reviewLikeRepository.delete(existing.get());
+            reviewLikeCountRepository.decrease(reviewId);
         } else {
             reviewLikeRepository.save(ReviewLike.of(review, user));
+            reviewLikeCountRepository.increase(reviewId);
         }
 
         eventPublisher.publishEvent(new PopularReviewsCacheEvictEvent());

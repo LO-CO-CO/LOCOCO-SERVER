@@ -22,7 +22,10 @@ public class PermitUrlConfig {
                 "/api/products/details/{productId}/youtube",
                 "/api/campaigns/upcoming",
                 "/api/admin/login",
-                "/api/product-brand"
+                "/api/reviews/brands/videos",
+                "/api/reviews/brands/images",
+                "/api/product-brand",
+                "/api/reviews/brands/summary"
         };
     }
 
@@ -90,7 +93,7 @@ public class PermitUrlConfig {
                 "/api/campaignReviews/{campaignId}/second",
                 "/api/campaignReviews/my/participation",
                 "/api/campaignReviews/my/participation/{campaignId}",
-                "/api/creator/profile/campaigns",
+                "/api/creator/profile/campaigns"
         };
     }
 

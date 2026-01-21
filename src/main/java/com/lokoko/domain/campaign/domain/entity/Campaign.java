@@ -3,6 +3,7 @@ package com.lokoko.domain.campaign.domain.entity;
 import static jakarta.persistence.FetchType.LAZY;
 
 import com.lokoko.domain.brand.domain.entity.Brand;
+import com.lokoko.domain.campaign.api.dto.request.AdminCampaignCreateRequest;
 import com.lokoko.domain.campaign.api.dto.request.CampaignCreateRequest;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignLanguage;
 import com.lokoko.domain.campaign.domain.entity.enums.CampaignProductType;
@@ -41,6 +42,8 @@ public class Campaign extends BaseEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "brand_id")
     private Brand brand;
+
+    private String brandName;
 
     private String title;
 
@@ -130,6 +133,9 @@ public class Campaign extends BaseEntity {
     @Column(nullable = false)
     private Integer deleted = 0;
 
+    public void assignBrandName(String brandName) {
+        this.brandName = brandName;
+    }
     /**
      * 캠페인 지원자 수 증가 메소드
      */
@@ -203,9 +209,10 @@ public class Campaign extends BaseEntity {
         }
     }
 
-    // to be refactored...
     public void updateCampaign(CampaignModifyRequest request) {
-
+        if (request.brandName() != null) {
+            this.brandName = request.brandName();
+        }
         if (request.campaignTitle() != null) {
             this.title = request.campaignTitle();
         }
@@ -270,6 +277,12 @@ public class Campaign extends BaseEntity {
         }
     }
 
+    public void validatePublishableForAdmin() {
+        if (isDraftForAdmin()) {
+            throw new DraftNotFilledException();
+        }
+    }
+
     /**
      * 임시 저장 여부 반환 필수 필드 중 하나라도 비어있으면 임시저장으로 간주.
      *
@@ -293,10 +306,56 @@ public class Campaign extends BaseEntity {
         ).anyMatch(condition -> condition);
     }
 
+    /**
+     * 어드민 생성 캠페인의 임시 저장 여부 반환.
+     * Brand 연관관계 대신 brandName 필드를 검증한다.
+     *
+     * @return 임시저장 여부
+     */
+    public boolean isDraftForAdmin() {
+        return Stream.of(
+                this.brandName == null || this.brandName.isBlank(),
+                this.title == null || this.title.isBlank(),
+                this.language == null,
+                this.campaignType == null,
+                this.campaignProductType == null,
+                this.applyStartDate == null,
+                this.applyDeadline == null,
+                this.creatorAnnouncementDate == null,
+                this.reviewSubmissionDeadline == null,
+                this.recruitmentNumber == null,
+                this.participationRewards == null || this.participationRewards.isEmpty(),
+                this.deliverableRequirements == null || this.deliverableRequirements.isEmpty(),
+                this.firstContentPlatform == null
+        ).anyMatch(condition -> condition);
+    }
+
     public static Campaign createCampaign(CampaignCreateRequest request, Brand brand) {
 
         return Campaign.builder()
                 .brand(brand)
+                .title(request.campaignTitle())
+                .language(request.language())
+                .campaignType(request.campaignType())
+                .campaignStatus(CampaignStatus.DRAFT) // DRAFT 가 기본값
+                .campaignProductType(request.campaignProductType())
+                .applyStartDate(request.applyStartDate())
+                .applyDeadline(request.applyDeadline())
+                .creatorAnnouncementDate(request.creatorAnnouncementDate())
+                .reviewSubmissionDeadline(request.reviewSubmissionDeadline())
+                .recruitmentNumber(request.recruitmentNumber())
+                .participationRewards(request.participationRewards())
+                .deliverableRequirements(request.deliverableRequirements())
+                .eligibilityRequirements(request.eligibilityRequirements())
+                .firstContentPlatform(request.firstContentType())
+                .secondContentPlatform(request.secondContentType())
+                .build();
+    }
+
+    public static Campaign createCampaignForAdmin(AdminCampaignCreateRequest request) {
+
+        return Campaign.builder()
+                .brandName(request.brandName())
                 .title(request.campaignTitle())
                 .language(request.language())
                 .campaignType(request.campaignType())
