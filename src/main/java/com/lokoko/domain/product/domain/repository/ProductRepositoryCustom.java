@@ -10,7 +10,7 @@ import com.lokoko.domain.product.api.dto.PopularProductProjection;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
-import com.lokoko.domain.productBrand.api.dto.response.ProductBrandInfoProjection;
+import com.lokoko.domain.productBrand.api.dto.ProductBrandInfoProjection;
 
 public interface ProductRepositoryCustom {
 	Slice<Product> searchByTokens(List<String> tokens, Pageable pageable);

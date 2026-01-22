@@ -6,8 +6,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.lokoko.domain.productBrand.api.dto.ProductBrandInfoProjection;
 import com.lokoko.domain.productBrand.api.dto.response.ProductBrandInfoListResponse;
-import com.lokoko.domain.productBrand.api.dto.response.ProductBrandInfoProjection;
 import com.lokoko.domain.productBrand.api.dto.response.ProductBrandInfoResponse;
 import com.lokoko.domain.productBrand.api.dto.response.ProductBrandNameListResponse;
 import com.lokoko.domain.productBrand.application.mapper.ProductBrandMapper;

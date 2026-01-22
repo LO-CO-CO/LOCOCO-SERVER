@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
+import com.lokoko.domain.productBrand.api.dto.ProductBrandInfoProjection;
 import com.lokoko.domain.productBrand.api.dto.response.ProductBrandInfoListResponse;
-import com.lokoko.domain.productBrand.api.dto.response.ProductBrandInfoProjection;
 import com.lokoko.domain.productBrand.api.dto.response.ProductBrandInfoResponse;
 import com.lokoko.domain.productBrand.api.dto.response.ProductBrandName;
 import com.lokoko.domain.productBrand.api.dto.response.ProductBrandNameListResponse;

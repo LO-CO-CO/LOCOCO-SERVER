@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.lokoko.domain.product.domain.repository.ProductRepository;
-import com.lokoko.domain.productBrand.api.dto.response.ProductBrandInfoProjection;
+import com.lokoko.domain.productBrand.api.dto.ProductBrandInfoProjection;
 import com.lokoko.domain.productBrand.domain.entity.ProductBrand;
 import com.lokoko.domain.productBrand.domain.repository.ProductBrandRepository;
 

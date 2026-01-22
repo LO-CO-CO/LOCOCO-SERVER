@@ -19,7 +19,7 @@ import com.lokoko.domain.product.domain.entity.QProduct;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
 import com.lokoko.domain.product.domain.entity.enums.Tag;
-import com.lokoko.domain.productBrand.api.dto.response.ProductBrandInfoProjection;
+import com.lokoko.domain.productBrand.api.dto.ProductBrandInfoProjection;
 import com.lokoko.domain.productReview.domain.entity.QReview;
 import com.lokoko.domain.productReview.domain.entity.enums.Rating;
 import com.querydsl.core.BooleanBuilder;

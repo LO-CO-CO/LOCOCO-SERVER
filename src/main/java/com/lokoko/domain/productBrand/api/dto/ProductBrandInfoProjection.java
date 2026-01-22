@@ -1,4 +1,4 @@
-package com.lokoko.domain.productBrand.api.dto.response;
+package com.lokoko.domain.productBrand.api.dto;
 
 public record ProductBrandInfoProjection(
 	String productBrandName,
