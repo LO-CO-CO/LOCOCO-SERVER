@@ -9,8 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.lokoko.domain.productBrand.api.dto.response.ProductBrandInfoListResponse;
 import com.lokoko.domain.productBrand.api.dto.response.ProductBrandInfoProjection;
 import com.lokoko.domain.productBrand.api.dto.response.ProductBrandInfoResponse;
+import com.lokoko.domain.productBrand.api.dto.response.ProductBrandNameListResponse;
 import com.lokoko.domain.productBrand.application.mapper.ProductBrandMapper;
 import com.lokoko.domain.productBrand.application.service.ProductBrandGetService;
+import com.lokoko.domain.productBrand.domain.entity.ProductBrand;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +22,13 @@ public class ProductBrandUsecase {
 
 	private final ProductBrandGetService productBrandGetService;
 
-	private ProductBrandMapper productBrandMapper;
+	private final ProductBrandMapper productBrandMapper;
+
+	@Transactional(readOnly = true)
+	public ProductBrandNameListResponse getBrandNames(String startsWith) {
+		List<ProductBrand> brands = productBrandGetService.getBrandNames(startsWith);
+		return productBrandMapper.toBrandNameListResponse(brands);
+	}
 
 	@Transactional(readOnly = true)
 	public ProductBrandInfoListResponse getProductsByBrandName(String productBrandName, int page, int size) {
