@@ -229,14 +229,4 @@ public class ProductController {
 
         return ApiResponse.success(HttpStatus.OK, PRODUCT_YOUTUBE_DETAIL_SUCCESS.getMessage(), detailYoutube);
     }
-
-
-    @Operation(summary = "상품 엔티티의 search_token 필드 갱신",
-            description = "서버 전용 API 입니다. PRODUCT 테이블의 search_token 필드를 업데이트 하는 기능")
-    @PostMapping("/search-fields/migrate")
-    public ApiResponse<String> updateSearchFields() {
-        productMigrationService.migrateSearchFields();
-
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.PRODUCT_MIGRATION_SUCCESS.getMessage(), null);
-    }
 }
