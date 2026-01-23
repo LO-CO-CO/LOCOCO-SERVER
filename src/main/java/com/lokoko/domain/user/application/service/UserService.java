@@ -12,6 +12,7 @@ import com.lokoko.domain.customer.domain.repository.CustomerRepository;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.domain.user.domain.repository.UserRepository;
+import com.lokoko.domain.user.exception.AdminNotFoundException;
 import com.lokoko.domain.user.exception.UserIdAlreadyExistsException;
 import com.lokoko.domain.user.exception.UserNotFoundException;
 import com.lokoko.global.auth.exception.InvalidRoleException;
@@ -54,6 +55,10 @@ public class UserService {
         Role role = user.getRole();
 
         switch (role) {
+            case ADMIN:
+                User admin = userRepository.findById(userId).orElseThrow(AdminNotFoundException::new);
+                displayName = admin.getFirstName() + " " + admin.getLastName();
+                break;
             case CUSTOMER:
                 Customer customer = customerRepository.findById(userId).orElse(null);
                 if (customer != null && customer.getCustomerName() != null) {
