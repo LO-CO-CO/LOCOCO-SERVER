@@ -1,6 +1,7 @@
 package com.lokoko.domain.productReview.domain.repository;
 
 import com.lokoko.domain.like.domain.entity.QReviewLike;
+import com.lokoko.domain.like.domain.entity.QReviewLikeCount;
 import com.lokoko.domain.media.image.domain.entity.QReviewImage;
 import com.lokoko.domain.media.video.domain.entity.QReviewVideo;
 import com.lokoko.domain.product.domain.entity.QProduct;
@@ -25,6 +26,12 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
+import org.springframework.stereotype.Repository;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -32,11 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
-import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
@@ -49,6 +51,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     private final QReviewImage reviewImage = QReviewImage.reviewImage;
     private final QProductOption productOption = QProductOption.productOption;
     private final QReviewLike reviewLike = QReviewLike.reviewLike;
+    private final QReviewLikeCount reviewLikeCount = QReviewLikeCount.reviewLikeCount;
 
     private final UserRepository userRepository;
 
@@ -60,7 +63,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         List<VideoReviewResponse> content = queryFactory
                 .select(Projections.constructor(VideoReviewResponse.class,
                         review.id,
-                        product.brandName,
+                        product.productBrand.brandName,
                         product.productName,
                         reviewLike.count().intValue(),
                         reviewVideo.mediaFile.fileUrl
@@ -72,7 +75,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .where(
                         categoryCondition(middleCategory, subCategory)
                 )
-                .groupBy(review.id, product.brandName, product.productName, reviewVideo.mediaFile.fileUrl)
+                .groupBy(review.id, product.productBrand.brandName, product.productName, reviewVideo.mediaFile.fileUrl)
                 .orderBy(reviewLike.count().desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
@@ -100,7 +103,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         List<ImageReviewResponse> content = queryFactory
                 .select(Projections.constructor(ImageReviewResponse.class,
                         review.id,
-                        product.brandName,
+                        product.productBrand.brandName,
                         product.productName,
                         reviewLike.count().intValue(),
                         reviewImage.mediaFile.fileUrl
@@ -113,7 +116,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                         categoryCondition(middleCategory, subCategory),
                         reviewImage.isMain.eq(true)
                 )
-                .groupBy(review.id, product.brandName, product.productName, reviewImage.mediaFile.fileUrl)
+                .groupBy(review.id, product.productBrand.brandName, product.productName, reviewImage.mediaFile.fileUrl)
                 .orderBy(reviewLike.count().desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
@@ -156,11 +159,91 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         return createSlice(content, pageable);
     }
 
+    @Override
+    public Slice<VideoReviewResponse> findVideoReviewsByBrandName(String brandName, Pageable pageable) {
+        List<VideoReviewResponse> content = queryFactory
+                .select(Projections.constructor(VideoReviewResponse.class,
+                        review.id,
+                        product.productBrand.brandName,
+                        product.productName,
+                        reviewLikeCount.likeCount.coalesce(0L),
+                        reviewVideo.mediaFile.fileUrl
+                ))
+                .from(reviewVideo)
+                .innerJoin(reviewVideo.review, review)
+                .innerJoin(review.product, product)
+                .leftJoin(reviewLikeCount).on(reviewLikeCount.reviewId.eq(review.id))
+                .where(brandNameCondition(brandName))
+                .orderBy(reviewLikeCount.likeCount.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        return createSlice(content, pageable);
+    }
+
+    @Override
+    public Slice<ImageReviewResponse> findImageReviewsByBrandName(String brandName, Pageable pageable) {
+        List<ImageReviewResponse> content = queryFactory
+                .select(Projections.constructor(ImageReviewResponse.class,
+                        review.id,
+                        product.productBrand.brandName,
+                        product.productName,
+                        reviewLikeCount.likeCount.coalesce(0L),
+                        reviewImage.mediaFile.fileUrl
+                ))
+                .from(reviewImage)
+                .innerJoin(reviewImage.review, review)
+                .innerJoin(review.product, product)
+                .leftJoin(reviewLikeCount).on(reviewLikeCount.reviewId.eq(review.id))
+                .where(
+                        brandNameCondition(brandName),
+                        reviewImage.isMain.eq(true)
+                )
+                .orderBy(reviewLikeCount.likeCount.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        return createSlice(content, pageable);
+    }
+
+    @Override
+    public int countProductsByBrandName(String brandName) {
+        Long count = queryFactory
+                .select(product.countDistinct())
+                .from(product)
+                .innerJoin(review).on(review.product.eq(product))
+                .where(brandNameCondition(brandName))
+                .fetchOne();
+
+        return count != null ? count.intValue() : 0;
+    }
+
+    @Override
+    public int countReviewsByBrandName(String brandName) {
+        Long count = queryFactory
+                .select(review.count())
+                .from(review)
+                .innerJoin(review.product, product)
+                .where(brandNameCondition(brandName))
+                .fetchOne();
+
+        return count != null ? count.intValue() : 0;
+    }
+
+    private BooleanExpression brandNameCondition(String brandName) {
+        if (brandName == null || brandName.isBlank()) {
+            return null;
+        }
+        return product.productBrand.brandName.eq(brandName);
+    }
+
     private List<VideoReviewResponse> getVideoReviewsByKeyword(List<String> tokens, Pageable pageable) {
         return queryFactory
                 .select(Projections.constructor(VideoReviewResponse.class,
                         review.id,
-                        product.brandName,
+                        product.productBrand.brandName,
                         product.productName,
                         reviewLike.count().intValue(),
                         reviewVideo.mediaFile.fileUrl
@@ -170,7 +253,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .innerJoin(review.product, product)
                 .leftJoin(reviewLike).on(reviewLike.review.eq(review))
                 .where(keywordCondition(tokens))
-                .groupBy(review.id, product.brandName, product.productName, reviewVideo.mediaFile.fileUrl)
+                .groupBy(review.id, product.productBrand.brandName, product.productName, reviewVideo.mediaFile.fileUrl)
                 .orderBy(reviewLike.count().desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
@@ -181,7 +264,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         return queryFactory
                 .select(Projections.constructor(ImageReviewResponse.class,
                         review.id,
-                        product.brandName,
+                        product.productBrand.brandName,
                         product.productName,
                         reviewLike.count().intValue(),
                         reviewImage.mediaFile.fileUrl
@@ -192,7 +275,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .leftJoin(reviewLike).on(reviewLike.review.eq(review))
                 .where(keywordCondition(tokens),
                         reviewImage.isMain.eq(true))
-                .groupBy(review.id, product.brandName, product.productName, reviewImage.mediaFile.fileUrl)
+                .groupBy(review.id, product.productBrand.brandName, product.productName, reviewImage.mediaFile.fileUrl)
                 .orderBy(reviewLike.count().desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
@@ -449,7 +532,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         List<VideoReviewProductDetail> results = queryFactory
                 .select(Projections.constructor(VideoReviewProductDetail.class,
                         review.id,
-                        product.brandName,
+                        product.productBrand.brandName,
                         product.productName,
                         reviewLike.count().intValue(),
                         reviewVideo.mediaFile.fileUrl
@@ -459,7 +542,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .join(review.product, product)
                 .leftJoin(reviewLike).on(reviewLike.review.eq(review))
                 .where(product.id.eq(productId))
-                .groupBy(review.id, product.brandName, product.productName, reviewVideo.mediaFile.fileUrl)
+                .groupBy(review.id, product.productBrand.brandName, product.productName, reviewVideo.mediaFile.fileUrl)
                 .orderBy(reviewLike.count().desc(),
                         review.rating.desc())
                 .limit(10)

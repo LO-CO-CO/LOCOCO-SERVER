@@ -3,6 +3,7 @@ package com.lokoko.domain.media.video.domain.repository;
 
 import static com.lokoko.domain.like.domain.entity.QReviewLike.reviewLike;
 
+import com.lokoko.domain.like.domain.entity.QReviewLikeCount;
 import com.lokoko.domain.media.video.domain.entity.QReviewVideo;
 import com.lokoko.domain.product.domain.entity.QProduct;
 import com.lokoko.domain.productReview.api.dto.response.MainVideoReview;
@@ -21,6 +22,7 @@ public class ReviewVideoRepositoryImpl implements ReviewVideoRepositoryCustom {
     private static final QReviewVideo reviewVideo = QReviewVideo.reviewVideo;
     private static final QReview review = QReview.review;
     private static final QProduct product = QProduct.product;
+    private static final QReviewLikeCount reviewLikeCount = QReviewLikeCount.reviewLikeCount;
 
 
     @Override
@@ -29,7 +31,7 @@ public class ReviewVideoRepositoryImpl implements ReviewVideoRepositoryCustom {
                 .select(Projections.constructor(MainVideoReview.class,
                         review.id,
                         product.id,
-                        product.brandName,
+                        product.productBrand.brandName,
                         product.productName,
                         reviewLike.count().intValue(),
                         // 일단 여기서 rank 0, service에서 추가
@@ -39,11 +41,9 @@ public class ReviewVideoRepositoryImpl implements ReviewVideoRepositoryCustom {
                 .from(reviewVideo)
                 .join(reviewVideo.review, review)
                 .join(review.product, product)
-                .leftJoin(reviewLike).on(reviewLike.review.eq(review))
+                .leftJoin(reviewLikeCount).on(reviewLikeCount.reviewId.eq(review.id))
                 .where(reviewVideo.displayOrder.eq(0))
-                .groupBy(review.id, product.id, product.brandName, product.productName, review.rating,
-                        reviewVideo.mediaFile.fileUrl)
-                .orderBy(reviewLike.count().desc(), review.rating.desc())
+                .orderBy(reviewLikeCount.likeCount.desc())
                 .limit(4)
                 .fetch();
     }

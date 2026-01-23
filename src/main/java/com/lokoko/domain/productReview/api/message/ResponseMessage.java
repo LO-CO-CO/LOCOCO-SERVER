@@ -15,7 +15,10 @@ public enum ResponseMessage {
     MAIN_REVIEW_VIDEO_SUCCESS("메인페이지 상세 리뷰 비디오 조회에 성공했습니다."),
     VIDEO_REVIEW_DETAIL_SUCCESS("영상 리뷰 상세 조회에 성공했습니다."),
     IMAGE_REVIEW_DETAIL_SUCCESS("사진 리뷰 상세 조회에 성공했습니다."),
-    REVIEW_DELETE_SUCCESS("리뷰가 성공적으로 삭제되었습니다.");
+    REVIEW_DELETE_SUCCESS("리뷰가 성공적으로 삭제되었습니다."),
+    BRAND_VIDEO_REVIEW_SEARCH_SUCCESS("브랜드명 기준 영상 리뷰 검색에 성공했습니다."),
+    BRAND_IMAGE_REVIEW_SEARCH_SUCCESS("브랜드명 기준 사진 리뷰 검색에 성공했습니다."),
+    BRAND_REVIEW_SUMMARY_SUCCESS("브랜드명 기준 상품 수 및 리뷰 수 조회에 성공했습니다.");
 
     private final String message;
 }

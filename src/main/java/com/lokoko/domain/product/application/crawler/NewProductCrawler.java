@@ -125,7 +125,6 @@ public class NewProductCrawler {
 
             Product p = Product.builder()
                     .normalPrice(price)
-                    .brandName(brand)
                     .productName(detail)
                     .shippingInfo(ship != null ? ship : "배송 정보 없음")
                     .tag(tag)
@@ -134,7 +133,6 @@ public class NewProductCrawler {
                     .subCategory(sub)
                     .productDetail(productDetail)
                     .ingredients(ingredients)
-                    .oliveYoungUrl(url)
                     .build();
 
             Product saved = productRepository.save(p);

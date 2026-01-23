@@ -1,15 +1,16 @@
 package com.lokoko.domain.product.api.dto.response;
 
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lokoko.domain.product.domain.entity.Product;
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import lombok.Builder;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @Builder
 public record ProductBasicResponse(
@@ -48,7 +49,7 @@ public record ProductBasicResponse(
                 product.getId(),
                 images,
                 product.getProductName(),
-                product.getBrandName(),
+                product.getProductBrand().getBrandName(),
                 product.getUnit(),
                 summary.reviewCount(),
                 summary.avgRating(),

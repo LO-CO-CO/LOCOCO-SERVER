@@ -1,14 +1,6 @@
 package com.lokoko.domain.product.api;
 
 
-import static com.lokoko.domain.product.api.message.ResponseMessage.CATEGORY_NEW_LIST_SUCCESS;
-import static com.lokoko.domain.product.api.message.ResponseMessage.CATEGORY_POPULAR_LIST_SUCCESS;
-import static com.lokoko.domain.product.api.message.ResponseMessage.CATEGORY_REVIEW_SEARCH_SUCCESS;
-import static com.lokoko.domain.product.api.message.ResponseMessage.CATEGORY_SEARCH_SUCCESS;
-import static com.lokoko.domain.product.api.message.ResponseMessage.PRODUCT_DETAIL_SUCCESS;
-import static com.lokoko.domain.product.api.message.ResponseMessage.PRODUCT_YOUTUBE_DETAIL_SUCCESS;
-
-import com.lokoko.domain.product.api.dto.request.CrawlRequest;
 import com.lokoko.domain.product.api.dto.response.NewProductsByCategoryResponse;
 import com.lokoko.domain.product.api.dto.response.PopularProductsByCategoryResponse;
 import com.lokoko.domain.product.api.dto.response.ProductDetailResponse;
@@ -16,8 +8,6 @@ import com.lokoko.domain.product.api.dto.response.ProductYoutubeResponse;
 import com.lokoko.domain.product.api.dto.response.ProductsByCategoryResponse;
 import com.lokoko.domain.product.api.dto.response.SearchProductsResponse;
 import com.lokoko.domain.product.api.message.ResponseMessage;
-import com.lokoko.domain.product.application.crawler.NewProductCrawler;
-import com.lokoko.domain.product.application.crawler.ProductCrawler;
 import com.lokoko.domain.product.application.service.ProductReadService;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
@@ -32,7 +22,6 @@ import com.lokoko.global.common.entity.MediaType;
 import com.lokoko.global.common.entity.SearchType;
 import com.lokoko.global.common.response.ApiResponse;
 import com.lokoko.global.kuromoji.service.ProductMigrationService;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -44,31 +33,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import static com.lokoko.domain.product.api.message.ResponseMessage.*;
 
 @Tag(name = "PRODUCT")
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
 public class ProductController {
+
     private final ProductReadService productReadService;
-    private final ProductCrawler productCrawler;
-    private final NewProductCrawler newProductCrawler;
     private final ProductMigrationService productMigrationService;
     private final ReviewReadService reviewReadService;
 
-    @Hidden
-    @Operation(summary = "카테고리별 상품 크롤링")
-    @PostMapping("/crawl")
-    public ApiResponse<Void> crawl(@RequestBody CrawlRequest request) {
-        productCrawler.scrapeByCategory(request.mainCategory(), request.middleCategory());
-
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.PRODUCT_CRAWL_SUCCESS.getMessage(), null);
-
-    }
 
     @Operation(summary = "카테고리 별 상품 및 리뷰 검색")
     @ApiResponses(value = {
@@ -232,23 +212,6 @@ public class ProductController {
                 popularProductsByCategoryResponse);
     }
 
-    @Hidden
-    @Operation(summary = "카테고리별 신제품 크롤링")
-    @PostMapping("/crawl/new")
-    public ApiResponse<Void> crawlNew(@RequestBody CrawlRequest request) {
-        newProductCrawler.scrapeNewByCategory(request.mainCategory(), request.middleCategory());
-
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.PRODUCT_CRAWL_NEW_SUCCESS.getMessage(), null);
-    }
-
-    @Hidden
-    @Operation(summary = "상품 옵션 크롤링")
-    @PostMapping("/crawl/options")
-    public ApiResponse<Void> crawlOptions() {
-        productCrawler.crawlAllOptions();
-
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.PRODUCT_OPTION_SUCCESS.getMessage(), null);
-    }
 
     @Operation(summary = "상세조회 제품(별점 포함) 조회 (상세 조회)")
     @GetMapping("/details/{productId}")

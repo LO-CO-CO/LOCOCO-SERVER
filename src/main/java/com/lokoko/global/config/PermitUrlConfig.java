@@ -21,7 +21,11 @@ public class PermitUrlConfig {
                 "/api/reviews/{productId}/{userId}",
                 "/api/products/details/{productId}/youtube",
                 "/api/campaigns/upcoming",
-                "/api/admin/login"
+                "/api/admin/login",
+                "/api/reviews/brands/videos",
+                "/api/reviews/brands/images",
+                "/api/product-brand",
+                "/api/reviews/brands/summary"
         };
     }
 

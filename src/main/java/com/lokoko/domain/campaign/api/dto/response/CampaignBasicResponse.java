@@ -33,16 +33,16 @@ public record CampaignBasicResponse(
         @Schema(requiredMode = REQUIRED, description = "하단 이미지 리스트")
         List<CampaignImageResponse> detailImages,
 
-        @Schema(requiredMode = REQUIRED, description = "크리에이터 지원 시작 일시", example = "2025-09-17T시7:32:08.995Z")
+        @Schema(requiredMode = REQUIRED, description = "크리에이터 지원 시작 일시", example = "2024-12-15T23:59:59Z")
         Instant applyStartDate,
 
-        @Schema(requiredMode = REQUIRED, description = "크리에이터 지원 마감 일", example = "2025-09-17T시7:32:08.995Z")
+        @Schema(requiredMode = REQUIRED, description = "크리에이터 지원 마감 일", example = "2024-12-15T23:59:59Z")
         Instant applyDeadline,
 
-        @Schema(requiredMode = REQUIRED, description = "크리에이터 발표 일시", example = "2025-09-17T07:32:08.995Z")
+        @Schema(requiredMode = REQUIRED, description = "크리에이터 발표 일시", example = "2024-12-15T23:59:59Z")
         Instant creatorAnnouncementDate,
 
-        @Schema(requiredMode = REQUIRED, description = "리뷰 제출 마감일", example = "2025-09-17T07:32:08.995Z")
+        @Schema(requiredMode = REQUIRED, description = "리뷰 제출 마감일", example = "2024-12-15T23:59:59Z")
         Instant reviewSubmissionDeadline,
 
         @Schema(requiredMode = REQUIRED, description = "모집 인원 수 ", example = "20")

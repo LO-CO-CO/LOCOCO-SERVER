@@ -82,7 +82,8 @@ public class SecurityConfig {
                 Arrays.asList("https://52.79.208.129.nip.io", "https://15.164.250.59.nip.io",
                         "http://localhost:3000", "https://localhost:3000",
                         "https://lococo-test.vercel.app/", "https://lococo-client-web.vercel.app/ko",
-                        "https://www.lococo.beauty", "https://lococo.beauty"));
+                        "https://www.lococo.beauty", "https://lococo.beauty",
+                        "https://localhost:3100", "http://localhost:3100" , "https://admin.lococo.beauty"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList("Authorization", "RefreshToken"));

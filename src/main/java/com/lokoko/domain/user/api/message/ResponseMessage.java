@@ -13,12 +13,15 @@ public enum ResponseMessage {
     ADMIN_CAMPAIGN_LIST_GET_SUCCESS("어드민 캠페인 리스트 조회에 성공했습니다."),
     ADMIN_CAMPAIGN_DETAIL_GET_SUCCESS("어드민 캠페인 단건 정보 조회에 성공했습니다."),
     ADMIN_CAMPAIGN_MODIFY_SUCCESS("어드민 캠페인 수정에 성공했습니다."),
+    ADMIN_CAMPAIGN_CREATE_SUCCESS("어드민 캠페인 생성에 성공했습니다."),
     ADMIN_CREATOR_LIST_GET_SUCCESS("어드민 크리에이터 리스트 조회에 성공했습니다."),
     ADMIN_CREATORS_APPROVAL_SUCCESS("어드민 크리에이터 복수 승인에 성공했습니다."),
     ADMIN_CREATORS_DELETE_SUCCESS("어드민 크리에이터 복수 삭제에 성공했습니다."),
     ADMIN_LOGIN_SUCCESS("어드민 로그인에 성공했습니다."),
     ADMIN_REGISTER_SUCCESS("어드민 회원가입에 성공했습니다"),
-    USER_ID_CHECK_SUCCESS("사용 가능한 ID입니다.");
+    USER_ID_CHECK_SUCCESS("사용 가능한 ID입니다."),
+    ADMIN_PRODUCT_CREATE_SUCCESS("어드민 상품 등록에 성공했습니다"),
+    ADMIN_PRESIGNED_URL_SUCCESS("어드민 상품 이미지 Presigned Url 발급에 성공했습니다");
 
     private final String message;
 }

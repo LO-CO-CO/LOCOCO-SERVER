@@ -3,10 +3,11 @@ package com.lokoko.global.kuromoji.service;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.repository.ProductRepository;
 import jakarta.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +22,7 @@ public class ProductMigrationService {
 
         for (Product product : allProducts) {
             String name = product.getProductName();
-            String brand = product.getBrandName();
+            String brand = product.getProductBrand().getBrandName();
 
             List<String> tokens = new ArrayList<>();
             if (name != null && !name.isBlank()) {

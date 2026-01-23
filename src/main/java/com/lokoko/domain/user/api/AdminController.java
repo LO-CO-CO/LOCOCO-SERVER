@@ -1,10 +1,21 @@
 package com.lokoko.domain.user.api;
 
+import com.lokoko.domain.campaign.api.dto.request.AdminCampaignCreateRequest;
+import com.lokoko.domain.campaign.api.dto.response.AdminCampaignBasicResponse;
 import com.lokoko.domain.campaign.api.dto.response.CampaignBasicResponse;
-import com.lokoko.domain.user.api.dto.request.*;
+import com.lokoko.domain.media.api.dto.request.ProductImagePresignedUrlRequest;
+import com.lokoko.domain.media.api.dto.response.ProductImageResponse;
+import com.lokoko.domain.user.api.dto.request.AdminLoginRequest;
+import com.lokoko.domain.user.api.dto.request.AdminProductCreateRequest;
+import com.lokoko.domain.user.api.dto.request.ApproveCampaignIdsRequest;
+import com.lokoko.domain.user.api.dto.request.ApproveCreatorsRequest;
+import com.lokoko.domain.user.api.dto.request.CampaignModifyRequest;
+import com.lokoko.domain.user.api.dto.request.DeleteCampaignIdsRequest;
+import com.lokoko.domain.user.api.dto.request.DeleteCreatorsRequest;
 import com.lokoko.domain.user.api.dto.response.AdminCampaignListResponse;
 import com.lokoko.domain.user.api.dto.response.AdminCreatorListResponse;
 import com.lokoko.domain.user.api.dto.response.AdminLoginResponse;
+import com.lokoko.domain.user.api.dto.response.AdminProductCreateResponse;
 import com.lokoko.domain.user.api.message.ResponseMessage;
 import com.lokoko.domain.user.application.usecase.AdminUsecase;
 import com.lokoko.domain.user.domain.entity.enums.ApprovedStatus;
@@ -92,11 +103,11 @@ public class AdminController {
 
     @Operation(summary = "발행한 캠페인 정보 단건 조회(수정 페이지 진입 시 정보 반환 용)")
     @GetMapping("/campaigns/{campaignId}")
-    public ApiResponse<CampaignBasicResponse> getCampaignDetail(
+    public ApiResponse<AdminCampaignBasicResponse> getCampaignDetail(
             @Parameter(hidden = true) @CurrentUser Long userId,
             @PathVariable Long campaignId
     ) {
-        CampaignBasicResponse response = adminUsecase.findCampaignDetail(userId, campaignId);
+        AdminCampaignBasicResponse response = adminUsecase.findCampaignDetail(userId, campaignId);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_CAMPAIGN_DETAIL_GET_SUCCESS.getMessage(), response);
     }
 
@@ -109,6 +120,17 @@ public class AdminController {
     ) {
         adminUsecase.modifyCampaign(userId, campaignId, request);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_CAMPAIGN_MODIFY_SUCCESS.getMessage());
+    }
+
+    @Operation(summary = "어드민 - 캠페인 생성")
+    @PostMapping("/campaigns")
+    public ApiResponse<CampaignBasicResponse> createCampaignForAdmin(
+            @Parameter(hidden = true) @CurrentUser Long userId,
+            @RequestBody @Valid AdminCampaignCreateRequest request
+    ) {
+
+        CampaignBasicResponse response = adminUsecase.publishCampaign(userId, request);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_CAMPAIGN_CREATE_SUCCESS.getMessage(), response);
     }
 
     @Operation(summary = "어드민 - 전체 크리에이터 리스트 조회(페이지네이션)")
@@ -144,9 +166,33 @@ public class AdminController {
 
     @Operation(summary = "어드민 로그인")
     @PostMapping("/login")
-    public ApiResponse<AdminLoginResponse> login(@RequestBody @Valid AdminLoginRequest loginRequest, HttpServletResponse servletResponse){
+    public ApiResponse<AdminLoginResponse> login(@RequestBody @Valid AdminLoginRequest loginRequest, HttpServletResponse servletResponse) {
 
-        AdminLoginResponse response =  adminUsecase.login(loginRequest, servletResponse);
+        AdminLoginResponse response = adminUsecase.login(loginRequest, servletResponse);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_LOGIN_SUCCESS.getMessage(), response);
     }
+
+    @PostMapping("/product")
+    @Operation(summary = "어드민 상품 등록")
+    public ApiResponse<AdminProductCreateResponse> createProduct(
+            @Parameter(hidden = true) @CurrentUser Long userId,
+            @Valid @RequestBody AdminProductCreateRequest request
+    ) {
+        AdminProductCreateResponse response = adminUsecase.createProduct(userId, request);
+
+        return ApiResponse.success(HttpStatus.CREATED, ResponseMessage.ADMIN_PRODUCT_CREATE_SUCCESS.getMessage(), response);
+    }
+
+
+    @Operation(summary = "어드민 상품 이미지 업로드용 presignedUrl 발급")
+    @PostMapping("/products/images")
+    public ApiResponse<ProductImageResponse> createProductImagePresignedUrl(
+            @Parameter(hidden = true) @CurrentUser Long userId,
+            @Valid @RequestBody ProductImagePresignedUrlRequest request
+    ) {
+        ProductImageResponse response = adminUsecase.createProductImagePresignedUrl(userId, request);
+
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.ADMIN_PRESIGNED_URL_SUCCESS.getMessage(), response);
+    }
+
 }

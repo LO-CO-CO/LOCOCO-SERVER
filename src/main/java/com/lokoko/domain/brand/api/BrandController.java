@@ -278,6 +278,7 @@ public class BrandController {
                 response);
     }
 
+
     @Operation(summary = "브랜드 대시보드 캠페인 리스트 조회")
     @GetMapping("/dashboard/campaigns")
     public ApiResponse<BrandDashboardCampaignListResponse> getBrandDashboardCampaigns(
