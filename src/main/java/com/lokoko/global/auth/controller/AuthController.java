@@ -102,18 +102,6 @@ public class AuthController {
         return ApiResponse.success(HttpStatus.OK, ROLE_ASSIGNED_SUCCESS.getMessage(), roleResponse);
     }
 
-    /**
-     * Todo: 테스트용으로 JWT 토큰을 발급하고, 쿠키와 헤더에 저장하는 엔드포인트, 추후 제거 예정
-     */
-    @Operation(summary = "테스트용 JWT 토큰 발급")
-    @PostMapping("/login")
-    public ApiResponse<JwtLoginResponse> login(@RequestBody @Valid TestLoginRequest request) {
-        JwtTokenResponse tokenDto = jwtService.issueTokensForTest(request.userId());
-        JwtLoginResponse loginResponse = JwtLoginResponse.of(tokenDto);
-
-        return ApiResponse.success(HttpStatus.OK, LOGIN_SUCCESS.getMessage(), loginResponse);
-    }
-
     @PostMapping("/refresh")
     @Operation(summary = "RefreshToken 재발급")
     public ApiResponse<Void> reissueRefreshToken(HttpServletRequest request, HttpServletResponse response) {
