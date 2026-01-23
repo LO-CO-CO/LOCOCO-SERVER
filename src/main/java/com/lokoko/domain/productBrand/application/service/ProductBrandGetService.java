@@ -47,7 +47,7 @@ public class ProductBrandGetService {
 	public Slice<ProductBrandInfoProjection> getProductsByBrandName(String productBrandName, int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
 
-		return productRepository.getProductsByBrandName(productBrandName, pageable);
+		return productRepository.findProductsByBrandName(productBrandName, pageable);
 	}
 
 	public Long countProductsByBrandName(String productBrandName) {

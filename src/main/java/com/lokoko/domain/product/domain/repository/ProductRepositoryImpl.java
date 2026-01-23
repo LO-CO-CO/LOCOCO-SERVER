@@ -320,26 +320,25 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 	}
 
 	@Override
-	public Slice<ProductBrandInfoProjection> getProductsByBrandName(String productBrandName, Pageable pageable) {
-
+	public Slice<ProductBrandInfoProjection> findProductsByBrandName(String productBrandName, Pageable pageable) {
 		QProductImage mainProductImage = new QProductImage("mainProductImage");
 		QProductImage anyProductImage = new QProductImage("anyProductImage");
 
 		NumberExpression<Integer> ratingValue = new CaseBuilder()
-			.when(r.rating.eq(Rating.ONE)).then(1)
-			.when(r.rating.eq(Rating.TWO)).then(2)
-			.when(r.rating.eq(Rating.THREE)).then(3)
-			.when(r.rating.eq(Rating.FOUR)).then(4)
-			.when(r.rating.eq(Rating.FIVE)).then(5)
+			.when(review.rating.eq(Rating.ONE)).then(1)
+			.when(review.rating.eq(Rating.TWO)).then(2)
+			.when(review.rating.eq(Rating.THREE)).then(3)
+			.when(review.rating.eq(Rating.FOUR)).then(4)
+			.when(review.rating.eq(Rating.FIVE)).then(5)
 			.otherwise(0);
 
-		NumberExpression<Double> averageRatingExpression = ratingValue.avg().coalesce(0.0);
-		NumberExpression<Long> reviewCountExpression = r.id.count();
+		NumberExpression<Double> averageRatingExpression = ratingValue.avg();
+		NumberExpression<Long> reviewCountExpression = review.id.count();
 
 		var fallbackImageUrlSubquery = JPAExpressions
 			.select(anyProductImage.url.min())
 			.from(anyProductImage)
-			.where(anyProductImage.product.eq(p));
+			.where(anyProductImage.product.eq(product));
 
 		var imageUrlExpression = Expressions.stringTemplate(
 			"coalesce({0}, {1})",
@@ -350,33 +349,21 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		List<ProductBrandInfoProjection> content = queryFactory
 			.select(Projections.constructor(
 				ProductBrandInfoProjection.class,
-				p.productBrand.brandName,
-				p.productName,
-				p.unit,
+				product.productBrand.brandName,
+				product.productName,
+				product.unit,
 				averageRatingExpression,
 				imageUrlExpression
 			))
-			.from(p)
-			.join(p.productBrand)
-			.leftJoin(r).on(r.product.eq(p))
-			.leftJoin(mainProductImage).on(
-				mainProductImage.product.eq(p)
-					.and(mainProductImage.isMain.eq(true))
-			)
-			.where(p.productBrand.brandName.eq(productBrandName))
-			.groupBy(
-				p.id,
-				p.productBrand.brandName,
-				p.productName,
-				p.unit,
-				mainProductImage.url
-			)
-			.orderBy(
-				averageRatingExpression.desc(),
-				reviewCountExpression.desc(),
-				p.createdAt.desc(),
-				p.id.desc()
-			)
+			.from(product)
+			.join(product.productBrand)
+			.leftJoin(review).on(review.product.eq(product))
+			.leftJoin(mainProductImage).on(mainProductImage.product.eq(product).and(mainProductImage.isMain.eq(true)))
+			.where(product.productBrand.brandName.eq(productBrandName))
+			.groupBy(product.id, product.productBrand.brandName, product.productName, product.unit,
+				mainProductImage.url)
+			.orderBy(averageRatingExpression.desc(), reviewCountExpression.desc(), product.createdAt.desc(),
+				product.id.desc())
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize() + 1L)
 			.fetch();
@@ -385,7 +372,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		if (hasNext) {
 			content.remove(content.size() - 1);
 		}
-
 		return new SliceImpl<>(content, pageable, hasNext);
 	}
 

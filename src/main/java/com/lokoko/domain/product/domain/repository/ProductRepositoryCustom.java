@@ -28,7 +28,7 @@ public interface ProductRepositoryCustom {
 		Pageable pageable
 	);
 
-	Slice<ProductBrandInfoProjection> getProductsByBrandName(String productBrandName, Pageable pageable);
+	Slice<ProductBrandInfoProjection> findProductsByBrandName(String productBrandName, Pageable pageable);
 
 	Long countByProductBrandName(String productBrandName);
 }
