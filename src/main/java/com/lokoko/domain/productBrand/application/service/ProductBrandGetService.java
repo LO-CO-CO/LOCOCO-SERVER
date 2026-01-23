@@ -47,12 +47,21 @@ public class ProductBrandGetService {
 	public Slice<ProductBrandInfoProjection> getProductsByBrandName(String productBrandName, int page, int size) {
 		Pageable pageable = PageRequest.of(page, size);
 
+		/*
+		 * TODO: 추후 캐싱 추가
+		 */
+		if (productBrandName == null || productBrandName.isBlank()) {
+			return productRepository.findProductsOrderedByRating(pageable);
+		}
 		return productRepository.findProductsByBrandName(productBrandName, pageable);
 	}
 
 	public Long countProductsByBrandName(String productBrandName) {
-
+		if (productBrandName == null || productBrandName.isBlank()) {
+			return productRepository.countAllProducts();
+		}
 		return productRepository.countByProductBrandName(productBrandName);
 	}
+
 }
 

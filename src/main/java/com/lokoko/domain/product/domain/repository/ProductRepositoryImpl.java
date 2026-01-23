@@ -396,4 +396,78 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			.where(p.productBrand.brandName.eq(productBrandName))
 			.fetchOne();
 	}
+
+	@Override
+	public Slice<ProductBrandInfoProjection> findProductsOrderedByRating(Pageable pageable) {
+
+		QProductImage mainProductImage = new QProductImage("mainProductImage");
+		QProductImage anyProductImage = new QProductImage("anyProductImage");
+
+		NumberExpression<Integer> ratingValue = new CaseBuilder()
+			.when(r.rating.eq(Rating.ONE)).then(1)
+			.when(r.rating.eq(Rating.TWO)).then(2)
+			.when(r.rating.eq(Rating.THREE)).then(3)
+			.when(r.rating.eq(Rating.FOUR)).then(4)
+			.when(r.rating.eq(Rating.FIVE)).then(5)
+			.otherwise(0);
+
+		NumberExpression<Double> averageRatingExpression = ratingValue.avg();
+		NumberExpression<Long> reviewCountExpression = r.id.count();
+
+		var fallbackImageUrlSubquery = JPAExpressions
+			.select(anyProductImage.url.min())
+			.from(anyProductImage)
+			.where(anyProductImage.product.eq(p));
+
+		var imageUrlExpression = Expressions.stringTemplate(
+			"coalesce({0}, {1})",
+			mainProductImage.url,
+			fallbackImageUrlSubquery
+		);
+
+		List<ProductBrandInfoProjection> content = queryFactory
+			.select(Projections.constructor(
+				ProductBrandInfoProjection.class,
+				p.productBrand.brandName,
+				p.productName,
+				p.unit,
+				averageRatingExpression,
+				imageUrlExpression
+			))
+			.from(p)
+			.join(p.productBrand)
+			.leftJoin(r).on(r.product.eq(p))
+			.leftJoin(mainProductImage).on(mainProductImage.product.eq(p).and(mainProductImage.isMain.eq(true)))
+			.groupBy(
+				p.id,
+				p.productBrand.brandName,
+				p.productName,
+				p.unit,
+				mainProductImage.url
+			)
+			.orderBy(
+				averageRatingExpression.desc(),
+				reviewCountExpression.desc(),
+				p.createdAt.desc(),
+				p.id.desc()
+			)
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize() + 1L)
+			.fetch();
+
+		boolean hasNext = content.size() > pageable.getPageSize();
+		if (hasNext) {
+			content.remove(content.size() - 1);
+		}
+
+		return new SliceImpl<>(content, pageable, hasNext);
+	}
+
+	@Override
+	public Long countAllProducts() {
+		return queryFactory
+			.select(p.count())
+			.from(p)
+			.fetchOne();
+	}
 }

@@ -32,9 +32,9 @@ public class ProductBrandUsecase {
 
 	@Transactional(readOnly = true)
 	public ProductBrandInfoListResponse getProductsByBrandName(String productBrandName, int page, int size) {
-		Slice<ProductBrandInfoProjection> slice =
-			productBrandGetService.getProductsByBrandName(productBrandName, page, size);
 
+		Slice<ProductBrandInfoProjection> slice = productBrandGetService.getProductsByBrandName(productBrandName, page,
+			size);
 		Long totalElements = productBrandGetService.countProductsByBrandName(productBrandName);
 
 		List<ProductBrandInfoResponse> products = slice.getContent().stream()

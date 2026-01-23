@@ -37,7 +37,7 @@ public class ProductBrandController {
 	@Operation(summary = "브랜드 이름으로 상품 목록 조회 (페이지네이션, 별점 높은 순)")
 	@GetMapping("/products")
 	public ApiResponse<ProductBrandInfoListResponse> getProductsByBrandName(
-		@RequestParam String productBrandName,
+		@RequestParam(required = false) String productBrandName,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "12") int size
 	) {
