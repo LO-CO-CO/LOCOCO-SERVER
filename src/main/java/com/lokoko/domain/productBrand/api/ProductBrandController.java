@@ -14,7 +14,6 @@ import com.lokoko.global.common.response.ApiResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 
 @Tag(name = "PRODUCT BRAND")
@@ -38,7 +37,7 @@ public class ProductBrandController {
 	@Operation(summary = "브랜드 이름으로 상품 목록 조회 (페이지네이션, 별점 높은 순)")
 	@GetMapping("/products")
 	public ApiResponse<ProductBrandInfoListResponse> getProductsByBrandName(
-		@RequestParam @NotBlank String productBrandName,
+		@RequestParam String productBrandName,
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "12") int size
 	) {
