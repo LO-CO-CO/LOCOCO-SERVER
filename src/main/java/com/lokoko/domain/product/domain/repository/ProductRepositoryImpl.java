@@ -1,8 +1,5 @@
 package com.lokoko.domain.product.domain.repository;
 
-import static com.lokoko.domain.product.domain.entity.QProduct.*;
-import static com.lokoko.domain.productReview.domain.entity.QReview.*;
-
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
@@ -45,8 +42,8 @@ import lombok.extern.slf4j.Slf4j;
 public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
 	private final JPAQueryFactory queryFactory;
-	private final QProduct p = product;
-	private final QReview r = review;
+	private static final QProduct p = QProduct.product;
+	private static final QReview r = QReview.review;
 	private final QProductImage productImage = QProductImage.productImage;
 	private final QProductLike productLike = QProductLike.productLike;
 
@@ -321,24 +318,26 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
 	@Override
 	public Slice<ProductBrandInfoProjection> findProductsByBrandName(String productBrandName, Pageable pageable) {
+
+		// alias는 메서드 범위에서만 쓰므로 여기서 생성하는 게 맞습니다 (static final로 공유 X)
 		QProductImage mainProductImage = new QProductImage("mainProductImage");
 		QProductImage anyProductImage = new QProductImage("anyProductImage");
 
 		NumberExpression<Integer> ratingValue = new CaseBuilder()
-			.when(review.rating.eq(Rating.ONE)).then(1)
-			.when(review.rating.eq(Rating.TWO)).then(2)
-			.when(review.rating.eq(Rating.THREE)).then(3)
-			.when(review.rating.eq(Rating.FOUR)).then(4)
-			.when(review.rating.eq(Rating.FIVE)).then(5)
+			.when(r.rating.eq(Rating.ONE)).then(1)
+			.when(r.rating.eq(Rating.TWO)).then(2)
+			.when(r.rating.eq(Rating.THREE)).then(3)
+			.when(r.rating.eq(Rating.FOUR)).then(4)
+			.when(r.rating.eq(Rating.FIVE)).then(5)
 			.otherwise(0);
 
 		NumberExpression<Double> averageRatingExpression = ratingValue.avg();
-		NumberExpression<Long> reviewCountExpression = review.id.count();
+		NumberExpression<Long> reviewCountExpression = r.id.count();
 
 		var fallbackImageUrlSubquery = JPAExpressions
 			.select(anyProductImage.url.min())
 			.from(anyProductImage)
-			.where(anyProductImage.product.eq(product));
+			.where(anyProductImage.product.eq(p));
 
 		var imageUrlExpression = Expressions.stringTemplate(
 			"coalesce({0}, {1})",
@@ -349,21 +348,33 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		List<ProductBrandInfoProjection> content = queryFactory
 			.select(Projections.constructor(
 				ProductBrandInfoProjection.class,
-				product.productBrand.brandName,
-				product.productName,
-				product.unit,
+				p.productBrand.brandName,
+				p.productName,
+				p.unit,
 				averageRatingExpression,
 				imageUrlExpression
 			))
-			.from(product)
-			.join(product.productBrand)
-			.leftJoin(review).on(review.product.eq(product))
-			.leftJoin(mainProductImage).on(mainProductImage.product.eq(product).and(mainProductImage.isMain.eq(true)))
-			.where(product.productBrand.brandName.eq(productBrandName))
-			.groupBy(product.id, product.productBrand.brandName, product.productName, product.unit,
-				mainProductImage.url)
-			.orderBy(averageRatingExpression.desc(), reviewCountExpression.desc(), product.createdAt.desc(),
-				product.id.desc())
+			.from(p)
+			.join(p.productBrand)
+			.leftJoin(r).on(r.product.eq(p))
+			.leftJoin(mainProductImage).on(
+				mainProductImage.product.eq(p)
+					.and(mainProductImage.isMain.eq(true))
+			)
+			.where(p.productBrand.brandName.eq(productBrandName))
+			.groupBy(
+				p.id,
+				p.productBrand.brandName,
+				p.productName,
+				p.unit,
+				mainProductImage.url
+			)
+			.orderBy(
+				averageRatingExpression.desc(),
+				reviewCountExpression.desc(),
+				p.createdAt.desc(),
+				p.id.desc()
+			)
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize() + 1L)
 			.fetch();
@@ -372,16 +383,17 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		if (hasNext) {
 			content.remove(content.size() - 1);
 		}
+
 		return new SliceImpl<>(content, pageable, hasNext);
 	}
 
 	@Override
 	public Long countByProductBrandName(String productBrandName) {
 		return queryFactory
-			.select(product.count())
-			.from(product)
-			.join(product.productBrand)
-			.where(product.productBrand.brandName.eq(productBrandName))
+			.select(p.count())
+			.from(p)
+			.join(p.productBrand)
+			.where(p.productBrand.brandName.eq(productBrandName))
 			.fetchOne();
 	}
 }
