@@ -57,7 +57,7 @@ public class UserService {
         switch (role) {
             case ADMIN:
                 User admin = userRepository.findById(userId).orElseThrow(AdminNotFoundException::new);
-                displayName = admin.getFirstName() + " " + admin.getLastName();
+                displayName = admin.getName();
                 break;
             case CUSTOMER:
                 Customer customer = customerRepository.findById(userId).orElse(null);
