@@ -1,8 +1,5 @@
 package com.lokoko.domain.media.video.domain.repository;
 
-
-import static com.lokoko.domain.like.domain.entity.QReviewLike.reviewLike;
-
 import com.lokoko.domain.like.domain.entity.QReviewLikeCount;
 import com.lokoko.domain.media.video.domain.entity.QReviewVideo;
 import com.lokoko.domain.product.domain.entity.QProduct;
@@ -33,7 +30,7 @@ public class ReviewVideoRepositoryImpl implements ReviewVideoRepositoryCustom {
                         product.id,
                         product.productBrand.brandName,
                         product.productName,
-                        reviewLike.count().intValue(),
+                        reviewLikeCount.likeCount.coalesce(0L),
                         // 일단 여기서 rank 0, service에서 추가
                         Expressions.constant(0),
                         reviewVideo.mediaFile.fileUrl
