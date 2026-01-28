@@ -55,8 +55,6 @@ public record CampaignDetailResponse(
                                             CampaignDetailPageStatus campaignStatusCode,
                                             String currentUserRole, String creatorRoleInfo) {
 
-        Brand brand = campaign.getBrand();
-
         boolean isProCampaign = campaign.getCampaignType() == CampaignType.CONTENTS
                 || campaign.getCampaignType() == CampaignType.EXCLUSIVE;
 
@@ -64,7 +62,7 @@ public record CampaignDetailResponse(
                 campaign.getId(),
                 campaign.getCampaignType(),
                 campaign.getTitle(),
-                brand.getBrandName(),
+                campaign.getBrand() == null ? campaign.getBrandName() : campaign.getBrand().getBrandName(),
                 campaign.getLanguage(),
                 campaign.getApplyStartDate(),
                 campaign.getApplyDeadline(),
