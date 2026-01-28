@@ -290,7 +290,6 @@ public class Campaign extends BaseEntity {
      */
     public boolean isDraft() {
         return Stream.of(
-                this.brand == null,
                 this.title == null || this.title.isBlank(),
                 this.language == null,
                 this.campaignType == null,
