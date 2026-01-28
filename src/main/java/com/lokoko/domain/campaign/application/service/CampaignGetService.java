@@ -126,8 +126,8 @@ public class CampaignGetService {
         Hibernate.initialize(campaign.getEligibilityRequirements());
     }
 
-    public MainPageCampaignListResponse getCampaignsInMainPage(Long userId, LanguageFilter lang, CampaignProductTypeFilter category, int page, int size) {
-        return campaignRepository.findCampaignsInMainPage(userId, lang, category, PageRequest.of(page, size));
+    public MainPageCampaignListResponse getCampaignsInMainPage(LanguageFilter lang, CampaignProductTypeFilter category, int page, int size) {
+        return campaignRepository.findCampaignsInMainPage(lang, category, PageRequest.of(page, size));
     }
 
     public MainPageUpcomingCampaignListResponse getUpcomingCampaignsInMainPage(LanguageFilter lang, CampaignProductTypeFilter category) {

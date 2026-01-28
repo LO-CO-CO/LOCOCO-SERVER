@@ -20,7 +20,7 @@ import org.springframework.data.domain.Pageable;
 public interface CampaignRepositoryCustom {
 
 
-    MainPageCampaignListResponse findCampaignsInMainPage(Long userId, LanguageFilter lang,
+    MainPageCampaignListResponse findCampaignsInMainPage(LanguageFilter lang,
                                                          CampaignProductTypeFilter category, Pageable pageable);
 
     MainPageUpcomingCampaignListResponse findUpcomingCampaignsInMainPage(LanguageFilter lang,

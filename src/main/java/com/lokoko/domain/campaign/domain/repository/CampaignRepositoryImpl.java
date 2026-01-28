@@ -58,7 +58,6 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
     private final QCampaignReview campaignReview = QCampaignReview.campaignReview;
     private final QCreatorCampaign creatorCampaign = QCreatorCampaign.creatorCampaign;
 
-    private final UserRepository userRepository;
 
     /**
      * 현재시간이 applyStartDate(캠페인 시작시간) 와 reviewSubmissionDeadline(캠페인 종료시간) 사이에 있어야한다
@@ -180,13 +179,18 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                 categoryCondition
         );
 
+        StringExpression brandNameExpression = new CaseBuilder()
+                .when(campaign.brand.isNull())
+                .then(campaign.brandName)
+                .otherwise(campaign.brand.brandName);
+
         // OPEN_RESERVED 상태인 캠페인만 조회하면 된다.
         List<MainPageUpcomingCampaignResponse> upcomingCampaigns = queryFactory
                 .select(Projections.constructor(MainPageUpcomingCampaignResponse.class,
                         campaign.id,
                         campaign.campaignType,
                         campaign.language,
-                        campaign.brand.brandName,
+                        brandNameExpression,
                         campaignImage.mediaFile.fileUrl,
                         campaign.title,
                         campaign.applicantNumber,
@@ -195,6 +199,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                         Expressions.constant(CampaignChipStatus.DISABLED.getDisplayName())
                 ))
                 .from(campaign)
+                .leftJoin(campaign.brand)
                 .innerJoin(campaignImage).on(campaignImage.campaign.eq(campaign)
                         .and(campaignImage.displayOrder.eq(0))
                         .and(campaignImage.imageType.eq((THUMBNAIL))))
@@ -208,18 +213,19 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
     }
 
     @Override
-    public MainPageCampaignListResponse findCampaignsInMainPage(Long userId, LanguageFilter lang,
+    public MainPageCampaignListResponse findCampaignsInMainPage(LanguageFilter lang,
                                                                 CampaignProductTypeFilter category, Pageable pageable) {
 
-        User user = null;
-        if (userId != null) {
-            user = userRepository.findById(userId).orElse(null);
-        }
 
         Instant now = Instant.now();
 
         BooleanExpression langCondition = buildLanguageCondition(lang);
         BooleanExpression categoryCondition = buildCategoryCondition(category);
+
+        StringExpression brandNameExpression = new CaseBuilder()
+                .when(campaign.brand.isNull())
+                .then(campaign.brandName)
+                .otherwise(campaign.brand.brandName);
 
         // DRAFT, WAITING_APPROVAL만 제외하고, 실시간으로 아직 시작되지 않은 캠페인도 제외
         BooleanExpression statusCondition = campaign.campaignStatus.notIn(
@@ -240,7 +246,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                         campaign.id,
                         campaign.campaignType,
                         campaign.language,
-                        campaign.brand.brandName,
+                        brandNameExpression,
                         campaignImage.mediaFile.fileUrl,
                         campaign.title,
                         campaign.applicantNumber,
@@ -249,6 +255,7 @@ public class CampaignRepositoryImpl implements CampaignRepositoryCustom {
                         chipStatusExpression
                 ))
                 .from(campaign)
+                .leftJoin(campaign.brand)
                 .innerJoin(campaignImage).on(campaignImage.campaign.eq(campaign)
                         .and(campaignImage.displayOrder.eq(0))
                         .and(campaignImage.imageType.eq((THUMBNAIL))))

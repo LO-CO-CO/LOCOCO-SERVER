@@ -59,13 +59,12 @@ public class CampaignController {
     @Operation(summary = "메인페이지에서 캠페인 리스트 조회")
     @GetMapping
     public ApiResponse<MainPageCampaignListResponse> getCampaignsInMainPage(
-            @Parameter(hidden = true) @CurrentUser Long userId,
             @RequestParam LanguageFilter lang,
             @RequestParam CampaignProductTypeFilter category,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size) {
 
-        MainPageCampaignListResponse response = campaignReadService.getCampaignsInMainPage(userId, lang, category, page,
+        MainPageCampaignListResponse response = campaignReadService.getCampaignsInMainPage(lang, category, page,
                 size);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.MAIN_PAGE_CAMPAIGNS_GET_SUCCESS.getMessage(),
                 response);
