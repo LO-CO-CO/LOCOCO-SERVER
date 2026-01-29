@@ -2,7 +2,6 @@ package com.lokoko.domain.productReview.mapper;
 
 import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
 import com.lokoko.domain.product.domain.entity.Product;
-import com.lokoko.domain.product.domain.entity.ProductOption;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
 import com.lokoko.domain.productReview.api.dto.request.ReviewRequest;
@@ -90,20 +89,18 @@ public interface ReviewMapper {
      * @param request 리뷰 작성 요청 DTO
      * @param user    리뷰 작성자 (유저)
      * @param product 리뷰 대상 상품
-     * @param option  선택된 옵션 (nullable 가능)
      * @return Review 엔티티
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "author", source = "user")
     @Mapping(target = "product", source = "product")
-    @Mapping(target = "productOption", source = "option")
     @Mapping(target = "rating", expression = "java(com.lokoko.domain.productReview.domain.entity.enums.Rating.fromValue(request.rating()))")
     @Mapping(target = "positiveContent", source = "request.positiveComment")
     @Mapping(target = "negativeContent", source = "request.negativeComment")
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "modifiedAt", ignore = true)
     @Mapping(target = "receiptUploaded", ignore = true)
-    Review toReview(ReviewRequest request, User user, Product product, @Nullable ProductOption option);
+    Review toReview(ReviewRequest request, User user, Product product);
 
 
     @Mapping(target = "rank", source = "ranking")
