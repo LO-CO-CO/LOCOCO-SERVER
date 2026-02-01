@@ -2,10 +2,8 @@ package com.lokoko.domain.productReview.application.service;
 
 import com.lokoko.domain.like.domain.repository.ReviewLikeRepository;
 import com.lokoko.domain.media.image.domain.entity.ProductImage;
-import com.lokoko.domain.media.image.domain.entity.ReceiptImage;
 import com.lokoko.domain.media.image.domain.entity.ReviewImage;
 import com.lokoko.domain.media.image.domain.repository.ProductImageRepository;
-import com.lokoko.domain.media.image.domain.repository.ReceiptImageRepository;
 import com.lokoko.domain.media.image.domain.repository.ReviewImageRepository;
 import com.lokoko.domain.media.video.domain.entity.ReviewVideo;
 import com.lokoko.domain.media.video.domain.repository.ReviewVideoRepository;
@@ -16,11 +14,6 @@ import com.lokoko.domain.productReview.domain.entity.Review;
 import com.lokoko.domain.productReview.domain.repository.ReviewRepository;
 import com.lokoko.domain.productReview.exception.ProductImageNotFoundException;
 import com.lokoko.domain.productReview.exception.ReviewNotFoundException;
-import com.lokoko.domain.productReview.exception.ReviewVideoNotFoundException;
-import com.lokoko.domain.user.domain.entity.User;
-import com.lokoko.domain.user.domain.entity.enums.Role;
-import com.lokoko.domain.user.domain.repository.UserRepository;
-import com.lokoko.domain.user.exception.UserNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,33 +23,20 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ReviewDetailsService {
-    private final UserRepository userRepository;
+
     private final ReviewRepository reviewRepository;
     private final ReviewVideoRepository reviewVideoRepository;
     private final ReviewLikeRepository reviewLikeRepository;
     private final ReviewImageRepository reviewImageRepository;
-    private final ReceiptImageRepository receiptImageRepository;
     private final ProductImageRepository productImageRepository;
 
 
-    public VideoReviewDetailResponse getVideoReviewDetails(Long reviewId, Long userId) {
-        User user = null;
-        if (userId != null) {
-            user = userRepository.findById(userId)
-                    .orElseThrow(UserNotFoundException::new);
-        }
+    public VideoReviewDetailResponse getVideoReviewDetails(Long reviewId) {
+
         Review review = getReview(reviewId);
         List<ReviewVideo> reviewVideos = reviewVideoRepository.findAllByReviewId(reviewId);
         long totalLikes = reviewLikeRepository.countByReviewId(reviewId);
-        ReceiptImage receiptImage = null;
-        if (user != null && user.getRole() == Role.ADMIN) {
-            receiptImage = getReceiptImageIfAdmin(user, reviewId);
-        }
-        String receiptImageUrl = (receiptImage != null)
-                ? receiptImage.getMediaFile().getFileUrl()
-                : null;
-        boolean isLiked = (user != null)
-                && reviewLikeRepository.existsByUserAndReview(user, review);
+
         Product product = review.getProduct();
         ProductImage productImage = productImageRepository
                 .findByProductAndIsMainTrue(product)
@@ -66,42 +46,24 @@ public class ReviewDetailsService {
                 review,
                 reviewVideos,
                 totalLikes,
-                receiptImageUrl,
-                productImage,
-                isLiked
+                productImage
         );
     }
 
 
-    public ImageReviewDetailResponse getImageReviewDetails(Long reviewId, Long userId) {
+    public ImageReviewDetailResponse getImageReviewDetails(Long reviewId) {
         Review review = getReview(reviewId);
         List<ReviewImage> reviewImages = reviewImageRepository.findByReviewId(reviewId);
+
         long totalLikes = reviewLikeRepository.countByReviewId(reviewId);
 
-        User user = (userId != null)
-                ? userRepository.findById(userId).orElseThrow(UserNotFoundException::new)
-                : null;
-
-        ReceiptImage receipt = (user != null && user.getRole() == Role.ADMIN)
-                ? getReceiptImageIfAdmin(user, reviewId)
-                : null;
-
-        String receiptImageUrl = (receipt != null)
-                ? receipt.getMediaFile().getFileUrl()
-                : null;
-
-        boolean isLiked = false;
-        if (user != null) {
-            isLiked = reviewLikeRepository.existsByUserAndReview(user, review);
-        }
-
         Product product = review.getProduct();
+
         ProductImage productImage = productImageRepository
                 .findByProductAndIsMainTrue(product)
                 .orElseThrow(ProductImageNotFoundException::new);
 
-        return ImageReviewDetailResponse.from(review, reviewImages, totalLikes,
-                receiptImageUrl, productImage, isLiked);
+        return ImageReviewDetailResponse.from(review, reviewImages, totalLikes, productImage);
     }
 
     private Review getReview(Long reviewId) {
@@ -109,14 +71,4 @@ public class ReviewDetailsService {
                 .orElseThrow(ReviewNotFoundException::new);
     }
 
-    private ReviewVideo getReviewVideo(Long reviewId) {
-        return reviewVideoRepository.findByReviewId(reviewId)
-                .orElseThrow(ReviewVideoNotFoundException::new);
-    }
-
-    private ReceiptImage getReceiptImageIfAdmin(User user, Long reviewId) {
-        return user.getRole() == Role.ADMIN
-                ? receiptImageRepository.findByReviewId(reviewId).orElse(null)
-                : null;
-    }
 }

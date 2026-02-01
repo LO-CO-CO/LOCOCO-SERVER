@@ -54,7 +54,7 @@ public class Product extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String productKoreanName;
 
-    @Column(nullable = false)
+    @Column
     private String shippingInfo;
 
     @Column(columnDefinition = "TEXT", nullable = false)
@@ -90,7 +90,7 @@ public class Product extends BaseEntity {
     private MiddleCategory middleCategory;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
+    @Column(length = 30)
     private SubCategory subCategory;
 
     private String searchToken;

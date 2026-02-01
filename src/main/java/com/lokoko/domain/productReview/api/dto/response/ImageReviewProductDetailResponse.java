@@ -14,8 +14,6 @@ public record ImageReviewProductDetailResponse(
         @Schema(requiredMode = REQUIRED)
         LocalDateTime writtenTime,
         @Schema(requiredMode = REQUIRED)
-        Boolean receiptUploaded,
-        @Schema(requiredMode = REQUIRED)
         String positiveComment,
         @Schema(requiredMode = REQUIRED)
         String negativeComment,
@@ -29,8 +27,6 @@ public record ImageReviewProductDetailResponse(
         @Schema(requiredMode = REQUIRED)
         Double rating,
         @Schema(requiredMode = REQUIRED)
-        String option,
-        @Schema(requiredMode = REQUIRED)
         Integer likeCount,
         @Schema(requiredMode = REQUIRED)
         List<String> images,
@@ -41,22 +37,20 @@ public record ImageReviewProductDetailResponse(
 ) {
 
     public ImageReviewProductDetailResponse(Long reviewId, LocalDateTime writtenTime,
-                                            Boolean receiptUploaded, String positiveComment,
+                                             String positiveComment,
                                             String negativeComment, String profileImageUrl, String authorName,
-                                            Long authorId, Double rating, String option,
+                                            Long authorId, Double rating,
                                             Integer likeCount, List<String> images,
                                             Boolean isLiked, Boolean isMine
     ) {
         this.reviewId = reviewId;
         this.writtenTime = writtenTime;
-        this.receiptUploaded = receiptUploaded;
         this.positiveComment = positiveComment;
         this.negativeComment = negativeComment;
         this.profileImageUrl = profileImageUrl;
         this.authorName = authorName;
         this.authorId = authorId;
         this.rating = rating;
-        this.option = option;
         this.likeCount = likeCount;
         this.images = images != null ? new ArrayList<>(images) : new ArrayList<>();
         this.isLiked = isLiked;

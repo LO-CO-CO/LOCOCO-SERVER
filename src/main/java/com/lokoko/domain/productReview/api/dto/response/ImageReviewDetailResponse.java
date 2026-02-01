@@ -18,8 +18,6 @@ public record ImageReviewDetailResponse(
         @Schema(requiredMode = REQUIRED)
         LocalDateTime writtenTime,
         @Schema(requiredMode = REQUIRED)
-        Boolean receiptUploaded,
-        @Schema(requiredMode = REQUIRED)
         String positiveComment,
         @Schema(requiredMode = REQUIRED)
         String negativeComment,
@@ -29,7 +27,6 @@ public record ImageReviewDetailResponse(
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")
         @Schema(requiredMode = REQUIRED)
         Double rating,
-        String option,
         @Schema(requiredMode = REQUIRED)
         Long likeCount,
         @Schema(requiredMode = REQUIRED)
@@ -40,16 +37,12 @@ public record ImageReviewDetailResponse(
         String productName,
         @Schema(requiredMode = REQUIRED)
         String productImageUrl,
-        String receiptImageUrl,
-        @Schema(requiredMode = REQUIRED)
-        Boolean isLiked,
         @Schema(requiredMode = REQUIRED)
         Long productId
 
 ) {
     public static ImageReviewDetailResponse from(Review review, List<ReviewImage> reviewImages,
-                                                 long totalLikes, String receiptImage, ProductImage productImage,
-                                                 Boolean isLiked) {
+                                                 long totalLikes, ProductImage productImage) {
         Product product = review.getProduct();
         User author = review.getAuthor();
 
@@ -57,27 +50,19 @@ public record ImageReviewDetailResponse(
                 .map(reviewImage -> reviewImage.getMediaFile().getFileUrl())
                 .toList();
 
-        String optionName = review.getProductOption() != null
-                ? review.getProductOption().getOptionName()
-                : null;
-
         return new ImageReviewDetailResponse(
                 review.getId(),
                 review.getModifiedAt(),
-                review.isReceiptUploaded(),
                 review.getPositiveContent(),
                 review.getNegativeContent(),
                 author.getName(),
                 author.getProfileImageUrl(),
                 (double) review.getRating().getValue(),
-                optionName,
                 totalLikes,
                 images,
                 product.getProductBrand().getBrandName(),
                 product.getProductName(),
                 productImage.getUrl(),
-                receiptImage,
-                isLiked,
                 product.getId()
         );
     }

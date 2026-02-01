@@ -399,7 +399,6 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         Long totalCount = queryFactory
                 .select(review.id.countDistinct())
                 .from(review)
-                .leftJoin(review.productOption, productOption)
                 .join(review.product, product)
                 .where(product.id.eq(productId))
                 .fetchOne();
@@ -454,18 +453,15 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .select(
                         review.id,
                         review.modifiedAt,
-                        review.receiptUploaded,
                         review.positiveContent,
                         review.negativeContent,
                         review.author.profileImageUrl,
                         review.author.name,
                         review.author.id,
                         ratingAsInt,
-                        productOption.optionName,
                         reviewImage.mediaFile.fileUrl
                 )
                 .from(review)
-                .leftJoin(review.productOption, productOption)
                 .join(review.product, product)
                 .leftJoin(reviewImage).on(reviewImage.review.eq(review))
                 .where(review.id.in(reviewIds))
@@ -481,14 +477,12 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 return new ImageReviewProductDetailResponse(
                         k,
                         t.get(review.modifiedAt),
-                        t.get(review.receiptUploaded),
                         t.get(review.positiveContent),
                         t.get(review.negativeContent),
                         t.get(review.author.profileImageUrl),
                         t.get(review.author.name),
                         t.get(review.author.id),
                         t.get(ratingAsInt).doubleValue(),
-                        t.get(productOption.optionName),
                         likeCounts.getOrDefault(k, 0L).intValue(),
                         new ArrayList<>(),
                         isLiked,
