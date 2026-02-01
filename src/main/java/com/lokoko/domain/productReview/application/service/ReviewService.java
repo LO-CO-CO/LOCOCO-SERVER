@@ -67,8 +67,8 @@ public class ReviewService {
     private static final int MAX_VIDEO_REVIEW_COUNT = 1;
     private static final int MAX_IMAGE_REVIEW_COUNT = 5;
 
-    private static final String VIDEO_URL = "video/";
-    private static final String IMAGE_URL = "image/";
+    private static final String VIDEO_URL_PREFIX = "video/";
+    private static final String IMAGE_URL_PREFIX = "image/";
 
     public ReviewReceiptResponse createReceiptPresignedUrl(Long userId,
                                                            ReviewReceiptRequest request) {
@@ -78,7 +78,7 @@ public class ReviewService {
         String mediaType = request.mediaType();
 
         // "image/"로 시작하는지, 슬래시가 포함되어 있는지 검사
-        if (!(mediaType.startsWith(IMAGE_URL)) || !mediaType.contains("/")) {
+        if (!(mediaType.startsWith(IMAGE_URL_PREFIX)) || !mediaType.contains("/")) {
             throw new InvalidMediaTypeException(ErrorMessage.INVALID_MEDIA_TYPE_FORMAT);
         }
 
@@ -101,8 +101,8 @@ public class ReviewService {
 
         List<String> mediaTypes = request.mediaType();
 
-        boolean hasVideo = mediaTypes.stream().anyMatch(type -> type.startsWith(VIDEO_URL));
-        boolean hasImage = mediaTypes.stream().anyMatch(type -> type.startsWith(IMAGE_URL));
+        boolean hasVideo = mediaTypes.stream().anyMatch(type -> type.startsWith(VIDEO_URL_PREFIX));
+        boolean hasImage = mediaTypes.stream().anyMatch(type -> type.startsWith(IMAGE_URL_PREFIX));
 
         validateMediaTypeAndSize(hasVideo, hasImage, mediaTypes);
 
@@ -189,7 +189,7 @@ public class ReviewService {
             int order = 0;
             for (String url : mediaUrls) {
                 MediaFile mediaFile = S3UrlParser.parsePresignedUrl(url);
-                if (url.contains(VIDEO_URL)) {
+                if (url.contains(VIDEO_URL_PREFIX)) {
                     ReviewVideo rv = ReviewVideo.createReviewVideo(mediaFile, order++, review);
                     reviewVideoRepository.save(rv);
                 } else {
