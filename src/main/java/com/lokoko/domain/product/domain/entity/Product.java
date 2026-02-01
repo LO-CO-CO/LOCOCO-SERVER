@@ -90,7 +90,7 @@ public class Product extends BaseEntity {
     private MiddleCategory middleCategory;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
+    @Column(length = 30)
     private SubCategory subCategory;
 
     private String searchToken;
