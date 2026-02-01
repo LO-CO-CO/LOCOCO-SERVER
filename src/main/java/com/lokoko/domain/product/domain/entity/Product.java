@@ -54,7 +54,7 @@ public class Product extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String productKoreanName;
 
-    @Column(nullable = false)
+    @Column
     private String shippingInfo;
 
     @Column(columnDefinition = "TEXT", nullable = false)
