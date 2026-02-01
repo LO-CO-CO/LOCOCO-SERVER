@@ -1,7 +1,5 @@
 package com.lokoko.domain.productReview.api;
 
-import static com.lokoko.domain.productReview.api.message.ResponseMessage.REVIEW_DELETE_SUCCESS;
-
 import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
 import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
 import com.lokoko.domain.productReview.api.dto.request.ReviewReceiptRequest;
@@ -123,18 +121,16 @@ public class ReviewController {
 
     @Operation(summary = "영상 리뷰 상세 조회 (가장 마지막 뎁스)")
     @GetMapping("/details/{reviewId}/video")
-    public ApiResponse<VideoReviewDetailResponse> getVideoReviewDetails(@PathVariable Long reviewId,
-                                                                        @Parameter(hidden = true) @CurrentUser Long userId) {
-        VideoReviewDetailResponse response = reviewDetailsService.getVideoReviewDetails(reviewId, userId);
+    public ApiResponse<VideoReviewDetailResponse> getVideoReviewDetails(@PathVariable Long reviewId) {
+        VideoReviewDetailResponse response = reviewDetailsService.getVideoReviewDetails(reviewId);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.VIDEO_REVIEW_DETAIL_SUCCESS.getMessage(), response);
     }
 
     @Operation(summary = "사진 리뷰 상세 조회 (가장 마지막 뎁스")
     @GetMapping("/details/{reviewId}/image")
-    public ApiResponse<ImageReviewDetailResponse> getImageReviewDetails(@PathVariable Long reviewId,
-                                                                        @Parameter(hidden = true) @CurrentUser Long userId) {
-        ImageReviewDetailResponse response = reviewDetailsService.getImageReviewDetails(reviewId, userId);
+    public ApiResponse<ImageReviewDetailResponse> getImageReviewDetails(@PathVariable Long reviewId) {
+        ImageReviewDetailResponse response = reviewDetailsService.getImageReviewDetails(reviewId);
 
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.IMAGE_REVIEW_DETAIL_SUCCESS.getMessage(), response);
     }
@@ -144,7 +140,7 @@ public class ReviewController {
     public ApiResponse<Void> deleteReview(@Parameter(hidden = true) @CurrentUser Long userId,
                                           @PathVariable Long reviewId) {
         reviewService.deleteReview(userId, reviewId);
-        return ApiResponse.success(HttpStatus.OK, REVIEW_DELETE_SUCCESS.getMessage());
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.REVIEW_DELETE_SUCCESS.getMessage());
     }
 
     @Operation(summary = "브랜드명 기준 영상 리뷰 검색 (brandName 없으면 전체 조회)")
