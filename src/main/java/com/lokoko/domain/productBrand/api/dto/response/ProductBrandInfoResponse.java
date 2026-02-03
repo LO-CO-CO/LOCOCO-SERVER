@@ -24,7 +24,11 @@ public record ProductBrandInfoResponse(
 	Double rating,
 
 	@Schema(requiredMode = REQUIRED, description = "대표 이미지 URL")
-	String imageUrl
+	String imageUrl,
+
+    @Schema(requiredMode = REQUIRED, description = "리뷰 수")
+    Long reviewCount
+
 ) {
 }
 

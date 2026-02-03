@@ -42,6 +42,7 @@ public class ProductBrandMapper {
                 .unit(productBrandInfoProjection.unit())
                 .rating(displayRating)
                 .imageUrl(productBrandInfoProjection.imageUrl())
+                .reviewCount(productBrandInfoProjection.reviewCount())
                 .build();
     }
 

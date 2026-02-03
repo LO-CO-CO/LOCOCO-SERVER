@@ -6,6 +6,7 @@ public record ProductBrandInfoProjection(
 	String productName,
 	String unit,
 	Double averageRating,
-	String imageUrl
+	String imageUrl,
+    Long reviewCount
 ) {
 }
