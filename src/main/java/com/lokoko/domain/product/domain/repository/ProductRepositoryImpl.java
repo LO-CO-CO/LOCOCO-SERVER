@@ -278,10 +278,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			.from(p)
 			.leftJoin(r).on(r.product.eq(p))
 			.leftJoin(productImage).on(productImage.product.eq(p).and(productImage.isMain.eq(true)))
-			.where(
-				categoryCondition,
-				p.tag.eq(Tag.NEW)
-			)
+			.where(categoryCondition)
 			.groupBy(p.id, p.productName, p.productBrand.brandName, p.unit, productImage.url, p.createdAt)
 			.orderBy(p.createdAt.desc())
 			.limit(4)
