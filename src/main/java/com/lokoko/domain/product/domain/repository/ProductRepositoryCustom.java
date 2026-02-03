@@ -31,4 +31,6 @@ public interface ProductRepositoryCustom {
 	Slice<ProductBrandInfoProjection> findProductsOrderedByRating(Pageable pageable);
 
 	Long countAllProducts();
+
+    int countProductsByBrandName(String brandName);
 }
