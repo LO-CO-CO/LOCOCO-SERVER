@@ -1,13 +1,5 @@
 package com.lokoko.domain.product.mapper;
 
-import com.lokoko.domain.product.api.dto.NewProductProjection;
-import com.lokoko.domain.product.api.dto.PopularProductProjection;
-import com.lokoko.domain.product.api.dto.response.CachedNewProduct;
-import com.lokoko.domain.product.api.dto.response.CachedNewProductListResponse;
-import com.lokoko.domain.product.api.dto.response.CachedPopularProduct;
-import com.lokoko.domain.product.api.dto.response.CachedPopularProductListResponse;
-import com.lokoko.domain.product.api.dto.response.NewProductsByCategoryResponse;
-import com.lokoko.domain.product.api.dto.response.PopularProductsByCategoryResponse;
 import com.lokoko.domain.product.api.dto.response.ProductBasicResponse;
 import com.lokoko.domain.product.api.dto.response.ProductDetailResponse;
 import com.lokoko.domain.product.api.dto.response.ProductListItemResponse;
@@ -27,10 +19,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 @Mapper(
@@ -62,38 +52,6 @@ public interface ProductMapper {
     );
 
     /**
-     * 메인 페이지 신상품 목록 응답 매핑
-     *
-     * @param products       신상품 DTO 리스트
-     * @param middleCategory 중분류 카테고리
-     * @param pageInfo       페이징 정보
-     * @return 신상품 목록 응답 DTO
-     */
-    @Mapping(target = "searchQuery", source = "middleCategory.displayName")
-    @Mapping(target = "products", expression = "java(products.stream().map(NewProductProjection::toProductResponse).toList())")
-    NewProductsByCategoryResponse toCategoryNewProductResponse(
-            List<NewProductProjection> products,
-            MiddleCategory middleCategory,
-            PageableResponse pageInfo
-    );
-
-    /**
-     * 메인 페이지 인기상품 목록 응답 매핑
-     *
-     * @param products       인기상품 DTO 리스트
-     * @param middleCategory 중분류 카테고리
-     * @param pageInfo       페이징 정보
-     * @return 인기상품 목록 응답 DTO
-     */
-    @Mapping(target = "searchQuery", source = "middleCategory.displayName")
-    @Mapping(target = "products", expression = "java(products.stream().map(PopularProductProjection::toProductResponse).toList())")
-    PopularProductsByCategoryResponse toCategoryPopularProductResponse(
-            List<PopularProductProjection> products,
-            MiddleCategory middleCategory,
-            PageableResponse pageInfo
-    );
-
-    /**
      * 브랜드 + 상품명으로 검색한 결과 응답 매핑
      *
      * @param products 검색 결과 DTO 리스트
@@ -112,33 +70,25 @@ public interface ProductMapper {
      * 상품 상세조회(옵션·별점 포함) 응답 매핑
      *
      * @param response    기본 상품 정보 DTO
-     * @param options     옵션 DTO 리스트
      * @param product     엔티티(추가 상세 정보)
      * @param starPercent 별점 비율 리스트
-     * @param isLiked     사용자가 좋아요했는지 여부
      * @return 상품 상세조회 응답 DTO
      */
     @Mapping(target = "productId", source = "response.productId")
     @Mapping(target = "imageUrls", source = "response.imageUrls")
-    @Mapping(target = "productOptions", source = "options")
     @Mapping(target = "productName", source = "response.productName")
     @Mapping(target = "brandName", source = "product.productBrand.brandName")
     @Mapping(target = "unit", source = "response.unit")
     @Mapping(target = "reviewCount", source = "response.reviewCount")
     @Mapping(target = "rating", source = "response.rating")
     @Mapping(target = "starPercent", source = "starPercent")
-    @Mapping(target = "isLiked", source = "isLiked")
     @Mapping(target = "normalPrice", source = "product.normalPrice")
     @Mapping(target = "productDetail", source = "product.productDetail")
     @Mapping(target = "ingredients", source = "product.ingredients")
-    @Mapping(target = "middleCategory", source = "product.middleCategory")
-    @Mapping(target = "subCategory", source = "product.subCategory")
     ProductDetailResponse toProductDetailResponse(
             ProductBasicResponse response,
-            List<ProductOptionResponse> options,
             Product product,
-            List<RatingPercentResponse> starPercent,
-            Boolean isLiked
+            List<RatingPercentResponse> starPercent
     );
 
     /**
@@ -173,7 +123,7 @@ public interface ProductMapper {
                             new ProductStatsResponse("", 0L, 0.0)
                     );
                     boolean isLiked = likedIds.contains(product.getId());
-                    return ProductBasicResponse.of(product, summary, isLiked);
+                    return ProductBasicResponse.of(product, summary);
                 })
                 .toList();
     }
@@ -227,92 +177,4 @@ public interface ProductMapper {
      * @return 옵션 응답 DTO
      */
     ProductOptionResponse toProductOptionResponse(ProductOption option);
-
-    /**
-     * 프로젝션(NewProductProjection) → 기본 상품 DTO 매핑
-     */
-    ProductBasicResponse toProductResponse(NewProductProjection projection);
-
-    /**
-     * 프로젝션(PopularProductProjection) → 기본 상품 DTO 매핑
-     */
-    ProductBasicResponse toProductResponse(PopularProductProjection projection);
-
-
-    default CachedPopularProductListResponse toCachedPopularProductResponse(
-            List<PopularProductProjection> projections,
-            MiddleCategory middleCategory,
-            PageableResponse pageInfo) {
-
-        List<CachedPopularProduct> products = projections.stream()
-                .map(this::toCachedPopularProduct)
-                .toList();
-
-        return CachedPopularProductListResponse.builder()
-                .searchQuery(middleCategory.getDisplayName())
-                .products(products)
-                .pageInfo(pageInfo)
-                .build();
-    }
-
-    default CachedPopularProduct toCachedPopularProduct(PopularProductProjection projection) {
-        List<String> images = Optional.ofNullable(projection.imageUrl())
-                .filter(u -> !u.isBlank())
-                .map(u -> u.contains(",")
-                        ? Arrays.stream(u.split(","))
-                        .map(String::trim)
-                        .filter(s -> !s.isEmpty())
-                        .toList()
-                        : List.of(u))
-                .orElseGet(List::of);
-
-        return CachedPopularProduct.builder()
-                .productId(projection.productId())
-                .imageUrls(images)
-                .productName(projection.productName())
-                .brandName(projection.brandName())
-                .unit(projection.unit())
-                .reviewCount(projection.reviewCount())
-                .rating(projection.avgRating())
-                .build();
-    }
-
-    default CachedNewProductListResponse toNewProductResponse(
-            List<NewProductProjection> projections,
-            MiddleCategory middleCategory,
-            PageableResponse pageInfo) {
-
-        List<CachedNewProduct> products = projections.stream()
-                .map(this::toCachedNewProduct)
-                .toList();
-
-        return CachedNewProductListResponse.builder()
-                .searchQuery(middleCategory.getDisplayName())
-                .products(products)
-                .pageInfo(pageInfo)
-                .build();
-    }
-
-
-    default CachedNewProduct toCachedNewProduct(NewProductProjection projection) {
-        List<String> images = Optional.ofNullable(projection.imageUrl())
-                .filter(u -> !u.isBlank())
-                .map(u -> u.contains(",")
-                        ? Arrays.stream(u.split(","))
-                        .map(String::trim)
-                        .filter(s -> !s.isEmpty())
-                        .toList()
-                        : List.of(u))
-                .orElseGet(List::of);
-
-        return CachedNewProduct.builder()
-                .productId(projection.productId())
-                .imageUrls(images)
-                .productName(projection.productName())
-                .brandName(projection.brandName())
-                .unit(projection.unit())
-                .reviewCount(projection.reviewCount())
-                .rating(projection.avgRating())
-                .build();
-    }
 }

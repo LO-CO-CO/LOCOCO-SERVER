@@ -15,8 +15,6 @@ public record ProductDetailResponse(
         @Schema(requiredMode = REQUIRED)
         List<String> imageUrls,
         @Schema(requiredMode = REQUIRED)
-        List<ProductOptionResponse> productOptions,
-        @Schema(requiredMode = REQUIRED)
         String productName,
         @Schema(requiredMode = REQUIRED)
         String brandName,
@@ -30,38 +28,27 @@ public record ProductDetailResponse(
         @Schema(requiredMode = REQUIRED)
         List<RatingPercentResponse> starPercent,
         @Schema(requiredMode = REQUIRED)
-        Boolean isLiked,
-        @Schema(requiredMode = REQUIRED)
         Long normalPrice,
         @Schema(requiredMode = REQUIRED)
         String productDetail,
         @Schema(requiredMode = REQUIRED)
-        String ingredients,
-        @Schema(requiredMode = REQUIRED)
-        MiddleCategory middleCategory,
-        @Schema(requiredMode = REQUIRED)
-        SubCategory subCategory
+        String ingredients
 ) {
     public static ProductDetailResponse from(ProductBasicResponse response, List<ProductOptionResponse> productOptions,
-                                             Product product, List<RatingPercentResponse> starPercent,
-                                             Boolean isLiked) {
+                                             Product product, List<RatingPercentResponse> starPercent) {
 
         return new ProductDetailResponse(
                 response.productId(),
                 response.imageUrls(),
-                productOptions,
                 response.productName(),
                 response.brandName(),
                 response.unit(),
                 response.reviewCount(),
                 response.rating(),
                 starPercent,
-                isLiked,
                 product.getNormalPrice(),
                 product.getProductDetail(),
-                product.getIngredients(),
-                product.getMiddleCategory(),
-                product.getSubCategory()
+                product.getIngredients()
         );
     }
 }
