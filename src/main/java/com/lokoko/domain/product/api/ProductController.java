@@ -10,6 +10,7 @@ import com.lokoko.domain.product.api.dto.response.SearchProductsResponse;
 import com.lokoko.domain.product.api.message.ResponseMessage;
 import com.lokoko.domain.product.application.service.ProductReadService;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
+import com.lokoko.domain.product.domain.entity.enums.ProductCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
 import com.lokoko.domain.productReview.api.dto.response.ImageReviewListResponse;
 import com.lokoko.domain.productReview.api.dto.response.KeywordImageReviewListResponse;
@@ -151,67 +152,23 @@ public class ProductController {
 
     }
 
-    /**
-     * 메인페이지 4개 : 기존 캐시 사용 이후, 더보기 프리페치 실행 더보기용: 페이지별 캐시 사용
-     *
-     * @param middleCategory
-     * @param page
-     * @param size
-     * @param userId
-     * @return
-     */
-    @Operation(summary = "신상품 카테고리별 조회 (메인 페이지 + 더보기)")
+    @Operation(summary = "신상품 카테고리별 조회")
     @GetMapping("/categories/new")
     public ApiResponse<NewProductsByCategoryResponse> searchNewProductsByCategory(
-            @RequestParam MiddleCategory middleCategory,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "4") int size,
-            @Parameter(hidden = true) @CurrentUser Long userId) {
-
-        NewProductsByCategoryResponse newProductsByCategoryResponse;
-
-        if (page == 0 && size == 4) {
-            newProductsByCategoryResponse = productReadService.searchNewProductsByCategory(middleCategory, userId);
-        } else {
-            newProductsByCategoryResponse = productReadService.getNewProductsForMorePage(middleCategory, page, size,
-                    userId);
-        }
+            @RequestParam(required = false) ProductCategory productCategory) {
 
         return ApiResponse.success(HttpStatus.OK, CATEGORY_NEW_LIST_SUCCESS.getMessage(),
-                newProductsByCategoryResponse);
+                productReadService.searchNewProductsByCategory(productCategory));
     }
 
-    /**
-     * 메인페이지 : 기존 캐시 사용 + 프리페치 실행 더보기용: 페이지별 캐시 사용
-     *
-     * @param middleCategory
-     * @param page
-     * @param size
-     * @param userId
-     * @return
-     */
-    @Operation(summary = "인기상품 카테고리별 조회 (메인 페이지 + 더보기)")
+    @Operation(summary = "인기상품 카테고리별 조회")
     @GetMapping("/categories/popular")
     public ApiResponse<PopularProductsByCategoryResponse> searchPopularProductsByCategory(
-            @RequestParam MiddleCategory middleCategory,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "4") int size,
-            @Parameter(hidden = true) @CurrentUser Long userId) {
-
-        PopularProductsByCategoryResponse popularProductsByCategoryResponse;
-
-        if (page == 0 && size == 4) {
-            popularProductsByCategoryResponse = productReadService.searchPopularProductsByCategory(middleCategory,
-                    userId);
-        } else {
-            popularProductsByCategoryResponse = productReadService.getPopularProductsForMorePage(middleCategory, page,
-                    size, userId);
-        }
+            @RequestParam(required = false) ProductCategory productCategory) {
 
         return ApiResponse.success(HttpStatus.OK, CATEGORY_POPULAR_LIST_SUCCESS.getMessage(),
-                popularProductsByCategoryResponse);
+                productReadService.searchPopularProductsByCategory(productCategory));
     }
-
 
     @Operation(summary = "상세조회 제품(별점 포함) 조회 (상세 조회)")
     @GetMapping("/details/{productId}")
