@@ -44,7 +44,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 	private static final QProduct p = QProduct.product;
 	private static final QReview r = QReview.review;
 	private final QProductImage productImage = QProductImage.productImage;
-	private final QProductLike productLike = QProductLike.productLike;
 
 	/**
 	 * 주어진 토큰 리스트를 기반으로 상품 검색 단계적으로 검색이 수행되고, 각 단계에서 결과가 존재하면 바로 반환
