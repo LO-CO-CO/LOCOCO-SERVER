@@ -2,6 +2,7 @@ package com.lokoko.domain.productReview.application.service;
 
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
+import com.lokoko.domain.product.domain.repository.ProductRepository;
 import com.lokoko.domain.productReview.api.dto.response.BrandImageReviewListResponse;
 import com.lokoko.domain.productReview.api.dto.response.BrandVideoReviewListResponse;
 import com.lokoko.domain.productReview.api.dto.response.ProductAndReviewCountResponse;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Service;
 public class ReviewReadService {
 
     private final ReviewRepository reviewRepository;
+    private final ProductRepository productRepository;
 
     private final ReviewCacheService reviewCacheService;
     private final KuromojiService kuromojiService;
@@ -119,7 +121,7 @@ public class ReviewReadService {
     }
 
     public ProductAndReviewCountResponse getProductAndReviewCount(String brandName) {
-        int productCount = reviewRepository.countProductsByBrandName(brandName);
+        int productCount = productRepository.countProductsByBrandName(brandName);
         int reviewCount = reviewRepository.countReviewsByBrandName(brandName);
 
         return ProductAndReviewCountResponse.of(brandName, productCount, reviewCount);

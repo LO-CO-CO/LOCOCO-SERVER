@@ -40,8 +40,6 @@ public interface ReviewRepositoryCustom {
 
     Slice<ImageReviewResponse> findImageReviewsByBrandName(String brandName, Pageable pageable);
 
-    int countProductsByBrandName(String brandName);
-
     int countReviewsByBrandName(String brandName);
 
     List<RatingCount> countByProductIdsAndRating(List<Long> productIds);

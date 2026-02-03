@@ -9,13 +9,11 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
-import com.lokoko.domain.like.domain.entity.QProductLike;
 import com.lokoko.domain.media.image.domain.entity.QProductImage;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.QProduct;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
-import com.lokoko.domain.product.domain.entity.enums.Tag;
 import com.lokoko.domain.productBrand.api.dto.ProductBrandInfoProjection;
 import com.lokoko.domain.productReview.domain.entity.QReview;
 import com.lokoko.domain.productReview.domain.entity.enums.Rating;
@@ -444,4 +442,22 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			.from(p)
 			.fetchOne();
 	}
+
+    @Override
+    public int countProductsByBrandName(String brandName) {
+        Long count = queryFactory
+                .select(p.count())
+                .from(p)
+                .where(brandNameCondition(brandName))
+                .fetchOne();
+
+        return count != null ? count.intValue() : 0;
+    }
+
+    private BooleanExpression brandNameCondition(String brandName) {
+        if (brandName == null || brandName.isBlank()) {
+            return null;
+        }
+        return p.productBrand.brandName.eq(brandName);
+    }
 }
