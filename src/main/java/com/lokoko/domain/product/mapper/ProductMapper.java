@@ -70,33 +70,25 @@ public interface ProductMapper {
      * 상품 상세조회(옵션·별점 포함) 응답 매핑
      *
      * @param response    기본 상품 정보 DTO
-     * @param options     옵션 DTO 리스트
      * @param product     엔티티(추가 상세 정보)
      * @param starPercent 별점 비율 리스트
-     * @param isLiked     사용자가 좋아요했는지 여부
      * @return 상품 상세조회 응답 DTO
      */
     @Mapping(target = "productId", source = "response.productId")
     @Mapping(target = "imageUrls", source = "response.imageUrls")
-    @Mapping(target = "productOptions", source = "options")
     @Mapping(target = "productName", source = "response.productName")
     @Mapping(target = "brandName", source = "product.productBrand.brandName")
     @Mapping(target = "unit", source = "response.unit")
     @Mapping(target = "reviewCount", source = "response.reviewCount")
     @Mapping(target = "rating", source = "response.rating")
     @Mapping(target = "starPercent", source = "starPercent")
-    @Mapping(target = "isLiked", source = "isLiked")
     @Mapping(target = "normalPrice", source = "product.normalPrice")
     @Mapping(target = "productDetail", source = "product.productDetail")
     @Mapping(target = "ingredients", source = "product.ingredients")
-    @Mapping(target = "middleCategory", source = "product.middleCategory")
-    @Mapping(target = "subCategory", source = "product.subCategory")
     ProductDetailResponse toProductDetailResponse(
             ProductBasicResponse response,
-            List<ProductOptionResponse> options,
             Product product,
-            List<RatingPercentResponse> starPercent,
-            Boolean isLiked
+            List<RatingPercentResponse> starPercent
     );
 
     /**
@@ -131,7 +123,7 @@ public interface ProductMapper {
                             new ProductStatsResponse("", 0L, 0.0)
                     );
                     boolean isLiked = likedIds.contains(product.getId());
-                    return ProductBasicResponse.of(product, summary, isLiked);
+                    return ProductBasicResponse.of(product, summary);
                 })
                 .toList();
     }

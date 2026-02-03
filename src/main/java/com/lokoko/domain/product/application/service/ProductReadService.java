@@ -114,8 +114,6 @@ public class ProductReadService {
         List<RatingCount> stats = reviewRepository.countByProductIdsAndRating(List.of(productId));
         Map<Long, ReviewStats> statsMap = productStatsCalculatorService.calculateProductStats(stats);
         ReviewStats reviewStats = statsMap.getOrDefault(productId, new ReviewStats(0L, 0L, 0.0));
-        boolean isLiked = productLikeService.isLiked(productId, userId);
-
         ProductStatsResponse summary = new ProductStatsResponse(
                 joinedUrls,
                 reviewStats.reviewCount(),
@@ -123,22 +121,16 @@ public class ProductReadService {
         );
         ProductBasicResponse productBasicResponse = ProductBasicResponse.of(
                 product,
-                summary,
-                isLiked
+                summary
         );
 
-        List<ProductOptionResponse> options = productOptionRepository.findByProduct(product).stream()
-                .map(productMapper::toProductOptionResponse)
-                .toList();
         List<RatingPercentResponse> starPercent =
                 productStatsCalculatorService.calculateRatingPercent(stats);
 
         return productMapper.toProductDetailResponse(
                 productBasicResponse,
-                options,
                 product,
-                starPercent,
-                isLiked
+                starPercent
         );
     }
 
