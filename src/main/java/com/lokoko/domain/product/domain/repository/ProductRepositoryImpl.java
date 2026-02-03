@@ -348,6 +348,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		List<ProductBrandInfoProjection> content = queryFactory
 			.select(Projections.constructor(
 				ProductBrandInfoProjection.class,
+                p.id,
 				p.productBrand.brandName,
 				p.productName,
 				p.unit,
@@ -428,6 +429,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		List<ProductBrandInfoProjection> content = queryFactory
 			.select(Projections.constructor(
 				ProductBrandInfoProjection.class,
+                p.id,
 				p.productBrand.brandName,
 				p.productName,
 				p.unit,

@@ -8,6 +8,9 @@ import lombok.Builder;
 @Builder
 public record ProductBrandInfoResponse(
 
+    @Schema(requiredMode = REQUIRED, description = "상품 id")
+    Long productId,
+
 	@Schema(requiredMode = REQUIRED, description = "상품 브랜드명")
 	String productBrandName,
 

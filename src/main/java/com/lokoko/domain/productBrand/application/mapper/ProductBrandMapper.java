@@ -17,49 +17,50 @@ import com.lokoko.global.utils.RatingConverter;
 @Component
 public class ProductBrandMapper {
 
-	public ProductBrandNameListResponse toBrandNameListResponse(List<ProductBrand> brands) {
-		return ProductBrandNameListResponse.builder()
-			.brandNames(brands.stream()
-				.map(this::toBrandName)
-				.toList())
-			.build();
-	}
+    public ProductBrandNameListResponse toBrandNameListResponse(List<ProductBrand> brands) {
+        return ProductBrandNameListResponse.builder()
+                .brandNames(brands.stream()
+                        .map(this::toBrandName)
+                        .toList())
+                .build();
+    }
 
-	private ProductBrandName toBrandName(ProductBrand productBrand) {
-		return ProductBrandName.builder()
-			.productBrandId(productBrand.getId())
-			.productBrandName(productBrand.getBrandName())
-			.build();
-	}
+    private ProductBrandName toBrandName(ProductBrand productBrand) {
+        return ProductBrandName.builder()
+                .productBrandId(productBrand.getId())
+                .productBrandName(productBrand.getBrandName())
+                .build();
+    }
 
-	public ProductBrandInfoResponse toProductBrandInfoResponse(ProductBrandInfoProjection productBrandInfoProjection) {
-		double displayRating = RatingConverter.toDisplayRating(productBrandInfoProjection.averageRating());
+    public ProductBrandInfoResponse toProductBrandInfoResponse(ProductBrandInfoProjection productBrandInfoProjection) {
+        double displayRating = RatingConverter.toDisplayRating(productBrandInfoProjection.averageRating());
 
-		return ProductBrandInfoResponse.builder()
-			.productBrandName(productBrandInfoProjection.productBrandName())
-			.productName(productBrandInfoProjection.productName())
-			.unit(productBrandInfoProjection.unit())
-			.rating(displayRating)
-			.imageUrl(productBrandInfoProjection.imageUrl())
-			.build();
-	}
+        return ProductBrandInfoResponse.builder()
+                .productId(productBrandInfoProjection.productId())
+                .productBrandName(productBrandInfoProjection.productBrandName())
+                .productName(productBrandInfoProjection.productName())
+                .unit(productBrandInfoProjection.unit())
+                .rating(displayRating)
+                .imageUrl(productBrandInfoProjection.imageUrl())
+                .build();
+    }
 
-	public ProductBrandInfoListResponse toProductBrandInfoList(
-		Slice<ProductBrandInfoProjection> slice,
-		List<ProductBrandInfoResponse> products,
-		long totalElements
-	) {
-		PageableResponse pageInfo = PageableResponse.of(
-			slice.getNumber(),
-			slice.getSize(),
-			slice.getNumberOfElements(),
-			slice.isLast(),
-			totalElements
-		);
+    public ProductBrandInfoListResponse toProductBrandInfoList(
+            Slice<ProductBrandInfoProjection> slice,
+            List<ProductBrandInfoResponse> products,
+            long totalElements
+    ) {
+        PageableResponse pageInfo = PageableResponse.of(
+                slice.getNumber(),
+                slice.getSize(),
+                slice.getNumberOfElements(),
+                slice.isLast(),
+                totalElements
+        );
 
-		return ProductBrandInfoListResponse.builder()
-			.products(products)
-			.pageInfo(pageInfo)
-			.build();
-	}
+        return ProductBrandInfoListResponse.builder()
+                .products(products)
+                .pageInfo(pageInfo)
+                .build();
+    }
 }
