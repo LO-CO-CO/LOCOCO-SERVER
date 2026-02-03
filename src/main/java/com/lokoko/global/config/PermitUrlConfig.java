@@ -25,6 +25,7 @@ public class PermitUrlConfig {
                 "/api/reviews/brands/videos",
                 "/api/reviews/brands/images",
                 "/api/product-brand",
+                "/api/product-brand/products",
                 "/api/reviews/brands/summary"
         };
     }
