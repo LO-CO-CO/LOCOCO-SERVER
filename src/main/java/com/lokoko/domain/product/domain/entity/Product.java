@@ -1,10 +1,6 @@
 package com.lokoko.domain.product.domain.entity;
 
-import com.lokoko.domain.product.domain.entity.enums.MainCategory;
-import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.ProductCategory;
-import com.lokoko.domain.product.domain.entity.enums.SubCategory;
-import com.lokoko.domain.product.domain.entity.enums.Tag;
 import com.lokoko.domain.productBrand.domain.entity.ProductBrand;
 import com.lokoko.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
