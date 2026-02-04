@@ -1,6 +1,5 @@
 package com.lokoko.domain.product.application.service;
 
-import com.lokoko.domain.like.domain.repository.ProductLikeRepository;
 import com.lokoko.domain.media.image.domain.entity.ProductImage;
 import com.lokoko.domain.media.image.domain.repository.ProductImageRepository;
 import com.lokoko.domain.product.api.dto.ReviewStats;
@@ -24,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.cache.annotation.Cacheable;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductReadService {
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
-    private final ProductLikeRepository productLikeRepository;
     private final ReviewRepository reviewRepository;
 
     private final ProductImageService productImageService;
@@ -50,6 +50,7 @@ public class ProductReadService {
         );
     }
 
+    @Cacheable(value = "popularProducts", key = "#productCategory != null ? #productCategory.name() : 'ALL'")
     public PopularProductsByCategoryResponse searchPopularProductsByCategory(ProductCategory productCategory) {
         return new PopularProductsByCategoryResponse(
                 productRepository.findPopularProductsWithDetails(productCategory)

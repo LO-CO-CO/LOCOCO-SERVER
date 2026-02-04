@@ -71,35 +71,42 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 	@Override
 	public List<SimpleProductResponse> findNewProductsWithDetails(ProductCategory category) {
 
-		NumberExpression<Integer> ratingValue = new CaseBuilder()
-			.when(r.rating.eq(Rating.ONE)).then(1)
-			.when(r.rating.eq(Rating.TWO)).then(2)
-			.when(r.rating.eq(Rating.THREE)).then(3)
-			.when(r.rating.eq(Rating.FOUR)).then(4)
-			.when(r.rating.eq(Rating.FIVE)).then(5)
-			.otherwise(0);
+        NumberExpression<Integer> ratingValue = new CaseBuilder()
+                .when(r.rating.eq(Rating.ONE)).then(1)
+                .when(r.rating.eq(Rating.TWO)).then(2)
+                .when(r.rating.eq(Rating.THREE)).then(3)
+                .when(r.rating.eq(Rating.FOUR)).then(4)
+                .when(r.rating.eq(Rating.FIVE)).then(5)
+                .otherwise(0);
 
         BooleanExpression categoryCondition = makeCategoryCondition(category);
 
-		return queryFactory
-			.select(Projections.constructor(SimpleProductResponse.class,
-				p.id,
-				productImage.url,
-				p.productName,
-				p.productBrand.brandName,
-				p.unit,
-				r.id.count(),
-				ratingValue.avg()
-			))
-			.from(p)
-			.leftJoin(r).on(r.product.eq(p))
-			.leftJoin(productImage).on(productImage.product.eq(p).and(productImage.isMain.eq(true)))
-			.where(categoryCondition)
-			.groupBy(p.id, p.productName, p.productBrand.brandName, p.unit, productImage.url, p.createdAt)
-			.orderBy(p.createdAt.desc())
-			.limit(4)
-			.fetch();
-	}
+        List<Long> top4Ids = queryFactory
+                .select(p.id)
+                .from(p)
+                .where(categoryCondition)
+                .orderBy(p.createdAt.desc())
+                .limit(4)
+                .fetch();
+
+        return queryFactory
+                .select(Projections.constructor(SimpleProductResponse.class,
+                        p.id,
+                        productImage.url,
+                        p.productName,
+                        p.productBrand.brandName,
+                        p.unit,
+                        r.id.count(),
+                        ratingValue.avg()
+                ))
+                .from(p)
+                .leftJoin(r).on(r.product.eq(p))
+                .leftJoin(productImage).on(productImage.product.eq(p).and(productImage.isMain.eq(true)))
+                .where(p.id.in(top4Ids))
+                .groupBy(p.id, p.productName, p.productBrand.brandName, p.unit, productImage.url, p.createdAt)
+                .orderBy(p.createdAt.desc())
+                .fetch();
+    }
 
     private BooleanExpression makeCategoryCondition(ProductCategory category) {
         return category != null ? p.productCategory.eq(category) : null;
