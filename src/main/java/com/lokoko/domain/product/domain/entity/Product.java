@@ -15,7 +15,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -29,9 +28,7 @@ import java.util.List;
 
 @Getter
 @Entity
-@Table(name = "product", indexes = {
-        @Index(name = "idx_product_middle_category_created", columnList = "middle_category, created_at DESC")
-})
+@Table(name = "product")
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product extends BaseEntity {
@@ -73,33 +70,11 @@ public class Product extends BaseEntity {
     private String youtubeUrl;
 
     @Enumerated(EnumType.STRING)
-    @Column
-    private Tag tag;
-
-    // 새롭게 추가된 카테고리
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private ProductCategory productCategory;
-
-    @Enumerated(EnumType.STRING)
-    @Column( length = 20)
-    private MainCategory mainCategory;
-
-    @Enumerated(EnumType.STRING)
-    @Column( length = 20)
-    private MiddleCategory middleCategory;
-
-    @Enumerated(EnumType.STRING)
-    @Column(length = 30)
-    private SubCategory subCategory;
-
-    private String searchToken;
 
     public void updateYoutubeUrls(List<String> urls) {
         this.youtubeUrl = String.join(",", urls);
     }
 
-    public void updateSearchToken(String join) {
-        this.searchToken = join;
-    }
 }
