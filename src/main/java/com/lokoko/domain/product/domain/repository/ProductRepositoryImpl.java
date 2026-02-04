@@ -1,5 +1,6 @@
 package com.lokoko.domain.product.domain.repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.lokoko.domain.product.api.dto.response.SimpleProductResponse;
@@ -88,6 +89,10 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 .orderBy(p.createdAt.desc())
                 .limit(4)
                 .fetch();
+
+        if (top4Ids.isEmpty()){
+            return new ArrayList<>();
+        }
 
         return queryFactory
                 .select(Projections.constructor(SimpleProductResponse.class,
