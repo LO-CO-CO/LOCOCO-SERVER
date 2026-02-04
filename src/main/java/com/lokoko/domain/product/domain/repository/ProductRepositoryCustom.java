@@ -7,18 +7,9 @@ import com.lokoko.domain.product.domain.entity.enums.ProductCategory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
-import com.lokoko.domain.product.domain.entity.Product;
-import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
-import com.lokoko.domain.product.domain.entity.enums.SubCategory;
 import com.lokoko.domain.productBrand.api.dto.ProductBrandInfoProjection;
 
 public interface ProductRepositoryCustom {
-	Slice<Product> searchByTokens(List<String> tokens, Pageable pageable);
-
-	Slice<Product> findProductsByPopularityAndRating(MiddleCategory category, Pageable pageable);
-
-	Slice<Product> findProductsByPopularityAndRating(MiddleCategory category, SubCategory subCategory,
-		Pageable pageable);
 
 	List<SimpleProductResponse> findPopularProductsWithDetails(ProductCategory productCategory);
 

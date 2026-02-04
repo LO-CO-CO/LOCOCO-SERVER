@@ -17,7 +17,6 @@ import com.lokoko.domain.media.image.domain.repository.ReceiptImageRepository;
 import com.lokoko.domain.media.image.domain.repository.ReviewImageRepository;
 import com.lokoko.domain.media.video.domain.entity.ReviewVideo;
 import com.lokoko.domain.media.video.domain.repository.ReviewVideoRepository;
-import com.lokoko.domain.product.application.event.PopularProductsCacheEvictEvent;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.repository.ProductRepository;
 import com.lokoko.domain.product.exception.ProductNotFoundException;
@@ -25,7 +24,6 @@ import com.lokoko.domain.productReview.api.dto.request.ReviewReceiptRequest;
 import com.lokoko.domain.productReview.api.dto.request.ReviewRequest;
 import com.lokoko.domain.productReview.api.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.productReview.api.dto.response.ReviewResponse;
-import com.lokoko.domain.productReview.application.event.PopularReviewsCacheEvictEvent;
 import com.lokoko.domain.productReview.domain.entity.Review;
 import com.lokoko.domain.productReview.domain.repository.ReviewRepository;
 import com.lokoko.domain.productReview.exception.ErrorMessage;
@@ -135,8 +133,6 @@ public class ReviewService {
         // ReviewLikeCount init
         initReviewLikeCountToZero(savedReview);
 
-        publishCacheEvent(product);
-
         return reviewMapper.toReviewResponse(review);
     }
 
@@ -154,8 +150,6 @@ public class ReviewService {
                 throw new ReviewPermissionException();
             }
         }
-
-        publishCacheEvent(review.getProduct());
 
         deleteAllReferenceOfReview(review);
         reviewRepository.delete(review);
@@ -202,11 +196,6 @@ public class ReviewService {
 
     private void initReviewLikeCountToZero(Review savedReview) {
         reviewLikeCountRepository.save(ReviewLikeCount.init(savedReview.getId()));
-    }
-
-    private void publishCacheEvent(Product product) {
-        eventPublisher.publishEvent(new PopularProductsCacheEvictEvent(product.getMiddleCategory()));
-        eventPublisher.publishEvent(new PopularReviewsCacheEvictEvent());
     }
 
     public void deleteAllReferenceOfReview(Review review) {
