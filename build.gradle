@@ -113,9 +113,6 @@ dependencies {
     implementation 'org.mapstruct:mapstruct:1.5.5.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
-    // Lucene Kuromoji – 일본어 형태소 분석기
-    implementation "org.apache.lucene:lucene-analysis-kuromoji:10.2.2"
-
     // DeepL 번역
     implementation("com.deepl.api:deepl-java:1.6.0")
 }
