@@ -31,7 +31,6 @@ public record AdminProductCreateRequest(
         Long normalPrice,
 
         @Schema(description = "용량 (최대 20자)", example = "30ml")
-        @NotBlank
         @Size(max = 20)
         String unit,
 
