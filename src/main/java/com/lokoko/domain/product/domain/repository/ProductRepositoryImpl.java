@@ -2,20 +2,18 @@ package com.lokoko.domain.product.domain.repository;
 
 import java.util.List;
 
+import com.lokoko.domain.product.api.dto.response.SimpleProductResponse;
+import com.lokoko.domain.product.domain.entity.enums.ProductCategory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
-import com.lokoko.domain.like.domain.entity.QProductLike;
 import com.lokoko.domain.media.image.domain.entity.QProductImage;
-import com.lokoko.domain.product.api.dto.NewProductProjection;
-import com.lokoko.domain.product.api.dto.PopularProductProjection;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.QProduct;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
-import com.lokoko.domain.product.domain.entity.enums.Tag;
 import com.lokoko.domain.productBrand.api.dto.ProductBrandInfoProjection;
 import com.lokoko.domain.productReview.domain.entity.QReview;
 import com.lokoko.domain.productReview.domain.entity.enums.Rating;
@@ -26,7 +24,6 @@ import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -45,7 +42,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 	private static final QProduct p = QProduct.product;
 	private static final QReview r = QReview.review;
 	private final QProductImage productImage = QProductImage.productImage;
-	private final QProductLike productLike = QProductLike.productLike;
 
 	/**
 	 * 주어진 토큰 리스트를 기반으로 상품 검색 단계적으로 검색이 수행되고, 각 단계에서 결과가 존재하면 바로 반환
@@ -221,9 +217,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 	}
 
 	@Override
-	public Slice<PopularProductProjection> findPopularProductsWithDetails(
-		MiddleCategory category,
-		Pageable pageable) {
+	public List<SimpleProductResponse> findPopularProductsWithDetails(ProductCategory category) {
 
 		NumberExpression<Integer> ratingValue = new CaseBuilder()
 			.when(r.rating.eq(Rating.ONE)).then(1)
@@ -233,41 +227,30 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			.when(r.rating.eq(Rating.FIVE)).then(5)
 			.otherwise(0);
 
-		JPAQuery<PopularProductProjection> query = queryFactory
-			.select(Projections.constructor(PopularProductProjection.class,
+        BooleanExpression categoryCondition = makeCategoryCondition(category);
+
+        return queryFactory
+			.select(Projections.constructor(SimpleProductResponse.class,
 				p.id,
+				productImage.url,
 				p.productName,
 				p.productBrand.brandName,
 				p.unit,
 				r.id.count(),
-				ratingValue.avg(),
-				productImage.url,
-				Expressions.FALSE  // 또는 Expressions.asBoolean(false)
+				ratingValue.avg()
 			))
 			.from(p)
 			.leftJoin(r).on(r.product.eq(p))
-			.leftJoin(productImage).on(productImage.product.eq(p).and(productImage.isMain.eq(true)));
-
-		List<PopularProductProjection> content = query
-			.where(p.middleCategory.eq(category))
+			.leftJoin(productImage).on(productImage.product.eq(p).and(productImage.isMain.eq(true)))
+			.where(categoryCondition)
 			.groupBy(p.id, p.productName, p.productBrand.brandName, p.unit, productImage.url)
-			.orderBy(r.id.count().desc(), ratingValue.avg().desc())
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize() + 1)
+			.orderBy(r.id.count().desc())
+			.limit(4)
 			.fetch();
-
-		boolean hasNext = content.size() > pageable.getPageSize();
-		if (hasNext) {
-			content.remove(content.size() - 1);
-		}
-
-		return new SliceImpl<>(content, pageable, hasNext);
 	}
 
 	@Override
-	public Slice<NewProductProjection> findNewProductsWithDetails(
-		MiddleCategory category,
-		Pageable pageable) {
+	public List<SimpleProductResponse> findNewProductsWithDetails(ProductCategory category) {
 
 		NumberExpression<Integer> ratingValue = new CaseBuilder()
 			.when(r.rating.eq(Rating.ONE)).then(1)
@@ -277,46 +260,33 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			.when(r.rating.eq(Rating.FIVE)).then(5)
 			.otherwise(0);
 
-		JPAQuery<NewProductProjection> query = queryFactory
-			.select(Projections.constructor(NewProductProjection.class,
+        BooleanExpression categoryCondition = makeCategoryCondition(category);
+
+		return queryFactory
+			.select(Projections.constructor(SimpleProductResponse.class,
 				p.id,
+				productImage.url,
 				p.productName,
 				p.productBrand.brandName,
 				p.unit,
 				r.id.count(),
-				ratingValue.avg(),
-				productImage.url,
-				Expressions.FALSE,
-				p.createdAt
+				ratingValue.avg()
 			))
 			.from(p)
 			.leftJoin(r).on(r.product.eq(p))
-			.leftJoin(productImage).on(productImage.product.eq(p).and(productImage.isMain.eq(true)));
-
-		List<NewProductProjection> content = query
-			.where(
-				p.middleCategory.eq(category)
-					.and(p.tag.eq(Tag.NEW))
-			)
+			.leftJoin(productImage).on(productImage.product.eq(p).and(productImage.isMain.eq(true)))
+			.where(categoryCondition)
 			.groupBy(p.id, p.productName, p.productBrand.brandName, p.unit, productImage.url, p.createdAt)
-			.orderBy(
-				r.id.count().desc(), //  리뷰 수
-				ratingValue.avg().desc(), // 별점
-				p.createdAt.desc()
-			)
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize() + 1)
+			.orderBy(p.createdAt.desc())
+			.limit(4)
 			.fetch();
-
-		boolean hasNext = content.size() > pageable.getPageSize();
-		if (hasNext) {
-			content.remove(content.size() - 1);
-		}
-
-		return new SliceImpl<>(content, pageable, hasNext);
 	}
 
-	@Override
+    private BooleanExpression makeCategoryCondition(ProductCategory category) {
+        return category != null ? p.productCategory.eq(category) : null;
+    }
+
+    @Override
 	public Slice<ProductBrandInfoProjection> findProductsByBrandName(String productBrandName, Pageable pageable) {
 
 		// alias는 메서드 범위에서만 쓰므로 여기서 생성하는 게 맞습니다 (static final로 공유 X)
@@ -348,11 +318,13 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		List<ProductBrandInfoProjection> content = queryFactory
 			.select(Projections.constructor(
 				ProductBrandInfoProjection.class,
+                p.id,
 				p.productBrand.brandName,
 				p.productName,
 				p.unit,
 				averageRatingExpression,
-				imageUrlExpression
+				imageUrlExpression,
+                r.id.count().coalesce(0L)
 			))
 			.from(p)
 			.join(p.productBrand)
@@ -370,10 +342,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 				mainProductImage.url
 			)
 			.orderBy(
-				averageRatingExpression.desc(),
 				reviewCountExpression.desc(),
 				p.createdAt.desc(),
-				p.id.desc()
+                p.id.desc()
 			)
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize() + 1L)
@@ -428,11 +399,13 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 		List<ProductBrandInfoProjection> content = queryFactory
 			.select(Projections.constructor(
 				ProductBrandInfoProjection.class,
+                p.id,
 				p.productBrand.brandName,
 				p.productName,
 				p.unit,
 				averageRatingExpression,
-				imageUrlExpression
+				imageUrlExpression,
+                r.id.count().coalesce(0L)
 			))
 			.from(p)
 			.join(p.productBrand)
@@ -446,7 +419,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 				mainProductImage.url
 			)
 			.orderBy(
-				averageRatingExpression.desc(),
 				reviewCountExpression.desc(),
 				p.createdAt.desc(),
 				p.id.desc()
@@ -470,4 +442,22 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 			.from(p)
 			.fetchOne();
 	}
+
+    @Override
+    public int countProductsByBrandName(String brandName) {
+        Long count = queryFactory
+                .select(p.count())
+                .from(p)
+                .where(brandNameCondition(brandName))
+                .fetchOne();
+
+        return count != null ? count.intValue() : 0;
+    }
+
+    private BooleanExpression brandNameCondition(String brandName) {
+        if (brandName == null || brandName.isBlank()) {
+            return null;
+        }
+        return p.productBrand.brandName.eq(brandName);
+    }
 }

@@ -2,11 +2,11 @@ package com.lokoko.domain.product.domain.repository;
 
 import java.util.List;
 
+import com.lokoko.domain.product.api.dto.response.SimpleProductResponse;
+import com.lokoko.domain.product.domain.entity.enums.ProductCategory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
-import com.lokoko.domain.product.api.dto.NewProductProjection;
-import com.lokoko.domain.product.api.dto.PopularProductProjection;
 import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
@@ -20,13 +20,9 @@ public interface ProductRepositoryCustom {
 	Slice<Product> findProductsByPopularityAndRating(MiddleCategory category, SubCategory subCategory,
 		Pageable pageable);
 
-	Slice<PopularProductProjection> findPopularProductsWithDetails(MiddleCategory middleCategory,
-		Pageable pageable);
+	List<SimpleProductResponse> findPopularProductsWithDetails(ProductCategory productCategory);
 
-	Slice<NewProductProjection> findNewProductsWithDetails(
-		MiddleCategory category,
-		Pageable pageable
-	);
+	List<SimpleProductResponse> findNewProductsWithDetails(ProductCategory productCategory);
 
 	Slice<ProductBrandInfoProjection> findProductsByBrandName(String productBrandName, Pageable pageable);
 
@@ -35,4 +31,6 @@ public interface ProductRepositoryCustom {
 	Slice<ProductBrandInfoProjection> findProductsOrderedByRating(Pageable pageable);
 
 	Long countAllProducts();
+
+    int countProductsByBrandName(String brandName);
 }

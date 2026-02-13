@@ -209,18 +209,6 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     }
 
     @Override
-    public int countProductsByBrandName(String brandName) {
-        Long count = queryFactory
-                .select(product.countDistinct())
-                .from(product)
-                .innerJoin(review).on(review.product.eq(product))
-                .where(brandNameCondition(brandName))
-                .fetchOne();
-
-        return count != null ? count.intValue() : 0;
-    }
-
-    @Override
     public int countReviewsByBrandName(String brandName) {
         Long count = queryFactory
                 .select(review.count())

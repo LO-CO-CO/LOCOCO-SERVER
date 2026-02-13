@@ -28,14 +28,12 @@ public record ProductBasicResponse(
         Long reviewCount, // 리뷰 개수
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "0.0")
         @Schema(requiredMode = REQUIRED)
-        Double rating, // 별점
-        @Schema(requiredMode = REQUIRED)
-        Boolean isLiked // 좋아요 여부
+        Double rating // 별점
+
 ) {
     public static ProductBasicResponse of(
             Product product,
-            ProductStatsResponse summary,
-            boolean isLiked
+            ProductStatsResponse summary
     ) {
         List<String> images = Optional.ofNullable(summary.imageUrl())
                 .filter(u -> !u.isBlank())
@@ -52,8 +50,7 @@ public record ProductBasicResponse(
                 product.getProductBrand().getBrandName(),
                 product.getUnit(),
                 summary.reviewCount(),
-                summary.avgRating(),
-                isLiked
+                summary.avgRating()
         );
     }
 }

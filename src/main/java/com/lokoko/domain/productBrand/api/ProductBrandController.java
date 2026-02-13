@@ -34,7 +34,7 @@ public class ProductBrandController {
 		return ApiResponse.success(HttpStatus.OK, ResponseMessage.PRODUCT_BRAND_GET_SUCCESS.getMessage(), response);
 	}
 
-	@Operation(summary = "브랜드 이름으로 상품 목록 조회 (페이지네이션, 별점 높은 순)")
+	@Operation(summary = "브랜드 이름으로 상품 목록 조회 (페이지네이션, 리뷰 많은 순)")
 	@GetMapping("/products")
 	public ApiResponse<ProductBrandInfoListResponse> getProductsByBrandName(
 		@RequestParam(required = false) String productBrandName,
