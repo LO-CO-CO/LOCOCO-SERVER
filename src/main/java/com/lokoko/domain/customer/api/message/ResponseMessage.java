@@ -13,7 +13,8 @@ public enum ResponseMessage {
     CUSTOMER_PROFILE_IMAGE_PRESIGNED_URL_SUCCESS("일반 유저 프로필 이미지 presigend url이 성공적으로 발급되었습니다."),
     CUSTOMER_GET_MYPAGE_INFO_SUCCESS("일반 유저 마이페이지 정보를 성공적으로 불러왔습니다."),
     CUSTOMER_UPDATE_MYPAGE_INFO_SUCCESS("일반 유저 마이페이지 정보를 성공적으로 수정했습니다."),
-    CUSTOMER_GET_SNS_STATUS_SUCCESS("일반 유저 SNS 연결 상태를 성공적으로 불러왔습니다");
+    CUSTOMER_GET_SNS_STATUS_SUCCESS("일반 유저 SNS 연결 상태를 성공적으로 불러왔습니다"),
+    CUSTOMER_ADDITIONAL_INFI_REGISTER_SUCCESS("일반 유저 추가 정보 입력에 성공했습니다.");
 
     private final String message;
 }
