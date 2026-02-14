@@ -6,10 +6,11 @@ import com.lokoko.domain.product.domain.entity.Product;
 import com.lokoko.domain.product.domain.entity.enums.MainCategory;
 import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.SubCategory;
-import com.lokoko.domain.product.domain.entity.enums.Tag;
 import com.lokoko.domain.product.domain.repository.ProductRepository;
 import com.lokoko.global.utils.ProductCrawlerConstants;
 import com.lokoko.global.utils.ProductCrawlerUtil;
+
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -111,7 +112,7 @@ public class NewProductCrawler {
             String ship = util.safeText(By.cssSelector(".prd-delivery-info"));
             String brand = util.safeText(By.cssSelector(".prd-brand-info h3"));
             String detail = util.safeText(By.cssSelector(".prd-brand-info dl"));
-            Tag tag = util.extractTag();
+
             String productDetail = util.expandAndExtract(
                     ProductCrawlerConstants.SELECTORS_PRODUCT_DETAIL, "#agreeList1"
             );
@@ -124,13 +125,9 @@ public class NewProductCrawler {
             }
 
             Product p = Product.builder()
-                    .normalPrice(price)
+                    .normalPrice(BigDecimal.valueOf(price))
                     .productName(detail)
                     .shippingInfo(ship != null ? ship : "배송 정보 없음")
-                    .tag(tag)
-                    .mainCategory(main)
-                    .middleCategory(middle)
-                    .subCategory(sub)
                     .productDetail(productDetail)
                     .ingredients(ingredients)
                     .build();
