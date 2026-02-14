@@ -19,7 +19,7 @@ public record AdminProductCreateRequest(
 
         @Schema(requiredMode = REQUIRED, description = "상품명 (최대 30자)", example = "비타C 브라이트닝 세럼")
         @NotBlank
-        @Size(max = 80)
+        @Size(max = 150)
         String productName,
 
         @Schema(requiredMode = REQUIRED, description = "상품 브랜드 id", example = "1")
