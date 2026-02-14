@@ -1,6 +1,8 @@
 package com.lokoko.domain.customer.application;
 
 
+import com.lokoko.domain.creator.domain.repository.CreatorRepository;
+import com.lokoko.domain.customer.api.dto.request.CustomerInfoRegisterRequest;
 import com.lokoko.domain.customer.api.dto.request.CustomerMyPageRequest;
 import com.lokoko.domain.customer.api.dto.request.CustomerProfileImageRequest;
 import com.lokoko.domain.customer.api.dto.response.CustomerMyPageResponse;
@@ -15,7 +17,9 @@ import com.lokoko.domain.productReview.exception.ErrorMessage;
 import com.lokoko.domain.productReview.exception.InvalidMediaTypeException;
 import com.lokoko.domain.user.application.service.UserService;
 import com.lokoko.domain.user.domain.entity.User;
+import com.lokoko.domain.user.exception.UserIdAlreadyExistsException;
 import com.lokoko.global.utils.S3UrlParser;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +32,8 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final S3Service s3Service;
     private final UserService userService;
+
+    private final CreatorRepository creatorRepository;
 
     public CustomerProfileImageResponse createCustomerProfilePresignedUrl(Long customerId,
                                                                           CustomerProfileImageRequest request) {
@@ -100,26 +106,6 @@ public class CustomerService {
             customer.assignCountry(request.country());
         }
 
-        if (request.stateOrProvince() != null) {
-            customer.assignStateOrProvince(request.stateOrProvince());
-        }
-
-        if (request.cityOrTown() != null) {
-            customer.assignCityOrTown(request.cityOrTown());
-        }
-
-        if (request.addressLine1() != null) {
-            customer.assignAddressLine1(request.addressLine1());
-        }
-
-        if (request.addressLine2() != null) {
-            customer.assignAddressLine2(request.addressLine2());
-        }
-
-        if (request.postalCode() != null) {
-            customer.assignPostalCode(request.postalCode());
-        }
-
         if (request.skinType() != null) {
             customer.assignSkinType(request.skinType());
         }
@@ -139,4 +125,26 @@ public class CustomerService {
         );
     }
 
+
+    @Transactional
+    public void registerAdditionalInfo(Long userId, CustomerInfoRegisterRequest request) {
+
+        Customer customer = customerRepository.findById(userId)
+                .orElseThrow(CustomerNotFoundException::new);
+
+        // id 중복 검증
+        validateDuplicateId(request.communityName());
+
+        customer.registerAdditionalInfo(request);
+
+    }
+
+    private void validateDuplicateId(String communityName) {
+        boolean existsInCreator = creatorRepository.existsByCreatorNameIgnoreCase(communityName);
+        boolean existsInCustomer = customerRepository.existsByCustomerNameIgnoreCase(communityName);
+
+        if (existsInCreator || existsInCustomer) {
+            throw new UserIdAlreadyExistsException();
+        }
+    }
 }
