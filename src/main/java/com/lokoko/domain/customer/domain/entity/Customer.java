@@ -4,6 +4,7 @@ import com.lokoko.domain.creator.domain.entity.enums.ContentLanguage;
 import com.lokoko.domain.creator.domain.entity.enums.Gender;
 import com.lokoko.domain.creator.domain.entity.enums.SkinTone;
 import com.lokoko.domain.creator.domain.entity.enums.SkinType;
+import com.lokoko.domain.customer.api.dto.request.CustomerInfoRegisterRequest;
 import com.lokoko.domain.user.domain.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,7 +15,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,11 +41,17 @@ public class Customer {
     private String customerName;
 
     @Column
-    private LocalDate birthDate;
+    private String birthDate;
 
     @Enumerated(EnumType.STRING)
     @Column
     private Gender gender;
+
+    @Column
+    private String firstName;
+
+    @Column
+    private String lastName;
 
     @Column
     private String countryCode;
@@ -55,22 +61,6 @@ public class Customer {
 
     @Column
     private String country;
-
-    // 주/도/광역시 등
-    @Column
-    private String stateOrProvince;
-
-    @Column
-    private String cityOrTown;
-
-    @Column
-    private String addressLine1;
-
-    @Column
-    private String addressLine2;
-
-    @Column
-    private String postalCode;
 
     @Enumerated(EnumType.STRING)
     private SkinType skinType;
@@ -96,7 +86,7 @@ public class Customer {
         this.customerName = customerName;
     }
 
-    public void assignBirthDate(LocalDate birthDate) {
+    public void assignBirthDate(String birthDate) {
         this.birthDate = birthDate;
     }
 
@@ -114,26 +104,6 @@ public class Customer {
 
     public void assignCountry(String country) {
         this.country = country;
-    }
-
-    public void assignStateOrProvince(String stateOrProvince) {
-        this.stateOrProvince = stateOrProvince;
-    }
-
-    public void assignCityOrTown(String cityOrTown) {
-        this.cityOrTown = cityOrTown;
-    }
-
-    public void assignAddressLine1(String addressLine1) {
-        this.addressLine1 = addressLine1;
-    }
-
-    public void assignAddressLine2(String addressLine2) {
-        this.addressLine2 = addressLine2;
-    }
-
-    public void assignPostalCode(String postalCode) {
-        this.postalCode = postalCode;
     }
 
     public void assignSkinType(SkinType skinType) {
@@ -154,5 +124,28 @@ public class Customer {
 
     public void connectInsta(String instaUserId) {
         this.instaUserId = instaUserId;
+    }
+
+    public void assignFirstName(String firstName){
+        this.firstName = firstName;
+    }
+
+    public void assignLastName(String lastName){
+        this.lastName = lastName;
+    }
+
+    public void registerAdditionalInfo(CustomerInfoRegisterRequest request) {
+        assignCustomerName(request.communityName());
+        assignBirthDate(request.birthDate());
+        assignGender(request.gender());
+        assignFirstName(request.firstName());
+        assignLastName(request.lastName());
+        if (request.country() != null){
+            assignCountry(request.country());
+        }
+        assignCountryCode(request.countryCode());
+        assignPhoneNumber(request.phoneNumber());
+        assignSkinTone(request.skinTone());
+        assignSkinType(request.skinType());
     }
 }
