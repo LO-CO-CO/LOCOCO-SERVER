@@ -8,7 +8,6 @@ import com.lokoko.domain.customer.domain.entity.Customer;
 import com.lokoko.domain.user.domain.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.time.LocalDate;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
@@ -30,7 +29,7 @@ public record CustomerMyPageResponse(
         String userName,
 
         @Schema(description = "생년월일", example = "2002-08-21")
-        LocalDate birthDate,
+        String birthDate,
 
         @Schema(description = "성별", example = "MALE")
         Gender gender,
@@ -47,21 +46,6 @@ public record CustomerMyPageResponse(
         @Schema(description = "국가", example = "US")
         String country,
 
-        @Schema(description = "State (텍스트 최대 20자)", example = "CA")
-        String stateOrProvince,
-
-        @Schema(description = "City/Town (텍스트, 최대 20자)", example = "San Francisco")
-        String cityOrTown,
-
-        @Schema(description = "Address Line 1 (최대 100자)", example = "1234 Market St")
-        String addressLine1,
-
-        @Schema(description = "Address Line 2 (최대 100자)", example = "Apt 5B")
-        String addressLine2,
-
-        @Schema(description = "ZIP Code (최대 10자)", example = "94103")
-        String postalCode,
-
         @Schema(description = "피부 타입 (드롭다운 6개)", example = "COMBINATION")
         SkinType skinType,
 
@@ -77,8 +61,8 @@ public record CustomerMyPageResponse(
         return new CustomerMyPageResponse(
                 user.getProfileImageUrl(),
                 user.getEmail(),
-                user.getFirstName(),
-                user.getLastName(),
+                customer.getFirstName(),
+                customer.getLastName(),
                 customer.getCustomerName(),
                 customer.getBirthDate(),
                 customer.getGender(),
@@ -86,11 +70,6 @@ public record CustomerMyPageResponse(
                 customer.getPhoneNumber(),
                 customer.getContentLanguage(),
                 customer.getCountry(),
-                customer.getStateOrProvince(),
-                customer.getCityOrTown(),
-                customer.getAddressLine1(),
-                customer.getAddressLine2(),
-                customer.getPostalCode(),
                 customer.getSkinType(),
                 customer.getSkinTone()
         );
