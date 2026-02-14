@@ -83,11 +83,11 @@ public class CustomerService {
         }
 
         if (request.firstName() != null) {
-            user.updateFirstName(request.firstName());
+            customer.assignFirstName(request.firstName());
         }
 
         if (request.lastName() != null) {
-            user.updateLastName(request.lastName());
+            customer.assignLastName(request.lastName());
         }
 
         if (request.countryCode() != null) {
