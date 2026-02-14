@@ -9,6 +9,8 @@ import com.lokoko.domain.product.domain.entity.enums.SubCategory;
 import com.lokoko.domain.product.domain.repository.ProductRepository;
 import com.lokoko.global.utils.ProductCrawlerConstants;
 import com.lokoko.global.utils.ProductCrawlerUtil;
+
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -123,7 +125,7 @@ public class NewProductCrawler {
             }
 
             Product p = Product.builder()
-                    .normalPrice(price)
+                    .normalPrice(BigDecimal.valueOf(price))
                     .productName(detail)
                     .shippingInfo(ship != null ? ship : "배송 정보 없음")
                     .productDetail(productDetail)

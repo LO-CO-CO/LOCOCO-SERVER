@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class Product extends BaseEntity {
     private ProductBrand productBrand;
 
     @Column(nullable = false)
-    private long normalPrice;
+    private BigDecimal normalPrice;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String productName;

@@ -1,13 +1,13 @@
 package com.lokoko.domain.product.api.dto.response;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.lokoko.domain.product.domain.entity.Product;
-import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
-import com.lokoko.domain.product.domain.entity.enums.SubCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.math.BigDecimal;
 import java.util.List;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 public record ProductDetailResponse(
         @Schema(requiredMode = REQUIRED)
@@ -28,7 +28,7 @@ public record ProductDetailResponse(
         @Schema(requiredMode = REQUIRED)
         List<RatingPercentResponse> starPercent,
         @Schema(requiredMode = REQUIRED)
-        Long normalPrice,
+        BigDecimal normalPrice,
         @Schema(requiredMode = REQUIRED)
         String productDetail,
         @Schema(requiredMode = REQUIRED)

@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public record AdminProductCreateRequest(
 
         @Schema(requiredMode = REQUIRED, description = "상품명 (최대 30자)", example = "비타C 브라이트닝 세럼")
         @NotBlank
-        @Size(max = 30)
+        @Size(max = 80)
         String productName,
 
         @Schema(requiredMode = REQUIRED, description = "상품 브랜드 id", example = "1")
@@ -28,10 +29,9 @@ public record AdminProductCreateRequest(
         @Schema(requiredMode = REQUIRED, description = "가격", example = "19900")
         @NotNull
         @PositiveOrZero
-        Long normalPrice,
+        BigDecimal normalPrice,
 
         @Schema(description = "용량 (최대 20자)", example = "30ml")
-        @NotBlank
         @Size(max = 20)
         String unit,
 
