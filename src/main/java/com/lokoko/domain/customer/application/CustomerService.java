@@ -133,8 +133,7 @@ public class CustomerService {
                 .orElseThrow(CustomerNotFoundException::new);
 
         // id 중복 검증
-        validateDuplicateId(request.communityName());
-
+        userService.checkUserIdAvailable(request.communityName(), customer.getId());
         registerAdditionalInfo(customer , request);
 
     }
@@ -154,12 +153,4 @@ public class CustomerService {
         customer.assignSkinType(request.skinType());
     }
 
-    private void validateDuplicateId(String communityName) {
-        boolean existsInCreator = creatorRepository.existsByCreatorNameIgnoreCase(communityName);
-        boolean existsInCustomer = customerRepository.existsByCustomerNameIgnoreCase(communityName);
-
-        if (existsInCreator || existsInCustomer) {
-            throw new UserIdAlreadyExistsException();
-        }
-    }
 }
