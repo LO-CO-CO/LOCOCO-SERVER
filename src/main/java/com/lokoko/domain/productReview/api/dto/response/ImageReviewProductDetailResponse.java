@@ -1,5 +1,6 @@
 package com.lokoko.domain.productReview.api.dto.response;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -34,7 +35,7 @@ public record ImageReviewProductDetailResponse(
         Boolean isLiked,
         @Schema(requiredMode = REQUIRED)
         Boolean isMine,
-        @Schema(requiredMode = REQUIRED)
+        @Schema(requiredMode = NOT_REQUIRED)
         String country
 ) {
 
