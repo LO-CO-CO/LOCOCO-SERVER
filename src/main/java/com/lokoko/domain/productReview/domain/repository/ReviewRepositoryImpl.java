@@ -12,6 +12,7 @@ import com.lokoko.domain.productReview.api.dto.response.ImageReviewsProductDetai
 import com.lokoko.domain.productReview.api.dto.response.VideoReviewProductDetail;
 import com.lokoko.domain.productReview.api.dto.response.VideoReviewProductDetailResponse;
 import com.lokoko.domain.productReview.api.dto.response.VideoReviewResponse;
+import com.lokoko.domain.customer.domain.entity.QCustomer;
 import com.lokoko.domain.productReview.domain.entity.QReview;
 import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.domain.user.domain.repository.UserRepository;
@@ -46,6 +47,8 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     private final QReviewImage reviewImage = QReviewImage.reviewImage;
     private final QReviewLike reviewLike = QReviewLike.reviewLike;
     private final QReviewLikeCount reviewLikeCount = QReviewLikeCount.reviewLikeCount;
+
+    private final QCustomer customer = QCustomer.customer;
 
     private final UserRepository userRepository;
 
@@ -227,10 +230,12 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                         review.author.name,
                         review.author.id,
                         ratingAsInt,
-                        reviewImage.mediaFile.fileUrl
+                        reviewImage.mediaFile.fileUrl,
+                        customer.country
                 )
                 .from(review)
                 .join(review.product, product)
+                .leftJoin(customer).on(customer.id.eq(review.author.id))
                 .leftJoin(reviewImage).on(reviewImage.review.eq(review))
                 .where(review.id.in(reviewIds))
                 .orderBy(review.modifiedAt.desc())
@@ -242,6 +247,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
             ImageReviewProductDetailResponse dto = map.computeIfAbsent(id, k -> {
                 boolean isMine = (userId != null && userId.equals(t.get(review.author.id)));
                 boolean isLiked = likedReviewIds.contains(k);
+              
                 return new ImageReviewProductDetailResponse(
                         k,
                         t.get(review.modifiedAt),
@@ -254,7 +260,8 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                         likeCounts.getOrDefault(k, 0L).intValue(),
                         new ArrayList<>(),
                         isLiked,
-                        isMine
+                        isMine,
+                        t.get(customer.country)
                 );
             });
             String img = t.get(reviewImage.mediaFile.fileUrl);

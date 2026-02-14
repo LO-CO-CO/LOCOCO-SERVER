@@ -1,5 +1,6 @@
 package com.lokoko.domain.productReview.api.dto.response;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -33,7 +34,9 @@ public record ImageReviewProductDetailResponse(
         @Schema(requiredMode = REQUIRED)
         Boolean isLiked,
         @Schema(requiredMode = REQUIRED)
-        Boolean isMine
+        Boolean isMine,
+        @Schema(requiredMode = NOT_REQUIRED)
+        String country
 ) {
 
     public ImageReviewProductDetailResponse(Long reviewId, LocalDateTime writtenTime,
@@ -41,7 +44,7 @@ public record ImageReviewProductDetailResponse(
                                             String negativeComment, String profileImageUrl, String authorName,
                                             Long authorId, Double rating,
                                             Integer likeCount, List<String> images,
-                                            Boolean isLiked, Boolean isMine
+                                            Boolean isLiked, Boolean isMine, String country
     ) {
         this.reviewId = reviewId;
         this.writtenTime = writtenTime;
@@ -55,5 +58,6 @@ public record ImageReviewProductDetailResponse(
         this.images = images != null ? new ArrayList<>(images) : new ArrayList<>();
         this.isLiked = isLiked;
         this.isMine = isMine;
+        this.country = country;
     }
 }

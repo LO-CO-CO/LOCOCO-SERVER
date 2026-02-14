@@ -9,7 +9,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import java.time.LocalDate;
 
 public record CustomerMyPageRequest(
 
@@ -22,7 +21,7 @@ public record CustomerMyPageRequest(
         String customerName,
 
         @Schema(description = "생년월일", example = "2002-08-21")
-        LocalDate birthDate,
+        String birthDate,
 
         @Schema(description = "성별", example = "MALE")
         Gender gender,

@@ -1,5 +1,6 @@
 package com.lokoko.domain.customer.api;
 
+import com.lokoko.domain.customer.api.dto.request.CustomerInfoRegisterRequest;
 import com.lokoko.domain.customer.api.dto.request.CustomerMyPageRequest;
 import com.lokoko.domain.customer.api.dto.request.CustomerProfileImageRequest;
 import com.lokoko.domain.customer.api.dto.response.CustomerMyPageResponse;
@@ -68,6 +69,17 @@ public class CustomerController {
 
         CustomerSnsConnectedResponse response = customerService.getCustomerSnsStatus(customer);
         return ApiResponse.success(HttpStatus.OK, ResponseMessage.CUSTOMER_GET_SNS_STATUS_SUCCESS.getMessage(), response);
+    }
+
+    @PostMapping("/info")
+    @Operation(summary = "Customer 대상 추가 정보 입력을 진행하는 API 입니다.")
+    public ApiResponse<Void> registerAdditionalInfo(
+            @Parameter(hidden = true) @CurrentUser Long userId,
+            @RequestBody @Valid CustomerInfoRegisterRequest request){
+
+        customerService.registerAdditionalInfo(userId, request);
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CUSTOMER_ADDITIONAL_INFO_REGISTER_SUCCESS.getMessage());
+
     }
 
 }
