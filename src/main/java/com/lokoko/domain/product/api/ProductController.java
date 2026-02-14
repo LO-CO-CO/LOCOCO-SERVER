@@ -1,39 +1,20 @@
 package com.lokoko.domain.product.api;
 
-
 import com.lokoko.domain.product.api.dto.response.NewProductsByCategoryResponse;
 import com.lokoko.domain.product.api.dto.response.PopularProductsByCategoryResponse;
 import com.lokoko.domain.product.api.dto.response.ProductDetailResponse;
 import com.lokoko.domain.product.api.dto.response.ProductYoutubeResponse;
-import com.lokoko.domain.product.api.dto.response.ProductsByCategoryResponse;
-import com.lokoko.domain.product.api.dto.response.SearchProductsResponse;
-import com.lokoko.domain.product.api.message.ResponseMessage;
 import com.lokoko.domain.product.application.service.ProductReadService;
-import com.lokoko.domain.product.domain.entity.enums.MiddleCategory;
 import com.lokoko.domain.product.domain.entity.enums.ProductCategory;
-import com.lokoko.domain.product.domain.entity.enums.SubCategory;
-import com.lokoko.domain.productReview.api.dto.response.ImageReviewListResponse;
-import com.lokoko.domain.productReview.api.dto.response.KeywordImageReviewListResponse;
-import com.lokoko.domain.productReview.api.dto.response.KeywordVideoReviewListResponse;
-import com.lokoko.domain.productReview.api.dto.response.VideoReviewListResponse;
-import com.lokoko.domain.productReview.application.service.ReviewReadService;
-import com.lokoko.domain.productReview.exception.MissingMediaTypeException;
 import com.lokoko.global.auth.annotation.CurrentUser;
-import com.lokoko.global.common.entity.MediaType;
-import com.lokoko.global.common.entity.SearchType;
 import com.lokoko.global.common.response.ApiResponse;
-import com.lokoko.global.kuromoji.service.ProductMigrationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,110 +28,6 @@ import static com.lokoko.domain.product.api.message.ResponseMessage.*;
 public class ProductController {
 
     private final ProductReadService productReadService;
-    private final ProductMigrationService productMigrationService;
-    private final ReviewReadService reviewReadService;
-
-
-    @Operation(summary = "카테고리 별 상품 및 리뷰 검색")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "200",
-                    description = "카테고리별 상품 또는 리뷰 검색 성공",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(oneOf = {
-                                    ProductsByCategoryResponse.class,
-                                    VideoReviewListResponse.class,
-                                    ImageReviewListResponse.class
-                            })
-                    )
-            )
-    })
-    @GetMapping("/categories/search")
-    public ApiResponse<?> searchProductsByCategory(
-            @RequestParam MiddleCategory middleCategory,
-            @RequestParam(required = false) SubCategory subCategory,
-            @RequestParam(defaultValue = "false") SearchType searchType,
-            @RequestParam(required = false) MediaType mediaType,
-            @Parameter(hidden = true) @CurrentUser Long userId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-
-        if (searchType == SearchType.REVIEW) {
-            if (mediaType == MediaType.VIDEO) {
-                VideoReviewListResponse videoReviewResponse = reviewReadService.searchVideoReviewsByCategory(
-                        middleCategory, subCategory, page, size);
-
-                return ApiResponse.success(HttpStatus.OK, CATEGORY_REVIEW_SEARCH_SUCCESS.getMessage(),
-                        videoReviewResponse);
-
-            } else if (mediaType == MediaType.IMAGE) {
-                ImageReviewListResponse imageReviewListResponse = reviewReadService.searchImageReviewsByCategory(
-                        middleCategory, subCategory, page, size);
-
-                return ApiResponse.success(HttpStatus.OK, CATEGORY_REVIEW_SEARCH_SUCCESS.getMessage(),
-                        imageReviewListResponse);
-            }
-            throw new MissingMediaTypeException();
-        }
-        ProductsByCategoryResponse categoryProductResponse = productReadService.searchProductsByCategory(
-                middleCategory, subCategory, userId, page, size);
-
-        return ApiResponse.success(HttpStatus.OK, CATEGORY_SEARCH_SUCCESS.getMessage(), categoryProductResponse);
-    }
-
-    @Operation(summary = "상품명 또는 브랜드명 상품 및 리뷰 검색")
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(
-                    responseCode = "200",
-                    description = "상품명/브랜드명 검색 성공",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(oneOf = {
-                                    SearchProductsResponse.class,
-                                    KeywordVideoReviewListResponse.class,
-                                    KeywordImageReviewListResponse.class
-                            })
-                    )
-            )
-    })
-    @GetMapping("/search")
-    public ApiResponse<?> search(
-            @RequestParam String keyword,
-            @RequestParam(defaultValue = "false") SearchType searchType,
-            @RequestParam(required = false) MediaType mediaType,
-            @Parameter(hidden = true) @CurrentUser Long userId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        // 리뷰 검색
-        if (searchType == SearchType.REVIEW) {
-
-            // 동영상 리뷰
-            if (mediaType == MediaType.VIDEO) {
-                KeywordVideoReviewListResponse videoReviewResponse = reviewReadService.searchVideoReviewsByKeyword(
-                        keyword, page, size);
-
-                return ApiResponse.success(HttpStatus.OK, ResponseMessage.NAME_BRAND_REVIEW_SEARCH_SUCCESS.getMessage(),
-                        videoReviewResponse);
-                // 이미지 리뷰
-            } else if (mediaType == MediaType.IMAGE) {
-                KeywordImageReviewListResponse imageReviewResponse = reviewReadService.searchImageReviewsByKeyword(
-                        keyword, page, size);
-
-                return ApiResponse.success(HttpStatus.OK, ResponseMessage.NAME_BRAND_REVIEW_SEARCH_SUCCESS.getMessage(),
-                        imageReviewResponse);
-            }
-
-            throw new MissingMediaTypeException();
-        }
-        // 상품 검색
-        SearchProductsResponse searchResults = productReadService.search(keyword, page,
-                size, userId);
-
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.NAME_BRAND_SEARCH_SUCCESS.getMessage(),
-                searchResults);
-
-    }
 
     @Operation(summary = "신상품 카테고리별 조회")
     @GetMapping("/categories/new")
