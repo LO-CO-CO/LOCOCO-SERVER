@@ -37,12 +37,12 @@ public record CustomerInfoRegisterRequest(
         String country,
 
         @NotBlank(message = "국가번호는 필수입니다")
-        @Schema(description = "국가번호 (선택, 최대 5자)", example = "+1")
+        @Schema(description = "국가번호 (최대 5자)", example = "+1")
         @Size(max = 5)
         String countryCode,
 
         @NotBlank(message = "전화번호는 필수입니다")
-        @Schema(description = "전화번호 (선택, 최대 20자)", example = "01012345678")
+        @Schema(description = "전화번호 (최대 20자)", example = "01012345678")
         @Size(max = 20)
         String phoneNumber,
 

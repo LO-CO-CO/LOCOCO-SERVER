@@ -78,7 +78,7 @@ public class CustomerController {
             @RequestBody @Valid CustomerInfoRegisterRequest request){
 
         customerService.registerAdditionalInfo(userId, request);
-        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CUSTOMER_ADDITIONAL_INFI_REGISTER_SUCCESS.getMessage());
+        return ApiResponse.success(HttpStatus.OK, ResponseMessage.CUSTOMER_ADDITIONAL_INFO_REGISTER_SUCCESS.getMessage());
 
     }
 

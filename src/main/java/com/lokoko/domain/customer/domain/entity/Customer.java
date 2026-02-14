@@ -4,7 +4,7 @@ import com.lokoko.domain.creator.domain.entity.enums.ContentLanguage;
 import com.lokoko.domain.creator.domain.entity.enums.Gender;
 import com.lokoko.domain.creator.domain.entity.enums.SkinTone;
 import com.lokoko.domain.creator.domain.entity.enums.SkinType;
-import com.lokoko.domain.customer.api.dto.request.CustomerInfoRegisterRequest;
+
 import com.lokoko.domain.user.domain.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
