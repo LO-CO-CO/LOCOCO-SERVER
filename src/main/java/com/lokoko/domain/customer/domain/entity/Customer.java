@@ -134,18 +134,5 @@ public class Customer {
         this.lastName = lastName;
     }
 
-    public void registerAdditionalInfo(CustomerInfoRegisterRequest request) {
-        assignCustomerName(request.communityName());
-        assignBirthDate(request.birthDate());
-        assignGender(request.gender());
-        assignFirstName(request.firstName());
-        assignLastName(request.lastName());
-        if (request.country() != null){
-            assignCountry(request.country());
-        }
-        assignCountryCode(request.countryCode());
-        assignPhoneNumber(request.phoneNumber());
-        assignSkinTone(request.skinTone());
-        assignSkinType(request.skinType());
-    }
+
 }

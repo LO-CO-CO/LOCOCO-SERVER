@@ -135,8 +135,23 @@ public class CustomerService {
         // id 중복 검증
         validateDuplicateId(request.communityName());
 
-        customer.registerAdditionalInfo(request);
+        registerAdditionalInfo(customer , request);
 
+    }
+
+    private void registerAdditionalInfo(Customer customer, CustomerInfoRegisterRequest request) {
+        customer.assignCustomerName(request.communityName());
+        customer.assignBirthDate(request.birthDate());
+        customer.assignGender(request.gender());
+        customer.assignFirstName(request.firstName());
+        customer.assignLastName(request.lastName());
+        if (request.country() != null){
+            customer.assignCountry(request.country());
+        }
+        customer.assignCountryCode(request.countryCode());
+        customer.assignPhoneNumber(request.phoneNumber());
+        customer.assignSkinTone(request.skinTone());
+        customer.assignSkinType(request.skinType());
     }
 
     private void validateDuplicateId(String communityName) {

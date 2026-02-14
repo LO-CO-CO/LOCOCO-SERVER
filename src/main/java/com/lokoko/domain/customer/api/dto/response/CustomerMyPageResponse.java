@@ -61,8 +61,8 @@ public record CustomerMyPageResponse(
         return new CustomerMyPageResponse(
                 user.getProfileImageUrl(),
                 user.getEmail(),
-                user.getFirstName(),
-                user.getLastName(),
+                customer.getFirstName(),
+                customer.getLastName(),
                 customer.getCustomerName(),
                 customer.getBirthDate(),
                 customer.getGender(),
