@@ -30,7 +30,7 @@ public class CreatorCampaignStatusResolver {
                     : ParticipationStatus.ACTIVE;
         }
         if (secondExists) {
-            return ParticipationStatus.COMPLETED;
+            return firstExists ? ParticipationStatus.COMPLETED : ParticipationStatus.ACTIVE;
         }
         return ParticipationStatus.ACTIVE;
     }
