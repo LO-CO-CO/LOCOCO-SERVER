@@ -12,6 +12,7 @@ import com.lokoko.domain.productReview.api.dto.response.ImageReviewsProductDetai
 import com.lokoko.domain.productReview.api.dto.response.VideoReviewProductDetail;
 import com.lokoko.domain.productReview.api.dto.response.VideoReviewProductDetailResponse;
 import com.lokoko.domain.productReview.api.dto.response.VideoReviewResponse;
+import com.lokoko.domain.creator.domain.entity.QCreator;
 import com.lokoko.domain.customer.domain.entity.QCustomer;
 import com.lokoko.domain.productReview.domain.entity.QReview;
 import com.lokoko.domain.user.domain.entity.enums.Role;
@@ -49,6 +50,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     private final QReviewLikeCount reviewLikeCount = QReviewLikeCount.reviewLikeCount;
 
     private final QCustomer customer = QCustomer.customer;
+    private final QCreator creator = QCreator.creator;
 
     private final UserRepository userRepository;
 
@@ -231,11 +233,12 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                         review.author.id,
                         ratingAsInt,
                         reviewImage.mediaFile.fileUrl,
-                        customer.country
+                        customer.country.coalesce(creator.country)
                 )
                 .from(review)
                 .join(review.product, product)
                 .leftJoin(customer).on(customer.id.eq(review.author.id))
+                .leftJoin(creator).on(creator.id.eq(review.author.id))
                 .leftJoin(reviewImage).on(reviewImage.review.eq(review))
                 .where(review.id.in(reviewIds))
                 .orderBy(review.modifiedAt.desc())
@@ -261,7 +264,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                         new ArrayList<>(),
                         isLiked,
                         isMine,
-                        t.get(customer.country)
+                        t.get(customer.country.coalesce(creator.country))
                 );
             });
             String img = t.get(reviewImage.mediaFile.fileUrl);
