@@ -26,10 +26,7 @@ import com.lokoko.domain.productReview.api.dto.response.ReviewReceiptResponse;
 import com.lokoko.domain.productReview.api.dto.response.ReviewResponse;
 import com.lokoko.domain.productReview.domain.entity.Review;
 import com.lokoko.domain.productReview.domain.repository.ReviewRepository;
-import com.lokoko.domain.productReview.exception.ErrorMessage;
-import com.lokoko.domain.productReview.exception.InvalidMediaTypeException;
-import com.lokoko.domain.productReview.exception.ReviewNotFoundException;
-import com.lokoko.domain.productReview.exception.ReviewPermissionException;
+import com.lokoko.domain.productReview.exception.*;
 import com.lokoko.domain.productReview.mapper.ReviewMapper;
 import com.lokoko.domain.user.domain.entity.User;
 import com.lokoko.domain.user.domain.entity.enums.Role;
@@ -39,7 +36,6 @@ import com.lokoko.global.common.annotation.DistributedLock;
 import com.lokoko.global.utils.S3UrlParser;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,9 +53,7 @@ public class ReviewService {
     private final ReviewLikeRepository reviewLikeRepository;
     private final ReviewLikeCountRepository reviewLikeCountRepository;
 
-
     private final S3Service s3Service;
-    private final ApplicationEventPublisher eventPublisher;
     private final ReviewMapper reviewMapper;
 
     private static final int MAX_VIDEO_REVIEW_COUNT = 1;
@@ -121,6 +115,8 @@ public class ReviewService {
         User user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
+        validateCreateReviewPermission(user);
+
         // 미디어 검증 (동영상 1개 이하, 이미지 5개 이하, 혼용 불가)
         validateMediaFiles(request.mediaUrl());
 
@@ -153,6 +149,12 @@ public class ReviewService {
 
         deleteAllReferenceOfReview(review);
         reviewRepository.delete(review);
+    }
+
+    private static void validateCreateReviewPermission(User user) {
+        if (user.getRole() != Role.CUSTOMER && user.getRole() != Role.CREATOR){
+            throw new ReviewCreatePermissionDeniedException();
+        }
     }
 
     private static void validateMediaTypeAndSize(boolean hasVideo, boolean hasImage, List<String> mediaTypes) {
