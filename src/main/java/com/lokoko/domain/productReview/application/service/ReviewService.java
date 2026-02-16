@@ -152,7 +152,7 @@ public class ReviewService {
     }
 
     private static void validateCreateReviewPermission(User user) {
-        if (user.getRole() != Role.CUSTOMER || user.getRole() != Role.CREATOR){
+        if (user.getRole() != Role.CUSTOMER && user.getRole() != Role.CREATOR){
             throw new ReviewCreatePermissionDeniedException();
         }
     }
