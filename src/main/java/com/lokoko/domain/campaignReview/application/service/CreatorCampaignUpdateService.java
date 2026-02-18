@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
-import com.lokoko.domain.creatorCampaign.domain.policy.ParticipationStatusPolicy;
 import com.lokoko.domain.creatorCampaign.domain.repository.CreatorCampaignRepository;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.config.BetaFeatureConfig;
@@ -24,6 +23,7 @@ public class CreatorCampaignUpdateService {
 	private final CreatorCampaignRepository creatorCampaignRepository;
 	private final CampaignReviewGetService campaignReviewGetService;
 	private final BetaFeatureConfig betaFeatureConfig;
+    private final CreatorCampaignStatusResolver creatorCampaignStatusResolver;
 
 	@Transactional
 	public void refreshParticipationStatus(Long creatorCampaignId) {
@@ -38,7 +38,7 @@ public class CreatorCampaignUpdateService {
 				FIRST
 			);
 
-		ParticipationStatus nextStatus = ParticipationStatusPolicy.determineNextStatus(
+		ParticipationStatus nextStatus = creatorCampaignStatusResolver.determineNextStatus(
 			creatorCampaign,
 			campaign,
 			betaFeatureConfig.isSimplifiedReviewFlow(),
