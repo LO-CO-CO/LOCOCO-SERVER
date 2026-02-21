@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.function.Supplier;
 
 @Getter
 @Entity
@@ -202,6 +203,17 @@ public class Creator {
         // null 일때만 now()로 업데이트 (최초 가입 완료 시각)
         if (this.signupCompletedAt == null) {
             this.signupCompletedAt = Instant.now();
+        }
+    }
+
+    public boolean hasConnectedSns() {
+        return (instagramUserId != null && !instagramUserId.isBlank())
+                || (tikTokUserId != null && !tikTokUserId.isBlank());
+    }
+
+    public void assertHasConnectedSns(Supplier<? extends RuntimeException> exceptionSupplier) {
+        if (!hasConnectedSns()) {
+            throw exceptionSupplier.get();
         }
     }
 }
