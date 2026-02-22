@@ -5,6 +5,7 @@ import static jakarta.persistence.FetchType.LAZY;
 import com.lokoko.domain.campaignReview.domain.entity.enums.BrandNoteStatus;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewStatus;
+import com.lokoko.domain.campaignReview.exception.RevisionRequestNotAllowedException;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
@@ -107,6 +108,7 @@ public class CampaignReview extends BaseEntity {
      * 브랜드가 1차 리뷰 작성 후 수정 요청시 호출 메서드
      */
     public void submitRequestRevision(String brandNote) {
+        validateRevisionRequestable();
         this.brandNote = brandNote;
         this.brandNoteStatus = BrandNoteStatus.PUBLISHED;
         this.status = ReviewStatus.REVISION_REQUESTED;
@@ -120,6 +122,7 @@ public class CampaignReview extends BaseEntity {
      * @param brandNote
      */
     public void saveRequestRevision(String brandNote) {
+        validateRevisionRequestable();
         this.brandNote = brandNote;
         this.brandNoteStatus = BrandNoteStatus.DRAFT;
     }
@@ -145,5 +148,11 @@ public class CampaignReview extends BaseEntity {
      */
     public void attachPostUrl(String postUrl) {
         this.postUrl = postUrl;
+    }
+
+    private void validateRevisionRequestable() {
+        if (status != ReviewStatus.SUBMITTED) {
+            throw new RevisionRequestNotAllowedException();
+        }
     }
 }
