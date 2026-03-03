@@ -6,15 +6,15 @@ import org.springframework.context.annotation.Bean;
 import org.testcontainers.mysql.MySQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
-@TestConfiguration
+@TestConfiguration(proxyBeanMethods = false)
 public class TestContainersConfig {
 
-	private static final String MYSQL_IMAGE = "mysql:8.0.41";
+	private static final DockerImageName MYSQL_IMAGE = DockerImageName.parse("mysql:8.0.41");
 
 	@Bean
 	@ServiceConnection
 	public MySQLContainer mysqlContainer() {
-		return new MySQLContainer(DockerImageName.parse(MYSQL_IMAGE))
+		return new MySQLContainer(MYSQL_IMAGE)
 			.withReuse(true);
 	}
 }
