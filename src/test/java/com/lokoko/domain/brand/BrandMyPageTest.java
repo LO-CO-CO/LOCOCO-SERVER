@@ -5,7 +5,6 @@ import static org.mockito.Answers.*;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.*;
 
 import java.time.Instant;
 import java.util.List;
