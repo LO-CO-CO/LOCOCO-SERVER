@@ -23,11 +23,11 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-@DisplayName("Campaign domain validation")
+@DisplayName("캠페인 도메인 검증")
 class CampaignTest {
 
     @Test
-    @DisplayName("isDraft() ignores missing brand relation when required publish fields are present")
+    @DisplayName("isDraft() : 발행 필수값이 모두 있으면 brand 연관관계가 없어도 draft가 아니다")
     void isDraft_ignoresMissingBrandRelation() {
         Campaign campaign = completeCampaignBuilder()
                 .brand(null)
@@ -38,7 +38,7 @@ class CampaignTest {
     }
 
     @Test
-    @DisplayName("validatePublishable() throws when a required brand-campaign field is missing")
+    @DisplayName("validatePublishable() : 필수 필드가 비어 있으면 예외를 던진다")
     void validatePublishable_throwsWhenRequiredFieldMissing() {
         Campaign campaign = completeCampaignBuilder()
                 .firstContentPlatform(null)
@@ -49,7 +49,7 @@ class CampaignTest {
     }
 
     @Test
-    @DisplayName("validatePublishableForAdmin() allows admin campaign without brand relation when brandName exists")
+    @DisplayName("validatePublishableForAdmin() : brandName 이 있으면 brand 연관관계 없이도 통과한다")
     void validatePublishableForAdmin_allowsBrandNameWithoutBrandRelation() {
         Campaign campaign = completeCampaignBuilder()
                 .brand(null)
@@ -61,7 +61,7 @@ class CampaignTest {
     }
 
     @Test
-    @DisplayName("validatePublishableForAdmin() requires brandName for admin-created campaigns")
+    @DisplayName("validatePublishableForAdmin() : 어드민 캠페인은 brandName 이 필수다")
     void validatePublishableForAdmin_requiresBrandName() {
         Campaign campaign = completeCampaignBuilder()
                 .brand(null)
@@ -73,7 +73,7 @@ class CampaignTest {
     }
 
     @Test
-    @DisplayName("publish() marks the campaign as published and waiting approval")
+    @DisplayName("publish() : 캠페인을 발행 상태와 승인 대기 상태로 변경한다")
     void publish_marksCampaignAsWaitingApproval() {
         Campaign campaign = completeCampaignBuilder()
                 .campaignStatus(CampaignStatus.DRAFT)
@@ -87,7 +87,7 @@ class CampaignTest {
     }
 
     @Test
-    @DisplayName("validateParticipatableAt() rejects campaigns before the application window opens")
+    @DisplayName("validateParticipatableAt() : 신청 시작 전이면 예외를 던진다")
     void validateParticipatableAt_rejectsBeforeStart() {
         Instant now = Instant.parse("2026-03-11T00:00:00Z");
         Campaign campaign = completeCampaignBuilder()
@@ -100,7 +100,7 @@ class CampaignTest {
     }
 
     @Test
-    @DisplayName("validateParticipatableAt() rejects campaigns after the deadline")
+    @DisplayName("validateParticipatableAt() : 신청 마감 후면 예외를 던진다")
     void validateParticipatableAt_rejectsAfterDeadline() {
         Instant now = Instant.parse("2026-03-11T00:00:00Z");
         Campaign campaign = completeCampaignBuilder()
@@ -114,7 +114,7 @@ class CampaignTest {
     }
 
     @Test
-    @DisplayName("validateParticipatableAt() requires recruiting status")
+    @DisplayName("validateParticipatableAt() : 모집 중 상태가 아니면 예외를 던진다")
     void validateParticipatableAt_requiresRecruitingStatus() {
         Instant now = Instant.parse("2026-03-11T00:00:00Z");
         Campaign campaign = completeCampaignBuilder()
@@ -128,7 +128,7 @@ class CampaignTest {
     }
 
     @Test
-    @DisplayName("validateParticipatableAt() rejects full recruitment")
+    @DisplayName("validateParticipatableAt() : 모집 인원이 가득 찼으면 예외를 던진다")
     void validateParticipatableAt_rejectsFullRecruitment() {
         Instant now = Instant.parse("2026-03-11T00:00:00Z");
         Campaign campaign = completeCampaignBuilder()
@@ -144,7 +144,7 @@ class CampaignTest {
     }
 
     @Test
-    @DisplayName("approveByAdmin() moves campaigns with a future start to OPEN_RESERVED")
+    @DisplayName("approveByAdmin() : 시작일이 미래면 OPEN_RESERVED 로 변경한다")
     void approveByAdmin_setsOpenReservedForFutureCampaign() {
         Instant now = Instant.parse("2026-03-11T00:00:00Z");
         Campaign campaign = completeCampaignBuilder()
@@ -158,7 +158,7 @@ class CampaignTest {
     }
 
     @Test
-    @DisplayName("approveByAdmin() moves already-open campaigns to RECRUITING")
+    @DisplayName("approveByAdmin() : 이미 시작된 캠페인은 RECRUITING 으로 변경한다")
     void approveByAdmin_setsRecruitingForStartedCampaign() {
         Instant now = Instant.parse("2026-03-11T00:00:00Z");
         Campaign campaign = completeCampaignBuilder()
@@ -172,7 +172,7 @@ class CampaignTest {
     }
 
     @Test
-    @DisplayName("approveByAdmin() rejects campaigns outside WAITING_APPROVAL")
+    @DisplayName("approveByAdmin() : WAITING_APPROVAL 이 아니면 예외를 던진다")
     void approveByAdmin_rejectsUnexpectedStatus() {
         Campaign campaign = completeCampaignBuilder()
                 .campaignStatus(CampaignStatus.RECRUITING)
@@ -183,7 +183,7 @@ class CampaignTest {
     }
 
     @Test
-    @DisplayName("validateAdminModifiable() only allows WAITING_APPROVAL campaigns")
+    @DisplayName("validateAdminModifiable() : WAITING_APPROVAL 상태에서만 수정 가능하다")
     void validateAdminModifiable_onlyAllowsWaitingApproval() {
         Campaign campaign = completeCampaignBuilder()
                 .campaignStatus(CampaignStatus.RECRUITING)
@@ -194,7 +194,7 @@ class CampaignTest {
     }
 
     @Test
-    @DisplayName("validateEditable() rejects already published campaigns")
+    @DisplayName("validateEditable() : 이미 발행된 캠페인이면 예외를 던진다")
     void validateEditable_rejectsPublishedCampaign() {
         Campaign campaign = completeCampaignBuilder()
                 .isPublished(true)
@@ -205,7 +205,7 @@ class CampaignTest {
     }
 
     @Test
-    @DisplayName("validateCapacityForApproval() rejects approvals exceeding recruitment number")
+    @DisplayName("validateCapacityForApproval() : 승인 요청 수가 모집 인원을 넘으면 예외를 던진다")
     void validateCapacityForApproval_rejectsExceedingRecruitmentNumber() {
         Campaign campaign = completeCampaignBuilder()
                 .approvedNumber(4)
