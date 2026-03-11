@@ -17,6 +17,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import com.lokoko.domain.brand.api.dto.response.CreatorPerformanceResponse;
 import com.lokoko.domain.brand.domain.entity.Brand;
@@ -35,6 +37,7 @@ import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.common.response.PageableResponse;
 
 @DisplayName("Brand 지원자/성과 관리 Usecase 테스트")
+@MockitoSettings(strictness = Strictness.LENIENT)
 class BrandApplicantManagementTest extends BrandUsecaseTestSupport {
 
 	private Long brandId;
@@ -57,6 +60,7 @@ class BrandApplicantManagementTest extends BrandUsecaseTestSupport {
 			.orElseThrow();
 
 		given(brandGetService.getBrandById(brandId)).willReturn(brand);
+		given(brand.getId()).willReturn(brandId);
 		given(campaignGetService.findByCampaignId(campaignId)).willReturn(campaign);
 		given(campaign.getId()).willReturn(campaignId);
 		given(campaign.getBrand().getId()).willReturn(brandId);
