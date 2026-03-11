@@ -14,10 +14,9 @@ import com.lokoko.global.config.BetaFeatureConfig;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewGetService;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewSaveService;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewStatusManager;
+import com.lokoko.domain.campaignReview.application.service.CampaignReviewValidationService;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewUpdateService;
 import com.lokoko.domain.campaignReview.application.service.CreatorCampaignUpdateService;
-import com.lokoko.domain.media.socialclip.application.service.SocialClipSaveService;
-import com.lokoko.domain.campaignReview.application.utils.CampaignReviewValidationUtil;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
 import com.lokoko.domain.creatorCampaign.exception.CampaignReviewAbleNotFoundException;
@@ -29,6 +28,7 @@ import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
 import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
 import com.lokoko.domain.media.api.dto.response.MediaPresignedUrlResponse;
 import com.lokoko.domain.media.application.utils.MediaValidationUtil;
+import com.lokoko.domain.media.socialclip.application.service.SocialClipSaveService;
 import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import java.time.Instant;
 import java.util.List;
@@ -50,6 +50,7 @@ public class CampaignReviewUsecase {
     private final CampaignReviewSaveService campaignReviewSaveService;
     private final CreatorCampaignUpdateService creatorCampaignUpdateService;
     private final CampaignReviewUpdateService campaignReviewUpdateService;
+    private final CampaignReviewValidationService campaignReviewValidationService;
     private final SocialClipSaveService socialClipSaveService;
 
     private final CampaignReviewStatusManager campaignReviewStatusManager;
@@ -71,12 +72,12 @@ public class CampaignReviewUsecase {
 
         ContentType typeA = campaign.getFirstContentPlatform();
         ContentType typeB = campaign.getSecondContentPlatform();
-        CampaignReviewValidationUtil.validateTwoSetCombination(typeA, typeB);
+        campaignReviewValidationService.validateTwoSetCombination(typeA, typeB);
 
         // A 세트(캠페인에 second가 없는 단일 타입 캠페인)
         // 베타 버전에서는 firstMediaUrls, firstCaptionWithHashtags 에 대한 검증을 진행하지 않는다.
         if (!betaFeatureConfig.isSimplifiedReviewFlow()) {
-            CampaignReviewValidationUtil.requireFirstSetPresent(request.firstMediaUrls(),
+            campaignReviewValidationService.requireFirstSetPresent(request.firstMediaUrls(),
                     request.firstCaptionWithHashtags());
         }
         if (request.firstMediaUrls() != null && !request.firstMediaUrls().isEmpty()) {
@@ -87,19 +88,19 @@ public class CampaignReviewUsecase {
         if (typeB != null) {
             // 베타 버전에서는 secondMediaUrls, secondCaptionWithHashtags 에 대한 검증을 진행하지 않는다.
             if (!betaFeatureConfig.isSimplifiedReviewFlow()) {
-                CampaignReviewValidationUtil.requireFirstSetPresent(
+                campaignReviewValidationService.requireFirstSetPresent(
                         request.secondMediaUrls(), request.secondCaptionWithHashtags());
             }
             if (request.secondMediaUrls() != null && !request.secondMediaUrls().isEmpty()) {
                 MediaValidationUtil.validateTotalMediaCount(request.secondMediaUrls());
             }
         } else {
-            CampaignReviewValidationUtil.ensureSecondSetAbsentForFirstRound(
+            campaignReviewValidationService.ensureSecondSetAbsentForFirstRound(
                     request.secondMediaUrls(), request.secondCaptionWithHashtags());
         }
 
         // 미디어 합산 개수 제한
-        CampaignReviewValidationUtil.validateCombinedMediaLimit(
+        campaignReviewValidationService.validateCombinedMediaLimit(
                 request.firstMediaUrls(),
                 (typeB != null) ? request.secondMediaUrls() : null
         );
@@ -150,25 +151,25 @@ public class CampaignReviewUsecase {
 
         ContentType typeA = campaign.getFirstContentPlatform();
         ContentType typeB = campaign.getSecondContentPlatform();
-        CampaignReviewValidationUtil.validateTwoSetCombination(typeA, typeB);
+        campaignReviewValidationService.validateTwoSetCombination(typeA, typeB);
 
         // A 세트(필수: 미디어/캡션/postUrl)
-        CampaignReviewValidationUtil.requireSecondSetPresent(
+        campaignReviewValidationService.requireSecondSetPresent(
                 request.firstMediaUrls(), request.firstCaptionWithHashtags(), request.firstPostUrl());
         MediaValidationUtil.validateTotalMediaCount(request.firstMediaUrls());
 
         // B 세트(캠페인에 second가 있으면 필수, 없으면 금지)
         if (typeB != null) {
-            CampaignReviewValidationUtil.requireSecondSetPresent(
+            campaignReviewValidationService.requireSecondSetPresent(
                     request.secondMediaUrls(), request.secondCaptionWithHashtags(), request.secondPostUrl());
             MediaValidationUtil.validateTotalMediaCount(request.secondMediaUrls());
         } else {
-            CampaignReviewValidationUtil.ensureSecondSetAbsentForSecondRound(
+            campaignReviewValidationService.ensureSecondSetAbsentForSecondRound(
                     request.secondMediaUrls(), request.secondCaptionWithHashtags(), request.secondPostUrl());
         }
 
         // 미디어 합산 개수 제한
-        CampaignReviewValidationUtil.validateCombinedMediaLimit(
+        campaignReviewValidationService.validateCombinedMediaLimit(
                 request.firstMediaUrls(),
                 (typeB != null) ? request.secondMediaUrls() : null
         );

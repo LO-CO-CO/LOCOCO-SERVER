@@ -16,7 +16,6 @@ import com.lokoko.domain.creatorCampaign.application.service.CreatorCampaignGetS
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
 import com.lokoko.domain.user.application.service.UserGetService;
 import com.lokoko.domain.user.domain.entity.User;
-import com.lokoko.domain.user.domain.entity.enums.Role;
 import com.lokoko.global.auth.entity.enums.OauthLoginStatus;
 import com.lokoko.global.auth.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -125,9 +124,7 @@ public class CreatorUsecase {
     public CreatorRegisterCompleteResponse completeCreatorSignup(Long userId) {
         User user = userGetService.findUserById(userId);
 
-        if (user.getRole() != Role.CREATOR) {
-            throw new NotCreatorRoleException();
-        }
+        user.assertRole(com.lokoko.domain.user.domain.entity.enums.Role.CREATOR, NotCreatorRoleException::new);
 
         Creator creator = creatorGetService.findByUserId(userId);
 
@@ -139,12 +136,7 @@ public class CreatorUsecase {
             }
         }
 
-        boolean hasInstagram = creator.getInstagramUserId() != null && !creator.getInstagramUserId().isBlank();
-        boolean hasTiktok = creator.getTikTokUserId() != null && !creator.getTikTokUserId().isBlank();
-
-        if (!hasInstagram && !hasTiktok) {
-            throw new SnsNotConnectedException();
-        }
+        creator.assertHasConnectedSns(SnsNotConnectedException::new);
 
         return new CreatorRegisterCompleteResponse(OauthLoginStatus.LOGIN);
     }
@@ -153,9 +145,7 @@ public class CreatorUsecase {
     public CreatorSnsLinkResponse updateCreatorSnsLink(Long userId, CreatorSnsLinkRequest request) {
         User user = userGetService.findUserById(userId);
 
-        if (user.getRole() != Role.CREATOR) {
-            throw new NotCreatorRoleException();
-        }
+        user.assertRole(com.lokoko.domain.user.domain.entity.enums.Role.CREATOR, NotCreatorRoleException::new);
 
         Creator creator = creatorGetService.findByUserId(userId);
 

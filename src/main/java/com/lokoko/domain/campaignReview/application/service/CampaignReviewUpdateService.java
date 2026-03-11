@@ -4,9 +4,7 @@ import com.lokoko.domain.brand.api.dto.request.BrandNoteRevisionRequest;
 import com.lokoko.domain.brand.api.dto.response.BrandNoteRevisionResponse;
 import com.lokoko.domain.campaign.exception.NotCampaignOwnershipException;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
-import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewStatus;
 import com.lokoko.domain.campaignReview.domain.entity.enums.RevisionAction;
-import com.lokoko.domain.campaignReview.exception.RevisionRequestNotAllowedException;
 import com.lokoko.domain.media.api.dto.request.MediaPresignedUrlRequest;
 import com.lokoko.domain.media.api.dto.response.PresignedUrlResponse;
 import com.lokoko.domain.media.application.service.S3Service;
@@ -45,7 +43,6 @@ public class CampaignReviewUpdateService {
         CampaignReview campaignReview = campaignReviewGetService.findById(campaignReviewId);
 
         validateBrandOwnsCampaign(brandId, campaignReview);
-        validateReviewStatus(campaignReview);
         String brandNote = revisionRequest.brandNote();
 
         if (action == RevisionAction.SAVE_DRAFT) {
@@ -96,12 +93,6 @@ public class CampaignReviewUpdateService {
     private static void validateBrandOwnsCampaign(Long brandId, CampaignReview campaignReview) {
         if (!campaignReview.getCreatorCampaign().getCampaign().getBrand().getId().equals(brandId)) {
             throw new NotCampaignOwnershipException();
-        }
-    }
-
-    private static void validateReviewStatus(CampaignReview review) {
-        if (review.getStatus() != ReviewStatus.SUBMITTED) {
-            throw new RevisionRequestNotAllowedException();
         }
     }
 }

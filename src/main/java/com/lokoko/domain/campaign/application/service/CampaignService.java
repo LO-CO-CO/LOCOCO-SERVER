@@ -17,8 +17,6 @@ import com.lokoko.domain.campaign.domain.entity.Campaign;
 import com.lokoko.domain.campaign.domain.entity.enums.ActionType;
 import com.lokoko.domain.campaign.domain.repository.CampaignRepository;
 import com.lokoko.domain.campaign.exception.CampaignApplicantBulkUpdateException;
-import com.lokoko.domain.campaign.exception.CampaignCapacityExceedException;
-import com.lokoko.domain.campaign.exception.CampaignNotEditableException;
 import com.lokoko.domain.campaign.exception.CampaignNotFoundException;
 import com.lokoko.domain.campaign.exception.NoApplicableCreatorsException;
 import com.lokoko.domain.campaign.exception.NotCampaignOwnershipException;
@@ -210,7 +208,7 @@ public class CampaignService {
         Campaign campaign = getCampaignOrThrow(campaignId);
 
         validateBrandOwnsCampaign(campaign, brand);
-        validateEditableCampaign(campaign);
+        campaign.validateEditable();
 
         campaign.updateCampaign(updateRequest);
 
@@ -258,18 +256,6 @@ public class CampaignService {
     }
 
     /**
-     * 캠페인이 수정 가능한지 검증한다. <br> 캠페인이 이미 발행되었으면 예외를 발생시킨다.
-     *
-     * @param campaign 캠페인 엔티티
-     * @throws CampaignNotEditableException 캠페인이 수정 불가할 때 발생하는 예외
-     */
-    private void validateEditableCampaign(Campaign campaign) {
-        if (campaign.isPublished()) {
-            throw new CampaignNotEditableException();
-        }
-    }
-
-    /**
      * 캠페인이 브랜드 소유인지 검증한다. <br> 캠페인이 브랜드 소유가 아니라면 예외를 발생시킨다.
      *
      * @param campaign 캠페인 엔티티
@@ -297,7 +283,7 @@ public class CampaignService {
                 participationIds);
 
         validateApplicableCreators(pendingParticipationIds);
-        validateOverCampaignCapacity(campaign, pendingParticipationIds);
+        campaign.validateCapacityForApproval(pendingParticipationIds.size());
 
         campaign.increaseApprovedNumber(pendingParticipationIds.size());
         entityManager.flush();
@@ -320,12 +306,4 @@ public class CampaignService {
         }
     }
 
-    /**
-     * 현재 승인된 지원자 수 + 지원 요청 수 > 모집인원 수이면 예외를 발생
-     */
-    private static void validateOverCampaignCapacity(Campaign campaign, List<Long> pendingParticipationIds) {
-        if (campaign.getApprovedNumber() + pendingParticipationIds.size() > campaign.getRecruitmentNumber()) {
-            throw new CampaignCapacityExceedException();
-        }
-    }
 }
