@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
+import java.util.function.Supplier;
 
 @Getter
 @Entity
@@ -147,5 +148,15 @@ public class User extends BaseEntity {
 
     public void updateStatus(UserStatus status) {
         this.status = status;
+    }
+
+    public boolean hasRole(Role expected) {
+        return this.role == expected;
+    }
+
+    public void assertRole(Role expected, Supplier<? extends RuntimeException> exceptionSupplier) {
+        if (!hasRole(expected)) {
+            throw exceptionSupplier.get();
+        }
     }
 }
