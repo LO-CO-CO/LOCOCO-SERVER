@@ -1,13 +1,7 @@
 package com.lokoko.domain.brand.application.usecase;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.time.Instant;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +14,7 @@ import com.lokoko.domain.brand.api.dto.response.BrandMyPageResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandProfileAndStatisticsResponse;
 import com.lokoko.domain.brand.api.dto.response.BrandProfileImageResponse;
 import com.lokoko.domain.brand.api.dto.response.CreatorPerformanceResponse;
+import com.lokoko.domain.brand.application.service.BrandCreatorPerformanceQueryService;
 import com.lokoko.domain.brand.application.service.BrandGetService;
 import com.lokoko.domain.brand.application.service.BrandUpdateService;
 import com.lokoko.domain.brand.domain.entity.Brand;
@@ -31,19 +26,11 @@ import com.lokoko.domain.campaignReview.api.dto.response.CampaignReviewDetailLis
 import com.lokoko.domain.campaignReview.application.mapper.CampaignReviewMapper;
 import com.lokoko.domain.campaignReview.application.service.CampaignReviewGetService;
 import com.lokoko.domain.campaignReview.domain.entity.CampaignReview;
-import com.lokoko.domain.campaignReview.domain.entity.enums.ContentStatus;
 import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewRound;
-import com.lokoko.domain.campaignReview.domain.entity.enums.ReviewStatus;
 import com.lokoko.domain.creator.api.dto.response.CreatorInfo;
 import com.lokoko.domain.creator.domain.entity.Creator;
 import com.lokoko.domain.creatorCampaign.application.service.CreatorCampaignGetService;
 import com.lokoko.domain.creatorCampaign.domain.entity.CreatorCampaign;
-import com.lokoko.domain.creatorCampaign.domain.enums.ParticipationStatus;
-import com.lokoko.domain.media.socialclip.application.service.SocialClipGetService;
-import com.lokoko.domain.media.socialclip.domain.SocialClip;
-import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
-import com.lokoko.global.common.response.PageableResponse;
-import com.lokoko.global.config.BetaFeatureConfig;
 
 import lombok.RequiredArgsConstructor;
 
@@ -55,11 +42,9 @@ public class BrandUsecase {
 	private final CampaignGetService campaignGetService;
 	private final CreatorCampaignGetService creatorCampaignGetService;
 	private final CampaignReviewGetService campaignReviewGetService;
-	private final SocialClipGetService socialClipGetService;
 
 	private final BrandUpdateService brandUpdateService;
-
-	private final BetaFeatureConfig betaFeatureConfig;
+	private final BrandCreatorPerformanceQueryService brandCreatorPerformanceQueryService;
 
 	private final CampaignMapper campaignMapper;
 	private final CampaignReviewMapper campaignReviewMapper;
@@ -177,252 +162,12 @@ public class BrandUsecase {
 
 		validateCampaignOwnership(brand, campaign);
 
-		List<CreatorCampaign> approvedCreatorCampaigns = creatorCampaignGetService.findAllByCampaign(campaign).stream()
-			.filter(creatorCampaign -> creatorCampaign.getStatus() != ParticipationStatus.REJECTED)
-			.sorted(Comparator.comparing(CreatorCampaign::getAppliedAt))
-			.toList();
-
-		List<CreatorPerformanceResponse.CreatorReviewPerformance> allCreatorPerformances =
-			approvedCreatorCampaigns.stream()
-				.collect(Collectors.groupingBy(
-					CreatorCampaign::getCreator,
-					LinkedHashMap::new,
-					Collectors.toList()
-				))
-				.entrySet().stream()
-				.map(creatorCampaignEntry -> {
-					Creator creator = creatorCampaignEntry.getKey();
-					List<CreatorCampaign> creatorCampaignList = creatorCampaignEntry.getValue();
-
-					List<CreatorPerformanceResponse.ReviewPerformance> reviewPerformances =
-						buildReviewPerformances(campaign, creatorCampaignList);
-
-					return CreatorPerformanceResponse.CreatorReviewPerformance.builder()
-						.creator(CreatorInfo.builder()
-							.creatorId(creator.getId())
-							.creatorFullName(creator.getUser().getName())
-							.creatorNickname(creator.getCreatorName())
-							.profileImageUrl(creator.getUser().getProfileImageUrl())
-							.build())
-						.reviews(reviewPerformances)
-						.build();
-				})
-				.toList();
-
-		return buildPagedCreatorPerformanceResponse(campaign, allCreatorPerformances, page, size);
+		return brandCreatorPerformanceQueryService.getCreatorPerformances(campaign, page, size);
 	}
 
 	private void validateCampaignOwnership(Brand brand, Campaign campaign) {
 		if (!campaign.getBrand().getId().equals(brand.getId())) {
 			throw new NotCampaignOwnershipException();
 		}
-	}
-
-	private CreatorPerformanceResponse buildPagedCreatorPerformanceResponse(
-		Campaign campaign,
-		List<CreatorPerformanceResponse.CreatorReviewPerformance> allCreatorPerformances,
-		int page,
-		int size
-	) {
-		long totalElements = allCreatorPerformances.size();
-		long startIndex = (long)page * size;
-
-		if (startIndex >= totalElements) {
-			PageableResponse pageableResponse = PageableResponse.of(
-				page,
-				size,
-				0,
-				true,
-				totalElements
-			);
-
-			return buildCreatorPerformanceResponse(campaign, List.of(), pageableResponse);
-		}
-
-		int safeStartIndex = (int)startIndex;
-		int endIndex = (int)Math.min(startIndex + size, totalElements);
-
-		List<CreatorPerformanceResponse.CreatorReviewPerformance> pagedCreatorPerformances =
-			allCreatorPerformances.subList(safeStartIndex, endIndex);
-
-		PageableResponse pageableResponse = PageableResponse.of(
-			page,
-			size,
-			pagedCreatorPerformances.size(),
-			endIndex >= totalElements,
-			totalElements
-		);
-
-		return buildCreatorPerformanceResponse(campaign, pagedCreatorPerformances, pageableResponse);
-	}
-
-	private CreatorPerformanceResponse buildCreatorPerformanceResponse(
-		Campaign campaign,
-		List<CreatorPerformanceResponse.CreatorReviewPerformance> creatorPerformances,
-		PageableResponse pageableResponse
-	) {
-		return CreatorPerformanceResponse.builder()
-			.campaignId(campaign.getId())
-			.campaignTitle(campaign.getTitle())
-			.firstContentPlatform(campaign.getFirstContentPlatform())
-			.secondContentPlatform(campaign.getSecondContentPlatform())
-			.creators(creatorPerformances)
-			.pageableResponse(pageableResponse)
-			.build();
-	}
-
-	/**
-	 * 크리에이터의 리뷰 성과 정보 구성
-	 */
-	private List<CreatorPerformanceResponse.ReviewPerformance> buildReviewPerformances(
-		Campaign campaign, List<CreatorCampaign> creatorCampaigns) {
-
-		// 캠페인의 콘텐츠 타입들
-		List<ContentType> contentTypes = new ArrayList<>();
-		contentTypes.add(campaign.getFirstContentPlatform());
-		if (campaign.getSecondContentPlatform() != null) {
-			contentTypes.add(campaign.getSecondContentPlatform());
-		}
-
-		List<CreatorPerformanceResponse.ReviewPerformance> performances = new ArrayList<>();
-
-		// 각 CreatorCampaign에 대해 처리
-		for (CreatorCampaign cc : creatorCampaigns) {
-			// 해당 CreatorCampaign의 모든 리뷰 조회
-			List<CampaignReview> reviews = campaignReviewGetService.findAllByCreatorCampaignId(cc.getId());
-
-			// contentType별로 리뷰를 맵으로 구성 (1차/2차 구분)
-			Map<ContentType, CampaignReview> firstReviews = reviews.stream()
-				.filter(r -> r.getReviewRound() == ReviewRound.FIRST)
-				.collect(Collectors.toMap(CampaignReview::getContentType, r -> r, (a, b) -> a));
-
-			Map<ContentType, CampaignReview> secondReviews = reviews.stream()
-				.filter(r -> r.getReviewRound() == ReviewRound.SECOND)
-				.collect(Collectors.toMap(CampaignReview::getContentType, r -> r, (a, b) -> a));
-
-			// 각 contentType에 대해 리뷰 성과 정보 생성
-			for (ContentType contentType : contentTypes) {
-				CampaignReview secondReview = secondReviews.get(contentType);
-				CampaignReview firstReview = firstReviews.get(contentType);
-
-				if (secondReview != null) {
-					// 2차 리뷰가 있는 경우
-					performances.add(buildReviewPerformance(secondReview));
-				} else if (firstReview != null) {
-					// 1차 리뷰만 있는 경우
-					performances.add(buildReviewPerformance(firstReview));
-				} else {
-					// 리뷰가 없는 경우
-					ContentStatus contentStatus;
-
-					// 배송지 입력 여부에 따라 상태 결정
-					if (cc.getAddressConfirmed() != null && cc.getAddressConfirmed()) {
-						// 배송지는 입력했지만 1차 리뷰 미업로드 = 진행중
-						contentStatus = ContentStatus.IN_PROGRESS;
-					} else {
-						// 배송지 미입력 = 미제출
-						contentStatus = ContentStatus.NOT_SUBMITTED;
-					}
-
-					performances.add(CreatorPerformanceResponse.ReviewPerformance.builder()
-						.reviewRound(ReviewRound.FIRST)
-						.reviewStatus(contentStatus)
-						.contents(CreatorPerformanceResponse.ContentMetrics.builder()
-							.contentType(contentType)
-							.build())
-						.build());
-				}
-			}
-		}
-
-		return performances;
-	}
-
-	/**
-	 * 개별 리뷰의 성과 정보 생성
-	 */
-	private CreatorPerformanceResponse.ReviewPerformance buildReviewPerformance(CampaignReview review) {
-		ContentStatus contentStatus = getReviewContentStatus(review);
-		String postUrl = null;
-		Long viewCount = null;
-		Long likeCount = null;
-		Long commentCount = null;
-		Long shareCount = null;
-		Instant uploadedAt = null;
-
-		// postUrl 처리 (베타: 1차 리뷰도 포함, 정식: 2차 리뷰만)
-		if (review.getReviewRound() == ReviewRound.SECOND && review.getStatus() == ReviewStatus.RESUBMITTED) {
-			// 2차 리뷰의 경우 항상 postUrl 포함
-			postUrl = review.getPostUrl();
-
-			// SocialClip에서 성과 지표 조회
-			Optional<SocialClip> socialClip = socialClipGetService.findByCampaignReview(review);
-			if (socialClip.isPresent()) {
-				SocialClip clip = socialClip.get();
-				viewCount = clip.getPlays();
-				likeCount = clip.getLikes();
-				commentCount = clip.getComments();
-				shareCount = clip.getShares();
-				uploadedAt = clip.getUploadedAt();
-			}
-			// 정식 릴리즈 시 제거
-		} else if (betaFeatureConfig.isFirstReviewUrlEnabled() &&
-			review.getReviewRound() == ReviewRound.FIRST &&
-			review.getPostUrl() != null) {
-			// 1차 리뷰에도 postUrl이 있으면 포함
-			postUrl = review.getPostUrl();
-			// LocalDateTime은 한국 시간(UTC+9)이므로 9시간을 빼서 UTC로 변환
-			uploadedAt = review.getCreatedAt().toInstant(java.time.ZoneOffset.ofHours(9));
-		}
-
-		CreatorPerformanceResponse.ContentMetrics contents = null;
-		if (review.getContentType() != null) {
-			contents = CreatorPerformanceResponse.ContentMetrics.builder()
-				.contentType(review.getContentType())
-				.viewCount(viewCount)
-				.likeCount(likeCount)
-				.commentCount(commentCount)
-				.shareCount(shareCount)
-				.build();
-		}
-
-		return CreatorPerformanceResponse.ReviewPerformance.builder()
-			.campaignReviewId(review.getId())
-			.reviewRound(review.getReviewRound())
-			.reviewStatus(contentStatus)
-			.postUrl(postUrl)
-			.contents(contents)
-			.uploadedAt(uploadedAt)
-			.build();
-	}
-
-	/**
-	 * 리뷰 상태를 ContentStatus enum으로 변환
-	 * PENDING_REVISION: 브랜드 리뷰 대기중 또는 수정 요청 후 크리에이터 노트 미확인
-	 * REVISING: 브랜드가 수정 요청 + 크리에이터가 노트 확인
-	 * FINAL_UPLOADED: 최종 업로드 완료 (베타: 1차 리뷰 완료, 정식: 2차 리뷰 완료)
-	 */
-	private ContentStatus getReviewContentStatus(CampaignReview review) {
-		ReviewStatus status = review.getStatus();
-
-		// 베타 모드에서 1차 리뷰 SUBMITTED 상태는 최종 완료로 처리 , 정식 릴리즈시 제거
-		if (betaFeatureConfig.isSimplifiedReviewFlow() &&
-			review.getReviewRound() == ReviewRound.FIRST &&
-			status == ReviewStatus.SUBMITTED) {
-			return ContentStatus.FINAL_UPLOADED;
-		}
-
-		// 정식 모드 또는 2차 리뷰 처리
-		return switch (status) {
-			case SUBMITTED -> ContentStatus.PENDING_REVISION;
-			case REVISION_REQUESTED -> {
-				if (review.isNoteViewed()) {
-					yield ContentStatus.REVISING;
-				} else {
-					yield ContentStatus.PENDING_REVISION;
-				}
-			}
-			case RESUBMITTED -> ContentStatus.FINAL_UPLOADED;
-		};
 	}
 }
