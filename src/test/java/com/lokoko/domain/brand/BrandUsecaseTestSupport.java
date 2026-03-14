@@ -1,7 +1,15 @@
 package com.lokoko.domain.brand;
 
+import static org.mockito.Answers.RETURNS_DEFAULTS;
+import static org.mockito.Mockito.mock;
+
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -19,6 +27,9 @@ import com.lokoko.global.config.BetaFeatureConfig;
 
 @ExtendWith(MockitoExtension.class)
 abstract class BrandUsecaseTestSupport {
+
+	private static final String BRAND_CREATOR_PERFORMANCE_QUERY_SERVICE =
+		"com.lokoko.domain.brand.application.service.BrandCreatorPerformanceQueryService";
 
 	@Mock
 	protected BrandGetService brandGetService;
@@ -50,6 +61,87 @@ abstract class BrandUsecaseTestSupport {
 	@Mock
 	protected CampaignReviewMapper campaignReviewMapper;
 
-	@InjectMocks
 	protected BrandUsecase brandUsecase;
+
+	private final Map<String, Object> dynamicMocks = new HashMap<>();
+	private final Map<String, Object> dynamicMethodReturns = new HashMap<>();
+
+	@BeforeEach
+	void initializeBrandUsecase() {
+		brandUsecase = instantiateBrandUsecase();
+	}
+
+	protected boolean hasDynamicMock(String className) {
+		return dynamicMocks.containsKey(className);
+	}
+
+	protected void stubDynamicMethodReturn(String className, String methodName, Object returnValue) {
+		dynamicMethodReturns.put(dynamicMethodKey(className, methodName), returnValue);
+	}
+
+	private BrandUsecase instantiateBrandUsecase() {
+		try {
+			Constructor<?> constructor = Arrays.stream(BrandUsecase.class.getDeclaredConstructors())
+				.max((left, right) -> Integer.compare(left.getParameterCount(), right.getParameterCount()))
+				.orElseThrow();
+
+			constructor.setAccessible(true);
+
+			Object[] arguments = Arrays.stream(constructor.getParameterTypes())
+				.map(this::resolveConstructorArgument)
+				.toArray();
+
+			return (BrandUsecase)constructor.newInstance(arguments);
+		} catch (ReflectiveOperationException exception) {
+			throw new IllegalStateException("Failed to instantiate BrandUsecase for tests", exception);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private Object resolveConstructorArgument(Class<?> parameterType) {
+		if (parameterType == BrandGetService.class) {
+			return brandGetService;
+		}
+		if (parameterType == CampaignGetService.class) {
+			return campaignGetService;
+		}
+		if (parameterType == CreatorCampaignGetService.class) {
+			return creatorCampaignGetService;
+		}
+		if (parameterType == CampaignReviewGetService.class) {
+			return campaignReviewGetService;
+		}
+		if (parameterType == SocialClipGetService.class) {
+			return socialClipGetService;
+		}
+		if (parameterType == BrandUpdateService.class) {
+			return brandUpdateService;
+		}
+		if (parameterType == BetaFeatureConfig.class) {
+			return betaFeatureConfig;
+		}
+		if (parameterType == CampaignMapper.class) {
+			return campaignMapper;
+		}
+		if (parameterType == CampaignReviewMapper.class) {
+			return campaignReviewMapper;
+		}
+		if (parameterType.getName().equals(BRAND_CREATOR_PERFORMANCE_QUERY_SERVICE)) {
+			return dynamicMocks.computeIfAbsent(
+				parameterType.getName(),
+				key -> mock((Class<Object>)parameterType, invocation -> {
+					String methodKey = dynamicMethodKey(parameterType.getName(), invocation.getMethod().getName());
+					if (dynamicMethodReturns.containsKey(methodKey)) {
+						return dynamicMethodReturns.get(methodKey);
+					}
+					return RETURNS_DEFAULTS.answer(invocation);
+				})
+			);
+		}
+		return mock((Class<Object>)parameterType, RETURNS_DEFAULTS);
+	}
+
+	private String dynamicMethodKey(String className, String methodName) {
+		return className + "#" + methodName;
+	}
 }
