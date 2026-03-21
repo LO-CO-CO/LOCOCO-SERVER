@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import com.lokoko.domain.campaign.api.dto.response.CampaignParticipatedResponse;
 import com.lokoko.domain.campaign.application.mapper.CampaignMapper;
@@ -29,6 +30,7 @@ import com.lokoko.domain.media.socialclip.domain.entity.enums.ContentType;
 import com.lokoko.global.config.BetaFeatureConfig;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("CampaignReviewReadService 테스트")
 class CampaignReviewReadServiceTest {
 
@@ -74,11 +76,14 @@ class CampaignReviewReadServiceTest {
 
 		given(campaignReviewGetService.getAllByCreatorCampaignAndRound(creatorCampaign, ReviewRound.FIRST))
 			.willReturn(List.of(noteReview));
+		given(campaignReviewGetService.getAllByCreatorCampaignAndRound(creatorCampaign, ReviewRound.SECOND))
+			.willReturn(List.of());
 		given(noteReview.getBrandNote()).willReturn("수정해주세요");
 		given(noteReview.isNoteViewed()).willReturn(false);
-
-		given(campaignReviewGetService.findContentTypesByRound(101L, ReviewRound.FIRST)).willReturn(List.of());
-		given(campaignReviewGetService.findContentTypesByRound(101L, ReviewRound.SECOND)).willReturn(List.of());
+		given(noteReview.getContentType()).willReturn(ContentType.INSTA_REELS);
+		given(noteReview.getCaptionWithHashtags()).willReturn("기존 캡션");
+		given(campaignReviewGetService.getOrderedMediaUrls(noteReview))
+			.willReturn(List.of("https://cdn.test/existing.jpg"));
 		given(campaignMapper.toReviewContentStatus(any(), any(), any(), any(), any(), any()))
 			.willReturn(reviewContentStatus);
 		given(reviewContentStatus.contentType()).willReturn(ContentType.INSTA_REELS);
@@ -90,6 +95,91 @@ class CampaignReviewReadServiceTest {
 
 		assertThat(result).isSameAs(expected);
 		then(noteReview).should().markNoteAsViewed();
+	}
+
+	@Test
+	@DisplayName("getMyReviewableCampaign() : SECOND 라운드 요청이면 1차 리뷰가 있고 2차 리뷰가 없는 컨텐츠만 반환한다")
+	void getMyReviewableCampaign_filtersSecondRoundContents() {
+		Long creatorId = 1L;
+		Long campaignId = 10L;
+
+		CreatorCampaign creatorCampaign = mock(CreatorCampaign.class);
+		Campaign campaign = mock(Campaign.class);
+		CampaignReview firstReview = mock(CampaignReview.class);
+		CampaignParticipatedResponse expected = mock(CampaignParticipatedResponse.class);
+		CampaignParticipatedResponse.ReviewContentStatus reviewContentStatus =
+			mock(CampaignParticipatedResponse.ReviewContentStatus.class);
+
+		given(betaFeatureConfig.isSimplifiedReviewFlow()).willReturn(false);
+		given(creatorCampaignGetService.findReviewableInReviewByCampaign(creatorId, campaignId))
+			.willReturn(creatorCampaign);
+		given(creatorCampaign.getStatus()).willReturn(ParticipationStatus.ACTIVE);
+		given(creatorCampaign.getCampaign()).willReturn(campaign);
+		given(creatorCampaign.getId()).willReturn(101L);
+		given(campaign.getFirstContentPlatform()).willReturn(ContentType.INSTA_REELS);
+		given(campaign.getSecondContentPlatform()).willReturn(null);
+
+		given(campaignReviewGetService.getAllByCreatorCampaignAndRound(creatorCampaign, ReviewRound.FIRST))
+			.willReturn(List.of(firstReview));
+		given(campaignReviewGetService.getAllByCreatorCampaignAndRound(creatorCampaign, ReviewRound.SECOND))
+			.willReturn(List.of());
+		given(firstReview.getContentType()).willReturn(ContentType.INSTA_REELS);
+		given(firstReview.getBrandNote()).willReturn("노트");
+		given(firstReview.isNoteViewed()).willReturn(true);
+		given(firstReview.getCaptionWithHashtags()).willReturn("1차 캡션");
+		given(campaignReviewGetService.getOrderedMediaUrls(firstReview))
+			.willReturn(List.of("https://cdn.test/first.jpg"));
+		given(campaignMapper.toReviewContentStatus(any(), eq(ReviewRound.SECOND), any(), any(), any(), any()))
+			.willReturn(reviewContentStatus);
+		given(campaignMapper.toCampaignParticipationResponse(creatorCampaign, List.of(reviewContentStatus)))
+			.willReturn(expected);
+
+		CampaignParticipatedResponse result =
+			campaignReviewReadService.getMyReviewableCampaign(creatorId, campaignId, ReviewRound.SECOND);
+
+		assertThat(result).isSameAs(expected);
+	}
+
+	@Test
+	@DisplayName("getMyReviewables() : ACTIVE 상태이면서 리뷰 컨텐츠가 있는 응답만 반환한다")
+	void getMyReviewables_returnsOnlyActiveResponsesWithContents() {
+		Long creatorId = 1L;
+
+		CreatorCampaign activeCampaign = mock(CreatorCampaign.class);
+		CreatorCampaign inactiveCampaign = mock(CreatorCampaign.class);
+		Campaign campaign = mock(Campaign.class);
+		CampaignParticipatedResponse activeResponse = CampaignParticipatedResponse.builder()
+			.campaignId(1L)
+			.title("활성 캠페인")
+			.reviewContents(List.of(
+				CampaignParticipatedResponse.ReviewContentStatus.builder()
+					.contentType(ContentType.INSTA_REELS)
+					.nowReviewRound(ReviewRound.FIRST)
+					.build()
+			))
+			.build();
+
+		given(creatorCampaignGetService.findReviewable(creatorId)).willReturn(
+			List.of(activeCampaign, inactiveCampaign));
+		given(activeCampaign.getStatus()).willReturn(ParticipationStatus.ACTIVE);
+		given(inactiveCampaign.getStatus()).willReturn(ParticipationStatus.APPROVED);
+		given(activeCampaign.getCampaign()).willReturn(campaign);
+		given(activeCampaign.getId()).willReturn(201L);
+		given(campaign.getFirstContentPlatform()).willReturn(ContentType.INSTA_REELS);
+		given(campaign.getSecondContentPlatform()).willReturn(null);
+		given(campaignReviewGetService.getAllByCreatorCampaignAndRound(activeCampaign, ReviewRound.FIRST))
+			.willReturn(List.of());
+		given(campaignReviewGetService.getAllByCreatorCampaignAndRound(activeCampaign, ReviewRound.SECOND))
+			.willReturn(List.of());
+		given(campaignMapper.toReviewContentStatus(any(), any(), any(), any(), any(), any()))
+			.willReturn(activeResponse.reviewContents().get(0));
+		given(campaignMapper.toCampaignParticipationResponse(activeCampaign, activeResponse.reviewContents()))
+			.willReturn(activeResponse);
+
+		List<CampaignParticipatedResponse> result =
+			campaignReviewReadService.getMyReviewables(creatorId, null);
+
+		assertThat(result).containsExactly(activeResponse);
 	}
 
 	@Test
@@ -107,11 +197,9 @@ class CampaignReviewReadServiceTest {
 		given(creatorCampaignGetService.getByCampaignAndCreatorId(campaign, creatorId)).willReturn(creatorCampaign);
 		given(creatorCampaign.getStatus()).willReturn(ParticipationStatus.COMPLETED);
 		given(campaign.getTitle()).willReturn("완료된 캠페인");
-		given(creatorCampaign.getId()).willReturn(101L);
-		given(campaignReviewGetService.findContentTypesByRound(101L, ReviewRound.FIRST))
-			.willReturn(List.of(ContentType.INSTA_REELS));
-		given(campaignReviewGetService.findByContentType(101L, ReviewRound.FIRST, ContentType.INSTA_REELS))
-			.willReturn(Optional.of(firstReview));
+		given(campaignReviewGetService.getAllByCreatorCampaignAndRound(creatorCampaign, ReviewRound.FIRST))
+			.willReturn(List.of(firstReview));
+		given(firstReview.getContentType()).willReturn(ContentType.INSTA_REELS);
 		given(firstReview.getCaptionWithHashtags()).willReturn("캡션");
 		given(campaignReviewGetService.getOrderedMediaUrls(firstReview))
 			.willReturn(List.of("https://cdn.test/image-1.jpg"));
@@ -125,6 +213,37 @@ class CampaignReviewReadServiceTest {
 		assertThat(result.reviewContents().get(0).captionWithHashtags()).isEqualTo("캡션");
 		assertThat(result.reviewContents().get(0).mediaUrls())
 			.containsExactly("https://cdn.test/image-1.jpg");
+	}
+
+	@Test
+	@DisplayName("getCompletedReviews() : 정식 플로우에서는 2차 리뷰를 완료 리뷰로 반환한다")
+	void getCompletedReviews_returnsSecondRoundContentsInNonBetaFlow() {
+		Long creatorId = 1L;
+		Long campaignId = 10L;
+
+		Campaign campaign = mock(Campaign.class);
+		CreatorCampaign creatorCampaign = mock(CreatorCampaign.class);
+		CampaignReview secondReview = mock(CampaignReview.class);
+
+		given(betaFeatureConfig.isSimplifiedReviewFlow()).willReturn(false);
+		given(campaignGetService.findByCampaignId(campaignId)).willReturn(campaign);
+		given(creatorCampaignGetService.getByCampaignAndCreatorId(campaign, creatorId)).willReturn(creatorCampaign);
+		given(creatorCampaign.getStatus()).willReturn(ParticipationStatus.COMPLETED);
+		given(campaign.getTitle()).willReturn("완료된 캠페인");
+		given(campaignReviewGetService.getAllByCreatorCampaignAndRound(creatorCampaign, ReviewRound.SECOND))
+			.willReturn(List.of(secondReview));
+		given(secondReview.getContentType()).willReturn(ContentType.INSTA_REELS);
+		given(secondReview.getCaptionWithHashtags()).willReturn("2차 캡션");
+		given(campaignReviewGetService.getOrderedMediaUrls(secondReview))
+			.willReturn(List.of("https://cdn.test/second.jpg"));
+
+		CompletedReviewResponse result = campaignReviewReadService.getCompletedReviews(creatorId, campaignId);
+
+		assertThat(result.reviewContents()).hasSize(1);
+		assertThat(result.reviewContents().get(0).contentType()).isEqualTo(ContentType.INSTA_REELS);
+		assertThat(result.reviewContents().get(0).captionWithHashtags()).isEqualTo("2차 캡션");
+		assertThat(result.reviewContents().get(0).mediaUrls())
+			.containsExactly("https://cdn.test/second.jpg");
 	}
 
 	@Test
